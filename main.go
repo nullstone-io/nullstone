@@ -7,10 +7,21 @@ import (
 	"sort"
 )
 
-var Version = "development"
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	builtBy = "unknown"
+)
 
 func main() {
 	app := &cli.App{
+		Version: version,
+		Metadata: map[string]interface{}{
+			"commit":  commit,
+			"date":    date,
+			"builtBy": builtBy,
+		},
 		Commands: []cli.Command{},
 	}
 	sort.Sort(cli.FlagsByName(app.Flags))

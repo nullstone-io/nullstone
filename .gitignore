@@ -16,3 +16,4 @@ vendor/
 
 # IntelliJ
 .idea/
+dist/
