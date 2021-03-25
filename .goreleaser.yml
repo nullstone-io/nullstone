@@ -15,6 +15,12 @@ archives:
       windows: Windows
       386: i386
       amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -25,3 +31,22 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+brews:
+  - tap:
+      owner: nullstone-io
+      name: nullstone
+    folder: Formula
+    homepage: https://nullstone.io
+    description: Launch apps on your cloud in minutes
+    license: MIT
+    dependencies:
+      - name: go
+    install: |-
+      bin.install "nullstone"
+scoop:
+  bucket:
+    owner: nullstone-io
+    name: nullstone
+  homepage: https://nullstone.io
+  description: Launch apps on your cloud in minutes
+  license: MIT
