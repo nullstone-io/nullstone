@@ -11,7 +11,7 @@ setup:
 	brew install goreleaser/tap/goreleaser || (cd ~ && go install github.com/goreleaser/goreleaser && cd -)
 
 build:
-	@go build -ldflags "-X 'main.Version=$(VERSION)'" -o dist/$(NAME) .
+	goreleaser --snapshot --skip-publish --rm-dist
 
 test:
 	go fmt ./...
