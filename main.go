@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/urfave/cli"
+	"gopkg.in/nullstone-io/nullstone.v0/cmd"
 	"log"
 	"os"
 	"sort"
@@ -22,7 +24,17 @@ func main() {
 			"date":    date,
 			"builtBy": builtBy,
 		},
-		Commands: []cli.Command{},
+		Flags: []cli.Flag{},
+		Commands: []cli.Command{
+			{
+				Name: "version",
+				Action: func(c *cli.Context) error {
+					fmt.Println(version)
+					return nil
+				},
+			},
+			cmd.Configure,
+		},
 	}
 	sort.Sort(cli.FlagsByName(app.Flags))
 	sort.Sort(cli.CommandsByName(app.Commands))
