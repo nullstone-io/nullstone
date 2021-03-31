@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/urfave/cli"
 	"golang.org/x/crypto/ssh/terminal"
-	"gopkg.in/nullstone.v0/config"
+	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
 var Configure = cli.Command{
