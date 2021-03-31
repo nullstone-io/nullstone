@@ -5,13 +5,14 @@ import (
 	"github.com/urfave/cli"
 	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
+	"syscall"
 )
 
 var Configure = cli.Command{
 	Name: "configure",
 	Action: func(c *cli.Context) error {
 		fmt.Print("Enter API Key: ")
-		bytePassword, err := terminal.ReadPassword(0)
+		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 		if err != nil {
 			return fmt.Errorf("error reading password: %w", err)
 		}
