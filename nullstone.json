@@ -1,0 +1,22 @@
+{
+    "version": "0.0.1",
+    "architecture": {
+        "32bit": {
+            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.1/nullstone_0.0.1_Windows_i386.zip",
+            "bin": [
+                "nullstone.exe"
+            ],
+            "hash": "3bd534ee1362a86fcdb64142a4a8f2abe57f1dbc047547da2b5c331e801033d6"
+        },
+        "64bit": {
+            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.1/nullstone_0.0.1_Windows_x86_64.zip",
+            "bin": [
+                "nullstone.exe"
+            ],
+            "hash": "91e3f165dc5cebcf20284fb13afdcdc453d4f5923b4033666f9c3e36821513ec"
+        }
+    },
+    "homepage": "https://nullstone.io",
+    "license": "MIT",
+    "description": "Launch apps on your cloud in minutes"
+}
