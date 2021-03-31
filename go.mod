@@ -1,4 +1,4 @@
-module github.com/nullstone-io/nullstone/v0
+module gopkg.in/nullstone.v0
 
 go 1.16
 

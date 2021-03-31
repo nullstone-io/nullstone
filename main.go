@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/nullstone-io/nullstone/v0/cmd"
 	"github.com/urfave/cli"
+	"gopkg.in/nullstone.v0/cmd"
 	"log"
 	"os"
 	"sort"
