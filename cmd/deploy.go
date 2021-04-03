@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/urfave/cli"
-	"gopkg.in/nullstone-io/nullstone.v0/nullstone"
+	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
@@ -31,11 +31,11 @@ var Deploy = cli.Command{
 		appName := c.Args().Get(1)
 		envName := c.Args().Get(2)
 
-		client := nullstone.Client{
-			Address: profile.Address,
-			ApiKey:  profile.ApiKey,
-			OrgName: orgName,
-		}
+		config := api.DefaultConfig()
+		config.BaseAddress = profile.Address
+		config.ApiKey = profile.ApiKey
+		config.OrgName = orgName
+		client := api.Client{Config: config}
 
 		app, err := client.Apps().Get(appName)
 		if err != nil {
@@ -43,11 +43,15 @@ var Deploy = cli.Command{
 		} else if app == nil {
 			return fmt.Errorf("application %q does not exist", appName)
 		}
-		deployInfo, err := client.WorkspaceDeploymentInfos().Get(app.StackName, app.Block.Name, envName)
+		workspace, err := client.Workspaces().Get(app.StackName, app.Block.Name, envName)
 		if err != nil {
-			return fmt.Errorf("error retrieving deployment info: %w", err)
-		} else if deployInfo == nil {
+			return fmt.Errorf("error retrieving workspace: %w", err)
+		} else if workspace == nil {
 			return fmt.Errorf("workspace %q does not exist", err)
+		}
+
+		if workspace.Module == nil {
+			return fmt.Errorf("unknown module for workspace, cannot perform deployment")
 		}
 
 		// Choose deployment pattern based on:
