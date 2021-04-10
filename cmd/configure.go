@@ -5,19 +5,37 @@ import (
 	"github.com/urfave/cli"
 	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
+	"syscall"
+)
+
+var (
+	AddressFlag = cli.StringFlag{
+		Name:  "address",
+		Value: "https://api.nullstone.io",
+		Usage: "Nullstone API Address",
+	}
 )
 
 var Configure = cli.Command{
 	Name: "configure",
+	Flags: []cli.Flag{
+		AddressFlag,
+	},
 	Action: func(c *cli.Context) error {
 		fmt.Print("Enter API Key: ")
-		bytePassword, err := terminal.ReadPassword(0)
+		rawApiKey, err := terminal.ReadPassword(int(syscall.Stdin))
 		if err != nil {
 			return fmt.Errorf("error reading password: %w", err)
 		}
 		fmt.Println()
-		if err := config.SaveApiKey(string(bytePassword)); err != nil {
-			return fmt.Errorf("unable to save API key: %w", err)
+
+		profile := config.Profile{
+			Name:    GetProfile(c),
+			Address: c.String("address"),
+			ApiKey:  string(rawApiKey),
+		}
+		if err := profile.Save(); err != nil {
+			return fmt.Errorf("error configuring profile: %w", err)
 		}
 		fmt.Println("nullstone configured successfully!")
 		return nil

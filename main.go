@@ -24,7 +24,9 @@ func main() {
 			"date":    date,
 			"builtBy": builtBy,
 		},
-		Flags: []cli.Flag{},
+		Flags: []cli.Flag{
+			cmd.ProfileFlag,
+		},
 		Commands: []cli.Command{
 			{
 				Name: "version",
