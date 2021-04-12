@@ -26,6 +26,7 @@ func main() {
 		},
 		Flags: []cli.Flag{
 			cmd.ProfileFlag,
+			cmd.OrgFlag,
 		},
 		Commands: []cli.Command{
 			{
