@@ -10,7 +10,7 @@ var ProfileFlag = cli.StringFlag{
 }
 
 func GetProfile(c *cli.Context) string {
-	val := c.String(ProfileFlag.Name)
+	val := c.GlobalString(ProfileFlag.Name)
 	if val == "" {
 		return ProfileFlag.Value
 	}
