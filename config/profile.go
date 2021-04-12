@@ -57,6 +57,23 @@ func LoadProfile(name string) (*Profile, error) {
 	return p, nil
 }
 
+func (p Profile) LoadOrg() (string, error) {
+	raw, err := ioutil.ReadFile(path.Join(p.Directory(), "org"))
+	if os.IsNotExist(err) {
+		return "", nil
+	} else if err != nil {
+		return "", err
+	}
+	return string(raw), nil
+}
+
+func (p Profile) SaveOrg(org string) error {
+	if err := p.ensureDir(); err != nil {
+		return err
+	}
+	return ioutil.WriteFile(path.Join(p.Directory(), "org"), []byte(org), 0644)
+}
+
 func (p Profile) Directory() string {
 	return path.Join(NullstoneDir, p.Name)
 }

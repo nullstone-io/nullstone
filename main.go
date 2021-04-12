@@ -36,6 +36,7 @@ func main() {
 				},
 			},
 			cmd.Configure,
+			cmd.SetOrg,
 		},
 	}
 	sort.Sort(cli.FlagsByName(app.Flags))
