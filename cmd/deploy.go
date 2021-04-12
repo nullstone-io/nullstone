@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/urfave/cli"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/fargate"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
@@ -19,7 +21,7 @@ var Deploy = cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		profile, err := config.LoadProfile(GetProfile(c))
+		profile, err := config.LoadProfile(GetProfile(c.Parent()))
 		if err != nil {
 			return err
 		}
@@ -54,11 +56,18 @@ var Deploy = cli.Command{
 			return fmt.Errorf("unknown module for workspace, cannot perform deployment")
 		}
 
-		// Choose deployment pattern based on:
-		//   category = app/server, app/container, app/serverless, app/static-site
-		//   provider = aws
-		//   
+		type deployerFn func(app *types.Application, workspace *types.Workspace) error
+		var deployers = map[types.CategoryName]deployerFn{
+			types.CategoryAppContainer: fargate.DeployContainer,
+			// TODO: Add support for other app categories
+		}
+		// TODO: Assumes AWS, add support for other providers
 
-		return nil
+		fn, ok := deployers[workspace.Module.Category]
+		if !ok {
+			return fmt.Errorf("unknown deployment pattern %s", workspace.Module.Category)
+		}
+
+		return fn(app, workspace)
 	},
 }
