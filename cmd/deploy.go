@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"github.com/urfave/cli"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -13,7 +12,7 @@ import (
 var Deploy = cli.Command{
 	Name:      "deploy",
 	Usage:     "Deploy application",
-	UsageText: "nullstone deploy <org-name> <app-name> <env-name> [options]",
+	UsageText: "nullstone deploy <app-name> <env-name> [options]",
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "image-tag",
@@ -26,17 +25,16 @@ var Deploy = cli.Command{
 			return err
 		}
 
-		if c.NArg() != 3 {
-			return errors.New("invalid number of arguments")
+		if c.NArg() != 2 {
+			return fmt.Errorf("invalid number of arguments, expected 2, got %d", c.NArg())
 		}
-		orgName := c.Args().Get(0)
-		appName := c.Args().Get(1)
-		envName := c.Args().Get(2)
+		appName := c.Args().Get(0)
+		envName := c.Args().Get(1)
 
 		config := api.DefaultConfig()
 		config.BaseAddress = profile.Address
 		config.ApiKey = profile.ApiKey
-		config.OrgName = orgName
+		config.OrgName = GetOrg(c, *profile)
 		client := api.Client{Config: config}
 
 		app, err := client.Apps().Get(appName)
