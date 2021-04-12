@@ -50,6 +50,10 @@ var Deploy = cli.Command{
 			return fmt.Errorf("workspace %q does not exist", err)
 		}
 
+		if workspace.Status != types.WorkspaceStatusProvisioned {
+			return fmt.Errorf("app %q has not been provisioned in %q environment yet", appName, envName)
+		}
+
 		if workspace.Module == nil {
 			return fmt.Errorf("unknown module for workspace, cannot perform deployment")
 		}
