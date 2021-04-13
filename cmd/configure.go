@@ -14,25 +14,35 @@ var (
 		Value: "https://api.nullstone.io",
 		Usage: "Nullstone API Address",
 	}
+	ApiKeyFlag = cli.StringFlag{
+		Name:  "api-key",
+		Value: "",
+		Usage: "Nullstone API Key",
+	}
 )
 
 var Configure = cli.Command{
 	Name: "configure",
 	Flags: []cli.Flag{
 		AddressFlag,
+		ApiKeyFlag,
 	},
 	Action: func(c *cli.Context) error {
-		fmt.Print("Enter API Key: ")
-		rawApiKey, err := terminal.ReadPassword(int(syscall.Stdin))
-		if err != nil {
-			return fmt.Errorf("error reading password: %w", err)
+		apiKey := c.String(ApiKeyFlag.Name)
+		if apiKey == "" {
+			fmt.Print("Enter API Key: ")
+			rawApiKey, err := terminal.ReadPassword(int(syscall.Stdin))
+			if err != nil {
+				return fmt.Errorf("error reading password: %w", err)
+			}
+			fmt.Println()
+			apiKey = string(rawApiKey)
 		}
-		fmt.Println()
 
 		profile := config.Profile{
 			Name:    GetProfile(c),
-			Address: c.String("address"),
-			ApiKey:  string(rawApiKey),
+			Address: c.String(AddressFlag.Name),
+			ApiKey:  apiKey,
 		}
 		if err := profile.Save(); err != nil {
 			return fmt.Errorf("error configuring profile: %w", err)
