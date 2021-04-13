@@ -8,7 +8,7 @@ import (
 
 // GetConnectionWorkspace gets the workspace from nullstone through a connection from the source workspace
 // This will search through connections matching on connectionName and connectionType
-// Specify "" for either to ignore filtering
+// Specify "" to ignore filtering for that field
 // One of either connectionName or connectionType must be specified
 func GetConnectionWorkspace(nsConfig api.Config, source *types.Workspace, connectionName, connectionType string) (*types.Workspace, error) {
 	conn, err := findConnection(source, connectionName, connectionType)

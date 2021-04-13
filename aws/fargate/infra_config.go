@@ -21,6 +21,7 @@ const (
 
 var _ deploy.InfraConfig = InfraConfig{}
 
+// InfraConfig provides the mechanism through which AWS actions are performed
 type InfraConfig struct {
 	ClusterArn  string
 	ServiceName string
@@ -45,11 +46,11 @@ func newInfraConfig(nsConfig api.Config, workspace *types.Workspace) (*InfraConf
 	clusterOutputs := clusterWorkspace.LastSuccessfulRun.Apply.Outputs
 
 	deployerUser := nsaws.DeployerUser{}
-	if !generic.ExtractOutputStruct(clusterOutputs, "deployer", &deployerUser) {
+	if !generic.ExtractStructFromOutputs(clusterOutputs, "deployer", &deployerUser) {
 		missingErr.OutputNames = append(missingErr.OutputNames, "deployer")
 	}
 	dc.AwsConfig = deployerUser.CreateConfig()
-	if dc.ClusterArn = generic.ExtractOutputString(clusterOutputs, "cluster_arn"); dc.ClusterArn == "" {
+	if dc.ClusterArn = generic.ExtractStringFromOutputs(clusterOutputs, "cluster_arn"); dc.ClusterArn == "" {
 		missingErr.OutputNames = append(missingErr.OutputNames, "cluster_arn")
 	}
 
@@ -57,7 +58,7 @@ func newInfraConfig(nsConfig api.Config, workspace *types.Workspace) (*InfraConf
 		return nil, fmt.Errorf("cannot find outputs for application")
 	}
 	workspaceOutputs := workspace.LastSuccessfulRun.Apply.Outputs
-	if dc.ServiceName = generic.ExtractOutputString(workspaceOutputs, "service_name"); dc.ServiceName == "" {
+	if dc.ServiceName = generic.ExtractStringFromOutputs(workspaceOutputs, "service_name"); dc.ServiceName == "" {
 		missingErr.OutputNames = append(missingErr.OutputNames, "service_name")
 	}
 

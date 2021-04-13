@@ -13,6 +13,11 @@ var (
 	ErrUnknownDeployer = errors.New("cannot perform deployment, unknown deployment pattern")
 )
 
+// Deployers contains a collection of Deployer implementations
+// This effectively automates the logging and execution of the deployment workflow
+//   - Detect an appropriate Deployer
+//   - Identify the infrastructure
+//   - Deploy
 type Deployers []Deployer
 
 func (d Deployers) Deploy(nsConfig api.Config, app *types.Application, workspace *types.Workspace, userConfig map[string]string) error {

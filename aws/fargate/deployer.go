@@ -10,12 +10,12 @@ import (
 
 var _ deploy.Deployer = Deployer{}
 
-// Deployer will deploy an app/container using the following workflow to a fargate cluster:
+// Deployer will deploy an app/container, moduleType=service/aws-fargate using the following workflow to a fargate cluster:
 //   Get task definition
 //   Change image tag in task definition
 //   Register new task definition
 //   Deregister old task definition
-//   Update ECS Service
+//   Update ECS Service (This always causes deployment)
 type Deployer struct{}
 
 func (d Deployer) Detect(app *types.Application, workspace *types.Workspace) bool {
