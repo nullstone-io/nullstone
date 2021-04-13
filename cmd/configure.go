@@ -5,6 +5,7 @@ import (
 	"github.com/urfave/cli"
 	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
+	"os"
 	"syscall"
 )
 
@@ -47,7 +48,7 @@ var Configure = cli.Command{
 		if err := profile.Save(); err != nil {
 			return fmt.Errorf("error configuring profile: %w", err)
 		}
-		fmt.Println("nullstone configured successfully!")
+		fmt.Fprintln(os.Stderr, "nullstone configured successfully!")
 		return nil
 	},
 }
