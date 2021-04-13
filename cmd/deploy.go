@@ -5,6 +5,7 @@ import (
 	"github.com/urfave/cli"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/fargate"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/s3site"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"gopkg.in/nullstone-io/nullstone.v0/deploy"
 )
@@ -12,6 +13,7 @@ import (
 var (
 	DefaultDeployers = deploy.Deployers{
 		fargate.Deployer{},
+		s3site.Deployer{},
 		// TODO: Add support for other app categories
 		// TODO: Add support for other providers
 	}
@@ -25,6 +27,14 @@ var Deploy = cli.Command{
 		cli.StringFlag{
 			Name:  "image-tag",
 			Usage: "Update the docker image tag for apps defined as 'app/container'. If not specified, will force a deployment.",
+		},
+		cli.StringFlag{
+			Name:  "archive",
+			Usage: "Use the archive file specified for apps defined as 'app/static-site' or 'app/serverless'. Cannot use with --dir.",
+		},
+		cli.StringFlag{
+			Name:  "dir",
+			Usage: "Use the directory specified for apps defined as 'app/static-site' or 'app/serverless'. Cannot use with --archive.",
 		},
 	},
 	Action: func(c *cli.Context) error {
@@ -40,6 +50,8 @@ var Deploy = cli.Command{
 		envName := c.Args().Get(1)
 		userConfig := map[string]string{
 			"imageTag": c.String("image-tag"),
+			"archive":  c.String("archive"),
+			"dir":      c.String("dir"),
 		}
 
 		config := api.DefaultConfig()
