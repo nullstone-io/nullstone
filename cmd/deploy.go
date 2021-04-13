@@ -24,7 +24,7 @@ var Deploy = cli.Command{
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "image-tag",
-			Usage: "",
+			Usage: "Update the docker image tag for apps defined as 'app/container'. If not specified, will force a deployment.",
 		},
 	},
 	Action: func(c *cli.Context) error {
