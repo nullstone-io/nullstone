@@ -26,6 +26,7 @@ func main() {
 		},
 		Flags: []cli.Flag{
 			cmd.ProfileFlag,
+			cmd.OrgFlag,
 		},
 		Commands: []cli.Command{
 			{
@@ -36,6 +37,7 @@ func main() {
 				},
 			},
 			cmd.Configure,
+			cmd.SetOrg,
 		},
 	}
 	sort.Sort(cli.FlagsByName(app.Flags))

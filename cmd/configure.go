@@ -30,7 +30,7 @@ var Configure = cli.Command{
 		fmt.Println()
 
 		profile := config.Profile{
-			Name:    GetProfile(c.Parent()),
+			Name:    GetProfile(c),
 			Address: c.String("address"),
 			ApiKey:  string(rawApiKey),
 		}
