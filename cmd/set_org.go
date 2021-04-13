@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"github.com/urfave/cli"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
+	"os"
 )
 
 var SetOrg = cli.Command{
@@ -22,6 +24,12 @@ var SetOrg = cli.Command{
 		if c.NArg() != 1 {
 			return errors.New("Usage: nullstone set-org <org-name>")
 		}
-		return profile.SaveOrg(c.Args().Get(0))
+
+		orgName := c.Args().Get(0)
+		if err := profile.SaveOrg(orgName); err != nil {
+			return err
+		}
+		fmt.Fprintf(os.Stderr, "Organization set to %s for %s profile\n", orgName, profile.Name)
+		return nil
 	},
 }
