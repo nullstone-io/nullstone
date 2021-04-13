@@ -46,6 +46,9 @@ var Deploy = cli.Command{
 		config.BaseAddress = profile.Address
 		config.ApiKey = profile.ApiKey
 		config.OrgName = GetOrg(c, *profile)
+		if config.OrgName == "" {
+			return ErrMissingOrg
+		}
 		client := api.Client{Config: config}
 
 		app, err := client.Apps().Get(appName)

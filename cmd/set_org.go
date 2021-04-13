@@ -9,8 +9,9 @@ import (
 var SetOrg = cli.Command{
 	Name:  "set-org",
 	Usage: "Set the organization for the CLI",
-	UsageText: `This commands sets the organization context for the CLI. 
-This will create a file at ~/.nullstone/org that is used by the CLI for commands that require an organization.`,
+	UsageText: `Most Nullstone CLI commands require a configured nullstone organization to operate.
+   This command will set the organization for the current profile.
+   If you wish to set the organization per command, use the global --org flag instead.`,
 	Flags: []cli.Flag{},
 	Action: func(c *cli.Context) error {
 		profile, err := config.LoadProfile(GetProfile(c.Parent()))
