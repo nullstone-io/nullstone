@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"errors"
 	"github.com/urfave/cli"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
@@ -19,7 +19,7 @@ This will create a file at ~/.nullstone/org that is used by the CLI for commands
 		}
 
 		if c.NArg() != 1 {
-			return fmt.Errorf("invalid number of arguments, expected 1, got %d", c.NArg())
+			return errors.New("Usage: nullstone set-org <org-name>")
 		}
 		return profile.SaveOrg(c.Args().Get(0))
 	},
