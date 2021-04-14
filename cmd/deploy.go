@@ -28,7 +28,7 @@ var Deploy = cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		profile, err := config.LoadProfile(GetProfile(c.Parent()))
+		profile, err := config.LoadProfile(GetProfile(c))
 		if err != nil {
 			return err
 		}

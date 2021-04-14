@@ -16,7 +16,7 @@ var SetOrg = cli.Command{
    If you wish to set the organization per command, use the global --org flag instead.`,
 	Flags: []cli.Flag{},
 	Action: func(c *cli.Context) error {
-		profile, err := config.LoadProfile(GetProfile(c.Parent()))
+		profile, err := config.LoadProfile(GetProfile(c))
 		if err != nil {
 			return err
 		}
