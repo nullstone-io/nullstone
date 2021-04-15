@@ -31,7 +31,7 @@ func main() {
 			{
 				Name: "version",
 				Action: func(c *cli.Context) error {
-					fmt.Println(version)
+					cli.ShowVersion(c)
 					return nil
 				},
 			},

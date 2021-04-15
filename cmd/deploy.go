@@ -34,7 +34,7 @@ var Deploy = cli.Command{
 		}
 
 		if c.NArg() != 2 {
-			return fmt.Errorf("invalid number of arguments, expected 2, got %d", c.NArg())
+			return cli.ShowCommandHelp(c, "deploy")
 		}
 		appName := c.Args().Get(0)
 		envName := c.Args().Get(1)

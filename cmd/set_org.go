@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"github.com/urfave/cli"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
@@ -22,7 +21,7 @@ var SetOrg = cli.Command{
 		}
 
 		if c.NArg() != 1 {
-			return errors.New("Usage: nullstone set-org <org-name>")
+			return cli.ShowCommandHelp(c, "set-org")
 		}
 
 		orgName := c.Args().Get(0)
