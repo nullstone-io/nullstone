@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/urfave/cli"
 	"gopkg.in/nullstone-io/nullstone.v0/cmd"
-	"log"
 	"os"
 	"sort"
 )
@@ -38,6 +37,7 @@ func main() {
 			},
 			cmd.Configure,
 			cmd.SetOrg,
+			cmd.Deploy,
 		},
 	}
 	sort.Sort(cli.FlagsByName(app.Flags))
@@ -45,7 +45,8 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 	os.Exit(0)
 }
