@@ -5,6 +5,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
 )
@@ -28,8 +29,9 @@ func (p Provider) Deploy(nsConfig api.Config, app *types.Application, workspace 
 	logger := log.New(os.Stderr, "", 0)
 
 	logger.Printf("Identifying infrastructure for app %q\n", app.Name)
-	ic, err := discoverInfraConfig(nsConfig, workspace)
-	if err != nil {
+	ic := &InfraConfig{}
+	retriever := outputs.Retriever{NsConfig: nsConfig}
+	if err := retriever.Retrieve(workspace, &ic.Outputs); err != nil {
 		return fmt.Errorf("Unable to identify app infrastructure: %w", err)
 	}
 	ic.Print(logger)

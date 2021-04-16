@@ -1,9 +1,10 @@
-package aws
+package nsaws
 
 import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/smithy-go/logging"
+	caws "gopkg.in/nullstone-io/nullstone.v0/contracts/aws"
 	"os"
 )
 
@@ -12,15 +13,7 @@ const (
 	AwsTraceEnvVar   = "AWS_TRACE"
 )
 
-// ActionUser contains credentials for a user that has access to perform a particular action in AWS
-// This structure must match the fields defined in outputs of the module
-type ActionUser struct {
-	Name            string `json:"name"`
-	AccessKeyId     string `json:"access_key"`
-	SecretAccessKey string `json:"secret_key"`
-}
-
-func (u ActionUser) CreateConfig() aws.Config {
+func NewConfig(user caws.User) aws.Config {
 	awsConfig := aws.Config{}
 	if os.Getenv(AwsTraceEnvVar) != "" {
 		awsConfig.Logger = logging.NewStandardLogger(os.Stderr)
@@ -28,6 +21,6 @@ func (u ActionUser) CreateConfig() aws.Config {
 	}
 	awsConfig.Region = DefaultAwsRegion
 	// TODO: How do we set the region?
-	awsConfig.Credentials = credentials.NewStaticCredentialsProvider(u.AccessKeyId, u.SecretAccessKey, "")
+	awsConfig.Credentials = credentials.NewStaticCredentialsProvider(user.AccessKeyId, user.SecretAccessKey, "")
 	return awsConfig
 }

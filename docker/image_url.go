@@ -1,9 +1,12 @@
 package docker
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
+
+var _ json.Unmarshaler = &ImageUrl{}
 
 // ImageUrl provides a structured mechanism for dealing with docker Image URLs
 // This is commonly used to alter a single section of the Image URL when deploying
@@ -12,6 +15,11 @@ type ImageUrl struct {
 	Name    string
 	Tag     string
 	Digest  string
+}
+
+func (u *ImageUrl) UnmarshalJSON(data []byte) error {
+	*u = ParseImageUrl(string(data))
+	return nil
 }
 
 func (u ImageUrl) String() string {
