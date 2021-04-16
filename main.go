@@ -52,7 +52,6 @@ func main() {
 			cmd.Configure,
 			cmd.SetOrg,
 			cmd.Deploy(appProviders),
-			cmd.Push(appProviders),
 		},
 	}
 	sort.Sort(cli.FlagsByName(cliApp.Flags))
