@@ -11,10 +11,11 @@ var _ json.Unmarshaler = &ImageUrl{}
 // ImageUrl provides a structured mechanism for dealing with docker Image URLs
 // This is commonly used to alter a single section of the Image URL when deploying
 type ImageUrl struct {
-	RepoUrl string
-	Name    string
-	Tag     string
-	Digest  string
+	Registry string
+	User     string
+	Repo     string
+	Tag      string
+	Digest   string
 }
 
 func (u *ImageUrl) UnmarshalJSON(data []byte) error {
@@ -23,9 +24,12 @@ func (u *ImageUrl) UnmarshalJSON(data []byte) error {
 }
 
 func (u ImageUrl) String() string {
-	cur := u.Name
-	if u.RepoUrl != "" {
-		cur = fmt.Sprintf("%s/%s", u.RepoUrl, cur)
+	cur := u.Repo
+	if u.User != "" {
+		cur = fmt.Sprintf("%s/%s", u.User, cur)
+	}
+	if u.Registry != "" {
+		cur = fmt.Sprintf("%s/%s", u.Registry, cur)
 	}
 	if u.Tag != "" {
 		cur = fmt.Sprintf("%s:%s", cur, u.Tag)
@@ -37,18 +41,25 @@ func (u ImageUrl) String() string {
 }
 
 func ParseImageUrl(raw string) ImageUrl {
-	it := ImageUrl{Name: raw}
+	it := ImageUrl{Repo: raw}
 
-	if tokens := strings.SplitN(raw, "/", 2); len(tokens) == 2 {
-		it.RepoUrl = tokens[0]
-		it.Name = tokens[1]
+	tokens := strings.SplitN(raw, "/", 3)
+	if len(tokens) == 3 {
+		// registry/user/repo
+		it.Registry = tokens[0]
+		it.User = tokens[1]
+		it.Repo = tokens[2]
+	} else if len(tokens) == 2 {
+		// user/repo
+		it.User = tokens[0]
+		it.Repo = tokens[1]
 	}
 
-	if tokens := strings.SplitN(it.Name, "@", 2); len(tokens) == 2 {
-		it.Name = tokens[0]
+	if tokens := strings.SplitN(it.Repo, "@", 2); len(tokens) == 2 {
+		it.Repo = tokens[0]
 		it.Digest = tokens[1]
-	} else if tokens = strings.SplitN(it.Name, ":", 2); len(tokens) == 2 {
-		it.Name = tokens[0]
+	} else if tokens = strings.SplitN(it.Repo, ":", 2); len(tokens) == 2 {
+		it.Repo = tokens[0]
 		it.Tag = tokens[1]
 	}
 

@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ecr"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	aws_fargate_service "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-fargate-service"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
@@ -18,14 +21,15 @@ type InfraConfig struct {
 }
 
 func (c InfraConfig) Print(logger *log.Logger) {
-	logger.Printf("Using fargate cluster %q\n", c.Outputs.Cluster.ClusterArn)
-	logger.Printf("Using fargate service %q\n", c.Outputs.ServiceName)
+	logger.Printf("fargate cluster: %q\n", c.Outputs.Cluster.ClusterArn)
+	logger.Printf("fargate service: %q\n", c.Outputs.ServiceName)
+	logger.Printf("repository image url: %q\n", c.Outputs.ImageRepoUrl)
 }
 
 func (c InfraConfig) GetTaskDefinition() (*ecstypes.TaskDefinition, error) {
-	client := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer))
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer))
 
-	out1, err := client.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
+	out1, err := ecsClient.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
 		Services: []string{c.Outputs.ServiceName},
 		Cluster:  aws.String(c.Outputs.Cluster.ClusterArn),
 	})
@@ -36,7 +40,7 @@ func (c InfraConfig) GetTaskDefinition() (*ecstypes.TaskDefinition, error) {
 		return nil, fmt.Errorf("could not find service %q in cluster %q", c.Outputs.ServiceName, c.Outputs.Cluster.ClusterArn)
 	}
 
-	out2, err := client.DescribeTaskDefinition(context.Background(), &ecs.DescribeTaskDefinitionInput{
+	out2, err := ecsClient.DescribeTaskDefinition(context.Background(), &ecs.DescribeTaskDefinitionInput{
 		TaskDefinition: out1.Services[0].TaskDefinition,
 	})
 	if err != nil {
@@ -46,7 +50,7 @@ func (c InfraConfig) GetTaskDefinition() (*ecstypes.TaskDefinition, error) {
 }
 
 func (c InfraConfig) UpdateTaskImageTag(taskDefinition *ecstypes.TaskDefinition, imageTag string) (*ecstypes.TaskDefinition, error) {
-	client := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer))
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer))
 
 	defIndex, err := findMainContainerDefinitionIndex(taskDefinition.ContainerDefinitions)
 	if err != nil {
@@ -58,7 +62,7 @@ func (c InfraConfig) UpdateTaskImageTag(taskDefinition *ecstypes.TaskDefinition,
 	existingImageUrl.Tag = imageTag
 	taskDefinition.ContainerDefinitions[defIndex].Image = aws.String(existingImageUrl.String())
 
-	out, err := client.RegisterTaskDefinition(context.Background(), &ecs.RegisterTaskDefinitionInput{
+	out, err := ecsClient.RegisterTaskDefinition(context.Background(), &ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions:    taskDefinition.ContainerDefinitions,
 		Family:                  taskDefinition.Family,
 		Cpu:                     taskDefinition.Cpu,
@@ -78,7 +82,7 @@ func (c InfraConfig) UpdateTaskImageTag(taskDefinition *ecstypes.TaskDefinition,
 		return nil, err
 	}
 
-	_, err = client.DeregisterTaskDefinition(context.Background(), &ecs.DeregisterTaskDefinitionInput{
+	_, err = ecsClient.DeregisterTaskDefinition(context.Background(), &ecs.DeregisterTaskDefinitionInput{
 		TaskDefinition: taskDefinition.TaskDefinitionArn,
 	})
 	if err != nil {
@@ -112,13 +116,42 @@ func findMainContainerDefinitionIndex(containerDefs []ecstypes.ContainerDefiniti
 }
 
 func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {
-	client := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer))
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer))
 
-	_, err := client.UpdateService(context.Background(), &ecs.UpdateServiceInput{
+	_, err := ecsClient.UpdateService(context.Background(), &ecs.UpdateServiceInput{
 		Service:            aws.String(c.Outputs.ServiceName),
 		Cluster:            aws.String(c.Outputs.Cluster.ClusterArn),
 		ForceNewDeployment: true,
 		TaskDefinition:     aws.String(taskDefinitionArn),
 	})
 	return err
+}
+
+func (c InfraConfig) GetEcrLoginAuth() (types.AuthConfig, error) {
+	ecrClient := ecr.NewFromConfig(nsaws.NewConfig(c.Outputs.ImagePusher))
+	out, err := ecrClient.GetAuthorizationToken(context.TODO(), &ecr.GetAuthorizationTokenInput{})
+	if err != nil {
+		return types.AuthConfig{}, err
+	}
+	if len(out.AuthorizationData) > 0 {
+		token := out.AuthorizationData[0].AuthorizationToken
+		return types.AuthConfig{
+			Username:      "AWS",
+			Password:      *token,
+			ServerAddress: c.Outputs.ImageRepoUrl.Registry,
+		}, nil
+	}
+	return types.AuthConfig{}, nil
+}
+
+func (c InfraConfig) RetagImage(ctx context.Context, sourceUrl, targetUrl docker.ImageUrl) error {
+	dockerClient, err := client.NewClientWithOpts()
+	if err != nil {
+		return fmt.Errorf("error docker client: %w", err)
+	}
+	return dockerClient.ImageTag(ctx, sourceUrl.String(), targetUrl.String())
+}
+
+func (c InfraConfig) PushImage(ctx context.Context, targetUrl docker.ImageUrl, targetAuth types.AuthConfig) error {
+	return docker.PushImage(ctx, targetUrl, targetAuth)
 }
