@@ -1,4 +1,4 @@
-package fargate
+package aws_fargate
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
-	"gopkg.in/nullstone-io/nullstone.v0/deploy"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
 	"gopkg.in/nullstone-io/nullstone.v0/generic"
 	"log"
@@ -19,16 +18,15 @@ const (
 	ClusterModuleType = "cluster/aws-fargate"
 )
 
-var _ deploy.InfraConfig = InfraConfig{}
-
-// InfraConfig provides the mechanism through which AWS actions are performed
+// InfraConfig provides a minimal understanding of the infrastructure provisioned for a module type=aws-fargate
 type InfraConfig struct {
-	ClusterArn  string
-	ServiceName string
-	AwsConfig   aws.Config
+	// The following are necessary to deploy containers
+	ClusterArn   string
+	ServiceName  string
+	DeployerUser nsaws.ActionUser
 }
 
-func newInfraConfig(nsConfig api.Config, workspace *types.Workspace) (*InfraConfig, error) {
+func discoverInfraConfig(nsConfig api.Config, workspace *types.Workspace) (*InfraConfig, error) {
 	dc := &InfraConfig{}
 	missingErr := generic.ErrMissingOutputs{OutputNames: []string{}}
 
@@ -45,11 +43,10 @@ func newInfraConfig(nsConfig api.Config, workspace *types.Workspace) (*InfraConf
 	}
 	clusterOutputs := clusterWorkspace.LastSuccessfulRun.Apply.Outputs
 
-	deployerUser := nsaws.DeployerUser{}
-	if !generic.ExtractStructFromOutputs(clusterOutputs, "deployer", &deployerUser) {
+	dc.DeployerUser = nsaws.ActionUser{}
+	if !generic.ExtractStructFromOutputs(clusterOutputs, "deployer", &dc.DeployerUser) {
 		missingErr.OutputNames = append(missingErr.OutputNames, "deployer")
 	}
-	dc.AwsConfig = deployerUser.CreateConfig()
 	if dc.ClusterArn = generic.ExtractStringFromOutputs(clusterOutputs, "cluster_arn"); dc.ClusterArn == "" {
 		missingErr.OutputNames = append(missingErr.OutputNames, "cluster_arn")
 	}
@@ -74,7 +71,7 @@ func (c InfraConfig) Print(logger *log.Logger) {
 }
 
 func (c InfraConfig) GetTaskDefinition() (*ecstypes.TaskDefinition, error) {
-	client := ecs.NewFromConfig(c.AwsConfig)
+	client := ecs.NewFromConfig(c.DeployerUser.CreateConfig())
 
 	out1, err := client.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
 		Services: []string{c.ServiceName},
@@ -97,7 +94,7 @@ func (c InfraConfig) GetTaskDefinition() (*ecstypes.TaskDefinition, error) {
 }
 
 func (c InfraConfig) UpdateTaskImageTag(taskDefinition *ecstypes.TaskDefinition, imageTag string) (*ecstypes.TaskDefinition, error) {
-	client := ecs.NewFromConfig(c.AwsConfig)
+	client := ecs.NewFromConfig(c.DeployerUser.CreateConfig())
 
 	defIndex, err := findMainContainerDefinitionIndex(taskDefinition.ContainerDefinitions)
 	if err != nil {
@@ -163,7 +160,7 @@ func findMainContainerDefinitionIndex(containerDefs []ecstypes.ContainerDefiniti
 }
 
 func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {
-	client := ecs.NewFromConfig(c.AwsConfig)
+	client := ecs.NewFromConfig(c.DeployerUser.CreateConfig())
 
 	_, err := client.UpdateService(context.Background(), &ecs.UpdateServiceInput{
 		Service:            aws.String(c.ServiceName),

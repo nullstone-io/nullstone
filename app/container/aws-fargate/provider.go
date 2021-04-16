@@ -1,47 +1,43 @@
-package fargate
+package aws_fargate
 
 import (
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"gopkg.in/nullstone-io/nullstone.v0/deploy"
+	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"log"
 	"os"
 )
 
-var _ deploy.Deployer = Deployer{}
+var _ app.Provider = Provider{}
 
-// Deployer will deploy an app/container, moduleType=service/aws-fargate using the following workflow to a fargate cluster:
+type Provider struct {
+}
+
+// Deploy takes the following steps to deploy an AWS Fargate service
 //   Get task definition
 //   Change image tag in task definition
 //   Register new task definition
 //   Deregister old task definition
 //   Update ECS Service (This always causes deployment)
-type Deployer struct{}
+func (p Provider) Deploy(nsConfig api.Config, app *types.Application, workspace *types.Workspace, userConfig map[string]string) error {
+	logger := log.New(os.Stderr, "", 0)
 
-func (d Deployer) Detect(app *types.Application, workspace *types.Workspace) bool {
-	if workspace.Module.Category != types.CategoryAppContainer {
-		return false
+	logger.Printf("Identifying infrastructure for app %q\n", app.Name)
+	ic, err := discoverInfraConfig(nsConfig, workspace)
+	if err != nil {
+		return fmt.Errorf("Unable to identify app infrastructure: %w", err)
 	}
-	if workspace.Module.Type != "service/aws-fargate" {
-		return false
-	}
-	return true
-}
-
-func (d Deployer) Identify(nsConfig api.Config, app *types.Application, workspace *types.Workspace) (deploy.InfraConfig, error) {
-	return newInfraConfig(nsConfig, workspace)
-}
-
-func (d Deployer) Deploy(app *types.Application, workspace *types.Workspace, config map[string]string, infraConfig interface{}) error {
-	ic := infraConfig.(*InfraConfig)
+	ic.Print(logger)
 
 	taskDef, err := ic.GetTaskDefinition()
 	if err != nil {
 		return fmt.Errorf("error retrieving current service information: %w", err)
 	}
 
+	logger.Printf("Deploying app %q\n", app.Name)
 	taskDefArn := *taskDef.TaskDefinitionArn
-	if imageTag := config["imageTag"]; imageTag != "" {
+	if imageTag := userConfig["imageTag"]; imageTag != "" {
 		fmt.Fprintf(os.Stderr, "Updating image tag to %q\n", imageTag)
 		newTaskDef, err := ic.UpdateTaskImageTag(taskDef, imageTag)
 		if err != nil {
@@ -53,5 +49,6 @@ func (d Deployer) Deploy(app *types.Application, workspace *types.Workspace, con
 	if err := ic.UpdateServiceTask(taskDefArn); err != nil {
 		return fmt.Errorf("error deploying service: %w", err)
 	}
+	logger.Printf("Deployed app %q\n", app.Name)
 	return nil
 }
