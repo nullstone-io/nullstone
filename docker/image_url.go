@@ -19,7 +19,11 @@ type ImageUrl struct {
 }
 
 func (u *ImageUrl) UnmarshalJSON(data []byte) error {
-	*u = ParseImageUrl(string(data))
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return err
+	}
+	*u = ParseImageUrl(str)
 	return nil
 }
 

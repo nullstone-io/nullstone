@@ -44,7 +44,7 @@ func (p Provider) Push(nsConfig api.Config, app *types.Application, workspace *t
 	targetUrl := ic.Outputs.ImageRepoUrl
 	targetUrl.Tag = userConfig["image-tag"]
 	if targetUrl.String() == "" {
-		return fmt.Errorf("cannot push if module outputs contains empty 'image_repo_url' output")
+		return fmt.Errorf("cannot push if 'image_repo_url' module output is missing")
 	}
 	if !strings.Contains(targetUrl.Registry, "ecr") &&
 		!strings.Contains(targetUrl.Registry, "amazonaws.com") {
