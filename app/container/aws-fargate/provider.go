@@ -14,6 +14,10 @@ var _ app.Provider = Provider{}
 type Provider struct {
 }
 
+func (p Provider) Push(nsConfig api.Config, app *types.Application, workspace *types.Workspace, userConfig map[string]string) error {
+	panic("implement me")
+}
+
 // Deploy takes the following steps to deploy an AWS Fargate service
 //   Get task definition
 //   Change image tag in task definition
