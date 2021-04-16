@@ -2,6 +2,7 @@ package aws_fargate
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecr"
@@ -13,6 +14,7 @@ import (
 	aws_fargate_service "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-fargate-service"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
 	"log"
+	"strings"
 )
 
 // InfraConfig provides a minimal understanding of the infrastructure provisioned for a module type=aws-fargate
@@ -134,11 +136,16 @@ func (c InfraConfig) GetEcrLoginAuth() (types.AuthConfig, error) {
 		return types.AuthConfig{}, err
 	}
 	if len(out.AuthorizationData) > 0 {
-		token := out.AuthorizationData[0].AuthorizationToken
+		authData := out.AuthorizationData[0]
+		token, err := base64.StdEncoding.DecodeString(*authData.AuthorizationToken)
+		if err != nil {
+			return types.AuthConfig{}, fmt.Errorf("invalid authorization token: %w", err)
+		}
+		tokens := strings.SplitN(string(token), ":", 2)
 		return types.AuthConfig{
-			Username:      "AWS",
-			Password:      *token,
-			ServerAddress: c.Outputs.ImageRepoUrl.Registry,
+			Username:      tokens[0],
+			Password:      tokens[1],
+			ServerAddress: *authData.ProxyEndpoint,
 		}, nil
 	}
 	return types.AuthConfig{}, nil
