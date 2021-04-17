@@ -12,15 +12,15 @@ const (
 	AwsTraceEnvVar   = "AWS_TRACE"
 )
 
-// DeployerUser contains credentials for a user that has access to deploy a particular app
+// ActionUser contains credentials for a user that has access to perform a particular action in AWS
 // This structure must match the fields defined in outputs of the module
-type DeployerUser struct {
+type ActionUser struct {
 	Name            string `json:"name"`
 	AccessKeyId     string `json:"access_key"`
 	SecretAccessKey string `json:"secret_key"`
 }
 
-func (u DeployerUser) CreateConfig() aws.Config {
+func (u ActionUser) CreateConfig() aws.Config {
 	awsConfig := aws.Config{}
 	if os.Getenv(AwsTraceEnvVar) != "" {
 		awsConfig.Logger = logging.NewStandardLogger(os.Stderr)
