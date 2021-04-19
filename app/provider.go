@@ -11,5 +11,6 @@ import (
 //   - Modifying infrastructure to perform each command (e.g. push, deploy, etc.)
 //   - Each Provider is specific to Category+Type (Example: category=app/container, type=service/aws-fargate)
 type Provider interface {
+	Push(nsConfig api.Config, app *types.Application, workspace *types.Workspace, userConfig map[string]string) error
 	Deploy(nsConfig api.Config, app *types.Application, workspace *types.Workspace, userConfig map[string]string) error
 }

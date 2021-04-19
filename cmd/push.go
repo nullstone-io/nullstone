@@ -9,29 +9,37 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
-var Deploy = func(providers app.Providers) cli.Command {
+// Push command performs a docker push to an authenticated image registry configured against an app/container
+var Push = func(providers app.Providers) cli.Command {
 	return cli.Command{
-		Name:      "deploy",
-		Usage:     "Deploy application",
-		UsageText: "nullstone deploy <app-name> <env-name> [options]",
+		Name:      "push",
+		Usage:     "Push artifact",
+		UsageText: "nullstone push <app-name> <env-name> [options]",
 		Flags: []cli.Flag{
 			cli.StringFlag{
+				Name:     "source",
+				Usage:    "The source docker image to push. This follows the same syntax as `docker push NAME[:TAG]`.",
+				Required: true,
+			},
+			cli.StringFlag{
 				Name:  "image-tag",
-				Usage: "Update the docker image tag for apps defined as 'app/container'. If not specified, will force a deployment.",
+				Usage: "Push the image with this tag instead of the source. If not specified, will use the source tag.",
+				Value: "latest",
 			},
 		},
 		Action: func(c *cli.Context) error {
-			profile, err := config.LoadProfile(GetProfile(c))
+			profile, err := config.LoadProfile(GetProfile(c.Parent()))
 			if err != nil {
 				return err
 			}
 
 			if c.NArg() != 2 {
-				return cli.ShowCommandHelp(c, "deploy")
+				return cli.ShowCommandHelp(c, "push")
 			}
 			appName := c.Args().Get(0)
 			envName := c.Args().Get(1)
 			userConfig := map[string]string{
+				"source":   c.String("source"),
 				"imageTag": c.String("image-tag"),
 			}
 
@@ -57,7 +65,6 @@ var Deploy = func(providers app.Providers) cli.Command {
 			} else if workspace == nil {
 				return fmt.Errorf("workspace %q does not exist", err)
 			}
-
 			if workspace.Status != types.WorkspaceStatusProvisioned {
 				return fmt.Errorf("app %q has not been provisioned in %q environment yet", app.Name, workspace.EnvName)
 			}
@@ -67,9 +74,10 @@ var Deploy = func(providers app.Providers) cli.Command {
 
 			provider := providers.Find(workspace.Module.Category, workspace.Module.Type)
 			if provider == nil {
-				return fmt.Errorf("unable to deploy, this CLI does not support category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
+				return fmt.Errorf("unable to push, this CLI does not support category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
 			}
-			return provider.Deploy(config, app, workspace, userConfig)
+
+			return provider.Push(config, app, workspace, userConfig)
 		},
 	}
 }
