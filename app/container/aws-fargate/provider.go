@@ -81,8 +81,8 @@ func (p Provider) Push(nsConfig api.Config, app *types.Application, workspace *t
 //   Register new task definition
 //   Deregister old task definition
 //   Update ECS Service (This always causes deployment)
-func (p Provider) Deploy(nsConfig api.Config, app *types.Application, workspace *types.Workspace, userConfig map[string]string) error {
-	ic, err := p.identify(nsConfig, app, workspace)
+func (p Provider) Deploy(nsConfig api.Config, application *types.Application, workspace *types.Workspace, userConfig map[string]string) error {
+	ic, err := p.identify(nsConfig, application, workspace)
 	if err != nil {
 		return err
 	}
@@ -92,11 +92,17 @@ func (p Provider) Deploy(nsConfig api.Config, app *types.Application, workspace 
 		return fmt.Errorf("error retrieving current service information: %w", err)
 	}
 
-	logger.Printf("Deploying app %q\n", app.Name)
+	logger.Printf("Deploying app %q\n", application.Name)
+	version := userConfig["version"]
 	taskDefArn := *taskDef.TaskDefinitionArn
-	if imageTag := userConfig["imageTag"]; imageTag != "" {
-		fmt.Fprintf(os.Stderr, "Updating image tag to %q\n", imageTag)
-		newTaskDef, err := ic.UpdateTaskImageTag(taskDef, imageTag)
+	if version != "" {
+		fmt.Fprintf(os.Stderr, "Updating app version to %q\n", version)
+		if err := app.UpdateVersion(nsConfig, application.Name, workspace.EnvName, version); err != nil {
+			return fmt.Errorf("error updating app version in nullstone: %w", err)
+		}
+
+		fmt.Fprintf(os.Stderr, "Updating image tag to %q\n", version)
+		newTaskDef, err := ic.UpdateTaskImageTag(taskDef, version)
 		if err != nil {
 			return fmt.Errorf("error updating task with new image tag: %w", err)
 		}
@@ -106,6 +112,7 @@ func (p Provider) Deploy(nsConfig api.Config, app *types.Application, workspace 
 	if err := ic.UpdateServiceTask(taskDefArn); err != nil {
 		return fmt.Errorf("error deploying service: %w", err)
 	}
-	logger.Printf("Deployed app %q\n", app.Name)
+
+	logger.Printf("Deployed app %q\n", application.Name)
 	return nil
 }

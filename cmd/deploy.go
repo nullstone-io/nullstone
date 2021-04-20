@@ -32,7 +32,7 @@ var Deploy = func(providers app.Providers) cli.Command {
 			appName := c.Args().Get(0)
 			envName := c.Args().Get(1)
 			userConfig := map[string]string{
-				"imageTag": c.String("image-tag"),
+				"version": c.String("version"),
 			}
 
 			app, err := client.Apps().Get(appName)
