@@ -6,7 +6,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
-	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
 // Push command performs a docker push to an authenticated image registry configured against an app/container
@@ -28,10 +27,11 @@ var Push = func(providers app.Providers) cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			profile, err := config.LoadProfile(GetProfile(c.Parent()))
+			_, cfg, err := SetupProfileCmd(c)
 			if err != nil {
 				return err
 			}
+			client := api.Client{Config: cfg}
 
 			if c.NArg() != 2 {
 				return cli.ShowCommandHelp(c, "push")
@@ -42,15 +42,6 @@ var Push = func(providers app.Providers) cli.Command {
 				"source":   c.String("source"),
 				"imageTag": c.String("image-tag"),
 			}
-
-			config := api.DefaultConfig()
-			config.BaseAddress = profile.Address
-			config.ApiKey = profile.ApiKey
-			config.OrgName = GetOrg(c, *profile)
-			if config.OrgName == "" {
-				return ErrMissingOrg
-			}
-			client := api.Client{Config: config}
 
 			app, err := client.Apps().Get(appName)
 			if err != nil {
@@ -77,7 +68,7 @@ var Push = func(providers app.Providers) cli.Command {
 				return fmt.Errorf("unable to push, this CLI does not support category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
 			}
 
-			return provider.Push(config, app, workspace, userConfig)
+			return provider.Push(cfg, app, workspace, userConfig)
 		},
 	}
 }

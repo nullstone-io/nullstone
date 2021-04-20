@@ -6,7 +6,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
-	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
 var Deploy = func(providers app.Providers) cli.Command {
@@ -21,10 +20,11 @@ var Deploy = func(providers app.Providers) cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			profile, err := config.LoadProfile(GetProfile(c))
+			_, cfg, err := SetupProfileCmd(c)
 			if err != nil {
 				return err
 			}
+			client := api.Client{Config: cfg}
 
 			if c.NArg() != 2 {
 				return cli.ShowCommandHelp(c, "deploy")
@@ -34,15 +34,6 @@ var Deploy = func(providers app.Providers) cli.Command {
 			userConfig := map[string]string{
 				"imageTag": c.String("image-tag"),
 			}
-
-			config := api.DefaultConfig()
-			config.BaseAddress = profile.Address
-			config.ApiKey = profile.ApiKey
-			config.OrgName = GetOrg(c, *profile)
-			if config.OrgName == "" {
-				return ErrMissingOrg
-			}
-			client := api.Client{Config: config}
 
 			app, err := client.Apps().Get(appName)
 			if err != nil {
@@ -69,7 +60,7 @@ var Deploy = func(providers app.Providers) cli.Command {
 			if provider == nil {
 				return fmt.Errorf("unable to deploy, this CLI does not support category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
 			}
-			return provider.Deploy(config, app, workspace, userConfig)
+			return provider.Deploy(cfg, app, workspace, userConfig)
 		},
 	}
 }
