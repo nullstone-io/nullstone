@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"gopkg.in/nullstone-io/go-api-client.v0"
 	"io/ioutil"
 	"os"
 	"path"
@@ -41,6 +42,11 @@ func LoadProfile(name string) (*Profile, error) {
 	}
 	raw, err := ioutil.ReadFile(p.ConfigFilename())
 	if err != nil {
+		// If profile configuration file does not exist, just return our defaults
+		if os.IsNotExist(err) {
+			p.Address = api.DefaultAddress
+			return p, nil
+		}
 		return nil, fmt.Errorf("error reading profile configuration: %w", err)
 	}
 	if err := json.Unmarshal(raw, p); err != nil {

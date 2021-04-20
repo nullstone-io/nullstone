@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/urfave/cli"
 	"golang.org/x/crypto/ssh/terminal"
+	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"os"
 	"syscall"
@@ -12,7 +13,7 @@ import (
 var (
 	AddressFlag = cli.StringFlag{
 		Name:  "address",
-		Value: "https://api.nullstone.io",
+		Value: api.DefaultAddress,
 		Usage: "Nullstone API Address",
 	}
 	ApiKeyFlag = cli.StringFlag{
