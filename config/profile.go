@@ -58,7 +58,7 @@ func LoadProfile(name string) (*Profile, error) {
 	if raw, err := ioutil.ReadFile(p.ApiKeyFilename()); err != nil {
 		return nil, fmt.Errorf("error reading api key: %w", err)
 	} else {
-		p.ApiKey = string(raw)
+		p.ApiKey = CleanseApiKey(string(raw))
 	}
 	return p, nil
 }

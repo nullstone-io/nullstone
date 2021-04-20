@@ -19,6 +19,7 @@ func SetupProfileCmd(c *cli.Context) (*config.Profile, api.Config, error) {
 	if profile.ApiKey != "" {
 		cfg.ApiKey = profile.ApiKey
 	}
+	cfg.ApiKey = config.CleanseApiKey(cfg.ApiKey)
 	cfg.OrgName = GetOrg(c, *profile)
 	if cfg.OrgName == "" {
 		return profile, cfg, ErrMissingOrg
