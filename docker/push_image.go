@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/docker/cli/cli/streams"
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/moby/term"
 )
@@ -20,7 +19,7 @@ func PushImage(ctx context.Context, targetUrl ImageUrl, targetAuth types.AuthCon
 		RegistryAuth: encodedAuth,
 	}
 
-	dockerClient, err := client.NewClientWithOpts()
+	dockerClient, err := DiscoverDockerClient()
 	if err != nil {
 		return fmt.Errorf("error creating docker client: %w", err)
 	}

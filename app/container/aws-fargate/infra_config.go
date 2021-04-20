@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	aws_fargate_service "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-fargate-service"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
@@ -152,9 +151,9 @@ func (c InfraConfig) GetEcrLoginAuth() (types.AuthConfig, error) {
 }
 
 func (c InfraConfig) RetagImage(ctx context.Context, sourceUrl, targetUrl docker.ImageUrl) error {
-	dockerClient, err := client.NewClientWithOpts()
+	dockerClient, err := docker.DiscoverDockerClient()
 	if err != nil {
-		return fmt.Errorf("error docker client: %w", err)
+		return fmt.Errorf("error creating docker client: %w", err)
 	}
 	return dockerClient.ImageTag(ctx, sourceUrl.String(), targetUrl.String())
 }
