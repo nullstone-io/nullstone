@@ -4,6 +4,7 @@ import (
 	"github.com/docker/cli/cli/command"
 	"github.com/docker/cli/cli/flags"
 	"github.com/docker/docker/client"
+	"github.com/spf13/pflag"
 )
 
 func DiscoverDockerClient() (client.APIClient, error) {
@@ -14,6 +15,8 @@ func DiscoverDockerClient() (client.APIClient, error) {
 	opts := &flags.ClientOptions{
 		Common: &flags.CommonOptions{},
 	}
+	opts.Common.InstallFlags(pflag.NewFlagSet("", pflag.ContinueOnError))
+	opts.Common.SetDefaultOptions(&pflag.FlagSet{})
 	if err := dockerCli.Initialize(opts); err != nil {
 		return nil, err
 	}
