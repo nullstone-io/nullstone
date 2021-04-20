@@ -15,8 +15,10 @@ var Deploy = func(providers app.Providers) cli.Command {
 		UsageText: "nullstone deploy <app-name> <env-name> [options]",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  "image-tag",
-				Usage: "Update the docker image tag for apps defined as 'app/container'. If not specified, will force a deployment.",
+				Name:  "version",
+				Usage: `Update the application version.
+   For 'app/container' applications, the docker image tag will be set to the version.
+   If a version is not specified, the service will be redeployed with existing configuration`,
 			},
 		},
 		Action: func(c *cli.Context) error {
