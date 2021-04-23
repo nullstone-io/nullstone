@@ -1,9 +1,15 @@
 package app
 
-import "gopkg.in/nullstone-io/go-api-client.v0"
+import (
+	"fmt"
+	"gopkg.in/nullstone-io/go-api-client.v0"
+)
 
-func UpdateVersion(nsConfig api.Config, appName, envName, version string) error {
-	panic("not implemented")
-	//client := api.Client{Config: nsConfig}
-	//client.AppEnvs().Update()
+func UpdateVersion(nsConfig api.Config, appId int, envName, version string) error {
+	client := api.Client{Config: nsConfig}
+	_, err := client.AppEnvs().Update(appId, envName, version)
+	if err != nil {
+		return fmt.Errorf("error updating app version: %w", err)
+	}
+	return nil
 }
