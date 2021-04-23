@@ -97,7 +97,7 @@ func (p Provider) Deploy(nsConfig api.Config, application *types.Application, wo
 	taskDefArn := *taskDef.TaskDefinitionArn
 	if version != "" {
 		fmt.Fprintf(os.Stderr, "Updating app version to %q\n", version)
-		if err := app.UpdateVersion(nsConfig, application.Name, workspace.EnvName, version); err != nil {
+		if err := app.UpdateVersion(nsConfig, application.Id, workspace.EnvName, version); err != nil {
 			return fmt.Errorf("error updating app version in nullstone: %w", err)
 		}
 
