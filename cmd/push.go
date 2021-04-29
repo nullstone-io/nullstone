@@ -34,7 +34,8 @@ var Push = func(providers app.Providers) cli.Command {
 			}
 
 			if c.NArg() != 2 {
-				return cli.ShowCommandHelp(c, "push")
+				cli.ShowCommandHelp(c, "push")
+				return fmt.Errorf("invalid usage")
 			}
 			appName := c.Args().Get(0)
 			envName := c.Args().Get(1)

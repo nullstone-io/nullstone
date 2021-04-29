@@ -30,7 +30,8 @@ var Deploy = func(providers app.Providers) cli.Command {
 			}
 
 			if c.NArg() != 2 {
-				return cli.ShowCommandHelp(c, "deploy")
+				cli.ShowCommandHelp(c, "deploy")
+				return fmt.Errorf("invalid usage")
 			}
 			appName := c.Args().Get(0)
 			envName := c.Args().Get(1)
