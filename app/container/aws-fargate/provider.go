@@ -42,7 +42,9 @@ func (p Provider) Push(nsConfig api.Config, app *types.Application, workspace *t
 	sourceUrl := docker.ParseImageUrl(userConfig["source"])
 
 	targetUrl := ic.Outputs.ImageRepoUrl
-	targetUrl.Tag = userConfig["imageTag"]
+	if imageTag := userConfig["imageTag"]; imageTag != "" {
+		targetUrl.Tag = imageTag
+	}
 	if targetUrl.String() == "" {
 		return fmt.Errorf("cannot push if 'image_repo_url' module output is missing")
 	}

@@ -25,7 +25,6 @@ var Push = func(providers app.Providers) cli.Command {
 			cli.StringFlag{
 				Name:  "image-tag",
 				Usage: "Push the image with this tag instead of the source. If not specified, will use the source tag.",
-				Value: "latest",
 			},
 		},
 		Action: func(c *cli.Context) error {
