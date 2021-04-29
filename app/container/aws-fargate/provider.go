@@ -44,6 +44,8 @@ func (p Provider) Push(nsConfig api.Config, app *types.Application, workspace *t
 	targetUrl := ic.Outputs.ImageRepoUrl
 	if imageTag := userConfig["imageTag"]; imageTag != "" {
 		targetUrl.Tag = imageTag
+	} else {
+		targetUrl.Tag = sourceUrl.Tag
 	}
 	if targetUrl.String() == "" {
 		return fmt.Errorf("cannot push if 'image_repo_url' module output is missing")
@@ -66,10 +68,12 @@ func (p Provider) Push(nsConfig api.Config, app *types.Application, workspace *t
 		return fmt.Errorf("error retrieving image registry credentials: %w", err)
 	}
 
+	logger.Printf("Retagging %s => %s\n", sourceUrl.String(), targetUrl.String())
 	if err := ic.RetagImage(ctx, sourceUrl, targetUrl); err != nil {
 		return fmt.Errorf("error retagging image: %w", err)
 	}
 
+	logger.Printf("Pushing %s\n", targetUrl.String())
 	if err := ic.PushImage(ctx, targetUrl, targetAuth); err != nil {
 		return fmt.Errorf("error pushing image: %w", err)
 	}
@@ -98,12 +102,12 @@ func (p Provider) Deploy(nsConfig api.Config, application *types.Application, wo
 	version := userConfig["version"]
 	taskDefArn := *taskDef.TaskDefinitionArn
 	if version != "" {
-		fmt.Fprintf(os.Stderr, "Updating app version to %q\n", version)
+		logger.Printf("Updating app version to %q\n", version)
 		if err := app.UpdateVersion(nsConfig, application.Id, workspace.EnvName, version); err != nil {
 			return fmt.Errorf("error updating app version in nullstone: %w", err)
 		}
 
-		fmt.Fprintf(os.Stderr, "Updating image tag to %q\n", version)
+		logger.Printf("Updating image tag to %q\n", version)
 		newTaskDef, err := ic.UpdateTaskImageTag(taskDef, version)
 		if err != nil {
 			return fmt.Errorf("error updating task with new image tag: %w", err)
