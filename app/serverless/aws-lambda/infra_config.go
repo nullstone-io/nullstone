@@ -34,7 +34,7 @@ func (c InfraConfig) UploadArtifact(ctx context.Context, content io.Reader, vers
 
 func (c InfraConfig) UpdateLambdaVersion(ctx context.Context, version string) error {
 	λClient := lambda.NewFromConfig(nsaws.NewConfig(c.Outputs.Deployer))
-	_, err := λClient.UpdateFunctionCode(context.TODO(), &lambda.UpdateFunctionCodeInput{
+	_, err := λClient.UpdateFunctionCode(ctx, &lambda.UpdateFunctionCodeInput{
 		FunctionName: aws.String(c.Outputs.LambdaName),
 		DryRun:       false,
 		Publish:      false,

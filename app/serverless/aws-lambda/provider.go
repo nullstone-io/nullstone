@@ -83,7 +83,7 @@ func (p Provider) Deploy(nsConfig api.Config, application *types.Application, wo
 	}
 
 	logger.Printf("Deploying app %q\n", application.Name)
-	
+
 	logger.Printf("Updating app version to %q\n", version)
 	if err := app.UpdateVersion(nsConfig, application.Id, workspace.EnvName, version); err != nil {
 		return fmt.Errorf("error updating app version in nullstone: %w", err)
