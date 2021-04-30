@@ -13,14 +13,15 @@ var Deploy = func(providers app.Providers) cli.Command {
 		UsageText: "nullstone deploy <app-name> <env-name> [options]",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  "stack",
-				Usage: "The stack name where the app resides. This is only required if multiple apps have the same 'app-name'.",
+				Name: "stack",
+				Usage: `The stack name where the app resides.
+       This is only required if multiple apps have the same 'app-name'.`,
 			},
 			cli.StringFlag{
 				Name: "version",
 				Usage: `Update the application version.
-   For 'app/container' applications, the docker image tag will be set to the version.
-   If a version is not specified, the service will be redeployed with existing configuration`,
+       app/container: The docker image tag will be set to the version. If a version is not specified, the service will be redeployed with existing configuration.
+       app/serverless: The version of the artifact uploaded during 'push'. Version is required to use deploy command.`,
 			},
 		},
 		Action: func(c *cli.Context) error {

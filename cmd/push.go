@@ -14,17 +14,28 @@ var Push = func(providers app.Providers) cli.Command {
 		UsageText: "nullstone push <app-name> <env-name> [options]",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  "stack",
-				Usage: "The stack name where the app resides. This is only required if multiple apps have the same 'app-name'.",
+				Name: "stack",
+				Usage: `The stack name where the app resides.
+       This is only required if multiple apps have the same 'app-name'.`,
 			},
 			cli.StringFlag{
-				Name:     "source",
-				Usage:    "The source docker image to push. This follows the same syntax as `docker push NAME[:TAG]`.",
+				Name: "source",
+				Usage: `The source artifact to push.
+       app/container: This is the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.
+       app/serverless: This is a .zip archive to push.`,
 				Required: true,
 			},
 			cli.StringFlag{
-				Name:  "image-tag",
-				Usage: "Push the image with this tag instead of the source. If not specified, will use the source tag.",
+				Name: "image-tag",
+				Usage: `Push the image with this tag instead of the source. 
+       If not specified, will use the source tag.
+       This is only used for app/container applications.`,
+			},
+			cli.StringFlag{
+				Name: "version",
+				Usage: `Push the artifact with this version.
+       app/container: This is not used.
+       app/serverless: This is required to upload the artifact.`,
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -42,6 +53,7 @@ var Push = func(providers app.Providers) cli.Command {
 			userConfig := map[string]string{
 				"source":   c.String("source"),
 				"imageTag": c.String("image-tag"),
+				"version":  c.String("version"),
 			}
 
 			finder := NsFinder{Config: cfg}
