@@ -58,6 +58,7 @@ func (p Provider) Push(nsConfig api.Config, application *types.Application, work
 	}
 	defer file.Close()
 
+	logger.Printf("Uploading %s to artifacts bucket\n", ic.Outputs.ArtifactsKey(version), ic.Outputs.ArtifactsBucketName)
 	if err := ic.UploadArtifact(ctx, file, version); err != nil {
 		return fmt.Errorf("error uploading artifact: %w", err)
 	}
