@@ -6,6 +6,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"gopkg.in/nullstone-io/nullstone.v0/app/container/aws-fargate"
+	aws_lambda "gopkg.in/nullstone-io/nullstone.v0/app/serverless/aws-lambda"
 	"gopkg.in/nullstone-io/nullstone.v0/cmd"
 	"os"
 	"sort"
@@ -27,7 +28,9 @@ func main() {
 		//types.CategoryAppStaticSite: {
 		//	"site/aws-s3": aws_s3_site.Provider{},
 		//},
-		//types.CategoryAppServerless: {},
+		types.CategoryAppServerless: {
+			"service/aws-lambda": aws_lambda.Provider{},
+		},
 	}
 
 	cliApp := &cli.App{

@@ -9,6 +9,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.1.5
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.2.2
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.2.2
+	github.com/aws/aws-sdk-go-v2/service/lambda v1.2.2
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.5.0
 	github.com/aws/smithy-go v1.3.1
 	github.com/docker/cli v20.10.6+incompatible
 	github.com/docker/docker v20.10.6+incompatible
