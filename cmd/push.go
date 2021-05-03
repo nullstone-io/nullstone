@@ -26,15 +26,9 @@ var Push = func(providers app.Providers) cli.Command {
 				Required: true,
 			},
 			cli.StringFlag{
-				Name: "image-tag",
-				Usage: `Push the image with this tag instead of the source. 
-       If not specified, will use the source tag.
-       This is only used for app/container applications.`,
-			},
-			cli.StringFlag{
 				Name: "version",
 				Usage: `Push the artifact with this version.
-       app/container: This is not used.
+       app/container: If specified, will push the docker image with version as the image tag. Otherwise, uses source tag.
        app/serverless: This is required to upload the artifact.`,
 			},
 		},
@@ -51,9 +45,8 @@ var Push = func(providers app.Providers) cli.Command {
 			appName := c.Args().Get(0)
 			envName := c.Args().Get(1)
 			userConfig := map[string]string{
-				"source":   c.String("source"),
-				"imageTag": c.String("image-tag"),
-				"version":  c.String("version"),
+				"source":  c.String("source"),
+				"version": c.String("version"),
 			}
 
 			finder := NsFinder{Config: cfg}
