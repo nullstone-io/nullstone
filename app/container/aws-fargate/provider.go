@@ -42,7 +42,7 @@ func (p Provider) Push(nsConfig api.Config, app *types.Application, workspace *t
 	sourceUrl := docker.ParseImageUrl(userConfig["source"])
 
 	targetUrl := ic.Outputs.ImageRepoUrl
-	// NOTE: We expect --version from the user which is used as the image for the pushed image
+	// NOTE: We expect --version from the user which is used as the image tag for the pushed image
 	if imageTag := userConfig["version"]; imageTag != "" {
 		targetUrl.Tag = imageTag
 	} else {
