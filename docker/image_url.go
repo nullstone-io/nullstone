@@ -54,9 +54,16 @@ func ParseImageUrl(raw string) ImageUrl {
 		it.User = tokens[1]
 		it.Repo = tokens[2]
 	} else if len(tokens) == 2 {
-		// user/repo
-		it.User = tokens[0]
-		it.Repo = tokens[1]
+		if strings.ContainsAny(tokens[0], ".:") || tokens[0] == "localhost" {
+			// This signifies a domain if the first identifier contains '.', ':' or equals 'localhost'
+			// registry/repo
+			it.Registry = tokens[0]
+			it.Repo = tokens[1]
+		} else {
+			// user/repo
+			it.User = tokens[0]
+			it.Repo = tokens[1]
+		}
 	}
 
 	if tokens := strings.SplitN(it.Repo, "@", 2); len(tokens) == 2 {
