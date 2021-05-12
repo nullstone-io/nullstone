@@ -7,9 +7,10 @@ import (
 )
 
 type Outputs struct {
-	ServiceName  string          `ns:"service_name"`
-	ImageRepoUrl docker.ImageUrl `ns:"image_repo_url,optional"`
-	ImagePusher  aws.User        `ns:"image_pusher,optional"`
+	ServiceName       string          `ns:"service_name"`
+	ImageRepoUrl      docker.ImageUrl `ns:"image_repo_url,optional"`
+	ImagePusher       aws.User        `ns:"image_pusher,optional"`
+	MainContainerName string          `ns:"main_container_name,optional"`
 
 	Cluster aws_fargate.Outputs `ns:",connectionType:cluster/aws-fargate"`
 }

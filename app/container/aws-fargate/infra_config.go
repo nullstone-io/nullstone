@@ -53,7 +53,7 @@ func (c InfraConfig) GetTaskDefinition() (*ecstypes.TaskDefinition, error) {
 func (c InfraConfig) UpdateTaskImageTag(taskDefinition *ecstypes.TaskDefinition, imageTag string) (*ecstypes.TaskDefinition, error) {
 	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer))
 
-	defIndex, err := findMainContainerDefinitionIndex(taskDefinition.ContainerDefinitions)
+	defIndex, err := c.findMainContainerDefinitionIndex(taskDefinition.ContainerDefinitions)
 	if err != nil {
 		return nil, err
 	}
@@ -93,25 +93,28 @@ func (c InfraConfig) UpdateTaskImageTag(taskDefinition *ecstypes.TaskDefinition,
 	return out.TaskDefinition, nil
 }
 
-func findMainContainerDefinitionIndex(containerDefs []ecstypes.ContainerDefinition) (int, error) {
-	mainIndex := -1
-	for i, cd := range containerDefs {
-		if cd.Essential != nil && *cd.Essential {
-			if mainIndex > -1 {
-				return 0, fmt.Errorf("cannot deploy a service with multiple containers marked as essential")
-			}
-			mainIndex = i
-		}
+func (c InfraConfig) findMainContainerDefinitionIndex(containerDefs []ecstypes.ContainerDefinition) (int, error) {
+	if len(containerDefs) == 0 {
+		return -1, fmt.Errorf("cannot deploy service with no container definitions")
 	}
-	if mainIndex > -1 {
-		return mainIndex, nil
+	if len(containerDefs) == 1 {
+		return 0, nil
 	}
 
-	if len(containerDefs) == 0 {
-		return 0, fmt.Errorf("cannot deploy service with no container definitions")
+	if mainContainerName := c.Outputs.MainContainerName; mainContainerName != "" {
+		// let's go find main_container_name
+		for i, cd := range containerDefs {
+			if cd.Name != nil && *cd.Name == mainContainerName {
+				return i, nil
+			}
+		}
+		return -1, fmt.Errorf("cannot deploy service; no container definition with main_container_name = %s", mainContainerName)
 	}
+
+	// main_container_name was not specified, we are going to attempt to find a single container definition
+	// If more than one container definition exists, we will error
 	if len(containerDefs) > 1 {
-		return 0, fmt.Errorf("cannot deploy service with multiple container definitions unless a single is marked essential")
+		return -1, fmt.Errorf("service contains multiple containers; cannot deploy unless service module exports 'main_container_name'")
 	}
 	return 0, nil
 }
