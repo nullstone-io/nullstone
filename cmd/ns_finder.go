@@ -41,7 +41,7 @@ func (f NsFinder) GetAppAndWorkspace(appName, stackName, envName string) (*types
 		return nil, nil, err
 	}
 
-	workspace, err := f.GetAppWorkspace(app, stackName, envName)
+	workspace, err := f.GetAppWorkspace(app, envName)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -74,14 +74,14 @@ func (f NsFinder) GetApp(appName string, stackName string) (*types.Application, 
 	return &matched[0], nil
 }
 
-func (f NsFinder) GetAppWorkspace(app *types.Application, stackName, envName string) (*types.Workspace, error) {
+func (f NsFinder) GetAppWorkspace(app *types.Application, envName string) (*types.Workspace, error) {
 	client := api.Client{Config: f.Config}
 
-	env, err := client.EnvironmentsByName().Get(stackName, envName)
+	env, err := client.EnvironmentsByName().Get(app.StackName, envName)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving environment: %w", err)
 	} else if env == nil {
-		return nil, fmt.Errorf("environment %s/%s does not exist", stackName, envName)
+		return nil, fmt.Errorf("environment %s/%s does not exist", app.StackName, envName)
 	}
 
 	workspace, err := client.Workspaces().Get(app.StackId, app.Id, env.Id)
