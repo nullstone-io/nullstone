@@ -21,10 +21,10 @@ type MockDeepOutputs struct {
 
 func TestRetriever_Retrieve(t *testing.T) {
 	flatWorkspace := &types.Workspace{
-		OrgName:   "default",
-		StackName: "default",
-		BlockName: "flat0",
-		EnvName:   "dev",
+		OrgName: "default",
+		StackId: 1,
+		BlockId: 5,
+		EnvId:   15,
 		LastSuccessfulRun: &types.Run{
 			Apply: &types.RunApply{
 				Outputs: types.Outputs{
@@ -52,10 +52,10 @@ func TestRetriever_Retrieve(t *testing.T) {
 		},
 	}
 	deepWorkspace := &types.Workspace{
-		OrgName:   "default",
-		StackName: "default",
-		BlockName: "deep0",
-		EnvName:   "dev",
+		OrgName: "default",
+		StackId: 1,
+		BlockId: 6,
+		EnvId:   15,
 		LastSuccessfulRun: &types.Run{
 			Config: &types.RunConfig{
 				Connections: map[string]types.Connection{
@@ -65,6 +65,11 @@ func TestRetriever_Retrieve(t *testing.T) {
 							Optional: false,
 						},
 						Target: "deep0",
+						Reference: &types.BlockConnection{
+							StackId: 1,
+							BlockId: 5,
+							EnvId:   nil,
+						},
 						Unused: false,
 					},
 				},
