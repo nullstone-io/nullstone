@@ -5,7 +5,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 )
 
-func UpdateVersion(nsConfig api.Config, appId int, envName, version string) error {
+func UpdateVersion(nsConfig api.Config, appId int64, envName, version string) error {
 	client := api.Client{Config: nsConfig}
 	_, err := client.AppEnvs().Update(appId, envName, version)
 	if err != nil {

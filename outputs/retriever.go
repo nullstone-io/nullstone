@@ -26,12 +26,11 @@ func (r *Retriever) Retrieve(workspace *types.Workspace, obj interface{}) error 
 
 	if workspace.LastSuccessfulRun == nil || workspace.LastSuccessfulRun.Apply == nil {
 		wt := types.WorkspaceTarget{
-			OrgName:   workspace.OrgName,
-			StackName: workspace.StackName,
-			BlockName: workspace.BlockName,
-			EnvName:   workspace.EnvName,
+			StackId: workspace.StackId,
+			BlockId: workspace.BlockId,
+			EnvId:   workspace.EnvId,
 		}
-		return fmt.Errorf("cannot find outputs for %s", wt.Id())
+		return fmt.Errorf("cannot find outputs for %s/%s", workspace.OrgName, wt.Id())
 	}
 	workspaceOutputs := workspace.LastSuccessfulRun.Apply.Outputs
 
@@ -85,20 +84,19 @@ func (r *Retriever) GetConnectionWorkspace(source *types.Workspace, connectionNa
 	conn, err := findConnection(source, connectionName, connectionType)
 	if err != nil {
 		return nil, err
-	} else if conn == nil {
+	} else if conn == nil || conn.Reference == nil {
 		return nil, nil
 	}
 
 	sourceTarget := types.WorkspaceTarget{
-		OrgName:   source.OrgName,
-		StackName: source.StackName,
-		BlockName: source.BlockName,
-		EnvName:   source.EnvName,
+		StackId: source.StackId,
+		BlockId: source.BlockId,
+		EnvId:   source.EnvId,
 	}
-	destTarget := sourceTarget.FindRelativeConnection(conn.Target)
+	destTarget := sourceTarget.FindRelativeConnection(*conn.Reference)
 
 	nsClient := api.Client{Config: r.NsConfig}
-	return nsClient.Workspaces().Get(destTarget.StackName, destTarget.BlockName, destTarget.EnvName)
+	return nsClient.Workspaces().Get(destTarget.StackId, destTarget.BlockId, destTarget.EnvId)
 }
 
 func findConnection(source *types.Workspace, connectionName, connectionType string) (*types.Connection, error) {
