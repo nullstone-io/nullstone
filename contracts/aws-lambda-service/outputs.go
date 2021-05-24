@@ -10,7 +10,7 @@ const (
 )
 
 type Outputs struct {
-	Region               string   `ns:"region,optional"`
+	Region               string   `ns:"region"`
 	Deployer             aws.User `ns:"deployer"`
 	LambdaArn            string   `ns:"lambda_arn"`
 	LambdaName           string   `ns:"lambda_name"`
