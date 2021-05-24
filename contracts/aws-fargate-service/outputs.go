@@ -7,6 +7,7 @@ import (
 )
 
 type Outputs struct {
+	Region            string          `ns:"region,optional"`
 	ServiceName       string          `ns:"service_name"`
 	ImageRepoUrl      docker.ImageUrl `ns:"image_repo_url,optional"`
 	ImagePusher       aws.User        `ns:"image_pusher,optional"`
