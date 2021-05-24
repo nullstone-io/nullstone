@@ -33,19 +33,25 @@ type NsFinder struct {
 	Config api.Config
 }
 
-// This retrieves the app and workspace
+// This retrieves the app, env, and workspace
 // stackName is optional -- If multiple apps are found, this will return an error
-func (f NsFinder) GetAppAndWorkspace(appName, stackName, envName string) (*types.Application, *types.Workspace, error) {
+func (f NsFinder) GetAppAndWorkspace(appName, stackName, envName string) (*types.Application, *types.Environment, *types.Workspace, error) {
 	app, err := f.GetApp(appName, stackName)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	workspace, err := f.GetAppWorkspace(app, envName)
+	env, err := f.GetEnv(app.StackName, envName)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
-	return app, workspace, nil
+
+	workspace, err := f.GetAppWorkspace(app, env)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	return app, env, workspace, nil
 }
 
 // GetApp searches for an app by app name and optionally stack name
@@ -74,15 +80,19 @@ func (f NsFinder) GetApp(appName string, stackName string) (*types.Application, 
 	return &matched[0], nil
 }
 
-func (f NsFinder) GetAppWorkspace(app *types.Application, envName string) (*types.Workspace, error) {
+func (f NsFinder) GetEnv(stackName, envName string) (*types.Environment, error) {
 	client := api.Client{Config: f.Config}
-
-	env, err := client.EnvironmentsByName().Get(app.StackName, envName)
+	env, err := client.EnvironmentsByName().Get(stackName, envName)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving environment: %w", err)
 	} else if env == nil {
-		return nil, fmt.Errorf("environment %s/%s does not exist", app.StackName, envName)
+		return nil, fmt.Errorf("environment %s/%s does not exist", stackName, envName)
 	}
+	return env, nil
+}
+
+func (f NsFinder) GetAppWorkspace(app *types.Application, env *types.Environment) (*types.Workspace, error) {
+	client := api.Client{Config: f.Config}
 
 	workspace, err := client.Workspaces().Get(app.StackId, app.Id, env.Id)
 	if err != nil {
@@ -91,7 +101,7 @@ func (f NsFinder) GetAppWorkspace(app *types.Application, envName string) (*type
 		return nil, fmt.Errorf("workspace %q does not exist", err)
 	}
 	if workspace.Status != types.WorkspaceStatusProvisioned {
-		return nil, fmt.Errorf("app %q has not been provisioned in %q environment yet", app.Name, envName)
+		return nil, fmt.Errorf("app %q has not been provisioned in %q environment yet", app.Name, env.Name)
 	}
 	if workspace.Module == nil {
 		return nil, fmt.Errorf("unknown module for workspace")

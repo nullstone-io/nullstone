@@ -32,7 +32,7 @@ func (p Provider) identify(nsConfig api.Config, app *types.Application, workspac
 }
 
 // Push will upload the versioned artifact to the source artifact bucket for the lambda
-func (p Provider) Push(nsConfig api.Config, application *types.Application, workspace *types.Workspace, userConfig map[string]string) error {
+func (p Provider) Push(nsConfig api.Config, application *types.Application, env *types.Environment, workspace *types.Workspace, userConfig map[string]string) error {
 	ic, err := p.identify(nsConfig, application, workspace)
 	if err != nil {
 		return err
@@ -71,7 +71,7 @@ func (p Provider) Push(nsConfig api.Config, application *types.Application, work
 // Deploy takes the following steps to deploy an AWS Lambda service
 //   Update app version in nullstone
 //   Update function code to use just-uploaded archive
-func (p Provider) Deploy(nsConfig api.Config, application *types.Application, workspace *types.Workspace, userConfig map[string]string) error {
+func (p Provider) Deploy(nsConfig api.Config, application *types.Application, env *types.Environment, workspace *types.Workspace, userConfig map[string]string) error {
 	ic, err := p.identify(nsConfig, application, workspace)
 	if err != nil {
 		return err
@@ -88,7 +88,7 @@ func (p Provider) Deploy(nsConfig api.Config, application *types.Application, wo
 	logger.Printf("Deploying app %q\n", application.Name)
 
 	logger.Printf("Updating app version to %q\n", version)
-	if err := app.UpdateVersion(nsConfig, application.Id, workspace.EnvName, version); err != nil {
+	if err := app.UpdateVersion(nsConfig, application.Id, env.Name, version); err != nil {
 		return fmt.Errorf("error updating app version in nullstone: %w", err)
 	}
 
