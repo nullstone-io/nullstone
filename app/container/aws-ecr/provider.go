@@ -33,7 +33,7 @@ func (p Provider) identify(nsConfig api.Config, app *types.Application, workspac
 	return ic, nil
 }
 
-func (p Provider) Push(nsConfig api.Config, app *types.Application, workspace *types.Workspace, userConfig map[string]string) error {
+func (p Provider) Push(nsConfig api.Config, app *types.Application, env *types.Environment, workspace *types.Workspace, userConfig map[string]string) error {
 	ic, err := p.identify(nsConfig, app, workspace)
 	if err != nil {
 		return err
@@ -84,11 +84,11 @@ func (p Provider) Push(nsConfig api.Config, app *types.Application, workspace *t
 }
 
 // Deploy updates the app version
-func (p Provider) Deploy(nsConfig api.Config, application *types.Application, workspace *types.Workspace, userConfig map[string]string) error {
+func (p Provider) Deploy(nsConfig api.Config, application *types.Application, env *types.Environment, workspace *types.Workspace, userConfig map[string]string) error {
 	version := userConfig["version"]
 	if version != "" {
 		logger.Printf("Updating app version to %q\n", version)
-		if err := app.UpdateVersion(nsConfig, application.Id, workspace.EnvName, version); err != nil {
+		if err := app.UpdateVersion(nsConfig, application.Id, env.Name, version); err != nil {
 			return fmt.Errorf("error updating app version in nullstone: %w", err)
 		}
 	}
