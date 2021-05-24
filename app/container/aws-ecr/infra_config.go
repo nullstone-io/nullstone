@@ -23,7 +23,7 @@ func (c InfraConfig) Print(logger *log.Logger) {
 }
 
 func (c InfraConfig) GetEcrLoginAuth() (types.AuthConfig, error) {
-	ecrClient := ecr.NewFromConfig(nsaws.NewConfig(c.Outputs.ImagePusher))
+	ecrClient := ecr.NewFromConfig(nsaws.NewConfig(c.Outputs.ImagePusher, c.Outputs.Region))
 	out, err := ecrClient.GetAuthorizationToken(context.TODO(), &ecr.GetAuthorizationTokenInput{})
 	if err != nil {
 		return types.AuthConfig{}, err

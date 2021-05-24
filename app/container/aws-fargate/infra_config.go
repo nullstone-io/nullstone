@@ -28,7 +28,7 @@ func (c InfraConfig) Print(logger *log.Logger) {
 }
 
 func (c InfraConfig) GetTaskDefinition() (*ecstypes.TaskDefinition, error) {
-	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer))
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
 
 	out1, err := ecsClient.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
 		Services: []string{c.Outputs.ServiceName},
@@ -51,7 +51,7 @@ func (c InfraConfig) GetTaskDefinition() (*ecstypes.TaskDefinition, error) {
 }
 
 func (c InfraConfig) UpdateTaskImageTag(taskDefinition *ecstypes.TaskDefinition, imageTag string) (*ecstypes.TaskDefinition, error) {
-	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer))
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
 
 	defIndex, err := c.findMainContainerDefinitionIndex(taskDefinition.ContainerDefinitions)
 	if err != nil {
@@ -120,7 +120,7 @@ func (c InfraConfig) findMainContainerDefinitionIndex(containerDefs []ecstypes.C
 }
 
 func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {
-	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer))
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
 
 	_, err := ecsClient.UpdateService(context.Background(), &ecs.UpdateServiceInput{
 		Service:            aws.String(c.Outputs.ServiceName),
@@ -132,7 +132,7 @@ func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {
 }
 
 func (c InfraConfig) GetEcrLoginAuth() (types.AuthConfig, error) {
-	ecrClient := ecr.NewFromConfig(nsaws.NewConfig(c.Outputs.ImagePusher))
+	ecrClient := ecr.NewFromConfig(nsaws.NewConfig(c.Outputs.ImagePusher, c.Outputs.Region))
 	out, err := ecrClient.GetAuthorizationToken(context.TODO(), &ecr.GetAuthorizationTokenInput{})
 	if err != nil {
 		return types.AuthConfig{}, err
