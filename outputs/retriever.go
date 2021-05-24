@@ -24,7 +24,7 @@ func (r *Retriever) Retrieve(workspace *types.Workspace, obj interface{}) error 
 		return fmt.Errorf("input object must be a pointer to a struct")
 	}
 
-	if workspace.LastSuccessfulRun == nil || workspace.LastSuccessfulRun.Apply == nil {
+	if workspace.LastFinishedRun == nil || workspace.LastFinishedRun.Apply == nil {
 		wt := types.WorkspaceTarget{
 			StackId: workspace.StackId,
 			BlockId: workspace.BlockId,
@@ -32,7 +32,7 @@ func (r *Retriever) Retrieve(workspace *types.Workspace, obj interface{}) error 
 		}
 		return fmt.Errorf("cannot find outputs for %s/%s", workspace.OrgName, wt.Id())
 	}
-	workspaceOutputs := workspace.LastSuccessfulRun.Apply.Outputs
+	workspaceOutputs := workspace.LastFinishedRun.Apply.Outputs
 
 	fields := GetFields(reflect.TypeOf(obj).Elem())
 	for _, field := range fields {
@@ -100,13 +100,13 @@ func (r *Retriever) GetConnectionWorkspace(source *types.Workspace, connectionNa
 }
 
 func findConnection(source *types.Workspace, connectionName, connectionType string) (*types.Connection, error) {
-	if source.LastSuccessfulRun == nil || source.LastSuccessfulRun.Config == nil {
+	if source.LastFinishedRun == nil || source.LastFinishedRun.Config == nil {
 		return nil, fmt.Errorf("cannot find connections for app")
 	}
 	if connectionName == "" && connectionType == "" {
 		return nil, fmt.Errorf("cannot find connection if name or type is not specified")
 	}
-	for name, connection := range source.LastSuccessfulRun.Config.Connections {
+	for name, connection := range source.LastFinishedRun.Config.Connections {
 		if connectionType != "" && connectionType != connection.Type {
 			continue
 		}

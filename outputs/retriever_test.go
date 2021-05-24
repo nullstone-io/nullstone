@@ -25,7 +25,7 @@ func TestRetriever_Retrieve(t *testing.T) {
 		StackId: 1,
 		BlockId: 5,
 		EnvId:   15,
-		LastSuccessfulRun: &types.Run{
+		LastFinishedRun: &types.Run{
 			Apply: &types.RunApply{
 				Outputs: types.Outputs{
 					"output1": types.OutputItem{
@@ -56,7 +56,7 @@ func TestRetriever_Retrieve(t *testing.T) {
 		StackId: 1,
 		BlockId: 6,
 		EnvId:   15,
-		LastSuccessfulRun: &types.Run{
+		LastFinishedRun: &types.Run{
 			Config: &types.RunConfig{
 				Connections: map[string]types.Connection{
 					"deep": {
