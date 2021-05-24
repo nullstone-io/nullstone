@@ -83,7 +83,14 @@ func (p Provider) Push(nsConfig api.Config, app *types.Application, workspace *t
 	return nil
 }
 
-// Deploy is not supported for this provider
+// Deploy updates the app version
 func (p Provider) Deploy(nsConfig api.Config, application *types.Application, workspace *types.Workspace, userConfig map[string]string) error {
-	return fmt.Errorf("cannot deploy app/container apps defined with type service/aws-ecr")
+	version := userConfig["version"]
+	if version != "" {
+		logger.Printf("Updating app version to %q\n", version)
+		if err := app.UpdateVersion(nsConfig, application.Id, workspace.EnvName, version); err != nil {
+			return fmt.Errorf("error updating app version in nullstone: %w", err)
+		}
+	}
+	return nil
 }
