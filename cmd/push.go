@@ -50,7 +50,7 @@ var Push = func(providers app.Providers) cli.Command {
 			}
 
 			finder := NsFinder{Config: cfg}
-			app, workspace, err := finder.GetAppAndWorkspace(appName, c.String("stack-name"), envName)
+			app, env, workspace, err := finder.GetAppAndWorkspace(appName, c.String("stack-name"), envName)
 			if err != nil {
 				return err
 			}
@@ -60,7 +60,7 @@ var Push = func(providers app.Providers) cli.Command {
 				return fmt.Errorf("unable to push, this CLI does not support category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
 			}
 
-			return provider.Push(cfg, app, workspace, userConfig)
+			return provider.Push(cfg, app, env, workspace, userConfig)
 		},
 	}
 }
