@@ -5,6 +5,7 @@ import (
 	"github.com/urfave/cli"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
+	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
 	"gopkg.in/nullstone-io/nullstone.v0/app/container/aws-fargate"
 	aws_lambda "gopkg.in/nullstone-io/nullstone.v0/app/serverless/aws-lambda"
 	"gopkg.in/nullstone-io/nullstone.v0/cmd"
@@ -23,6 +24,7 @@ func main() {
 	appProviders := app.Providers{
 		types.CategoryAppContainer: {
 			"service/aws-fargate": aws_fargate.Provider{},
+			"service/aws-ecr":     aws_ecr.Provider{},
 		},
 		// TODO: Add support for more categories and types
 		//types.CategoryAppStaticSite: {

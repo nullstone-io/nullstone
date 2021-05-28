@@ -13,14 +13,16 @@ const (
 	AwsTraceEnvVar   = "AWS_TRACE"
 )
 
-func NewConfig(user caws.User) aws.Config {
+func NewConfig(user caws.User, region string) aws.Config {
 	awsConfig := aws.Config{}
 	if os.Getenv(AwsTraceEnvVar) != "" {
 		awsConfig.Logger = logging.NewStandardLogger(os.Stderr)
 		awsConfig.ClientLogMode = aws.LogRequestWithBody | aws.LogResponseWithBody
 	}
 	awsConfig.Region = DefaultAwsRegion
-	// TODO: How do we set the region?
+	if region != "" {
+		awsConfig.Region = region
+	}
 	awsConfig.Credentials = credentials.NewStaticCredentialsProvider(user.AccessKeyId, user.SecretAccessKey, "")
 	return awsConfig
 }

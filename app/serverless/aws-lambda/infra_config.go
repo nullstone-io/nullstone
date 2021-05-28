@@ -23,7 +23,7 @@ func (c InfraConfig) Print(logger *log.Logger) {
 }
 
 func (c InfraConfig) UploadArtifact(ctx context.Context, content io.Reader, version string) error {
-	s3Client := s3.NewFromConfig(nsaws.NewConfig(c.Outputs.Deployer))
+	s3Client := s3.NewFromConfig(nsaws.NewConfig(c.Outputs.Deployer, c.Outputs.Region))
 	_, err := s3Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(c.Outputs.ArtifactsBucketName),
 		Key:    aws.String(c.Outputs.ArtifactsKey(version)),
@@ -33,7 +33,7 @@ func (c InfraConfig) UploadArtifact(ctx context.Context, content io.Reader, vers
 }
 
 func (c InfraConfig) UpdateLambdaVersion(ctx context.Context, version string) error {
-	λClient := lambda.NewFromConfig(nsaws.NewConfig(c.Outputs.Deployer))
+	λClient := lambda.NewFromConfig(nsaws.NewConfig(c.Outputs.Deployer, c.Outputs.Region))
 	_, err := λClient.UpdateFunctionCode(ctx, &lambda.UpdateFunctionCodeInput{
 		FunctionName: aws.String(c.Outputs.LambdaName),
 		DryRun:       false,
