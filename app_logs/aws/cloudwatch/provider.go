@@ -7,40 +7,55 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	cwltypes "github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 	"github.com/fatih/color"
+	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"gopkg.in/nullstone-io/nullstone.v0/contracts/aws_cloudwatch"
-	"io"
+	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
+	"os"
 	"time"
 )
 
 var (
+	logger               = log.New(os.Stderr, "", 0)
 	DefaultWatchInterval = 1 * time.Second
-	bold = color.New(color.Bold)
-	normal = color.New()
+	bold                 = color.New(color.Bold)
+	normal               = color.New()
 )
 
 type MessageEmitter func(event cwltypes.FilteredLogEvent)
 
-type InfraConfig struct {
-	Outputs aws_cloudwatch.Outputs
+type Provider struct {
 }
 
-func (c InfraConfig) Print(logger *log.Logger) {
-	logger.Printf("region: %q\n", c.Outputs.Region)
-	logger.Printf("log group: %q\n", c.Outputs.LogGroupName)
-}
-
-func (c InfraConfig) StreamLogs(ctx context.Context, options config.LogStreamOptions, w io.Writer) error {
-	emitter := func(event cwltypes.FilteredLogEvent) {
-		timestamp := time.Unix (*event.Timestamp / 1000, 0)
-		normal.Fprintf(w, "%s ", timestamp.Format("RFC822"))
-		bold.Fprintf(w, "[%s]", *event.LogStreamName)
-		normal.Fprintf(w, " %s", *event.Message)
-		normal.Println()
+func (p Provider) identify(nsConfig api.Config, app *types.Application, workspace *types.Workspace) (*aws_cloudwatch.Outputs, error) {
+	logger.Printf("Retrieving logger for app %q\n", app.Name)
+	retriever := outputs.Retriever{NsConfig: nsConfig}
+	var cwOutputs aws_cloudwatch.Outputs
+	if err := retriever.Retrieve(workspace, &cwOutputs); err != nil {
+		return nil, fmt.Errorf("Unable to retrieve app logger: %w", err)
 	}
-	fn := c.writeLatestEvents(options, emitter)
+	logger.Printf("region: %q\n", cwOutputs.Region)
+	logger.Printf("log group: %q\n", cwOutputs.LogGroupName)
+	return &cwOutputs, nil
+}
+
+func (p Provider) Stream(ctx context.Context, nsConfig api.Config, app *types.Application, workspace *types.Workspace, options config.LogStreamOptions) error {
+	cwOutputs, err := p.identify(nsConfig, app, workspace)
+	if err != nil {
+		return err
+	}
+
+	emitter := func(event cwltypes.FilteredLogEvent) {
+		timestamp := time.Unix(*event.Timestamp/1000, 0)
+		normal.Fprintf(options.Out, "%s ", timestamp.Format("RFC822"))
+		bold.Fprintf(options.Out, "[%s]", *event.LogStreamName)
+		normal.Fprintf(options.Out, " %s", *event.Message)
+		normal.Fprintln(options.Out)
+	}
+	fn := p.writeLatestEvents(*cwOutputs, options, emitter)
 
 	if options.WatchInterval == time.Duration(0) {
 		options.WatchInterval = DefaultWatchInterval
@@ -66,10 +81,10 @@ func (c InfraConfig) StreamLogs(ctx context.Context, options config.LogStreamOpt
 // Each pass of writeLatestEvents will emit all events (based on filtering)
 // We record the last event timestamp every time we emit an event
 // This allows us to pick up where we left off from a previous query
-func (c InfraConfig) writeLatestEvents(options config.LogStreamOptions, emitter MessageEmitter) func(ctx context.Context) error {
-	cwlClient := cloudwatchlogs.NewFromConfig(nsaws.NewConfig(c.Outputs.LogReader, c.Outputs.Region))
+func (p Provider) writeLatestEvents(cwOutputs aws_cloudwatch.Outputs, options config.LogStreamOptions, emitter MessageEmitter) func(ctx context.Context) error {
+	cwlClient := cloudwatchlogs.NewFromConfig(nsaws.NewConfig(cwOutputs.LogReader, cwOutputs.Region))
 	input := cloudwatchlogs.FilterLogEventsInput{
-		LogGroupName:  aws.String(c.Outputs.LogGroupName),
+		LogGroupName:  aws.String(cwOutputs.LogGroupName),
 		NextToken:     nil,
 		StartTime:     toAwsTime(options.StartTime),
 		EndTime:       toAwsTime(options.EndTime),
