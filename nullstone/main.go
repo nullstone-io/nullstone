@@ -8,6 +8,8 @@ import (
 	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
 	"gopkg.in/nullstone-io/nullstone.v0/app/container/aws-fargate"
 	aws_lambda "gopkg.in/nullstone-io/nullstone.v0/app/serverless/aws-lambda"
+	"gopkg.in/nullstone-io/nullstone.v0/app_logs"
+	"gopkg.in/nullstone-io/nullstone.v0/app_logs/aws/cloudwatch"
 	"gopkg.in/nullstone-io/nullstone.v0/cmd"
 	"os"
 	"sort"
@@ -34,6 +36,9 @@ func main() {
 			"service/aws-lambda": aws_lambda.Provider{},
 		},
 	}
+	logProviders := app_logs.Providers{
+		"cloudwatch": cloudwatch.Provider{},
+	}
 
 	cliApp := &cli.App{
 		Version: version,
@@ -58,6 +63,7 @@ func main() {
 			cmd.SetOrg,
 			cmd.Deploy(appProviders),
 			cmd.Push(appProviders),
+			cmd.Logs(appProviders, logProviders),
 		},
 	}
 	sort.Sort(cli.FlagsByName(cliApp.Flags))
