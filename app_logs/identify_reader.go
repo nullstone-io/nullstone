@@ -18,7 +18,7 @@ type outputsLogProvider struct {
 }
 
 func IdentifyReader(nsConfig api.Config, app *types.Application, workspace *types.Workspace) (string, error) {
-	logger.Printf("Identifying infrastructure for app %q\n", app.Name)
+	logger.Printf("Identifying log provider for app %q\n", app.Name)
 	lpOutputs := &outputsLogProvider{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	if err := retriever.Retrieve(workspace, &lpOutputs); err != nil {
