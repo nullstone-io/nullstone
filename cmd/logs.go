@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"github.com/urfave/cli"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
@@ -59,19 +58,10 @@ This is off by default, command will exit as soon as current log events are emit
 					logStreamOptions.WatchInterval = c.Duration("tail")
 				}
 
-				logProviderName, err := app_logs.IdentifyReader(cfg, details.App, details.Workspace)
+				logProvider, err := logProviders.Identify(provider.DefaultLogProvider(), cfg, details.App, details.Workspace)
 				if err != nil {
-					return fmt.Errorf("unable to find application log provider: %w", err)
+					return err
 				}
-				if logProviderName == "" {
-					logProviderName = provider.DefaultLogProvider()
-				}
-
-				logProvider := logProviders.Find(logProviderName)
-				if logProvider == nil {
-					return fmt.Errorf("Unable to stream logs, this CLI does not support log provider %s", logProviderName)
-				}
-
 				return logProvider.Stream(ctx, cfg, details.App, details.Workspace, logStreamOptions)
 			})
 		},
