@@ -91,9 +91,10 @@ func (p Provider) writeLatestEvents(cwOutputs aws_cloudwatch.Outputs, options co
 		FilterPattern: options.Pattern,
 	}
 	var lastEventTime *int64
+	visitedEventIds := map[string]bool{}
 
 	return func(ctx context.Context) error {
-		if lastEventTime == nil {
+		if lastEventTime != nil {
 			input.StartTime = lastEventTime
 		}
 		input.NextToken = nil
@@ -103,7 +104,11 @@ func (p Provider) writeLatestEvents(cwOutputs aws_cloudwatch.Outputs, options co
 				return fmt.Errorf("error filtering log events: %w", err)
 			}
 			for _, event := range out.Events {
+				if _, ok := visitedEventIds[*event.EventId]; ok {
+					continue
+				}
 				lastEventTime = event.Timestamp
+				visitedEventIds[*event.EventId] = true
 				emitter(event)
 			}
 			input.NextToken = out.NextToken
@@ -119,5 +124,5 @@ func toAwsTime(t *time.Time) *int64 {
 	if t == nil {
 		return nil
 	}
-	return aws.Int64(t.Unix() * int64(time.Millisecond))
+	return aws.Int64(t.UnixNano() / int64(time.Millisecond))
 }
