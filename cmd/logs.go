@@ -7,6 +7,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"gopkg.in/nullstone-io/nullstone.v0/app_logs"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
+	"os"
 	"time"
 )
 
@@ -34,10 +35,15 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) cli.Co
 	   Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)`,
 			},
 			cli.DurationFlag{
+				Name: "interval",
+				Usage: `Set --interval to a golang duration to control how often to pull new log events.
+By default, this is set to 1s.
+This will do nothing unless --tail is set.`,
+			},
+			cli.BoolFlag{
 				Name: "tail",
-				Usage: `Set tail to a golang duration to watch log events and emit as they are reported.
-The duration determines how often to query for new log events.
-If you specify '--tail', will use the default watch interval of 1 second.
+				Usage: `Set tail to watch log events and emit as they are reported.
+Use --interval to control how often to query log events.
 This is off by default, command will exit as soon as current log events are emitted.`,
 			},
 		},
@@ -45,6 +51,7 @@ This is off by default, command will exit as soon as current log events are emit
 			return AppAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details AppDetails) error {
 				logStreamOptions := config.LogStreamOptions{
 					WatchInterval: -1 * time.Second, // Disabled by default
+					Out:           os.Stdout,
 				}
 				if c.IsSet("start-time") {
 					absoluteTime := time.Now().Add(-c.Duration("start-time"))
@@ -55,7 +62,10 @@ This is off by default, command will exit as soon as current log events are emit
 					logStreamOptions.EndTime = &absoluteTime
 				}
 				if c.IsSet("tail") {
-					logStreamOptions.WatchInterval = c.Duration("tail")
+					logStreamOptions.WatchInterval = time.Duration(0)
+					if c.IsSet("interval") {
+						logStreamOptions.WatchInterval = c.Duration("interval")
+					}
 				}
 
 				logProvider, err := logProviders.Identify(provider.DefaultLogProvider(), cfg, details.App, details.Workspace)

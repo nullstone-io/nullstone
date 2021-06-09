@@ -31,11 +31,11 @@ type Provider struct {
 }
 
 func (p Provider) identify(nsConfig api.Config, app *types.Application, workspace *types.Workspace) (*aws_cloudwatch.Outputs, error) {
-	logger.Printf("Retrieving logger for app %q\n", app.Name)
+	logger.Printf("Retrieving log provider details for app %q\n", app.Name)
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	var cwOutputs aws_cloudwatch.Outputs
 	if err := retriever.Retrieve(workspace, &cwOutputs); err != nil {
-		return nil, fmt.Errorf("Unable to retrieve app logger: %w", err)
+		return nil, fmt.Errorf("Unable to retrieve app logger details: %w", err)
 	}
 	logger.Printf("region: %q\n", cwOutputs.Region)
 	logger.Printf("log group: %q\n", cwOutputs.LogGroupName)
@@ -50,7 +50,7 @@ func (p Provider) Stream(ctx context.Context, nsConfig api.Config, app *types.Ap
 
 	emitter := func(event cwltypes.FilteredLogEvent) {
 		timestamp := time.Unix(*event.Timestamp/1000, 0)
-		normal.Fprintf(options.Out, "%s ", timestamp.Format("RFC822"))
+		normal.Fprintf(options.Out, "%s ", timestamp.Format(time.RFC822Z))
 		bold.Fprintf(options.Out, "[%s]", *event.LogStreamName)
 		normal.Fprintf(options.Out, " %s", *event.Message)
 		normal.Fprintln(options.Out)

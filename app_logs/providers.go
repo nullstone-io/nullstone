@@ -21,7 +21,7 @@ type outputsLogProvider struct {
 
 func (p Providers) Identify(defaultProvider string, nsConfig api.Config, app *types.Application, workspace *types.Workspace) (Provider, error) {
 	logger.Printf("Identifying log provider for app %q\n", app.Name)
-	lpOutputs := &outputsLogProvider{}
+	lpOutputs := outputsLogProvider{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	if err := retriever.Retrieve(workspace, &lpOutputs); err != nil {
 		return nil, fmt.Errorf("Unable to identify app logger: %w", err)

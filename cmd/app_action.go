@@ -27,7 +27,7 @@ func AppAction(c *cli.Context, providers app.Providers, fn AppActionFn) error {
 	}
 
 	if c.NArg() != 2 {
-		cli.ShowCommandHelp(c, "logs")
+		cli.ShowCommandHelp(c, c.Command.Name)
 		return fmt.Errorf("invalid usage")
 	}
 	appName := c.Args().Get(0)
