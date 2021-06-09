@@ -11,7 +11,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
-	"gopkg.in/nullstone-io/nullstone.v0/contracts/aws_cloudwatch"
+	"gopkg.in/nullstone-io/nullstone.v0/contracts/aws-cloudwatch"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
