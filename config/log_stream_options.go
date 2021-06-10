@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io"
 	"time"
 )
@@ -20,4 +21,27 @@ type LogStreamOptions struct {
 
 	// Out defines a colorized output stream to stream logs
 	Out io.Writer
+}
+
+func (o LogStreamOptions) QueryTimeMessage() string {
+	if o.StartTime != nil {
+		if o.EndTime != nil {
+			return fmt.Sprintf("Querying logs between %s and %s", o.StartTime.Format(time.RFC822), o.EndTime.Format(time.RFC822))
+		}
+		return fmt.Sprintf("Querying logs starting %s", o.StartTime.Format(time.RFC822))
+	} else if o.EndTime != nil {
+		return fmt.Sprintf("Querying logs until %s", o.EndTime.Format(time.RFC822))
+	}
+	return fmt.Sprintf("Querying all logs")
+}
+
+func (o LogStreamOptions) WatchMessage() string {
+	wi := o.WatchInterval
+	if wi < 0 {
+		return "Not watching logs"
+	}
+	if wi == 0 {
+		wi = time.Second
+	}
+	return fmt.Sprintf("Watching logs (poll interval = %s)", wi)
 }

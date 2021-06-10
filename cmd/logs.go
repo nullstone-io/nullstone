@@ -23,29 +23,34 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
        This is only required if multiple apps have the same 'app-name'.`,
 			},
 			&cli.DurationFlag{
-				Name: "start-time",
-				Aliases: []string{"s"},
+				Name:        "start-time",
+				Aliases:     []string{"s"},
+				DefaultText: "1h",
 				Usage: `
        Emit log events that occur after the specified start-time. 
        This is a golang duration relative to the time the command is issued.
-       Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)`,
+       Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)
+      `,
 			},
 			&cli.DurationFlag{
-				Name: "end-time",
+				Name:    "end-time",
 				Aliases: []string{"e"},
 				Usage: `
        Emit log events that occur before the specified end-time. 
        This is a golang duration relative to the time the command is issued.
-       Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)`,
+       Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)
+      `,
 			},
 			&cli.DurationFlag{
-				Name: "interval",
+				Name:        "interval",
+				DefaultText: "1s",
 				Usage: `Set --interval to a golang duration to control how often to pull new log events.
-       By default, this is set to 1s.
-       This will do nothing unless --tail is set.`,
+       This will do nothing unless --tail is set.
+      `,
 			},
 			&cli.BoolFlag{
-				Name: "tail",
+				Name:    "tail",
+				Aliases: []string{"t"},
 				Usage: `Set tail to watch log events and emit as they are reported.
        Use --interval to control how often to query log events.
        This is off by default, command will exit as soon as current log events are emitted.`,

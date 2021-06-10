@@ -20,6 +20,7 @@ import (
 
 var (
 	logger               = log.New(os.Stderr, "", 0)
+	infoLogger           = log.New(logger.Writer(), "    ", 0)
 	DefaultWatchInterval = 1 * time.Second
 	bold                 = color.New(color.Bold)
 	normal               = color.New()
@@ -37,8 +38,8 @@ func (p Provider) identify(nsConfig api.Config, app *types.Application, workspac
 	if err := retriever.Retrieve(workspace, &cwOutputs); err != nil {
 		return nil, fmt.Errorf("Unable to retrieve app logger details: %w", err)
 	}
-	logger.Printf("region: %q\n", cwOutputs.Region)
-	logger.Printf("log group: %q\n", cwOutputs.LogGroupName)
+	infoLogger.Printf("region: %q\n", cwOutputs.Region)
+	infoLogger.Printf("log group: %q\n", cwOutputs.LogGroupName)
 	return &cwOutputs, nil
 }
 
@@ -61,6 +62,9 @@ func (p Provider) Stream(ctx context.Context, nsConfig api.Config, app *types.Ap
 		options.WatchInterval = DefaultWatchInterval
 	}
 
+	logger.Println(options.QueryTimeMessage())
+	logger.Println(options.WatchMessage())
+	logger.Println()
 	for {
 		if err := fn(ctx); err != nil {
 			return fmt.Errorf("error querying logs: %w", err)

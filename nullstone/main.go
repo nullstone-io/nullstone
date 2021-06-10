@@ -41,7 +41,7 @@ func main() {
 	}
 
 	cliApp := &cli.App{
-		Version: version,
+		Version:              version,
 		EnableBashCompletion: true,
 		Metadata: map[string]interface{}{
 			"commit":  commit,
