@@ -5,25 +5,30 @@
 class Nullstone < Formula
   desc "Launch apps on your cloud in minutes"
   homepage "https://nullstone.io"
-  version "0.0.21"
+  version "0.0.22"
   license "MIT"
   bottle :unneeded
 
-  if OS.mac? && Hardware::CPU.intel?
-    url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.21/nullstone_0.0.21_Darwin_x86_64.tar.gz"
-    sha256 "71a2afa69f729720387c2c058479efe55cbdfee48061fa27b66c73bf361ba7e4"
+  on_macos do
+    if Hardware::CPU.intel?
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.22/nullstone_0.0.22_Darwin_x86_64.tar.gz"
+      sha256 "d3d7b85d08bbcb0d8443f7d808248104502337147c2297be211e89f22824bdb7"
+    end
+    if Hardware::CPU.arm?
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.22/nullstone_0.0.22_Darwin_arm64.tar.gz"
+      sha256 "bafcc05778439134e4b79e41036f84e9ce76ebd23e69ab221e7d0bd32e2237d8"
+    end
   end
-  if OS.mac? && Hardware::CPU.arm?
-    url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.21/nullstone_0.0.21_Darwin_arm64.tar.gz"
-    sha256 "f40c951780271480d0577528b316c594cec7cac323a5040728b6d46574dbdcc0"
-  end
-  if OS.linux? && Hardware::CPU.intel?
-    url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.21/nullstone_0.0.21_Linux_x86_64.tar.gz"
-    sha256 "1471cc9006a8041f688fa73f6f0645a9fc0141f62ffd2babe6f6c8f01e5b4dcc"
-  end
-  if OS.linux? && Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-    url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.21/nullstone_0.0.21_Linux_arm64.tar.gz"
-    sha256 "d61ba3bb1eec8e047830e300a8c53cc129ef951e385781bf1cb2b9eb76fb64d2"
+
+  on_linux do
+    if Hardware::CPU.intel?
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.22/nullstone_0.0.22_Linux_x86_64.tar.gz"
+      sha256 "e5fd7bf8f4b78f0f7f2b6ef33d61e58f1f427f8a085132f9e6313ecf4f9ee2e6"
+    end
+    if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.22/nullstone_0.0.22_Linux_arm64.tar.gz"
+      sha256 "51792e5f1d545b6e251c2293362f2389c62a0256d9ef20bb6d272304df2aa7ad"
+    end
   end
 
   depends_on "go"
