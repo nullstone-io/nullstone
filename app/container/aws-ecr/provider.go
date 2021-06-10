@@ -22,6 +22,10 @@ var _ app.Provider = Provider{}
 type Provider struct {
 }
 
+func (p Provider) DefaultLogProvider() string {
+	return "cloudwatch"
+}
+
 func (p Provider) identify(nsConfig api.Config, app *types.Application, workspace *types.Workspace) (*InfraConfig, error) {
 	logger.Printf("Identifying infrastructure for app %q\n", app.Name)
 	ic := &InfraConfig{}
