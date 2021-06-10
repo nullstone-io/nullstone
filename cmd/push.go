@@ -2,30 +2,30 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 )
 
 // Push command performs a docker push to an authenticated image registry configured against an app/container
-var Push = func(providers app.Providers) cli.Command {
-	return cli.Command{
+var Push = func(providers app.Providers) *cli.Command {
+	return &cli.Command{
 		Name:      "push",
 		Usage:     "Push artifact",
 		UsageText: "nullstone push <app-name> <env-name> [options]",
 		Flags: []cli.Flag{
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name: "stack",
 				Usage: `The stack name where the app resides.
        This is only required if multiple apps have the same 'app-name'.`,
 			},
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name: "source",
 				Usage: `The source artifact to push.
        app/container: This is the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.
        app/serverless: This is a .zip archive to push.`,
 				Required: true,
 			},
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name: "version",
 				Usage: `Push the artifact with this version.
        app/container: If specified, will push the docker image with version as the image tag. Otherwise, uses source tag.

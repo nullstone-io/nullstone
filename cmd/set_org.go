@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"os"
 )
 
-var SetOrg = cli.Command{
+var SetOrg = &cli.Command{
 	Name:  "set-org",
 	Usage: "Set the organization for the CLI",
 	UsageText: `Most Nullstone CLI commands require a configured nullstone organization to operate.

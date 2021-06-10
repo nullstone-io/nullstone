@@ -2,22 +2,22 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 )
 
-var Deploy = func(providers app.Providers) cli.Command {
-	return cli.Command{
+var Deploy = func(providers app.Providers) *cli.Command {
+	return &cli.Command{
 		Name:      "deploy",
 		Usage:     "Deploy application",
 		UsageText: "nullstone deploy <app-name> <env-name> [options]",
 		Flags: []cli.Flag{
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name: "stack",
 				Usage: `The stack name where the app resides.
        This is only required if multiple apps have the same 'app-name'.`,
 			},
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name: "version",
 				Usage: `Update the application version.
        app/container: The docker image tag will be set to the version. If a version is not specified, the service will be redeployed with existing configuration.
