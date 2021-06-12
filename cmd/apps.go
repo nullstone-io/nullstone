@@ -43,7 +43,7 @@ var AppsList = &cli.Command{
 
 		if c.IsSet("detail") {
 			appDetails := make([]string, len(allApps)+1)
-			appDetails[0] = "Name|Reference|Category|Type|Module|Stack|Framework"
+			appDetails[0] = "ID|Name|Reference|Category|Type|Module|Stack|Framework"
 			for i, app := range allApps {
 				var appCategory types.CategoryName
 				var appType string
@@ -51,7 +51,7 @@ var AppsList = &cli.Command{
 					appCategory = appModule.Category
 					appType = appModule.Type
 				}
-				appDetails[i+1] = fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s", app.Name, app.Reference, appCategory, appType, app.ModuleSource, app.StackName, app.Framework)
+				appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s|%s|%s|%s", app.Id, app.Name, app.Reference, appCategory, appType, app.ModuleSource, app.StackName, app.Framework)
 			}
 			fmt.Println(columnize.Format(appDetails, columnize.DefaultConfig()))
 		} else {
