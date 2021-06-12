@@ -63,6 +63,7 @@ func main() {
 			cmd.Configure,
 			cmd.SetOrg,
 			cmd.Apps,
+			cmd.Stacks,
 			cmd.Envs,
 			cmd.Deploy(appProviders),
 			cmd.Push(appProviders),

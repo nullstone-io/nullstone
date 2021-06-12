@@ -35,3 +35,5 @@ require (
 	google.golang.org/grpc v1.38.0 // indirect
 	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20210524152336-d4c973bae123
 )
+
+replace gopkg.in/nullstone-io/go-api-client.v0 => ../go-api-client
