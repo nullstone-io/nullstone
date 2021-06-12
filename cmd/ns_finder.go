@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -107,4 +108,42 @@ func (f NsFinder) GetAppWorkspace(app *types.Application, env *types.Environment
 		return nil, fmt.Errorf("unknown module for workspace")
 	}
 	return workspace, nil
+}
+
+func (f NsFinder) GetAppModule(client api.Client, app types.Application) (*types.Module, error) {
+	ms, err := ParseSource(app.ModuleSource)
+	if err != nil {
+		return nil, err
+	}
+	return client.Org(ms.OrgName).Modules().Get(ms.ModuleName)
+}
+
+var ErrInvalidModuleSource = errors.New("invalid module source")
+
+type ModuleSource struct {
+	Host       string
+	OrgName    string
+	ModuleName string
+}
+
+func ParseSource(source string) (*ModuleSource, error) {
+	tokens := strings.Split(source, "/")
+	switch len(tokens) {
+	case 2:
+		// nullstone registry implied
+		return &ModuleSource{
+			Host:       "",
+			OrgName:    tokens[0],
+			ModuleName: tokens[1],
+		}, nil
+	case 3:
+		return &ModuleSource{
+			Host:       tokens[0],
+			OrgName:    tokens[1],
+			ModuleName: tokens[2],
+		}, nil
+	default:
+		// this does not match anything resembling a nullstone registry source
+		return nil, ErrInvalidModuleSource
+	}
 }
