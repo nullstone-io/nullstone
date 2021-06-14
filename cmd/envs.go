@@ -39,8 +39,16 @@ var EnvsList = &cli.Command{
 		}
 		stackName := c.Args().Get(0)
 
+		finder := NsFinder{Config: cfg}
+		stack, err := finder.GetStack(stackName)
+		if err != nil {
+			return fmt.Errorf("error retrieving stack: %w", err)
+		} else if stack == nil {
+			return fmt.Errorf("stack %s does not exist", stackName)
+		}
+
 		client := api.Client{Config: cfg}
-		envs, err := client.EnvironmentsByName().List(stackName)
+		envs, err := client.Environments().List(stack.Id)
 		if err != nil {
 			return fmt.Errorf("error listing environments: %w", err)
 		}

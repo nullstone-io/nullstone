@@ -33,7 +33,7 @@ var StacksList = &cli.Command{
 		}
 
 		client := api.Client{Config: cfg}
-		allStacks, err := client.StacksByName().List()
+		allStacks, err := client.Stacks().List()
 		if err != nil {
 			return fmt.Errorf("error listing stacks: %w", err)
 		}
