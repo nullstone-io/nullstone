@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -36,14 +37,23 @@ type NsFinder struct {
 // This retrieves the app, env, and workspace
 // stackName is optional -- If multiple apps are found, this will return an error
 func (f NsFinder) GetAppAndWorkspace(appName, stackName, envName string) (*types.Application, *types.Environment, *types.Workspace, error) {
-	app, err := f.GetApp(appName, stackName)
+	stack, err := f.GetStack(stackName)
+	if err != nil {
+		return nil, nil, nil, err
+	} else if stack == nil {
+		return nil, nil, nil, fmt.Errorf("stack %s does not exist", stackName)
+	}
+
+	app, err := f.GetApp(appName, stack.Id)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
-	env, err := f.GetEnv(app.StackName, envName)
+	env, err := f.GetEnv(stack.Id, envName)
 	if err != nil {
 		return nil, nil, nil, err
+	} else if env == nil {
+		return nil, nil, nil, fmt.Errorf("environment %s/%s does not exist", stackName, envName)
 	}
 
 	workspace, err := f.GetAppWorkspace(app, env)
@@ -57,7 +67,7 @@ func (f NsFinder) GetAppAndWorkspace(appName, stackName, envName string) (*types
 // GetApp searches for an app by app name and optionally stack name
 // If only 1 app is found, returns that app
 // If many are found, will return an error with matched app stack names
-func (f NsFinder) GetApp(appName string, stackName string) (*types.Application, error) {
+func (f NsFinder) GetApp(appName string, stackId int64) (*types.Application, error) {
 	client := api.Client{Config: f.Config}
 	allApps, err := client.Apps().List()
 	if err != nil {
@@ -66,7 +76,7 @@ func (f NsFinder) GetApp(appName string, stackName string) (*types.Application, 
 
 	matched := make([]types.Application, 0)
 	for _, app := range allApps {
-		if app.Name == appName && (stackName == "" || app.StackName == stackName) {
+		if app.Name == appName && (stackId == 0 || app.StackId == stackId) {
 			matched = append(matched, app)
 		}
 	}
@@ -80,15 +90,32 @@ func (f NsFinder) GetApp(appName string, stackName string) (*types.Application, 
 	return &matched[0], nil
 }
 
-func (f NsFinder) GetEnv(stackName, envName string) (*types.Environment, error) {
+func (f NsFinder) GetStack(stackName string) (*types.Stack, error) {
 	client := api.Client{Config: f.Config}
-	env, err := client.EnvironmentsByName().Get(stackName, envName)
+	stacks, err := client.Stacks().List()
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving environment: %w", err)
-	} else if env == nil {
-		return nil, fmt.Errorf("environment %s/%s does not exist", stackName, envName)
+		return nil, fmt.Errorf("error retrieving stacks: %w", err)
 	}
-	return env, nil
+	for _, stack := range stacks {
+		if stack.Name == stackName {
+			return stack, nil
+		}
+	}
+	return nil, nil
+}
+
+func (f NsFinder) GetEnv(stackId int64, envName string) (*types.Environment, error) {
+	client := api.Client{Config: f.Config}
+	envs, err := client.Environments().List(stackId)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving environments: %w", err)
+	}
+	for _, env := range envs {
+		if env.Name == envName {
+			return env, nil
+		}
+	}
+	return nil, nil
 }
 
 func (f NsFinder) GetAppWorkspace(app *types.Application, env *types.Environment) (*types.Workspace, error) {
@@ -107,4 +134,42 @@ func (f NsFinder) GetAppWorkspace(app *types.Application, env *types.Environment
 		return nil, fmt.Errorf("unknown module for workspace")
 	}
 	return workspace, nil
+}
+
+func (f NsFinder) GetAppModule(client api.Client, app types.Application) (*types.Module, error) {
+	ms, err := ParseSource(app.ModuleSource)
+	if err != nil {
+		return nil, err
+	}
+	return client.Org(ms.OrgName).Modules().Get(ms.ModuleName)
+}
+
+var ErrInvalidModuleSource = errors.New("invalid module source")
+
+type ModuleSource struct {
+	Host       string
+	OrgName    string
+	ModuleName string
+}
+
+func ParseSource(source string) (*ModuleSource, error) {
+	tokens := strings.Split(source, "/")
+	switch len(tokens) {
+	case 2:
+		// nullstone registry implied
+		return &ModuleSource{
+			Host:       "",
+			OrgName:    tokens[0],
+			ModuleName: tokens[1],
+		}, nil
+	case 3:
+		return &ModuleSource{
+			Host:       tokens[0],
+			OrgName:    tokens[1],
+			ModuleName: tokens[2],
+		}, nil
+	default:
+		// this does not match anything resembling a nullstone registry source
+		return nil, ErrInvalidModuleSource
+	}
 }

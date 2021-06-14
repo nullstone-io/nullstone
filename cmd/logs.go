@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"context"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"gopkg.in/nullstone-io/nullstone.v0/app_logs"
@@ -11,40 +11,49 @@ import (
 	"time"
 )
 
-var Logs = func(providers app.Providers, logProviders app_logs.Providers) cli.Command {
-	return cli.Command{
+var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.Command {
+	return &cli.Command{
 		Name:      "logs",
 		Usage:     "Emit application logs",
 		UsageText: "nullstone logs <app-name> <env-name> [options]",
 		Flags: []cli.Flag{
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name: "stack",
 				Usage: `The stack name where the app resides.
        This is only required if multiple apps have the same 'app-name'.`,
 			},
-			cli.DurationFlag{
-				Name: "start-time",
-				Usage: `Emit log events that occur after the specified start-time. 
+			&cli.DurationFlag{
+				Name:        "start-time",
+				Aliases:     []string{"s"},
+				DefaultText: "1h",
+				Usage: `
+       Emit log events that occur after the specified start-time. 
        This is a golang duration relative to the time the command is issued.
-	   Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)`,
+       Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)
+      `,
 			},
-			cli.DurationFlag{
-				Name: "end-time",
-				Usage: `Emit log events that occur before the specified end-time. 
+			&cli.DurationFlag{
+				Name:    "end-time",
+				Aliases: []string{"e"},
+				Usage: `
+       Emit log events that occur before the specified end-time. 
        This is a golang duration relative to the time the command is issued.
-	   Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)`,
+       Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)
+      `,
 			},
-			cli.DurationFlag{
-				Name: "interval",
+			&cli.DurationFlag{
+				Name:        "interval",
+				DefaultText: "1s",
 				Usage: `Set --interval to a golang duration to control how often to pull new log events.
-By default, this is set to 1s.
-This will do nothing unless --tail is set.`,
+       This will do nothing unless --tail is set.
+      `,
 			},
-			cli.BoolFlag{
-				Name: "tail",
+			&cli.BoolFlag{
+				Name:    "tail",
+				Aliases: []string{"t"},
 				Usage: `Set tail to watch log events and emit as they are reported.
-Use --interval to control how often to query log events.
-This is off by default, command will exit as soon as current log events are emitted.`,
+       Use --interval to control how often to query log events.
+       This is off by default, command will exit as soon as current log events are emitted.`,
 			},
 		},
 		Action: func(c *cli.Context) error {

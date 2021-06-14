@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
@@ -41,7 +41,8 @@ func main() {
 	}
 
 	cliApp := &cli.App{
-		Version: version,
+		Version:              version,
+		EnableBashCompletion: true,
 		Metadata: map[string]interface{}{
 			"commit":  commit,
 			"date":    date,
@@ -51,7 +52,7 @@ func main() {
 			cmd.ProfileFlag,
 			cmd.OrgFlag,
 		},
-		Commands: []cli.Command{
+		Commands: []*cli.Command{
 			{
 				Name: "version",
 				Action: func(c *cli.Context) error {
@@ -61,6 +62,9 @@ func main() {
 			},
 			cmd.Configure,
 			cmd.SetOrg,
+			cmd.Apps,
+			cmd.Stacks,
+			cmd.Envs,
 			cmd.Deploy(appProviders),
 			cmd.Push(appProviders),
 			cmd.Logs(appProviders, logProviders),

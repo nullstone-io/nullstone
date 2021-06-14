@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
@@ -11,19 +11,19 @@ import (
 )
 
 var (
-	AddressFlag = cli.StringFlag{
+	AddressFlag = &cli.StringFlag{
 		Name:  "address",
 		Value: api.DefaultAddress,
 		Usage: "Nullstone API Address",
 	}
-	ApiKeyFlag = cli.StringFlag{
+	ApiKeyFlag = &cli.StringFlag{
 		Name:  "api-key",
 		Value: "",
 		Usage: "Nullstone API Key",
 	}
 )
 
-var Configure = cli.Command{
+var Configure = &cli.Command{
 	Name: "configure",
 	Flags: []cli.Flag{
 		AddressFlag,

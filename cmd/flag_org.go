@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"errors"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
@@ -16,14 +16,14 @@ var (
 //   `--org` flag
 //   `NULLSTONE_ORG` env var
 //   `~/.nullstone/<profile>/org` file
-var OrgFlag = cli.StringFlag{
-	Name:   "org",
-	EnvVar: "NULLSTONE_ORG",
-	Usage:  `Nullstone organization name used to contextualize API calls. If this flag is not specified, the nullstone CLI will use ~/.nullstone/<profile>/org file.`,
+var OrgFlag = &cli.StringFlag{
+	Name:    "org",
+	EnvVars: []string{"NULLSTONE_ORG"},
+	Usage:   `Nullstone organization name used to contextualize API calls. If this flag is not specified, the nullstone CLI will use ~/.nullstone/<profile>/org file.`,
 }
 
 func GetOrg(c *cli.Context, profile config.Profile) string {
-	val := c.GlobalString(OrgFlag.Name)
+	val := c.String(OrgFlag.Name)
 	if val == "" {
 		val, _ = profile.LoadOrg()
 	}
