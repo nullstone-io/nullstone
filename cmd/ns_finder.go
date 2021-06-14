@@ -37,19 +37,22 @@ type NsFinder struct {
 // This retrieves the app, env, and workspace
 // stackName is optional -- If multiple apps are found, this will return an error
 func (f NsFinder) GetAppAndWorkspace(appName, stackName, envName string) (*types.Application, *types.Environment, *types.Workspace, error) {
-	stack, err := f.GetStack(stackName)
-	if err != nil {
-		return nil, nil, nil, err
-	} else if stack == nil {
-		return nil, nil, nil, fmt.Errorf("stack %s does not exist", stackName)
+	var stackId int64
+	if stackName != "" {
+		stack, err := f.GetStack(stackName)
+		if err != nil {
+			return nil, nil, nil, err
+		} else if stack == nil {
+			return nil, nil, nil, fmt.Errorf("stack %s does not exist", stackName)
+		}
 	}
 
-	app, err := f.GetApp(appName, stack.Id)
+	app, err := f.GetApp(appName, stackId)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
-	env, err := f.GetEnv(stack.Id, envName)
+	env, err := f.GetEnv(app.StackId, envName)
 	if err != nil {
 		return nil, nil, nil, err
 	} else if env == nil {
