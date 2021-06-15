@@ -15,12 +15,7 @@ var Push = func(providers app.Providers) *cli.Command {
 		Flags: []cli.Flag{
 			StackFlag,
 			AppSourceFlag,
-			&cli.StringFlag{
-				Name: "version",
-				Usage: `Push the artifact with this version.
-       app/container: If specified, will push the docker image with version as the image tag. Otherwise, uses source tag.
-       app/serverless: This is required to upload the artifact.`,
-			},
+			AppVersionFlag,
 		},
 		Action: func(c *cli.Context) error {
 			_, cfg, err := SetupProfileCmd(c)
