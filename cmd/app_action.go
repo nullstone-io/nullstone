@@ -6,6 +6,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -25,9 +26,14 @@ func AppAction(c *cli.Context, providers app.Providers, fn AppActionFn) error {
 	}
 	appName := c.Args().Get(0)
 	envName := c.Args().Get(1)
+	stackName := c.String("stack-name")
+
+	logger := log.New(os.Stderr, "", 0)
+	logger.Printf( "Performing application command (Org=%s, App=%s, Stack=%s, Env=%s)", cfg.OrgName, appName, stackName, envName)
+	logger.Println()
 
 	finder := NsFinder{Config: cfg}
-	application, env, workspace, err := finder.GetAppAndWorkspace(appName, c.String("stack-name"), envName)
+	application, env, workspace, err := finder.GetAppAndWorkspace(appName, stackName, envName)
 	if err != nil {
 		return err
 	}
