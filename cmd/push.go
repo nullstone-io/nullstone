@@ -13,11 +13,7 @@ var Push = func(providers app.Providers) *cli.Command {
 		Usage:     "Push artifact",
 		UsageText: "nullstone push <app-name> <env-name> [options]",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name: "stack",
-				Usage: `The stack name where the app resides.
-       This is only required if multiple apps have the same 'app-name'.`,
-			},
+			StackFlag,
 			&cli.StringFlag{
 				Name: "source",
 				Usage: `The source artifact to push.
