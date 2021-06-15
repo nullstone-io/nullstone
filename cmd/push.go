@@ -14,13 +14,7 @@ var Push = func(providers app.Providers) *cli.Command {
 		UsageText: "nullstone push <app-name> <env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
-			&cli.StringFlag{
-				Name: "source",
-				Usage: `The source artifact to push.
-       app/container: This is the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.
-       app/serverless: This is a .zip archive to push.`,
-				Required: true,
-			},
+			AppSourceFlag,
 			&cli.StringFlag{
 				Name: "version",
 				Usage: `Push the artifact with this version.
