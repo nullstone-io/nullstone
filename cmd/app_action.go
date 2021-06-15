@@ -41,7 +41,7 @@ func AppAction(c *cli.Context, providers app.Providers, fn AppActionFn) error {
 
 	provider := providers.Find(workspace.Module.Category, workspace.Module.Type)
 	if provider == nil {
-		return fmt.Errorf("unable to push, this CLI does not support category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
+		return fmt.Errorf("this CLI does not support application category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
 	}
 
 	ctx := context.Background()
