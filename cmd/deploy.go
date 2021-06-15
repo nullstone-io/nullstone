@@ -17,11 +17,11 @@ var Deploy = func(providers app.Providers) *cli.Command {
 			AppVersionFlag,
 		},
 		Action: func(c *cli.Context) error {
-			return AppAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details AppDetails) error {
+			return AppAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
 				userConfig := map[string]string{
 					"version": c.String("version"),
 				}
-				return provider.Deploy(cfg, details.App, details.Env, details.Workspace, userConfig)
+				return provider.Deploy(cfg, details, userConfig)
 			})
 		},
 	}
