@@ -8,7 +8,8 @@ import (
 	cwltypes "github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 	"github.com/fatih/color"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"gopkg.in/nullstone-io/nullstone.v0/app_logs"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"gopkg.in/nullstone-io/nullstone.v0/contracts/aws-cloudwatch"
@@ -28,14 +29,16 @@ var (
 
 type MessageEmitter func(event cwltypes.FilteredLogEvent)
 
+var _ app_logs.Provider = Provider{}
+
 type Provider struct {
 }
 
-func (p Provider) identify(nsConfig api.Config, app *types.Application, workspace *types.Workspace) (*aws_cloudwatch.Outputs, error) {
-	logger.Printf("Retrieving log provider details for app %q\n", app.Name)
+func (p Provider) identify(nsConfig api.Config, details app.Details) (*aws_cloudwatch.Outputs, error) {
+	logger.Printf("Retrieving log provider details for app %q\n", details.App.Name)
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	var cwOutputs aws_cloudwatch.Outputs
-	if err := retriever.Retrieve(workspace, &cwOutputs); err != nil {
+	if err := retriever.Retrieve(details.Workspace, &cwOutputs); err != nil {
 		return nil, fmt.Errorf("Unable to retrieve app logger details: %w", err)
 	}
 	infoLogger.Printf("region: %q\n", cwOutputs.Region)
@@ -43,8 +46,8 @@ func (p Provider) identify(nsConfig api.Config, app *types.Application, workspac
 	return &cwOutputs, nil
 }
 
-func (p Provider) Stream(ctx context.Context, nsConfig api.Config, app *types.Application, workspace *types.Workspace, options config.LogStreamOptions) error {
-	cwOutputs, err := p.identify(nsConfig, app, workspace)
+func (p Provider) Stream(ctx context.Context, nsConfig api.Config, details app.Details, options config.LogStreamOptions) error {
+	cwOutputs, err := p.identify(nsConfig, details)
 	if err != nil {
 		return err
 	}

@@ -2,7 +2,6 @@ package app
 
 import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
 // Provider provides a standard interface to run commands against an app
@@ -12,6 +11,6 @@ import (
 //   - Each Provider is specific to Category+Type (Example: category=app/container, type=service/aws-fargate)
 type Provider interface {
 	DefaultLogProvider() string
-	Push(nsConfig api.Config, app *types.Application, env *types.Environment, workspace *types.Workspace, userConfig map[string]string) error
-	Deploy(nsConfig api.Config, app *types.Application, env *types.Environment, workspace *types.Workspace, userConfig map[string]string) error
+	Push(nsConfig api.Config, details Details, userConfig map[string]string) error
+	Deploy(nsConfig api.Config, details Details, userConfig map[string]string) error
 }

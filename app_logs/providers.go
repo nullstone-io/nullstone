@@ -3,7 +3,7 @@ package app_logs
 import (
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
@@ -19,11 +19,11 @@ type outputsLogProvider struct {
 	LogProvider string `ns:"log_provider,optional"`
 }
 
-func (p Providers) Identify(defaultProvider string, nsConfig api.Config, app *types.Application, workspace *types.Workspace) (Provider, error) {
-	logger.Printf("Identifying log provider for app %q\n", app.Name)
+func (p Providers) Identify(defaultProvider string, nsConfig api.Config, details app.Details) (Provider, error) {
+	logger.Printf("Identifying log provider for app %q\n", details.App.Name)
 	lpOutputs := outputsLogProvider{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
-	if err := retriever.Retrieve(workspace, &lpOutputs); err != nil {
+	if err := retriever.Retrieve(details.Workspace, &lpOutputs); err != nil {
 		return nil, fmt.Errorf("Unable to identify app logger: %w", err)
 	}
 	if lpOutputs.LogProvider == "" {

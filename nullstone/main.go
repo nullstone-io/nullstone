@@ -68,6 +68,7 @@ func main() {
 			cmd.Deploy(appProviders),
 			cmd.Push(appProviders),
 			cmd.Logs(appProviders, logProviders),
+			cmd.Launch(appProviders, logProviders),
 		},
 	}
 	sort.Sort(cli.FlagsByName(cliApp.Flags))

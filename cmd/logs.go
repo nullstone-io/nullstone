@@ -15,13 +15,9 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
 	return &cli.Command{
 		Name:      "logs",
 		Usage:     "Emit application logs",
-		UsageText: "nullstone logs <app-name> <env-name> [options]",
+		UsageText: "nullstone logs [options] <app-name> <env-name>",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name: "stack",
-				Usage: `The stack name where the app resides.
-       This is only required if multiple apps have the same 'app-name'.`,
-			},
+			StackFlag,
 			&cli.DurationFlag{
 				Name:        "start-time",
 				Aliases:     []string{"s"},
@@ -57,7 +53,7 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
 			},
 		},
 		Action: func(c *cli.Context) error {
-			return AppAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details AppDetails) error {
+			return AppAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
 				logStreamOptions := config.LogStreamOptions{
 					WatchInterval: -1 * time.Second, // Disabled by default
 					Out:           os.Stdout,
@@ -77,11 +73,11 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
 					}
 				}
 
-				logProvider, err := logProviders.Identify(provider.DefaultLogProvider(), cfg, details.App, details.Workspace)
+				logProvider, err := logProviders.Identify(provider.DefaultLogProvider(), cfg, details)
 				if err != nil {
 					return err
 				}
-				return logProvider.Stream(ctx, cfg, details.App, details.Workspace, logStreamOptions)
+				return logProvider.Stream(ctx, cfg, details, logStreamOptions)
 			})
 		},
 	}
