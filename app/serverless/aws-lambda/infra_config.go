@@ -17,6 +17,7 @@ type InfraConfig struct {
 }
 
 func (c InfraConfig) Print(logger *log.Logger) {
+	logger = log.New(logger.Writer(), "    ", 0)
 	logger.Printf("lambda arn: %q\n", c.Outputs.LambdaArn)
 	logger.Printf("lambda name: %q\n", c.Outputs.LambdaName)
 	logger.Printf("artifacts bucket: %q\n", c.Outputs.ArtifactsBucketName)

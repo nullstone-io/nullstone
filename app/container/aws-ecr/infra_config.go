@@ -19,6 +19,7 @@ type InfraConfig struct {
 }
 
 func (c InfraConfig) Print(logger *log.Logger) {
+	logger = log.New(logger.Writer(), "    ", 0)
 	logger.Printf("repository image url: %q\n", c.Outputs.ImageRepoUrl)
 }
 

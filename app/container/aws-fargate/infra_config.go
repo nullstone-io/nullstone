@@ -22,6 +22,7 @@ type InfraConfig struct {
 }
 
 func (c InfraConfig) Print(logger *log.Logger) {
+	logger = log.New(logger.Writer(), "    ", 0)
 	logger.Printf("fargate cluster: %q\n", c.Outputs.Cluster.ClusterArn)
 	logger.Printf("fargate service: %q\n", c.Outputs.ServiceName)
 	logger.Printf("repository image url: %q\n", c.Outputs.ImageRepoUrl)
