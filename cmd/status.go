@@ -1,11 +1,21 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"github.com/gosuri/uilive"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
+
+var (
+	defaultWatchInterval = 1 * time.Second
 )
 
 var Status = func(providers app.Providers) *cli.Command {
@@ -16,21 +26,42 @@ var Status = func(providers app.Providers) *cli.Command {
 		Flags: []cli.Flag{
 			StackFlag,
 			AppVersionFlag,
+			&cli.BoolFlag{
+				Name: "watch",
+				Aliases: []string{"w"},
+			},
 		},
 		Action: func(c *cli.Context) error {
 			return ProfileAction(c, func(cfg api.Config) error {
 				var appName, envName string
 				stackName := c.String("stack-name")
+
+				ctx := context.Background()
+				// Handle Ctrl+C, kill stream
+				ctx, cancelFn := context.WithCancel(ctx)
+				defer cancelFn()
+				term := make(chan os.Signal, 1)
+				signal.Notify(term, os.Interrupt, syscall.SIGTERM)
+				go func() {
+					<-term
+					cancelFn()
+				}()
+
+				watchInterval := -1*time.Second
+				if c.IsSet("watch") {
+					watchInterval = defaultWatchInterval
+				}
+
 				switch c.NArg() {
 				case 1:
 					appName = c.Args().Get(0)
 					// TODO: Support -w/--watch
-					return appStatus(cfg, providers, stackName, appName)
+					return appStatus(ctx, cfg, providers, watchInterval, stackName, appName)
 				case 2:
 					appName = c.Args().Get(0)
 					envName = c.Args().Get(1)
 					// TODO: Support -w/--watch
-					return appEnvStatus(cfg, stackName, appName, envName)
+					return appEnvStatus(ctx, cfg, providers, watchInterval, stackName, appName, envName)
 				default:
 					cli.ShowCommandHelp(c, c.Command.Name)
 					return fmt.Errorf("invalid usage")
@@ -40,7 +71,31 @@ var Status = func(providers app.Providers) *cli.Command {
 	}
 }
 
-func appStatus(cfg api.Config, providers app.Providers, stackName, appName string) error {
+func calcPrettyInfraStatus(workspace *types.Workspace) string {
+	if workspace == nil {
+		return types.WorkspaceStatusNotProvisioned
+	}
+	if workspace.ActiveRun == nil {
+		return workspace.Status
+	}
+	switch workspace.ActiveRun.Status {
+	default:
+		return workspace.Status
+	case types.RunStatusResolving:
+	case types.RunStatusInitializing:
+	case types.RunStatusAwaiting:
+	case types.RunStatusRunning:
+	}
+	if workspace.ActiveRun.IsDestroy {
+		return "destroying"
+	}
+	if workspace.Status == types.WorkspaceStatusNotProvisioned {
+		return "creating"
+	}
+	return "updating"
+}
+
+func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, watchInterval time.Duration, stackName, appName string) error {
 	finder := NsFinder{Config: cfg}
 	application, _, err := finder.GetAppAndStack(appName, stackName)
 	if err != nil {
@@ -65,6 +120,8 @@ func appStatus(cfg api.Config, providers app.Providers, stackName, appName strin
 		} else if workspace == nil {
 			return types.WorkspaceStatusNotProvisioned, "not-deployed", nil, nil
 		}
+		infraStatus := calcPrettyInfraStatus(workspace)
+
 		appEnv, err := client.AppEnvs().Get(application.Id, env.Name)
 		if err != nil {
 			return "", "", nil, err
@@ -82,31 +139,47 @@ func appStatus(cfg api.Config, providers app.Providers, stackName, appName strin
 		if err != nil {
 			return "", "", nil, fmt.Errorf("error retrieving app status: %w", err)
 		}
-		return workspace.Status, appEnv.Version, report, nil
+		version := appEnv.Version
+		if version == "" {
+			version = "not-deployed"
+		}
+		return infraStatus, version, report, nil
 	}
 
-	buffer := &TableBuffer{}
-	buffer.AddFields("env", "infra", "version")
-	for _, env := range envs {
-		infraStatus, version, report, err := getWorkspaceDetails(env)
-		if err != nil {
-			return fmt.Errorf("error retrieving app workspace (%s/%s): %w", application.Name, env.Name, err)
+	writer := uilive.New()
+	writer.Start()
+	defer writer.Stop()
+	for {
+		buffer := &TableBuffer{}
+		buffer.AddFields("env", "infra", "version")
+		for _, env := range envs {
+			infraStatus, version, report, err := getWorkspaceDetails(env)
+			if err != nil {
+				return fmt.Errorf("error retrieving app workspace (%s/%s): %w", application.Name, env.Name, err)
+			}
+			cur := map[string]interface{}{
+				"env":     env.Name,
+				"infra":   infraStatus,
+				"version": version,
+			}
+			for k, v := range report {
+				cur[k] = v
+			}
+			buffer.AddRow(cur)
 		}
-		cur := map[string]interface{}{
-			"env":     env.Name,
-			"infra":   infraStatus,
-			"version": version,
-		}
-		for k, v := range report {
-			cur[k] = v
-		}
-		buffer.AddRow(cur)
-	}
+		fmt.Fprintln(writer, buffer.Serialize("|"))
 
-	fmt.Println(buffer.Serialize("|"))
-	return nil
+		if watchInterval <= 0*time.Second {
+			return nil
+		}
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-time.After(watchInterval):
+		}
+	}
 }
 
-func appEnvStatus(cfg api.Config, stackName, appName, envName string) error {
+func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, watchInterval time.Duration, stackName, appName, envName string) error {
 	return nil
 }
