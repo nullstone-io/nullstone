@@ -55,12 +55,10 @@ var Status = func(providers app.Providers) *cli.Command {
 				switch c.NArg() {
 				case 1:
 					appName = c.Args().Get(0)
-					// TODO: Support -w/--watch
 					return appStatus(ctx, cfg, providers, watchInterval, stackName, appName)
 				case 2:
 					appName = c.Args().Get(0)
 					envName = c.Args().Get(1)
-					// TODO: Support -w/--watch
 					return appEnvStatus(ctx, cfg, providers, watchInterval, stackName, appName, envName)
 				default:
 					cli.ShowCommandHelp(c, c.Command.Name)
