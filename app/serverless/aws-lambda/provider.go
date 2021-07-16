@@ -103,3 +103,11 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	logger.Printf("Deployed app %q\n", details.App.Name)
 	return nil
 }
+
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
+	return app.StatusReport{}, nil
+}
+
+func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReport, error) {
+	return app.StatusDetailReport{}, nil
+}

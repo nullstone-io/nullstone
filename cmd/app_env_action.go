@@ -29,7 +29,7 @@ func AppEnvAction(c *cli.Context, providers app.Providers, fn AppEnvActionFn) er
 	stackName := c.String("stack-name")
 
 	logger := log.New(os.Stderr, "", 0)
-	logger.Printf( "Performing application command (Org=%s, App=%s, Stack=%s, Env=%s)", cfg.OrgName, appName, stackName, envName)
+	logger.Printf("Performing application command (Org=%s, App=%s, Stack=%s, Env=%s)", cfg.OrgName, appName, stackName, envName)
 	logger.Println()
 
 	finder := NsFinder{Config: cfg}
