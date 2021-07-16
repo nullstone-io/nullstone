@@ -53,7 +53,7 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
 			},
 		},
 		Action: func(c *cli.Context) error {
-			return AppAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
+			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
 				logStreamOptions := config.LogStreamOptions{
 					WatchInterval: -1 * time.Second, // Disabled by default
 					Out:           os.Stdout,

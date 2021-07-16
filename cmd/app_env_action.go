@@ -12,9 +12,9 @@ import (
 	"syscall"
 )
 
-type AppActionFn func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error
+type AppEnvActionFn func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error
 
-func AppAction(c *cli.Context, providers app.Providers, fn AppActionFn) error {
+func AppEnvAction(c *cli.Context, providers app.Providers, fn AppEnvActionFn) error {
 	_, cfg, err := SetupProfileCmd(c)
 	if err != nil {
 		return err
