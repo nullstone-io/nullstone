@@ -140,7 +140,7 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 			return "", "", nil, fmt.Errorf("error retrieving app status: %w", err)
 		}
 		version := appEnv.Version
-		if version == "" {
+		if version == "" || infraStatus == types.WorkspaceStatusNotProvisioned || infraStatus == "creating" {
 			version = "not-deployed"
 		}
 		return infraStatus, version, report, nil
