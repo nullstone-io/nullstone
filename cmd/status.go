@@ -112,30 +112,35 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 	}
 
 	getWorkspaceDetails := func(env *types.Environment) (string, string, app.StatusReport, error) {
+		var report app.StatusReport
+
 		workspace, err := client.Workspaces().Get(application.StackId, application.Id, env.Id)
 		if err != nil {
 			return "", "", app.StatusReport{}, err
 		} else if workspace == nil {
-			return types.WorkspaceStatusNotProvisioned, "not-deployed", app.StatusReport{}, nil
+			return types.WorkspaceStatusNotProvisioned, "not-deployed", report, nil
 		}
 		infraStatus := calcPrettyInfraStatus(workspace)
 
 		appEnv, err := client.AppEnvs().Get(application.Id, env.Name)
 		if err != nil {
-			return "", "", app.StatusReport{}, err
+			return "", "", report, err
 		}
 		provider := providers.Find(workspace.Module.Category, workspace.Module.Type)
 		if provider == nil {
-			return "", "", app.StatusReport{}, fmt.Errorf("this CLI does not support application category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
+			return "", "", report, fmt.Errorf("this CLI does not support application category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
 		}
-		details := app.Details{
-			App:       application,
-			Env:       env,
-			Workspace: workspace,
-		}
-		report, err := provider.Status(cfg, details)
-		if err != nil {
-			return "", "", app.StatusReport{}, fmt.Errorf("error retrieving app status: %w", err)
+		if workspace.Status != types.WorkspaceStatusNotProvisioned {
+			details := app.Details{
+				App:       application,
+				Env:       env,
+				Workspace: workspace,
+			}
+			var err error
+			report, err = provider.Status(cfg, details)
+			if err != nil {
+				return "", "", report, fmt.Errorf("error retrieving app status: %w", err)
+			}
 		}
 		version := appEnv.Version
 		if version == "" || infraStatus == types.WorkspaceStatusNotProvisioned || infraStatus == "creating" {
