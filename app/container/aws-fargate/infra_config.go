@@ -120,6 +120,21 @@ func (c InfraConfig) findMainContainerDefinitionIndex(containerDefs []ecstypes.C
 	return 0, nil
 }
 
+func (c InfraConfig) GetService() (*ecstypes.Service, error) {
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
+	out, err := ecsClient.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
+		Services: []string{c.Outputs.ServiceName},
+		Cluster:  aws.String(c.Outputs.Cluster.ClusterArn),
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(out.Services) > 0 {
+		return &out.Services[0], nil
+	}
+	return nil, nil
+}
+
 func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {
 	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
 

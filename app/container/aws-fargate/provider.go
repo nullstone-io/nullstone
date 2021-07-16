@@ -128,7 +128,25 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
-	return app.StatusReport{}, nil
+	ic := &InfraConfig{}
+	retriever := outputs.Retriever{NsConfig: nsConfig}
+	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
+		return app.StatusReport{}, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+	}
+
+	svc, err := ic.GetService()
+	if err != nil {
+		return app.StatusReport{}, fmt.Errorf("error retrieving fargate service: %w", err)
+	}
+
+	return app.StatusReport{
+		Fields: []string{"running", "desired", "pending"},
+		Data: map[string]interface{}{
+			"running": fmt.Sprintf("%d", svc.RunningCount),
+			"desired": fmt.Sprintf("%d", svc.DesiredCount),
+			"pending": fmt.Sprintf("%d", svc.PendingCount),
+		},
+	}, nil
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReport, error) {

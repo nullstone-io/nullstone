@@ -4,8 +4,15 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 )
 
-type StatusReport map[string]interface{}
-type StatusDetailReport map[string]interface{}
+type StatusReport struct {
+	Fields []string
+	Data   map[string]interface{}
+}
+
+type StatusDetailReport struct {
+	Fields []string
+	Data   map[string]interface{}
+}
 
 // Provider provides a standard interface to run commands against an app
 // Each Operator is responsible for:
