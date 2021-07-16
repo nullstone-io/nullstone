@@ -34,20 +34,10 @@ type NsFinder struct {
 	Config api.Config
 }
 
-// This retrieves the app, env, and workspace
+// GetAppAndWorkspace retrieves the app, env, and workspace
 // stackName is optional -- If multiple apps are found, this will return an error
 func (f NsFinder) GetAppAndWorkspace(appName, stackName, envName string) (*types.Application, *types.Environment, *types.Workspace, error) {
-	var stackId int64
-	if stackName != "" {
-		stack, err := f.GetStack(stackName)
-		if err != nil {
-			return nil, nil, nil, err
-		} else if stack == nil {
-			return nil, nil, nil, fmt.Errorf("stack %s does not exist", stackName)
-		}
-	}
-
-	app, err := f.GetApp(appName, stackId)
+	app, _, err := f.GetAppAndStack(appName, stackName)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -67,10 +57,30 @@ func (f NsFinder) GetAppAndWorkspace(appName, stackName, envName string) (*types
 	return app, env, workspace, nil
 }
 
-// GetApp searches for an app by app name and optionally stack name
+func (f NsFinder) GetAppAndStack(appName, stackName string) (*types.Application, *types.Stack, error) {
+	var stackId int64
+	var stack *types.Stack
+	if stackName != "" {
+		var err error
+		if stack, err = f.GetStack(stackName); err != nil {
+			return nil, nil, err
+		} else if stack == nil {
+			return nil, nil, fmt.Errorf("stack %s does not exist", stackName)
+		}
+	}
+
+	app, err := f.getApp(appName, stackId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return app, stack, nil
+}
+
+// getApp searches for an app by app name and optionally stack name
 // If only 1 app is found, returns that app
 // If many are found, will return an error with matched app stack names
-func (f NsFinder) GetApp(appName string, stackId int64) (*types.Application, error) {
+func (f NsFinder) getApp(appName string, stackId int64) (*types.Application, error) {
 	client := api.Client{Config: f.Config}
 	allApps, err := client.Apps().List()
 	if err != nil {
