@@ -140,11 +140,11 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 	}
 
 	return app.StatusReport{
-		Fields: []string{"running", "desired", "pending"},
+		Fields: []string{"Running", "Desired", "Pending"},
 		Data: map[string]interface{}{
-			"running": fmt.Sprintf("%d", svc.RunningCount),
-			"desired": fmt.Sprintf("%d", svc.DesiredCount),
-			"pending": fmt.Sprintf("%d", svc.PendingCount),
+			"Running": fmt.Sprintf("%d", svc.RunningCount),
+			"Desired": fmt.Sprintf("%d", svc.DesiredCount),
+			"Pending": fmt.Sprintf("%d", svc.PendingCount),
 		},
 	}, nil
 }

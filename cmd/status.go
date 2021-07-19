@@ -77,16 +77,16 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 
 	return WatchAction(ctx, watchInterval, func(writer io.Writer) error {
 		buffer := &TableBuffer{}
-		buffer.AddFields("env", "infra", "version")
+		buffer.AddFields("Env", "Infra", "Version")
 		for _, env := range envs {
 			awi, err := (NsStatus{Config: cfg}).GetAppWorkspaceInfo(application, env)
 			if err != nil {
 				return fmt.Errorf("error retrieving app workspace (%s/%s): %w", application.Name, env.Name, err)
 			}
 			cur := map[string]interface{}{
-				"env":     env.Name,
-				"infra":   awi.Status,
-				"version": awi.Version,
+				"Env":     env.Name,
+				"Infra":   awi.Status,
+				"Version": awi.Version,
 			}
 
 			report, err := getStatusReport(cfg, providers, awi.AppDetails)
