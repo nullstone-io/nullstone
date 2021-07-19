@@ -3,14 +3,11 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/gosuri/uilive"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
-	"os"
-	"os/signal"
-	"syscall"
+	"io"
 	"time"
 )
 
@@ -33,37 +30,28 @@ var Status = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return ProfileAction(c, func(cfg api.Config) error {
-				var appName, envName string
-				stackName := c.String("stack-name")
+				return CancellableAction(func(ctx context.Context) error {
+					var appName, envName string
+					stackName := c.String("stack-name")
 
-				ctx := context.Background()
-				// Handle Ctrl+C, kill stream
-				ctx, cancelFn := context.WithCancel(ctx)
-				defer cancelFn()
-				term := make(chan os.Signal, 1)
-				signal.Notify(term, os.Interrupt, syscall.SIGTERM)
-				go func() {
-					<-term
-					cancelFn()
-				}()
+					watchInterval := -1 * time.Second
+					if c.IsSet("watch") {
+						watchInterval = defaultWatchInterval
+					}
 
-				watchInterval := -1 * time.Second
-				if c.IsSet("watch") {
-					watchInterval = defaultWatchInterval
-				}
-
-				switch c.NArg() {
-				case 1:
-					appName = c.Args().Get(0)
-					return appStatus(ctx, cfg, providers, watchInterval, stackName, appName)
-				case 2:
-					appName = c.Args().Get(0)
-					envName = c.Args().Get(1)
-					return appEnvStatus(ctx, cfg, providers, watchInterval, stackName, appName, envName)
-				default:
-					cli.ShowCommandHelp(c, c.Command.Name)
-					return fmt.Errorf("invalid usage")
-				}
+					switch c.NArg() {
+					case 1:
+						appName = c.Args().Get(0)
+						return appStatus(ctx, cfg, providers, watchInterval, stackName, appName)
+					case 2:
+						appName = c.Args().Get(0)
+						envName = c.Args().Get(1)
+						return appEnvStatus(ctx, cfg, providers, watchInterval, stackName, appName, envName)
+					default:
+						cli.ShowCommandHelp(c, c.Command.Name)
+						return fmt.Errorf("invalid usage")
+					}
+				})
 			})
 		},
 	}
@@ -101,10 +89,7 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 		return provider.Status(cfg, appDetails)
 	}
 
-	writer := uilive.New()
-	writer.Start()
-	defer writer.Stop()
-	for {
+	return WatchAction(ctx, watchInterval, func(writer io.Writer) error {
 		buffer := &TableBuffer{}
 		buffer.AddFields("env", "infra", "version")
 		for _, env := range envs {
@@ -127,20 +112,12 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 					cur[k] = v
 				}
 			}
-			
+
 			buffer.AddRow(cur)
 		}
 		fmt.Fprintln(writer, buffer.Serialize("|"))
-
-		if watchInterval <= 0*time.Second {
-			return nil
-		}
-		select {
-		case <-ctx.Done():
-			return nil
-		case <-time.After(watchInterval):
-		}
-	}
+		return nil
+	})
 }
 
 func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, watchInterval time.Duration, stackName, appName, envName string) error {
@@ -150,18 +127,7 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, 
 		return err
 	}
 
-	return nil
-}
-
-func getStatusReport(providers app.Providers, details app.Details) (app.StatusReport, error) {
-	workspace := details.Workspace
-	if workspace.Status == types.WorkspaceStatusNotProvisioned {
-		return app.StatusReport{}, nil
-	}
-
-	provider := providers.Find(workspace.Module.Category, workspace.Module.Type)
-	if provider == nil {
-		return report, fmt.Errorf("this CLI does not support application category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
-	}
-	return provider.Status(cfg, details)
+	return WatchAction(ctx, watchInterval, func(writer io.Writer) error {
+		return nil
+	})
 }
