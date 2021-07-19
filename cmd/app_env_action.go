@@ -33,11 +33,12 @@ func AppEnvAction(c *cli.Context, providers app.Providers, fn AppEnvActionFn) er
 	logger.Println()
 
 	finder := NsFinder{Config: cfg}
-	application, env, workspace, err := finder.GetAppAndWorkspace(appName, stackName, envName)
+	appDetails, err := finder.FindAppDetails(appName, stackName, envName)
 	if err != nil {
 		return err
 	}
 
+	workspace := appDetails.Workspace
 	provider := providers.Find(workspace.Module.Category, workspace.Module.Type)
 	if provider == nil {
 		return fmt.Errorf("this CLI does not support application category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
@@ -54,9 +55,5 @@ func AppEnvAction(c *cli.Context, providers app.Providers, fn AppEnvActionFn) er
 		cancelFn()
 	}()
 
-	return fn(ctx, cfg, provider, app.Details{
-		App:       application,
-		Env:       env,
-		Workspace: workspace,
-	})
+	return fn(ctx, cfg, provider, appDetails)
 }

@@ -36,7 +36,7 @@ var EnvsList = &cli.Command{
 			stackName := c.Args().Get(0)
 
 			finder := NsFinder{Config: cfg}
-			stack, err := finder.GetStack(stackName)
+			stack, err := finder.FindStack(stackName)
 			if err != nil {
 				return fmt.Errorf("error retrieving stack: %w", err)
 			} else if stack == nil {
