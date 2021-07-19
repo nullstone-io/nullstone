@@ -75,20 +75,6 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 		return nil
 	}
 
-	getStatusReport := func(appDetails app.Details) (app.StatusReport, error) {
-		var report app.StatusReport
-
-		if appDetails.Workspace.Status == types.WorkspaceStatusNotProvisioned {
-			return report, nil
-		}
-
-		provider := providers.Find(appDetails.Workspace.Module.Category, appDetails.Workspace.Module.Type)
-		if provider == nil {
-			return report, nil
-		}
-		return provider.Status(cfg, appDetails)
-	}
-
 	return WatchAction(ctx, watchInterval, func(writer io.Writer) error {
 		buffer := &TableBuffer{}
 		buffer.AddFields("env", "infra", "version")
@@ -103,7 +89,7 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 				"version": awi.Version,
 			}
 
-			report, err := getStatusReport(awi.AppDetails)
+			report, err := getStatusReport(cfg, providers, awi.AppDetails)
 			if err != nil {
 				return fmt.Errorf("error retrieving app status: %w", err)
 			} else {
@@ -115,7 +101,7 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 
 			buffer.AddRow(cur)
 		}
-		fmt.Fprintln(writer, buffer.Serialize("|"))
+		fmt.Fprintln(writer, buffer.String())
 		return nil
 	})
 }
@@ -130,4 +116,19 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, 
 	return WatchAction(ctx, watchInterval, func(writer io.Writer) error {
 		return nil
 	})
+}
+
+func getStatusReport(cfg api.Config, providers app.Providers, appDetails app.Details) (app.StatusReport, error) {
+	var report app.StatusReport
+
+	if appDetails.Workspace.Status == types.WorkspaceStatusNotProvisioned {
+		return report, nil
+	}
+
+	provider := providers.Find(appDetails.Workspace.Module.Category, appDetails.Workspace.Module.Type)
+	if provider == nil {
+		return report, nil
+	}
+
+	return provider.Status(cfg, appDetails)
 }

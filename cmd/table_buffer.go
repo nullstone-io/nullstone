@@ -54,12 +54,13 @@ func (b *TableBuffer) Values() [][]string {
 	return all
 }
 
-func (b *TableBuffer) Serialize(delimiter string) string {
+func (b *TableBuffer) String() string {
+	colConfig := columnize.DefaultConfig()
 	values := b.Values()
 	lines := make([]string, len(values)+1)
-	lines[0] = strings.Join(b.Fields, delimiter)
+	lines[0] = strings.Join(b.Fields, colConfig.Delim)
 	for i, row := range values {
-		lines[i+1] = strings.Join(row, delimiter)
+		lines[i+1] = strings.Join(row, colConfig.Delim)
 	}
-	return columnize.Format(lines, columnize.DefaultConfig())
+	return columnize.Format(lines, colConfig)
 }
