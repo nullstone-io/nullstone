@@ -150,5 +150,64 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
-	return app.StatusDetailReports{}, nil
+	reports := app.StatusDetailReports{}
+
+	ic := &InfraConfig{}
+	retriever := outputs.Retriever{NsConfig: nsConfig}
+	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
+		return reports, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+	}
+
+	svc, err := ic.GetService()
+	if err != nil {
+		return reports, fmt.Errorf("error retrieving fargate service: %w", err)
+	}
+
+	deploymentReport := app.StatusDetailReport{
+		Name:    "Deployments",
+		Records: app.StatusRecords{},
+	}
+	for _, deployment := range svc.Deployments {
+		record := app.StatusRecord{
+			Fields: []string{"Created", "Status", "Running", "Desired", "Pending"},
+			Data: map[string]interface{}{
+				"Created": fmt.Sprintf("%s", *deployment.CreatedAt),
+				"Status":  *deployment.Status,
+				"Running": fmt.Sprintf("%d", deployment.RunningCount),
+				"Desired": fmt.Sprintf("%d", deployment.DesiredCount),
+				"Pending": fmt.Sprintf("%d", deployment.PendingCount),
+			},
+		}
+		deploymentReport.Records = append(deploymentReport.Records, record)
+	}
+	reports = append(reports, deploymentReport)
+
+	lbReport := app.StatusDetailReport{
+		Name:    "Load Balancers",
+		Records: app.StatusRecords{},
+	}
+	for _, lb := range svc.LoadBalancers {
+		targets, err := ic.GetTargetGroupHealth(*lb.TargetGroupArn)
+		if err != nil {
+			return reports, fmt.Errorf("error retrieving load balancer target health: %w", err)
+		}
+
+		for _, target := range targets {
+			record := app.StatusRecord{
+				Fields: []string{"Port", "Target", "Status"},
+				Data:   map[string]interface{}{"Port": fmt.Sprintf("%d", *lb.ContainerPort)},
+			}
+			record.Data["Target"] = *target.Target.Id
+			record.Data["Status"] = target.TargetHealth.State
+			if target.TargetHealth.Reason != "" {
+				record.Fields = append(record.Fields, "Reason")
+				record.Data["Reason"] = target.TargetHealth.Reason
+			}
+
+			lbReport.Records = append(lbReport.Records, record)
+		}
+	}
+	reports = append(reports, lbReport)
+
+	return reports, nil
 }

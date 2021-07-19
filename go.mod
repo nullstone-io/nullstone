@@ -4,14 +4,15 @@ go 1.16
 
 require (
 	github.com/Microsoft/hcsshim v0.8.17 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.6.0
+	github.com/aws/aws-sdk-go-v2 v1.7.1
 	github.com/aws/aws-sdk-go-v2/credentials v1.2.1
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.3.1
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.4.1
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.5.0
 	github.com/aws/aws-sdk-go-v2/service/lambda v1.3.1
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.8.0
-	github.com/aws/smithy-go v1.4.0
+	github.com/aws/smithy-go v1.6.0
 	github.com/containerd/containerd v1.5.2 // indirect
 	github.com/docker/cli v20.10.7+incompatible
 	github.com/docker/docker v20.10.7+incompatible

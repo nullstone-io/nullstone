@@ -114,6 +114,38 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, 
 	}
 
 	return WatchAction(ctx, watchInterval, func(writer io.Writer) error {
+		awi, err := (NsStatus{Config: cfg}).GetAppWorkspaceInfo(appDetails.App, appDetails.Env)
+		if err != nil {
+			return fmt.Errorf("error retrieving app workspace (%s/%s): %w", appDetails.App.Name, appDetails.Env.Name, err)
+		}
+
+		fmt.Fprintln(writer, fmt.Sprintf("Env: %s\tInfra: %s\tVersion: %s", appDetails.Env.Name, awi.Status, awi.Version))
+		fmt.Fprintln(writer)
+
+		detailReport, err := getStatusDetailReports(cfg, providers, appDetails)
+		if err != nil {
+			return fmt.Errorf("error retrieving app status detail: %w", err)
+		}
+
+		// Emit each report starting with the report name as the header
+		for _, report := range detailReport {
+			// Emit report header
+			fmt.Fprintln(writer, report.Name)
+
+			// Emit report records
+			buffer := &TableBuffer{}
+			for _, record := range report.Records {
+				cur := map[string]interface{}{}
+				buffer.AddFields(record.Fields...)
+				for k, v := range record.Data {
+					cur[k] = v
+				}
+				buffer.AddRow(cur)
+			}
+			fmt.Fprintln(writer, buffer.String())
+			fmt.Fprintln(writer)
+		}
+
 		return nil
 	})
 }
@@ -131,4 +163,19 @@ func getStatusReport(cfg api.Config, providers app.Providers, appDetails app.Det
 	}
 
 	return provider.Status(cfg, appDetails)
+}
+
+func getStatusDetailReports(cfg api.Config, providers app.Providers, appDetails app.Details) (app.StatusDetailReports, error) {
+	var report app.StatusDetailReports
+
+	if appDetails.Workspace.Status == types.WorkspaceStatusNotProvisioned {
+		return report, nil
+	}
+
+	provider := providers.Find(appDetails.Workspace.Module.Category, appDetails.Workspace.Module.Type)
+	if provider == nil {
+		return report, nil
+	}
+
+	return provider.StatusDetail(cfg, appDetails)
 }
