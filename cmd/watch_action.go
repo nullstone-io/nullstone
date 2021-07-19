@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"github.com/gosuri/uilive"
 	"io"
@@ -12,9 +13,11 @@ func WatchAction(ctx context.Context, watchInterval time.Duration, fn func(w io.
 	writer.Start()
 	defer writer.Stop()
 	for {
-		if err := fn(writer); err != nil {
+		buf := bytes.NewBufferString("")
+		if err := fn(buf); err != nil {
 			return err
 		}
+		io.Copy(writer, buf)
 		if watchInterval <= 0*time.Second {
 			return nil
 		}
