@@ -69,33 +69,9 @@ var Status = func(providers app.Providers) *cli.Command {
 	}
 }
 
-func calcPrettyInfraStatus(workspace *types.Workspace) string {
-	if workspace == nil {
-		return types.WorkspaceStatusNotProvisioned
-	}
-	if workspace.ActiveRun == nil {
-		return workspace.Status
-	}
-	switch workspace.ActiveRun.Status {
-	default:
-		return workspace.Status
-	case types.RunStatusResolving:
-	case types.RunStatusInitializing:
-	case types.RunStatusAwaiting:
-	case types.RunStatusRunning:
-	}
-	if workspace.ActiveRun.IsDestroy {
-		return "destroying"
-	}
-	if workspace.Status == types.WorkspaceStatusNotProvisioned {
-		return "creating"
-	}
-	return "updating"
-}
-
 func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, watchInterval time.Duration, stackName, appName string) error {
 	finder := NsFinder{Config: cfg}
-	application, _, err := finder.GetAppAndStack(appName, stackName)
+	application, _, err := finder.FindAppAndStack(appName, stackName)
 	if err != nil {
 		return err
 	}
@@ -111,42 +87,18 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 		return nil
 	}
 
-	getWorkspaceDetails := func(env *types.Environment) (string, string, app.StatusReport, error) {
+	getStatusReport := func(appDetails app.Details) (app.StatusReport, error) {
 		var report app.StatusReport
 
-		workspace, err := client.Workspaces().Get(application.StackId, application.Id, env.Id)
-		if err != nil {
-			return "", "", app.StatusReport{}, err
-		} else if workspace == nil {
-			return types.WorkspaceStatusNotProvisioned, "not-deployed", report, nil
+		if appDetails.Workspace.Status == types.WorkspaceStatusNotProvisioned {
+			return report, nil
 		}
-		infraStatus := calcPrettyInfraStatus(workspace)
 
-		appEnv, err := client.AppEnvs().Get(application.Id, env.Name)
-		if err != nil {
-			return "", "", report, err
-		}
-		provider := providers.Find(workspace.Module.Category, workspace.Module.Type)
+		provider := providers.Find(appDetails.Workspace.Module.Category, appDetails.Workspace.Module.Type)
 		if provider == nil {
-			return "", "", report, fmt.Errorf("this CLI does not support application category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
+			return report, nil
 		}
-		if workspace.Status != types.WorkspaceStatusNotProvisioned {
-			details := app.Details{
-				App:       application,
-				Env:       env,
-				Workspace: workspace,
-			}
-			var err error
-			report, err = provider.Status(cfg, details)
-			if err != nil {
-				return "", "", report, fmt.Errorf("error retrieving app status: %w", err)
-			}
-		}
-		version := appEnv.Version
-		if version == "" || infraStatus == types.WorkspaceStatusNotProvisioned || infraStatus == "creating" {
-			version = "not-deployed"
-		}
-		return infraStatus, version, report, nil
+		return provider.Status(cfg, appDetails)
 	}
 
 	writer := uilive.New()
@@ -156,19 +108,26 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 		buffer := &TableBuffer{}
 		buffer.AddFields("env", "infra", "version")
 		for _, env := range envs {
-			infraStatus, version, report, err := getWorkspaceDetails(env)
+			awi, err := (NsStatus{Config: cfg}).GetAppWorkspaceInfo(application, env)
 			if err != nil {
 				return fmt.Errorf("error retrieving app workspace (%s/%s): %w", application.Name, env.Name, err)
 			}
-			buffer.AddFields(report.Fields...)
 			cur := map[string]interface{}{
 				"env":     env.Name,
-				"infra":   infraStatus,
-				"version": version,
+				"infra":   awi.Status,
+				"version": awi.Version,
 			}
-			for k, v := range report.Data {
-				cur[k] = v
+
+			report, err := getStatusReport(awi.AppDetails)
+			if err != nil {
+				return fmt.Errorf("error retrieving app status: %w", err)
+			} else {
+				buffer.AddFields(report.Fields...)
+				for k, v := range report.Data {
+					cur[k] = v
+				}
 			}
+			
 			buffer.AddRow(cur)
 		}
 		fmt.Fprintln(writer, buffer.Serialize("|"))
@@ -185,5 +144,24 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 }
 
 func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, watchInterval time.Duration, stackName, appName, envName string) error {
+	finder := NsFinder{Config: cfg}
+	appDetails, err := finder.FindAppDetails(appName, stackName, envName)
+	if err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func getStatusReport(providers app.Providers, details app.Details) (app.StatusReport, error) {
+	workspace := details.Workspace
+	if workspace.Status == types.WorkspaceStatusNotProvisioned {
+		return app.StatusReport{}, nil
+	}
+
+	provider := providers.Find(workspace.Module.Category, workspace.Module.Type)
+	if provider == nil {
+		return report, fmt.Errorf("this CLI does not support application category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
+	}
+	return provider.Status(cfg, details)
 }
