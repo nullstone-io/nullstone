@@ -9,7 +9,16 @@ type StatusReport struct {
 	Data   map[string]interface{}
 }
 
+type StatusDetailReports []StatusDetailReport
+
 type StatusDetailReport struct {
+	Name    string
+	Records StatusRecords
+}
+
+type StatusRecords []StatusRecord
+
+type StatusRecord struct {
 	Fields []string
 	Data   map[string]interface{}
 }
@@ -28,5 +37,5 @@ type Provider interface {
 	Status(nsConfig api.Config, details Details) (StatusReport, error)
 
 	// StatusDetail returns a detailed status report on the specified app env
-	StatusDetail(nsConfig api.Config, details Details) (StatusDetailReport, error)
+	StatusDetail(nsConfig api.Config, details Details) (StatusDetailReports, error)
 }

@@ -149,6 +149,6 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 	}, nil
 }
 
-func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReport, error) {
-	return app.StatusDetailReport{}, nil
+func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
+	return app.StatusDetailReports{}, nil
 }
