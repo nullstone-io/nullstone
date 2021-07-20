@@ -40,9 +40,9 @@ func (s NsStatus) GetAppWorkspaceInfo(application *types.Application, env *types
 	if err != nil {
 		return awi, err
 	}
-	version := appEnv.Version
-	if version == "" || awi.Status == types.WorkspaceStatusNotProvisioned || awi.Status == "creating" {
-		version = "not-deployed"
+	awi.Version = appEnv.Version
+	if awi.Version == "" || awi.Status == types.WorkspaceStatusNotProvisioned || awi.Status == "creating" {
+		awi.Version = "not-deployed"
 	}
 
 	return awi, nil
