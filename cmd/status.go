@@ -116,18 +116,16 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, 
 	if err != nil {
 		return err
 	}
-
-	awi, err := (NsStatus{Config: cfg}).GetAppWorkspaceInfo(application, env)
-	if err != nil {
-		return fmt.Errorf("error retrieving app workspace (%s/%s): %w", application.Name, env.Name, err)
+	if env == nil {
+		return fmt.Errorf("environment %q does not exist", envName)
 	}
-	appDetails := awi.AppDetails
 
 	return WatchAction(ctx, watchInterval, func(writer io.Writer) error {
-		awi, err := (NsStatus{Config: cfg}).GetAppWorkspaceInfo(appDetails.App, appDetails.Env)
+		awi, err := (NsStatus{Config: cfg}).GetAppWorkspaceInfo(application, env)
 		if err != nil {
-			return fmt.Errorf("error retrieving app workspace (%s/%s): %w", appDetails.App.Name, appDetails.Env.Name, err)
+			return fmt.Errorf("error retrieving app workspace (%s/%s): %w", application.Name, env.Name, err)
 		}
+		appDetails := awi.AppDetails
 
 		fmt.Fprintln(writer, fmt.Sprintf("Env: %s\tInfra: %s\tVersion: %s", appDetails.Env.Name, awi.Status, awi.Version))
 		fmt.Fprintln(writer)
