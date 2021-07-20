@@ -58,6 +58,8 @@ func (s NsStatus) calcInfraStatus(workspace *types.Workspace) string {
 	switch workspace.ActiveRun.Status {
 	default:
 		return workspace.Status
+	case types.RunStatusNeedsApproval:
+		return "needs-approval"
 	case types.RunStatusResolving:
 	case types.RunStatusInitializing:
 	case types.RunStatusAwaiting:
