@@ -108,10 +108,20 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 
 func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, watchInterval time.Duration, stackName, appName, envName string) error {
 	finder := NsFinder{Config: cfg}
-	appDetails, err := finder.FindAppDetails(appName, stackName, envName)
+	application, _, err := finder.FindAppAndStack(appName, stackName)
 	if err != nil {
 		return err
 	}
+	env, err := finder.GetEnv(application.StackId, envName)
+	if err != nil {
+		return err
+	}
+
+	awi, err := (NsStatus{Config: cfg}).GetAppWorkspaceInfo(application, env)
+	if err != nil {
+		return fmt.Errorf("error retrieving app workspace (%s/%s): %w", application.Name, env.Name, err)
+	}
+	appDetails := awi.AppDetails
 
 	return WatchAction(ctx, watchInterval, func(writer io.Writer) error {
 		awi, err := (NsStatus{Config: cfg}).GetAppWorkspaceInfo(appDetails.App, appDetails.Env)

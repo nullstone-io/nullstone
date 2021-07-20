@@ -46,7 +46,7 @@ func (f NsFinder) FindAppDetails(appName, stackName, envName string) (app.Detail
 		return appDetails, err
 	}
 
-	if appDetails.Env, err = f.getEnv(appDetails.App.StackId, envName); err != nil {
+	if appDetails.Env, err = f.GetEnv(appDetails.App.StackId, envName); err != nil {
 		return appDetails, err
 	} else if appDetails.Env == nil {
 		return appDetails, fmt.Errorf("environment %s/%s does not exist", stackName, envName)
@@ -119,7 +119,7 @@ func (f NsFinder) getApp(appName string, stackId int64) (*types.Application, err
 	return &matched[0], nil
 }
 
-func (f NsFinder) getEnv(stackId int64, envName string) (*types.Environment, error) {
+func (f NsFinder) GetEnv(stackId int64, envName string) (*types.Environment, error) {
 	client := api.Client{Config: f.Config}
 	envs, err := client.Environments().List(stackId)
 	if err != nil {
