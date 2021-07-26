@@ -5,33 +5,31 @@
 class Nullstone < Formula
   desc "Launch apps on your cloud in minutes"
   homepage "https://nullstone.io"
-  version "0.0.25"
+  version "0.0.26"
   license "MIT"
   bottle :unneeded
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.25/nullstone_0.0.25_Darwin_x86_64.tar.gz"
-      sha256 "34b9205fecc1a549b466d64613775cc2c724ec3e03e01890c14494c2724a2b09"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.26/nullstone_0.0.26_Darwin_x86_64.tar.gz"
+      sha256 "f85c7629b03d6a78b70c305a882c159db7bb88672ca85cd3d4229b890c1c6ce5"
     end
     if Hardware::CPU.arm?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.25/nullstone_0.0.25_Darwin_arm64.tar.gz"
-      sha256 "dcc1c72d05026cad7e2229a5de94ec63d602cc2806cf5b33f0a2d0d84b4f8b80"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.26/nullstone_0.0.26_Darwin_arm64.tar.gz"
+      sha256 "ee753f5af209bfeeb9a5426d346be2cc8960eeb35896051b3e5c5ae240c4bf9e"
     end
   end
 
   on_linux do
     if Hardware::CPU.intel?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.25/nullstone_0.0.25_Linux_x86_64.tar.gz"
-      sha256 "c7a1c2c03af782a0121084d67f519b5672cd20c99629d65369b441716778da7d"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.26/nullstone_0.0.26_Linux_x86_64.tar.gz"
+      sha256 "48bcb639390521ca86ea2ad710660275968681f42e353fda9187f45cde70bca6"
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.25/nullstone_0.0.25_Linux_arm64.tar.gz"
-      sha256 "6af4b7b005b191bd9cc13cf058ac276e53e8e8ea49cd3ab7ef1ca823c68b0b64"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.26/nullstone_0.0.26_Linux_arm64.tar.gz"
+      sha256 "09d4aa35efdb2b43057ec662cc7e3fe04b90644e9cb74ad70b5e7d13debe4c9b"
     end
   end
-
-  depends_on "go"
 
   def install
     bin.install "nullstone"
