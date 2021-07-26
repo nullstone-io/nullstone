@@ -28,47 +28,44 @@ var EnvsList = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		_, cfg, err := SetupProfileCmd(c)
-		if err != nil {
-			return err
-		}
+		return ProfileAction(c, func(cfg api.Config) error {
+			if c.NArg() != 1 {
+				cli.ShowCommandHelp(c, c.Command.Name)
+				return fmt.Errorf("stack-name is required to list environments")
+			}
+			stackName := c.Args().Get(0)
 
-		if c.NArg() != 1 {
-			cli.ShowCommandHelp(c, c.Command.Name)
-			return fmt.Errorf("stack-name is required to list environments")
-		}
-		stackName := c.Args().Get(0)
+			finder := NsFinder{Config: cfg}
+			stack, err := finder.FindStack(stackName)
+			if err != nil {
+				return fmt.Errorf("error retrieving stack: %w", err)
+			} else if stack == nil {
+				return fmt.Errorf("stack %s does not exist", stackName)
+			}
 
-		finder := NsFinder{Config: cfg}
-		stack, err := finder.GetStack(stackName)
-		if err != nil {
-			return fmt.Errorf("error retrieving stack: %w", err)
-		} else if stack == nil {
-			return fmt.Errorf("stack %s does not exist", stackName)
-		}
+			client := api.Client{Config: cfg}
+			envs, err := client.Environments().List(stack.Id)
+			if err != nil {
+				return fmt.Errorf("error listing environments: %w", err)
+			}
+			sort.SliceStable(envs, func(i, j int) bool {
+				return envs[i].PipelineOrder < envs[i].PipelineOrder
+			})
 
-		client := api.Client{Config: cfg}
-		envs, err := client.Environments().List(stack.Id)
-		if err != nil {
-			return fmt.Errorf("error listing environments: %w", err)
-		}
-		sort.SliceStable(envs, func(i, j int) bool {
-			return envs[i].PipelineOrder < envs[i].PipelineOrder
+			if c.IsSet("detail") {
+				envDetails := make([]string, len(envs)+1)
+				envDetails[0] = "ID|Name"
+				for i, env := range envs {
+					envDetails[i+1] = fmt.Sprintf("%d|%s", env.Id, env.Name)
+				}
+				fmt.Println(columnize.Format(envDetails, columnize.DefaultConfig()))
+			} else {
+				for _, env := range envs {
+					fmt.Println(env.Name)
+				}
+			}
+
+			return nil
 		})
-
-		if c.IsSet("detail") {
-			envDetails := make([]string, len(envs)+1)
-			envDetails[0] = "ID|Name"
-			for i, env := range envs {
-				envDetails[i+1] = fmt.Sprintf("%d|%s", env.Id, env.Name)
-			}
-			fmt.Println(columnize.Format(envDetails, columnize.DefaultConfig()))
-		} else {
-			for _, env := range envs {
-				fmt.Println(env.Name)
-			}
-		}
-
-		return nil
 	},
 }

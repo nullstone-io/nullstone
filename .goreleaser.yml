@@ -40,8 +40,6 @@ brews:
     homepage: https://nullstone.io
     description: Launch apps on your cloud in minutes
     license: MIT
-    dependencies:
-      - name: go
     install: |-
       bin.install "nullstone"
 scoop:

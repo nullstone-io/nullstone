@@ -7,7 +7,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecr"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
+	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
 	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	elbv2types "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 	"github.com/docker/docker/api/types"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	aws_fargate_service "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-fargate-service"
@@ -118,6 +120,32 @@ func (c InfraConfig) findMainContainerDefinitionIndex(containerDefs []ecstypes.C
 		return -1, fmt.Errorf("service contains multiple containers; cannot deploy unless service module exports 'main_container_name'")
 	}
 	return 0, nil
+}
+
+func (c InfraConfig) GetService() (*ecstypes.Service, error) {
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
+	out, err := ecsClient.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
+		Services: []string{c.Outputs.ServiceName},
+		Cluster:  aws.String(c.Outputs.Cluster.ClusterArn),
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(out.Services) > 0 {
+		return &out.Services[0], nil
+	}
+	return nil, nil
+}
+
+func (c InfraConfig) GetTargetGroupHealth(targetGroupArn string) ([]elbv2types.TargetHealthDescription, error) {
+	elbClient := elasticloadbalancingv2.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
+	out, err := elbClient.DescribeTargetHealth(context.Background(), &elasticloadbalancingv2.DescribeTargetHealthInput{
+		TargetGroupArn: aws.String(targetGroupArn),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out.TargetHealthDescriptions, nil
 }
 
 func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {

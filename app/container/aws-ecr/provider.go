@@ -97,3 +97,11 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	}
 	return nil
 }
+
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
+	return app.StatusReport{}, nil
+}
+
+func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
+	return app.StatusDetailReports{}, nil
+}

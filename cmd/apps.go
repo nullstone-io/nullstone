@@ -28,38 +28,35 @@ var AppsList = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		_, cfg, err := SetupProfileCmd(c)
-		if err != nil {
-			return err
-		}
+		return ProfileAction(c, func(cfg api.Config) error {
+			client := api.Client{Config: cfg}
+			allApps, err := client.Apps().List()
+			if err != nil {
+				return fmt.Errorf("error listing applications: %w", err)
+			}
 
-		client := api.Client{Config: cfg}
-		allApps, err := client.Apps().List()
-		if err != nil {
-			return fmt.Errorf("error listing applications: %w", err)
-		}
+			finder := NsFinder{Config: cfg}
 
-		finder := NsFinder{Config: cfg}
-
-		if c.IsSet("detail") {
-			appDetails := make([]string, len(allApps)+1)
-			appDetails[0] = "ID|Name|Reference|Category|Type|Module|Stack|Framework"
-			for i, app := range allApps {
-				var appCategory types.CategoryName
-				var appType string
-				if appModule, err := finder.GetAppModule(client, app); err == nil {
-					appCategory = appModule.Category
-					appType = appModule.Type
+			if c.IsSet("detail") {
+				appDetails := make([]string, len(allApps)+1)
+				appDetails[0] = "ID|Name|Reference|Category|Type|Module|Stack|Framework"
+				for i, app := range allApps {
+					var appCategory types.CategoryName
+					var appType string
+					if appModule, err := finder.GetAppModule(client, app); err == nil {
+						appCategory = appModule.Category
+						appType = appModule.Type
+					}
+					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s|%s|%s|%s", app.Id, app.Name, app.Reference, appCategory, appType, app.ModuleSource, app.StackName, app.Framework)
 				}
-				appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s|%s|%s|%s", app.Id, app.Name, app.Reference, appCategory, appType, app.ModuleSource, app.StackName, app.Framework)
+				fmt.Println(columnize.Format(appDetails, columnize.DefaultConfig()))
+			} else {
+				for _, app := range allApps {
+					fmt.Println(app.Name)
+				}
 			}
-			fmt.Println(columnize.Format(appDetails, columnize.DefaultConfig()))
-		} else {
-			for _, app := range allApps {
-				fmt.Println(app.Name)
-			}
-		}
 
-		return nil
+			return nil
+		})
 	},
 }

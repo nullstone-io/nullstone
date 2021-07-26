@@ -12,9 +12,9 @@ import (
 	"syscall"
 )
 
-type AppActionFn func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error
+type AppEnvActionFn func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error
 
-func AppAction(c *cli.Context, providers app.Providers, fn AppActionFn) error {
+func AppEnvAction(c *cli.Context, providers app.Providers, fn AppEnvActionFn) error {
 	_, cfg, err := SetupProfileCmd(c)
 	if err != nil {
 		return err
@@ -29,15 +29,16 @@ func AppAction(c *cli.Context, providers app.Providers, fn AppActionFn) error {
 	stackName := c.String("stack-name")
 
 	logger := log.New(os.Stderr, "", 0)
-	logger.Printf( "Performing application command (Org=%s, App=%s, Stack=%s, Env=%s)", cfg.OrgName, appName, stackName, envName)
+	logger.Printf("Performing application command (Org=%s, App=%s, Stack=%s, Env=%s)", cfg.OrgName, appName, stackName, envName)
 	logger.Println()
 
 	finder := NsFinder{Config: cfg}
-	application, env, workspace, err := finder.GetAppAndWorkspace(appName, stackName, envName)
+	appDetails, err := finder.FindAppDetails(appName, stackName, envName)
 	if err != nil {
 		return err
 	}
 
+	workspace := appDetails.Workspace
 	provider := providers.Find(workspace.Module.Category, workspace.Module.Type)
 	if provider == nil {
 		return fmt.Errorf("this CLI does not support application category=%s, type=%s", workspace.Module.Category, workspace.Module.Type)
@@ -54,9 +55,5 @@ func AppAction(c *cli.Context, providers app.Providers, fn AppActionFn) error {
 		cancelFn()
 	}()
 
-	return fn(ctx, cfg, provider, app.Details{
-		App:       application,
-		Env:       env,
-		Workspace: workspace,
-	})
+	return fn(ctx, cfg, provider, appDetails)
 }

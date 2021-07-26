@@ -19,7 +19,7 @@ var Push = func(providers app.Providers) *cli.Command {
 			AppVersionFlag,
 		},
 		Action: func(c *cli.Context) error {
-			return AppAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
+			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
 				userConfig := map[string]string{
 					"source":  c.String("source"),
 					"version": c.String("version"),

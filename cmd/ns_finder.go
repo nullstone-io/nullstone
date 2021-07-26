@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"strings"
 )
 
@@ -34,43 +35,68 @@ type NsFinder struct {
 	Config api.Config
 }
 
-// This retrieves the app, env, and workspace
+// FindAppDetails retrieves the app, env, and workspace
 // stackName is optional -- If multiple apps are found, this will return an error
-func (f NsFinder) GetAppAndWorkspace(appName, stackName, envName string) (*types.Application, *types.Environment, *types.Workspace, error) {
+func (f NsFinder) FindAppDetails(appName, stackName, envName string) (app.Details, error) {
+	appDetails := app.Details{}
+
+	var err error
+
+	if appDetails.App, _, err = f.FindAppAndStack(appName, stackName); err != nil {
+		return appDetails, err
+	}
+
+	if appDetails.Env, err = f.GetEnv(appDetails.App.StackId, envName); err != nil {
+		return appDetails, err
+	} else if appDetails.Env == nil {
+		return appDetails, fmt.Errorf("environment %s/%s does not exist", stackName, envName)
+	}
+
+	if appDetails.Workspace, err = f.getAppWorkspace(appDetails.App, appDetails.Env); err != nil {
+		return appDetails, err
+	}
+
+	return appDetails, nil
+}
+
+func (f NsFinder) FindAppAndStack(appName, stackName string) (*types.Application, *types.Stack, error) {
 	var stackId int64
+	var stack *types.Stack
 	if stackName != "" {
-		stack, err := f.GetStack(stackName)
-		if err != nil {
-			return nil, nil, nil, err
+		var err error
+		if stack, err = f.FindStack(stackName); err != nil {
+			return nil, nil, err
 		} else if stack == nil {
-			return nil, nil, nil, fmt.Errorf("stack %s does not exist", stackName)
+			return nil, nil, fmt.Errorf("stack %s does not exist", stackName)
 		}
 	}
 
-	app, err := f.GetApp(appName, stackId)
+	app, err := f.getApp(appName, stackId)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
-	env, err := f.GetEnv(app.StackId, envName)
-	if err != nil {
-		return nil, nil, nil, err
-	} else if env == nil {
-		return nil, nil, nil, fmt.Errorf("environment %s/%s does not exist", stackName, envName)
-	}
-
-	workspace, err := f.GetAppWorkspace(app, env)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	return app, env, workspace, nil
+	return app, stack, nil
 }
 
-// GetApp searches for an app by app name and optionally stack name
+func (f NsFinder) FindStack(stackName string) (*types.Stack, error) {
+	client := api.Client{Config: f.Config}
+	stacks, err := client.Stacks().List()
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving stacks: %w", err)
+	}
+	for _, stack := range stacks {
+		if stack.Name == stackName {
+			return stack, nil
+		}
+	}
+	return nil, nil
+}
+
+// getApp searches for an app by app name and optionally stack name
 // If only 1 app is found, returns that app
 // If many are found, will return an error with matched app stack names
-func (f NsFinder) GetApp(appName string, stackId int64) (*types.Application, error) {
+func (f NsFinder) getApp(appName string, stackId int64) (*types.Application, error) {
 	client := api.Client{Config: f.Config}
 	allApps, err := client.Apps().List()
 	if err != nil {
@@ -93,20 +119,6 @@ func (f NsFinder) GetApp(appName string, stackId int64) (*types.Application, err
 	return &matched[0], nil
 }
 
-func (f NsFinder) GetStack(stackName string) (*types.Stack, error) {
-	client := api.Client{Config: f.Config}
-	stacks, err := client.Stacks().List()
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving stacks: %w", err)
-	}
-	for _, stack := range stacks {
-		if stack.Name == stackName {
-			return stack, nil
-		}
-	}
-	return nil, nil
-}
-
 func (f NsFinder) GetEnv(stackId int64, envName string) (*types.Environment, error) {
 	client := api.Client{Config: f.Config}
 	envs, err := client.Environments().List(stackId)
@@ -121,7 +133,7 @@ func (f NsFinder) GetEnv(stackId int64, envName string) (*types.Environment, err
 	return nil, nil
 }
 
-func (f NsFinder) GetAppWorkspace(app *types.Application, env *types.Environment) (*types.Workspace, error) {
+func (f NsFinder) getAppWorkspace(app *types.Application, env *types.Environment) (*types.Workspace, error) {
 	client := api.Client{Config: f.Config}
 
 	workspace, err := client.Workspaces().Get(app.StackId, app.Id, env.Id)
