@@ -3,6 +3,7 @@ module gopkg.in/nullstone-io/nullstone.v0
 go 1.16
 
 require (
+	cloud.google.com/go v0.54.0
 	github.com/Microsoft/hcsshim v0.8.17 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.7.1
 	github.com/aws/aws-sdk-go-v2/credentials v1.2.1
@@ -19,6 +20,7 @@ require (
 	github.com/docker/docker-credential-helpers v0.6.3 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/fvbommel/sortorder v1.0.2 // indirect
+	github.com/golang/protobuf v1.4.3
 	github.com/gosuri/uilive v0.0.4
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635
@@ -34,6 +36,8 @@ require (
 	github.com/vmihailenco/tagparser v0.1.2
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
 	golang.org/x/sys v0.0.0-20210521090106-6ca3eb03dfc2 // indirect
+	google.golang.org/api v0.20.0
+	google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a
 	google.golang.org/grpc v1.38.0 // indirect
 	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20210612172101-d5b816cc5368
 	k8s.io/api v0.20.6

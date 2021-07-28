@@ -3,6 +3,7 @@ package gcp_gke
 import (
 	"context"
 	"fmt"
+	"github.com/docker/docker/api/types"
 	gcp_gke_service "gopkg.in/nullstone-io/nullstone.v0/contracts/gcp-gke-service"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
 	core_v1 "k8s.io/api/core/v1"
@@ -12,6 +13,7 @@ import (
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"log"
+	"time"
 )
 
 // InfraConfig provides a minimal understanding of the infrastructure provisioned for a module type=aws-fargate
@@ -23,13 +25,32 @@ func (c InfraConfig) Print(logger *log.Logger) {
 	logger = log.New(logger.Writer(), "    ", 0)
 }
 
+func (c InfraConfig) GetGcrLoginAuth() (types.AuthConfig, error) {
+	accessToken, err := c.Outputs.ImagePusher.GenerateAccessToken(time.Minute)
+	if err != nil {
+		return types.AuthConfig{}, fmt.Errorf("error authorizing image pusher: %w", err)
+	}
+	if accessToken != "" {
+		serverAddr := c.Outputs.ImageRepoUrl.Registry
+		if serverAddr == "" {
+			serverAddr = "gcr.io"
+		}
+		return types.AuthConfig{
+			Username:      "oauth2accesstoken",
+			Password:      accessToken,
+			ServerAddress: serverAddr,
+		}, nil
+	}
+	return types.AuthConfig{}, nil
+}
+
 func (c InfraConfig) GetPod() (*core_v1.Pod, error) {
 	ctx := context.Background()
 	conn, err := c.createKubeClient()
 	if err != nil {
 		return nil, err
 	}
-	return conn.CoreV1().Pods(c.Outputs.Namespace).Get(ctx, c.Outputs.Name, meta_v1.GetOptions{})
+	return conn.CoreV1().Pods(c.Outputs.ServiceNamespace).Get(ctx, c.Outputs.ServiceName, meta_v1.GetOptions{})
 }
 
 func (c InfraConfig) ReplacePodSpecImageTag(spec core_v1.PodSpec, imageTag string) (core_v1.PodSpec, error) {
@@ -80,7 +101,7 @@ func (c InfraConfig) UpdatePod(pod *core_v1.Pod) (*core_v1.Pod, error) {
 	if err != nil {
 		return nil, err
 	}
-	return conn.CoreV1().Pods(c.Outputs.Namespace).Update(ctx, pod, meta_v1.UpdateOptions{})
+	return conn.CoreV1().Pods(c.Outputs.ServiceNamespace).Update(ctx, pod, meta_v1.UpdateOptions{})
 }
 
 func (c InfraConfig) createKubeClient() (*kubernetes.Clientset, error) {
@@ -104,7 +125,11 @@ func (c InfraConfig) createKubeConfig() (*restclient.Config, error) {
 	}
 	overrides.ClusterInfo.Server = host.String()
 
-	overrides.AuthInfo.TokenFile = clusterOutputs.Deployer.Token
+	accessToken, err := c.Outputs.Cluster.Deployer.GenerateAccessToken(time.Minute)
+	if err != nil {
+		return nil, err
+	}
+	overrides.AuthInfo.Token = accessToken
 
 	cc := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loader, overrides)
 	return cc.ClientConfig()
