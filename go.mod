@@ -36,4 +36,7 @@ require (
 	golang.org/x/sys v0.0.0-20210521090106-6ca3eb03dfc2 // indirect
 	google.golang.org/grpc v1.38.0 // indirect
 	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20210612172101-d5b816cc5368
+	k8s.io/api v0.20.6
+	k8s.io/apimachinery v0.20.6
+	k8s.io/client-go v0.20.6
 )
