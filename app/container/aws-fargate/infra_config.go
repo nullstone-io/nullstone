@@ -181,15 +181,3 @@ func (c InfraConfig) GetEcrLoginAuth() (types.AuthConfig, error) {
 	}
 	return types.AuthConfig{}, nil
 }
-
-func (c InfraConfig) RetagImage(ctx context.Context, sourceUrl, targetUrl docker.ImageUrl) error {
-	dockerClient, err := docker.DiscoverDockerClient()
-	if err != nil {
-		return fmt.Errorf("error creating docker client: %w", err)
-	}
-	return dockerClient.ImageTag(ctx, sourceUrl.String(), targetUrl.String())
-}
-
-func (c InfraConfig) PushImage(ctx context.Context, targetUrl docker.ImageUrl, targetAuth types.AuthConfig) error {
-	return docker.PushImage(ctx, targetUrl, targetAuth)
-}

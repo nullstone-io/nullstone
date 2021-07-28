@@ -73,12 +73,12 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 	}
 
 	logger.Printf("Retagging %s => %s\n", sourceUrl.String(), targetUrl.String())
-	if err := ic.RetagImage(ctx, sourceUrl, targetUrl); err != nil {
+	if err := docker.RetagImage(ctx, sourceUrl, targetUrl); err != nil {
 		return fmt.Errorf("error retagging image: %w", err)
 	}
 
 	logger.Printf("Pushing %s\n", targetUrl.String())
-	if err := ic.PushImage(ctx, targetUrl, targetAuth); err != nil {
+	if err := docker.PushImage(ctx, targetUrl, targetAuth); err != nil {
 		return fmt.Errorf("error pushing image: %w", err)
 	}
 
