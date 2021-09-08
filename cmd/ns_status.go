@@ -8,8 +8,8 @@ import (
 
 type AppWorkspaceInfo struct {
 	AppDetails app.Details
-	Status    string
-	Version   string
+	Status     string
+	Version    string
 }
 
 type NsStatus struct {
@@ -18,11 +18,11 @@ type NsStatus struct {
 
 func (s NsStatus) GetAppWorkspaceInfo(application *types.Application, env *types.Environment) (AppWorkspaceInfo, error) {
 	awi := AppWorkspaceInfo{
-		AppDetails: app.Details {
+		AppDetails: app.Details{
 			App: application,
 			Env: env,
 		},
-		Status: types.WorkspaceStatusNotProvisioned,
+		Status:  types.WorkspaceStatusNotProvisioned,
 		Version: "not-deployed",
 	}
 
