@@ -19,7 +19,7 @@ var Deploy = func(providers app.Providers) *cli.Command {
 		Action: func(c *cli.Context) error {
 			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
 				userConfig := map[string]string{
-					"version": c.String("version"),
+					"version": DetectAppVersion(c),
 				}
 				return provider.Deploy(cfg, details, userConfig)
 			})

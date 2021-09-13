@@ -29,7 +29,7 @@ var Launch = func(providers app.Providers, logProviders app_logs.Providers) *cli
 
 				userConfig := map[string]string{
 					"source":  c.String("source"),
-					"version": c.String("version"),
+					"version": DetectAppVersion(c),
 				}
 
 				logger.Println("Pushing app artifact...")

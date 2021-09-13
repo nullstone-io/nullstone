@@ -22,7 +22,7 @@ var Push = func(providers app.Providers) *cli.Command {
 			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
 				userConfig := map[string]string{
 					"source":  c.String("source"),
-					"version": c.String("version"),
+					"version": DetectAppVersion(c),
 				}
 				return provider.Push(cfg, details, userConfig)
 			})

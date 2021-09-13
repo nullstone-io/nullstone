@@ -19,6 +19,7 @@ require (
 	github.com/docker/docker-credential-helpers v0.6.3 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/fvbommel/sortorder v1.0.2 // indirect
+	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635
