@@ -57,20 +57,21 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 
 	logger.Printf("Deploying app %q\n", details.App.Name)
 	version := userConfig["version"]
-	taskDefArn := *taskDef.TaskDefinitionArn
-	if version != "" {
-		logger.Printf("Updating app version to %q\n", version)
-		if err := app.UpdateVersion(nsConfig, details.App.Id, details.Env.Name, version); err != nil {
-			return fmt.Errorf("error updating app version in nullstone: %w", err)
-		}
-
-		logger.Printf("Updating image tag to %q\n", version)
-		newTaskDef, err := ic.UpdateTaskImageTag(taskDef, version)
-		if err != nil {
-			return fmt.Errorf("error updating task with new image tag: %w", err)
-		}
-		taskDefArn = *newTaskDef.TaskDefinitionArn
+	if version == "" {
+		return fmt.Errorf("no version specified, version is required to deploy")
 	}
+	taskDefArn := *taskDef.TaskDefinitionArn
+	logger.Printf("Updating app version to %q\n", version)
+	if err := app.UpdateVersion(nsConfig, details.App.Id, details.Env.Name, version); err != nil {
+		return fmt.Errorf("error updating app version in nullstone: %w", err)
+	}
+
+	logger.Printf("Updating image tag to %q\n", version)
+	newTaskDef, err := ic.UpdateTaskImageTag(taskDef, version)
+	if err != nil {
+		return fmt.Errorf("error updating task with new image tag: %w", err)
+	}
+	taskDefArn = *newTaskDef.TaskDefinitionArn
 
 	if err := ic.UpdateServiceTask(taskDefArn); err != nil {
 		return fmt.Errorf("error deploying service: %w", err)
