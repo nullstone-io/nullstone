@@ -2,20 +2,16 @@ package aws_fargate
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/ecr"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
 	elbv2types "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
-	"github.com/docker/docker/api/types"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	aws_fargate_service "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-fargate-service"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
 	"log"
-	"strings"
 )
 
 // InfraConfig provides a minimal understanding of the infrastructure provisioned for a module type=aws-fargate
@@ -158,38 +154,4 @@ func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {
 		TaskDefinition:     aws.String(taskDefinitionArn),
 	})
 	return err
-}
-
-func (c InfraConfig) GetEcrLoginAuth() (types.AuthConfig, error) {
-	ecrClient := ecr.NewFromConfig(nsaws.NewConfig(c.Outputs.ImagePusher, c.Outputs.Region))
-	out, err := ecrClient.GetAuthorizationToken(context.TODO(), &ecr.GetAuthorizationTokenInput{})
-	if err != nil {
-		return types.AuthConfig{}, err
-	}
-	if len(out.AuthorizationData) > 0 {
-		authData := out.AuthorizationData[0]
-		token, err := base64.StdEncoding.DecodeString(*authData.AuthorizationToken)
-		if err != nil {
-			return types.AuthConfig{}, fmt.Errorf("invalid authorization token: %w", err)
-		}
-		tokens := strings.SplitN(string(token), ":", 2)
-		return types.AuthConfig{
-			Username:      tokens[0],
-			Password:      tokens[1],
-			ServerAddress: *authData.ProxyEndpoint,
-		}, nil
-	}
-	return types.AuthConfig{}, nil
-}
-
-func (c InfraConfig) RetagImage(ctx context.Context, sourceUrl, targetUrl docker.ImageUrl) error {
-	dockerClient, err := docker.DiscoverDockerClient()
-	if err != nil {
-		return fmt.Errorf("error creating docker client: %w", err)
-	}
-	return dockerClient.ImageTag(ctx, sourceUrl.String(), targetUrl.String())
-}
-
-func (c InfraConfig) PushImage(ctx context.Context, targetUrl docker.ImageUrl, targetAuth types.AuthConfig) error {
-	return docker.PushImage(ctx, targetUrl, targetAuth)
 }

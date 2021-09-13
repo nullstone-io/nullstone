@@ -46,10 +46,10 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 
 	targetUrl := ic.Outputs.ImageRepoUrl
 	// NOTE: We expect --version from the user which is used as the image tag for the pushed image
-	if imageTag := userConfig["version"]; imageTag != "" {
-		targetUrl.Tag = imageTag
+	if imageTag := userConfig["version"]; imageTag == "" {
+		return fmt.Errorf("no version was specified, version is required to push image")
 	} else {
-		targetUrl.Tag = sourceUrl.Tag
+		targetUrl.Tag = imageTag
 	}
 	if targetUrl.String() == "" {
 		return fmt.Errorf("cannot push if 'image_repo_url' module output is missing")
