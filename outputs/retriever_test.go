@@ -65,7 +65,7 @@ func TestRetriever_Retrieve(t *testing.T) {
 							Optional: false,
 						},
 						Target: "deep0",
-						Reference: &types.BlockConnection{
+						Reference: &types.ConnectionTarget{
 							StackId: 1,
 							BlockId: 5,
 							EnvId:   nil,
