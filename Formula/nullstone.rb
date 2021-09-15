@@ -5,29 +5,29 @@
 class Nullstone < Formula
   desc "Launch apps on your cloud in minutes"
   homepage "https://nullstone.io"
-  version "0.0.28"
+  version "0.0.29"
   license "MIT"
   bottle :unneeded
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.28/nullstone_0.0.28_Darwin_x86_64.tar.gz"
-      sha256 "572b812b5d5b358e9367bc26b97dc28a5aa33a2c1f027a172268fb3458e8acd1"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.29/nullstone_0.0.29_Darwin_x86_64.tar.gz"
+      sha256 "27cbbf4749b6839d4ea82b701df7bda145b97964f5d8ccbca73b9c39e498bed8"
     end
     if Hardware::CPU.arm?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.28/nullstone_0.0.28_Darwin_arm64.tar.gz"
-      sha256 "5e576fd2c27189cda0e3f50d68821a7f33357246d81315c706c1a4e1e4860302"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.29/nullstone_0.0.29_Darwin_arm64.tar.gz"
+      sha256 "0a9b5eee5b73beea5d92c1ce2076505e5c944f98725de63bfc97ca02047ce900"
     end
   end
 
   on_linux do
     if Hardware::CPU.intel?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.28/nullstone_0.0.28_Linux_x86_64.tar.gz"
-      sha256 "f053cb6b1bfae2de0bca1c4cdde9fbb6cc280a7e5cf45e81e43e5ef2547a0dde"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.29/nullstone_0.0.29_Linux_x86_64.tar.gz"
+      sha256 "52afc3d31aed702c50a2dbb4aac72b62307d6cdd2464fcda72f6c9e57eb38e53"
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.28/nullstone_0.0.28_Linux_arm64.tar.gz"
-      sha256 "9b1f032cd6d88376e0466e9d84acce2aa18404b1a9fb21895792ddf173215302"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.29/nullstone_0.0.29_Linux_arm64.tar.gz"
+      sha256 "39ae1497baad65fd05443916a94046253dc47a5958578bd958629a54d9ad007a"
     end
   end
 
