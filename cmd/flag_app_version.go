@@ -14,7 +14,7 @@ func DetectAppVersion(c *cli.Context) string {
 	version := c.String("version")
 	if version == "" {
 		// If user does not specify a version, use HEAD commit sha
-		if hash, err := getCurrentCommitSha(); err == nil {
+		if hash, err := getCurrentCommitSha(); err == nil && len(hash) >= 8 {
 			return hash[0:8]
 		}
 	}
