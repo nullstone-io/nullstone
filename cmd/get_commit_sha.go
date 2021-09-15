@@ -7,6 +7,9 @@ func getCurrentCommitSha() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if repo == nil {
+		return "", nil
+	}
 	ref, err := repo.Head()
 	if err != nil {
 		return "", err
