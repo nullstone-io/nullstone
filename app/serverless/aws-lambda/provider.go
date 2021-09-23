@@ -83,12 +83,11 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	// TODO: Add cancellation support so users can press Control+C to kill deploy
 	ctx := context.TODO()
 
+	logger.Printf("Deploying app %q\n", details.App.Name)
 	version := userConfig["version"]
 	if version == "" {
 		return fmt.Errorf("--version is required to upload artifact")
 	}
-
-	logger.Printf("Deploying app %q\n", details.App.Name)
 
 	logger.Printf("Updating app version to %q\n", version)
 	if err := app.UpdateVersion(nsConfig, details.App.Id, details.Env.Name, version); err != nil {
