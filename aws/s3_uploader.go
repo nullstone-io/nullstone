@@ -7,7 +7,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"os"
+	"path"
 	"path/filepath"
+	"strings"
 )
 
 type S3Uploader struct {
@@ -36,7 +38,7 @@ func (u *S3Uploader) uploadOne(ctx context.Context, uploader *manager.Uploader, 
 		return fmt.Errorf("error opening local file %q: %w", localFilepath, err)
 	}
 	defer file.Close()
-	objectKey := filepath.Join(u.ObjectDirectory, fp)
+	objectKey := path.Join(u.ObjectDirectory, strings.Replace(fp, string(filepath.Separator), "/", -1))
 	_, err = uploader.Upload(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(u.BucketName),
 		Key:    aws.String(objectKey),
