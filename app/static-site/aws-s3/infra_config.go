@@ -6,8 +6,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudfront"
 	cftypes "github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"gopkg.in/nullstone-io/nullstone.v0/artifacts"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	"gopkg.in/nullstone-io/nullstone.v0/contracts/aws-s3-site"
 	"log"
@@ -27,14 +25,16 @@ func (c InfraConfig) Print(logger *log.Logger) {
 	logger.Printf("CDNs: %s\n", strings.Join(c.Outputs.CdnIds, ", "))
 }
 
-func (c InfraConfig) UploadArtifact(ctx context.Context, source artifacts.Walker, version string) error {
-	s3Client := s3.NewFromConfig(nsaws.NewConfig(c.Outputs.Deployer, c.Outputs.Region))
-
-	err := source.Walk(func(file *os.File) error {
-
-	})
-
-	return err
+func (c InfraConfig) UploadArtifact(ctx context.Context, source string, filepaths []string, version string) error {
+	logger := log.New(os.Stderr, "", 0)
+	uploader := nsaws.S3Uploader{
+		BucketName:      c.Outputs.BucketName,
+		ObjectDirectory: version,
+		OnObjectUpload: func(objectKey string) {
+			logger.Println(fmt.Sprintf("Uploaded %s", objectKey))
+		},
+	}
+	return uploader.UploadDir(ctx, nsaws.NewConfig(c.Outputs.Deployer, c.Outputs.Region), source, filepaths)
 }
 
 func (c InfraConfig) UpdateCdnVersion(ctx context.Context, version string) error {

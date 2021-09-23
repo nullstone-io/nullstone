@@ -52,13 +52,13 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 		return fmt.Errorf("no version specified, version is required to push")
 	}
 
-	sourceWalker, err := artifacts.WalkDirOrArchive(source)
+	filepaths, err := artifacts.WalkDir(source)
 	if err != nil {
 		return fmt.Errorf("error scanning source: %w", err)
 	}
 
-	logger.Printf("Uploading %s to s3 bucket /%s...\n", version)
-	if err := ic.UploadArtifact(ctx, sourceWalker, version); err != nil {
+	logger.Printf("Uploading %s to s3 bucket %s...\n", source, ic.Outputs.BucketName)
+	if err := ic.UploadArtifact(ctx, source, filepaths, version); err != nil {
 		return fmt.Errorf("error uploading artifact: %w", err)
 	}
 
