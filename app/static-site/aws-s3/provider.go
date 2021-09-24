@@ -21,7 +21,7 @@ type Provider struct {
 }
 
 func (p Provider) DefaultLogProvider() string {
-	return "cloudwatch"
+	return "s3"
 }
 
 func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConfig, error) {
