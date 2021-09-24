@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"mime"
 	"os"
 	"path"
 	"path/filepath"
@@ -39,10 +40,16 @@ func (u *S3Uploader) uploadOne(ctx context.Context, uploader *manager.Uploader, 
 	}
 	defer file.Close()
 	objectKey := path.Join(u.ObjectDirectory, strings.Replace(fp, string(filepath.Separator), "/", -1))
+
+	mimeType := mime.TypeByExtension(filepath.Ext(fp))
+	if mimeType == "" {
+		mimeType = "text/plain"
+	}
 	_, err = uploader.Upload(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(u.BucketName),
-		Key:    aws.String(objectKey),
-		Body:   file,
+		Bucket:      aws.String(u.BucketName),
+		Key:         aws.String(objectKey),
+		Body:        file,
+		ContentType: aws.String(mimeType),
 	})
 	if err != nil {
 		return fmt.Errorf("error uploading file %q: %w", objectKey, err)
