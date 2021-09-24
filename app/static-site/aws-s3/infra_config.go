@@ -74,7 +74,7 @@ func (c InfraConfig) GetCdns(ctx context.Context) ([]*cloudfront.GetDistribution
 func (c InfraConfig) replaceOriginPath(cdn *cloudfront.GetDistributionOutput, newOriginPath string) *cftypes.DistributionConfig {
 	dc := cdn.Distribution.DistributionConfig
 	for i := range dc.Origins.Items {
-		dc.Origins.Items[i].OriginPath = aws.String(newOriginPath)
+		dc.Origins.Items[i].OriginPath = aws.String(fmt.Sprintf("/%s", newOriginPath))
 	}
 	return dc
 }
