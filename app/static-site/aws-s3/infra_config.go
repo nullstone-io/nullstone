@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-// InfraConfig provides a minimal understanding of the infrastructure provisioned for a module type=aws-fargate
+// InfraConfig provides a minimal understanding of the infrastructure provisioned for a module type=aws-s3-site
 type InfraConfig struct {
 	Outputs aws_s3_site.Outputs
 }
