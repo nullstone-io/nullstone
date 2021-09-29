@@ -1,10 +1,11 @@
-package aws_lambda
+package aws_s3
 
 import (
 	"context"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"gopkg.in/nullstone-io/nullstone.v0/artifacts"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
@@ -20,7 +21,7 @@ type Provider struct {
 }
 
 func (p Provider) DefaultLogProvider() string {
-	return "cloudwatch"
+	return "s3"
 }
 
 func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConfig, error) {
@@ -34,7 +35,6 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 	return ic, nil
 }
 
-// Push will upload the versioned artifact to the source artifact bucket for the lambda
 func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
 	ic, err := p.identify(nsConfig, details)
 	if err != nil {
@@ -43,37 +43,28 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 
 	// TODO: Add cancellation support so users can press Control+C to kill push
 	ctx := context.TODO()
-
 	source := userConfig["source"]
 	if source == "" {
-		return fmt.Errorf("--source is required to upload artifact")
+		return fmt.Errorf("no source specified, source artifact (directory or achive) is required to push")
 	}
 	version := userConfig["version"]
 	if version == "" {
-		return fmt.Errorf("--version is required to upload artifact")
+		return fmt.Errorf("no version specified, version is required to push")
 	}
 
-	file, err := os.Open(source)
-	if os.IsNotExist(err) {
-		return fmt.Errorf("source file %q does not exist", source)
-	} else if err != nil {
-		return fmt.Errorf("error opening source file: %w", err)
+	filepaths, err := artifacts.WalkDir(source)
+	if err != nil {
+		return fmt.Errorf("error scanning source: %w", err)
 	}
-	defer file.Close()
 
-	logger.Printf("Uploading %s to artifacts bucket\n", ic.Outputs.ArtifactsKey(version))
-	if err := ic.UploadArtifact(ctx, file, version); err != nil {
+	logger.Printf("Uploading %s to s3 bucket %s...\n", source, ic.Outputs.BucketName)
+	if err := ic.UploadArtifact(ctx, source, filepaths, version); err != nil {
 		return fmt.Errorf("error uploading artifact: %w", err)
 	}
-
-	logger.Printf("Upload complete")
 
 	return nil
 }
 
-// Deploy takes the following steps to deploy an AWS Lambda service
-//   Update app version in nullstone
-//   Update function code to use just-uploaded archive
 func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
 	ic, err := p.identify(nsConfig, details)
 	if err != nil {
@@ -86,7 +77,7 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	logger.Printf("Deploying app %q\n", details.App.Name)
 	version := userConfig["version"]
 	if version == "" {
-		return fmt.Errorf("--version is required to upload artifact")
+		return fmt.Errorf("no version specified, version is required to deploy")
 	}
 
 	logger.Printf("Updating app version to %q\n", version)
@@ -94,9 +85,9 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 		return fmt.Errorf("error updating app version in nullstone: %w", err)
 	}
 
-	logger.Printf("Updating lambda to %q\n", version)
-	if err := ic.UpdateLambdaVersion(ctx, version); err != nil {
-		return fmt.Errorf("error updating lambda version: %w", err)
+	logger.Printf("Updating CDN version to %q\n", version)
+	if err := ic.UpdateCdnVersion(ctx, version); err != nil {
+		return fmt.Errorf("error updating CDN version: %w", err)
 	}
 
 	logger.Printf("Deployed app %q\n", details.App.Name)
@@ -104,9 +95,11 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
+	// TODO: Implement me
 	return app.StatusReport{}, nil
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
+	// TODO: Implement me
 	return app.StatusDetailReports{}, nil
 }
