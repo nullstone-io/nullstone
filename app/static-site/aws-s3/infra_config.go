@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 // InfraConfig provides a minimal understanding of the infrastructure provisioned for a module type=aws-s3-site
@@ -69,6 +70,26 @@ func (c InfraConfig) GetCdns(ctx context.Context) ([]*cloudfront.GetDistribution
 		cdns = append(cdns, out)
 	}
 	return cdns, nil
+}
+
+func (c InfraConfig) InvalidateCdnPaths(ctx context.Context, urlPaths []string) error {
+	cfClient := nsaws.NewCloudfrontClient(c.Outputs.Deployer, c.Outputs.Region)
+	for _, cdnId := range c.Outputs.CdnIds {
+		_, err := cfClient.CreateInvalidation(ctx, &cloudfront.CreateInvalidationInput{
+			DistributionId: aws.String(cdnId),
+			InvalidationBatch: &cftypes.InvalidationBatch{
+				CallerReference: aws.String(time.Now().String()),
+				Paths: &cftypes.Paths{
+					Quantity: aws.Int32(int32(len(urlPaths))),
+					Items:    urlPaths,
+				},
+			},
+		})
+		if err != nil {
+			return fmt.Errorf("error invalidating cdn %s: %w", cdnId, err)
+		}
+	}
+	return nil
 }
 
 func (c InfraConfig) replaceOriginPath(cdn *cloudfront.GetDistributionOutput, newOriginPath string) *cftypes.DistributionConfig {
