@@ -43,7 +43,7 @@ var AppsList = &cli.Command{
 				for i, app := range allApps {
 					var appCategory types.CategoryName
 					var appType string
-					if appModule, err := finder.GetAppModule(client, app); err == nil {
+					if appModule, err := finder.GetAppModule(app); err == nil {
 						appCategory = appModule.Category
 						appType = appModule.Type
 					}

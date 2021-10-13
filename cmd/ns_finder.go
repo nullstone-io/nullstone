@@ -56,6 +56,12 @@ func (f NsFinder) FindAppDetails(appName, stackName, envName string) (app.Detail
 		return appDetails, err
 	}
 
+	if appDetails.Module, err = f.GetAppModule(*appDetails.App); err != nil {
+		return appDetails, err
+	} else if appDetails.Module == nil {
+		return appDetails, fmt.Errorf("can't find app module %s", appDetails.App.ModuleSource)
+	}
+
 	return appDetails, nil
 }
 
@@ -145,13 +151,11 @@ func (f NsFinder) getAppWorkspace(app *types.Application, env *types.Environment
 	if workspace.Status != types.WorkspaceStatusProvisioned {
 		return nil, fmt.Errorf("app %q has not been provisioned in %q environment yet", app.Name, env.Name)
 	}
-	if workspace.Module == nil {
-		return nil, fmt.Errorf("unknown module for workspace")
-	}
 	return workspace, nil
 }
 
-func (f NsFinder) GetAppModule(client api.Client, app types.Application) (*types.Module, error) {
+func (f NsFinder) GetAppModule(app types.Application) (*types.Module, error) {
+	client := api.Client{Config: f.Config}
 	ms, err := ParseSource(app.ModuleSource)
 	if err != nil {
 		return nil, err

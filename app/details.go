@@ -6,4 +6,5 @@ type Details struct {
 	App       *types.Application
 	Env       *types.Environment
 	Workspace *types.Workspace
+	Module    *types.Module
 }

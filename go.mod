@@ -38,5 +38,5 @@ require (
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
 	golang.org/x/sys v0.0.0-20210521090106-6ca3eb03dfc2 // indirect
 	google.golang.org/grpc v1.38.0 // indirect
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20210818163456-ae44a6533eb6
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20211013202711-93368f7b06a1
 )
