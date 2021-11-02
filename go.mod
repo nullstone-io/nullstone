@@ -99,7 +99,7 @@ require (
 	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c // indirect
 	google.golang.org/grpc v1.41.0 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20211102182115-0a7eeb32d557
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20211102214026-caeea080d53c
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
