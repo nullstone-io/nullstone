@@ -32,7 +32,16 @@ func (r *Retriever) Retrieve(workspace *types.Workspace, obj interface{}) error 
 		}
 		return fmt.Errorf("cannot find outputs for %s/%s", workspace.OrgName, wt.Id())
 	}
-	workspaceOutputs := workspace.LastFinishedRun.Apply.Outputs
+	nsClient := api.Client{Config: r.NsConfig}
+	workspaceOutputs, err := nsClient.WorkspaceOutputs().GetLatest(workspace.StackId, workspace.BlockId, workspace.EnvId)
+	if err != nil {
+		wt := types.WorkspaceTarget{
+			StackId: workspace.StackId,
+			BlockId: workspace.BlockId,
+			EnvId:   workspace.EnvId,
+		}
+		return fmt.Errorf("unable to fetch the outputs for %s/%s", workspace.OrgName, wt.Id())
+	}
 
 	fields := GetFields(reflect.TypeOf(obj).Elem())
 	for _, field := range fields {
