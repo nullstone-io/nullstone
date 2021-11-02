@@ -24,14 +24,6 @@ func (r *Retriever) Retrieve(workspace *types.Workspace, obj interface{}) error 
 		return fmt.Errorf("input object must be a pointer to a struct")
 	}
 
-	if workspace.LastFinishedRun == nil || workspace.LastFinishedRun.Apply == nil {
-		wt := types.WorkspaceTarget{
-			StackId: workspace.StackId,
-			BlockId: workspace.BlockId,
-			EnvId:   workspace.EnvId,
-		}
-		return fmt.Errorf("cannot find outputs for %s/%s", workspace.OrgName, wt.Id())
-	}
 	nsClient := api.Client{Config: r.NsConfig}
 	workspaceOutputs, err := nsClient.WorkspaceOutputs().GetLatest(workspace.StackId, workspace.BlockId, workspace.EnvId)
 	if err != nil {
