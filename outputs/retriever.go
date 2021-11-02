@@ -72,7 +72,7 @@ func (r *Retriever) Retrieve(workspace *types.Workspace, obj interface{}) error 
 			if err := CheckValidField(obj, fieldType); err != nil {
 				return err
 			}
-			if err := field.SafeSet(obj, workspaceOutputs); err != nil {
+			if err := field.SafeSet(obj, *workspaceOutputs); err != nil {
 				return err
 			}
 		}
