@@ -24,15 +24,19 @@ func (r *Retriever) Retrieve(workspace *types.Workspace, obj interface{}) error 
 		return fmt.Errorf("input object must be a pointer to a struct")
 	}
 
-	if workspace.LastFinishedRun == nil || workspace.LastFinishedRun.Apply == nil {
+	nsClient := api.Client{Config: r.NsConfig}
+	workspaceOutputs, err := nsClient.WorkspaceOutputs().GetLatest(workspace.StackId, workspace.BlockId, workspace.EnvId)
+	if workspaceOutputs == nil {
+		return fmt.Errorf("this workspace has not yet been successfully launched, no outputs exist yet")
+	}
+	if err != nil {
 		wt := types.WorkspaceTarget{
 			StackId: workspace.StackId,
 			BlockId: workspace.BlockId,
 			EnvId:   workspace.EnvId,
 		}
-		return fmt.Errorf("cannot find outputs for %s/%s", workspace.OrgName, wt.Id())
+		return fmt.Errorf("unable to fetch the outputs for %s/%s", workspace.OrgName, wt.Id())
 	}
-	workspaceOutputs := workspace.LastFinishedRun.Apply.Outputs
 
 	fields := GetFields(reflect.TypeOf(obj).Elem())
 	for _, field := range fields {
@@ -68,7 +72,7 @@ func (r *Retriever) Retrieve(workspace *types.Workspace, obj interface{}) error 
 			if err := CheckValidField(obj, fieldType); err != nil {
 				return err
 			}
-			if err := field.SafeSet(obj, workspaceOutputs); err != nil {
+			if err := field.SafeSet(obj, *workspaceOutputs); err != nil {
 				return err
 			}
 		}
