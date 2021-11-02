@@ -26,6 +26,9 @@ func (r *Retriever) Retrieve(workspace *types.Workspace, obj interface{}) error 
 
 	nsClient := api.Client{Config: r.NsConfig}
 	workspaceOutputs, err := nsClient.WorkspaceOutputs().GetLatest(workspace.StackId, workspace.BlockId, workspace.EnvId)
+	if workspaceOutputs == nil {
+		return fmt.Errorf("this workspace has not yet been successfully launched, no outputs exist yet")
+	}
 	if err != nil {
 		wt := types.WorkspaceTarget{
 			StackId: workspace.StackId,
