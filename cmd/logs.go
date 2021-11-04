@@ -21,7 +21,7 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
 			&cli.DurationFlag{
 				Name:        "start-time",
 				Aliases:     []string{"s"},
-				DefaultText: "1h",
+				DefaultText: "0s",
 				Usage: `
        Emit log events that occur after the specified start-time. 
        This is a golang duration relative to the time the command is issued.

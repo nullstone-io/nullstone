@@ -10,6 +10,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"log"
 	"os"
+	"time"
 )
 
 // Launch command performs push, deploy, and logs
@@ -49,7 +50,8 @@ var Launch = func(providers app.Providers, logProviders app_logs.Providers) *cli
 				if err != nil {
 					return err
 				}
-				return logProvider.Stream(ctx, cfg, details, config.LogStreamOptions{Out: os.Stdout})
+				now := time.Now()
+				return logProvider.Stream(ctx, cfg, details, config.LogStreamOptions{StartTime: &now, Out: os.Stdout})
 			})
 		},
 	}
