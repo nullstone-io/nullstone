@@ -71,7 +71,6 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 	if err != nil {
 		return fmt.Errorf("error retrieving image registry credentials: %w", err)
 	}
-	fmt.Printf("%+v\n", targetAuth)
 
 	logger.Printf("Retagging %s => %s\n", sourceUrl.String(), targetUrl.String())
 	if err := ic.RetagImage(ctx, sourceUrl, targetUrl); err != nil {
