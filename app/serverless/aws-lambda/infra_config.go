@@ -16,7 +16,6 @@ const (
 	ArtifactSourceDocker = "docker"
 )
 
-
 // InfraConfig provides a minimal understanding of the infrastructure provisioned for a module type=aws-fargate
 type InfraConfig struct {
 	Outputs aws_lambda_service.Outputs

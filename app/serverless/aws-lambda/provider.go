@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
+	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
+	aws_ecr_contracts "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-ecr"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
@@ -41,6 +43,25 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 		return err
 	}
 
+	if ic.HasDockerArtifactSource() {
+		return p.pushImage(userConfig, ic)
+	} else {
+		return p.pushZip(userConfig, ic)
+	}
+}
+
+func (p Provider) pushImage(userConfig map[string]string, ic *InfraConfig) error {
+	ecrIc := aws_ecr.InfraConfig{
+		Outputs: aws_ecr_contracts.Outputs{
+			Region:       ic.Outputs.Region,
+			ImageRepoUrl: ic.Outputs.ImageRepoUrl,
+			ImagePusher:  ic.Outputs.ImagePusher,
+		},
+	}
+	return aws_ecr.PushImage(userConfig, ecrIc)
+}
+
+func (p Provider) pushZip(userConfig map[string]string, ic *InfraConfig) error {
 	// TODO: Add cancellation support so users can press Control+C to kill push
 	ctx := context.TODO()
 
@@ -67,7 +88,6 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 	}
 
 	logger.Printf("Upload complete")
-
 	return nil
 }
 
