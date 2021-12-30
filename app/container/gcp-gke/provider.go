@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
+	gcp_gcr "gopkg.in/nullstone-io/nullstone.v0/app/container/gcp-gcr"
+	"gopkg.in/nullstone-io/nullstone.v0/docker"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
@@ -34,7 +36,19 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 }
 
 func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return fmt.Errorf("Not supported yet")
+	ic, err := p.identify(nsConfig, details)
+	if err != nil {
+		return err
+	}
+
+	sourceUrl := docker.ParseImageUrl(userConfig["source"])
+	targetUrl := ic.Outputs.ImageRepoUrl
+	if targetUrl.String() == "" {
+		return fmt.Errorf("cannot push if 'image_repo_url' module output is missing")
+	}
+	targetUrl.Tag = userConfig["version"]
+
+	return gcp_gcr.PushImage(sourceUrl, targetUrl, ic.Outputs.ImagePusher)
 }
 
 // Deploy takes the following steps to deploy a GCP GKE pod
