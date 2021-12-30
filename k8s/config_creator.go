@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"golang.org/x/oauth2"
 	apimachineryschema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -34,7 +35,13 @@ func (f *ConfigCreator) Create(ctx context.Context, scopes ...string) (*restclie
 	loader := &clientcmd.ClientConfigLoadingRules{}
 
 	clusterInfo := f.ClusterInfoer.ClusterInfo()
-	overrides.ClusterInfo.CertificateAuthorityData = []byte(clusterInfo.CACertificate)
+
+	decodedCACert, err := base64.StdEncoding.DecodeString(clusterInfo.CACertificate)
+	if err != nil {
+		return nil, fmt.Errorf("invalid cluster CA certificate: %w", err)
+	}
+
+	overrides.ClusterInfo.CertificateAuthorityData = decodedCACert
 	host, _, err := restclient.DefaultServerURL(clusterInfo.Endpoint, "", apimachineryschema.GroupVersion{}, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse GKE cluster host %q: %w", clusterInfo.Endpoint, err)
