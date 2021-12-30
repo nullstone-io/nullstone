@@ -7,6 +7,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
 	"gopkg.in/nullstone-io/nullstone.v0/app/container/aws-fargate"
+	gcp_gke "gopkg.in/nullstone-io/nullstone.v0/app/container/gcp-gke"
 	aws_lambda "gopkg.in/nullstone-io/nullstone.v0/app/serverless/aws-lambda"
 	aws_s3 "gopkg.in/nullstone-io/nullstone.v0/app/static-site/aws-s3"
 	"gopkg.in/nullstone-io/nullstone.v0/app_logs"
@@ -28,6 +29,7 @@ func main() {
 		types.CategoryAppContainer: {
 			"service/aws-fargate": aws_fargate.Provider{},
 			"service/aws-ecr":     aws_ecr.Provider{},
+			"service/gcp-gke":     gcp_gke.Provider{},
 		},
 		types.CategoryAppStaticSite: {
 			"site/aws-s3": aws_s3.Provider{},
