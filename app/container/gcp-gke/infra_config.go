@@ -6,6 +6,7 @@ import (
 	gcp_gke_service "gopkg.in/nullstone-io/nullstone.v0/contracts/gcp-gke-service"
 	"gopkg.in/nullstone-io/nullstone.v0/k8s"
 	apps_v1 "k8s.io/api/apps/v1"
+	core_v1 "k8s.io/api/core/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -32,13 +33,24 @@ func (c *InfraConfig) GetDeployment() (*apps_v1.Deployment, error) {
 	return conn.AppsV1().Deployments(c.Outputs.ServiceNamespace).Get(ctx, c.Outputs.ServiceName, meta_v1.GetOptions{})
 }
 
-func (c InfraConfig) UpdateDeployment(deployment *apps_v1.Deployment) (*apps_v1.Deployment, error) {
+func (c *InfraConfig) UpdateDeployment(deployment *apps_v1.Deployment) (*apps_v1.Deployment, error) {
 	ctx := context.TODO()
 	conn, err := c.createKubeClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return conn.AppsV1().Deployments(c.Outputs.ServiceNamespace).Update(ctx, deployment, meta_v1.UpdateOptions{})
+}
+
+func (c *InfraConfig) GetServices() (*core_v1.ServiceList, error) {
+	ctx := context.TODO()
+	conn, err := c.createKubeClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return conn.CoreV1().Services(c.Outputs.ServiceNamespace).List(ctx, meta_v1.ListOptions{
+		LabelSelector: fmt.Sprintf("app=%s", c.Outputs.ServiceName),
+	})
 }
 
 func (c *InfraConfig) createKubeClient(ctx context.Context) (*kubernetes.Clientset, error) {

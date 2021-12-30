@@ -93,10 +93,87 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
-	return app.StatusReport{}, fmt.Errorf("Not supported yet")
+	ic := &InfraConfig{}
+	retriever := outputs.Retriever{NsConfig: nsConfig}
+	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
+		return app.StatusReport{}, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+	}
+
+	deployment, err := ic.GetDeployment()
+	if err != nil {
+		return app.StatusReport{}, fmt.Errorf("error retrieving deployment: %w", err)
+	}
+
+	return app.StatusReport{
+		Fields: []string{"Available", "Ready", "Unavailable"},
+		Data: map[string]interface{}{
+			"Available":   fmt.Sprintf("%d", deployment.Status.AvailableReplicas),
+			"Ready":       fmt.Sprintf("%d/%d", deployment.Status.ReadyReplicas, deployment.Status.Replicas),
+			"Unavailable": fmt.Sprintf("%d", deployment.Status.UnavailableReplicas),
+		},
+	}, nil
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
 	reports := app.StatusDetailReports{}
-	return reports, fmt.Errorf("Not supported yet")
+
+	ic := &InfraConfig{}
+	retriever := outputs.Retriever{NsConfig: nsConfig}
+	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
+		return reports, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+	}
+
+	deployment, err := ic.GetDeployment()
+	if err != nil {
+		return reports, fmt.Errorf("error retrieving deployment: %w", err)
+	}
+
+	deploymentReport := app.StatusDetailReport{
+		Name:    "Deployments",
+		Records: app.StatusRecords{},
+	}
+	record := app.StatusRecord{
+		Fields: []string{"Created", "Available", "Ready", "Unavailable"},
+		Data: map[string]interface{}{
+			"Created":     fmt.Sprintf("%s", deployment.CreationTimestamp),
+			"Available":   fmt.Sprintf("%d", deployment.Status.AvailableReplicas),
+			"Ready":       fmt.Sprintf("%d/%d", deployment.Status.ReadyReplicas, deployment.Status.Replicas),
+			"Unavailable": fmt.Sprintf("%d", deployment.Status.UnavailableReplicas),
+		},
+	}
+	deploymentReport.Records = append(deploymentReport.Records, record)
+	reports = append(reports, deploymentReport)
+
+	services, err := ic.GetServices()
+
+	lbReport := app.StatusDetailReport{
+		Name:    "Load Balancers",
+		Records: app.StatusRecords{},
+	}
+	for _, service := range services.Items {
+		for _, ingress := range service.Status.LoadBalancer.Ingress {
+			for _, portStatus := range ingress.Ports {
+				record := app.StatusRecord{
+					Fields: []string{"Port", "Target", "Status"},
+					Data:   map[string]interface{}{"Port": fmt.Sprintf("%d/%s", portStatus.Port, portStatus.Protocol)},
+				}
+				target := ingress.Hostname
+				if target == "" {
+					target = ingress.IP
+				}
+				record.Data["Target"] = target
+
+				status := ""
+				if portStatus.Error != nil {
+					status = *portStatus.Error
+				}
+				record.Data["Status"] = status
+
+				lbReport.Records = append(lbReport.Records, record)
+			}
+		}
+	}
+	reports = append(reports, lbReport)
+
+	return reports, nil
 }
