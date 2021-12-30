@@ -5,6 +5,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
+	"gopkg.in/nullstone-io/nullstone.v0/docker"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
@@ -35,7 +36,19 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 }
 
 func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return (aws_ecr.Provider{}).Push(nsConfig, details, userConfig)
+	ic, err := p.identify(nsConfig, details)
+	if err != nil {
+		return err
+	}
+
+	sourceUrl := docker.ParseImageUrl(userConfig["source"])
+	targetUrl := ic.Outputs.ImageRepoUrl
+	if targetUrl.String() == "" {
+		return fmt.Errorf("cannot push if 'image_repo_url' module output is missing")
+	}
+	targetUrl.Tag = userConfig["version"]
+
+	return aws_ecr.PushImage(sourceUrl, targetUrl, ic.Outputs.ImagePusher, ic.Outputs.Region)
 }
 
 // Deploy takes the following steps to deploy an AWS Fargate service
