@@ -6,6 +6,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	gcp_gcr "gopkg.in/nullstone-io/nullstone.v0/app/container/gcp-gcr"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
+	"gopkg.in/nullstone-io/nullstone.v0/k8s"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
@@ -76,7 +77,7 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 		}
 
 		logger.Printf("Updating image tag to %q\n", version)
-		if spec, err = ic.ReplacePodSpecImageTag(pod.Spec, version); err != nil {
+		if spec, err = k8s.SetContainerImageTag(pod.Spec, ic.Outputs.MainContainerName, version); err != nil {
 			return fmt.Errorf("error updating pod spec with new image tag: %w", err)
 		}
 	}
