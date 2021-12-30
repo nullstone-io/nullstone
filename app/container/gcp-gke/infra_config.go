@@ -5,7 +5,7 @@ import (
 	"fmt"
 	gcp_gke_service "gopkg.in/nullstone-io/nullstone.v0/contracts/gcp-gke-service"
 	"gopkg.in/nullstone-io/nullstone.v0/k8s"
-	core_v1 "k8s.io/api/core/v1"
+	apps_v1 "k8s.io/api/apps/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -23,22 +23,22 @@ func (c *InfraConfig) Print(logger *log.Logger) {
 	logger = log.New(logger.Writer(), "    ", 0)
 }
 
-func (c *InfraConfig) GetPod() (*core_v1.Pod, error) {
+func (c *InfraConfig) GetDeployment() (*apps_v1.Deployment, error) {
 	ctx := context.TODO()
 	conn, err := c.createKubeClient(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return conn.CoreV1().Pods(c.Outputs.ServiceNamespace).Get(ctx, c.Outputs.ServiceName, meta_v1.GetOptions{})
+	return conn.AppsV1().Deployments(c.Outputs.ServiceNamespace).Get(ctx, c.Outputs.ServiceName, meta_v1.GetOptions{})
 }
 
-func (c InfraConfig) UpdatePod(pod *core_v1.Pod) (*core_v1.Pod, error) {
-	ctx := context.Background()
+func (c InfraConfig) UpdateDeployment(deployment *apps_v1.Deployment) (*apps_v1.Deployment, error) {
+	ctx := context.TODO()
 	conn, err := c.createKubeClient(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return conn.CoreV1().Pods(c.Outputs.ServiceNamespace).Update(ctx, pod, meta_v1.UpdateOptions{})
+	return conn.AppsV1().Deployments(c.Outputs.ServiceNamespace).Update(ctx, deployment, meta_v1.UpdateOptions{})
 }
 
 func (c *InfraConfig) createKubeClient(ctx context.Context) (*kubernetes.Clientset, error) {

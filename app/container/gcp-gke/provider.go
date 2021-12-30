@@ -62,11 +62,12 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 		return err
 	}
 
-	pod, err := ic.GetPod()
+	deployment, err := ic.GetDeployment()
 	if err != nil {
-		return fmt.Errorf("error retrieving pod: %w", err)
+		return fmt.Errorf("error retrieving deployment: %w", err)
 	}
-	spec := pod.Spec
+
+	podSpec := deployment.Spec.Template.Spec
 
 	logger.Printf("Deploying app %q\n", details.App.Name)
 	version := userConfig["version"]
@@ -77,13 +78,13 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 		}
 
 		logger.Printf("Updating image tag to %q\n", version)
-		if spec, err = k8s.SetContainerImageTag(pod.Spec, ic.Outputs.MainContainerName, version); err != nil {
+		if podSpec, err = k8s.SetContainerImageTag(podSpec, ic.Outputs.MainContainerName, version); err != nil {
 			return fmt.Errorf("error updating pod spec with new image tag: %w", err)
 		}
 	}
 
-	pod.Spec = spec
-	if _, err := ic.UpdatePod(pod); err != nil {
+	deployment.Spec.Template.Spec = podSpec
+	if _, err := ic.UpdateDeployment(deployment); err != nil {
 		return fmt.Errorf("error deploying service: %w", err)
 	}
 
