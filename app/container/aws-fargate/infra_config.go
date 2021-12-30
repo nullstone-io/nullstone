@@ -8,9 +8,9 @@ import (
 	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
 	elbv2types "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
-	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	aws_fargate_service "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-fargate-service"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
+	"gopkg.in/nullstone-io/nullstone.v0/nsaws"
 	"log"
 )
 

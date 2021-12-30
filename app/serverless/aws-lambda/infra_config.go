@@ -5,8 +5,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/lambda"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	aws_lambda_service "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-lambda-service"
+	"gopkg.in/nullstone-io/nullstone.v0/nsaws"
 	"io"
 	"log"
 )

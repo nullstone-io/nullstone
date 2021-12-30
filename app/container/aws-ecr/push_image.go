@@ -3,9 +3,9 @@ package aws_ecr
 import (
 	"context"
 	"fmt"
-	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	"gopkg.in/nullstone-io/nullstone.v0/contracts/aws"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
+	"gopkg.in/nullstone-io/nullstone.v0/nsaws"
 	"strings"
 )
 

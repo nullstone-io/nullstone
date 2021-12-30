@@ -1,7 +1,7 @@
 package gcp_gke
 
 import (
-	"gopkg.in/nullstone-io/nullstone.v0/gcp"
+	"gopkg.in/nullstone-io/nullstone.v0/contracts/gcp"
 	"gopkg.in/nullstone-io/nullstone.v0/k8s"
 )
 
