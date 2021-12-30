@@ -13,12 +13,12 @@ type ServiceAccount struct {
 	PrivateKey string `json:"private_key"`
 }
 
-func (a ServiceAccount) TokenSource(ctx context.Context) (oauth2.TokenSource, error) {
+func (a ServiceAccount) TokenSource(ctx context.Context, scopes ...string) (oauth2.TokenSource, error) {
 	decoded, err := base64.StdEncoding.DecodeString(a.PrivateKey)
 	if err != nil {
 		return nil, fmt.Errorf("service account private key is not base64-encoded: %w", err)
 	}
-	cfg, err := google.JWTConfigFromJSON(decoded)
+	cfg, err := google.JWTConfigFromJSON(decoded, scopes...)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read service account credentials json file: %w", err)
 	}

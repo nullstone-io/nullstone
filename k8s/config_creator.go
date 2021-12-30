@@ -10,7 +10,7 @@ import (
 )
 
 type TokenSourcer interface {
-	TokenSource(ctx context.Context) (oauth2.TokenSource, error)
+	TokenSource(ctx context.Context, scopes ...string) (oauth2.TokenSource, error)
 }
 
 type ClusterInfoer interface {
@@ -29,7 +29,7 @@ type ConfigCreator struct {
 	ClusterInfoer ClusterInfoer
 }
 
-func (f *ConfigCreator) Create(ctx context.Context) (*restclient.Config, error) {
+func (f *ConfigCreator) Create(ctx context.Context, scopes ...string) (*restclient.Config, error) {
 	overrides := &clientcmd.ConfigOverrides{}
 	loader := &clientcmd.ClientConfigLoadingRules{}
 
@@ -41,7 +41,7 @@ func (f *ConfigCreator) Create(ctx context.Context) (*restclient.Config, error) 
 	}
 	overrides.ClusterInfo.Server = host.String()
 
-	kubeTokenSource, err := f.TokenSourcer.TokenSource(ctx)
+	kubeTokenSource, err := f.TokenSourcer.TokenSource(ctx, scopes...)
 	if err != nil {
 		return nil, err
 	}

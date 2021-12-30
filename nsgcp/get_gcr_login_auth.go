@@ -7,8 +7,12 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/contracts/gcp"
 )
 
+var (
+	GCRScopes = []string{"https://www.googleapis.com/auth/cloud-platform"}
+)
+
 func GetGcrLoginAuth(ctx context.Context, imagePusher gcp.ServiceAccount, registry string) (types.AuthConfig, error) {
-	ts, err := imagePusher.TokenSource(ctx)
+	ts, err := imagePusher.TokenSource(ctx, GCRScopes...)
 	if err != nil {
 		return types.AuthConfig{}, fmt.Errorf("error creating access token source: %w", err)
 	}

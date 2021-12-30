@@ -20,6 +20,15 @@ type InfraConfig struct {
 	KubeClient *kubernetes.Clientset
 }
 
+var GcpScopes = []string{
+	"https://www.googleapis.com/auth/compute",
+	"https://www.googleapis.com/auth/cloud-platform",
+	"https://www.googleapis.com/auth/cloud-identity",
+	"https://www.googleapis.com/auth/ndev.clouddns.readwrite",
+	"https://www.googleapis.com/auth/devstorage.full_control",
+	"https://www.googleapis.com/auth/userinfo.email",
+}
+
 func (c *InfraConfig) Print(logger *log.Logger) {
 	logger = log.New(logger.Writer(), "    ", 0)
 }
@@ -60,7 +69,7 @@ func (c *InfraConfig) createKubeClient(ctx context.Context) (*kubernetes.Clients
 			TokenSourcer:  clusterOutputs.Deployer,
 			ClusterInfoer: clusterOutputs,
 		}
-		cfg, err := configCreator.Create(ctx)
+		cfg, err := configCreator.Create(ctx, GcpScopes...)
 		if err != nil {
 			return nil, fmt.Errorf("error creating kube config: %w", err)
 		}
