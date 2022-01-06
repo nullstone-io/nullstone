@@ -12,6 +12,14 @@ type Outputs struct {
 	ImageRepoUrl      docker.ImageUrl `ns:"image_repo_url,optional"`
 	ImagePusher       aws.User        `ns:"image_pusher,optional"`
 	MainContainerName string          `ns:"main_container_name,optional"`
+	Deployer          aws.User        `ns:"deployer,optional"`
 
 	Cluster aws_fargate.Outputs `ns:",connectionType:cluster/aws-fargate"`
+}
+
+func (o Outputs) GetDeployer() aws.User {
+	if o.Deployer.Name == "" {
+		return o.Cluster.Deployer
+	}
+	return o.Deployer
 }
