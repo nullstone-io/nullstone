@@ -27,7 +27,7 @@ func (c InfraConfig) Print(logger *log.Logger) {
 }
 
 func (c InfraConfig) GetTaskDefinition() (*ecstypes.TaskDefinition, error) {
-	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
 
 	out1, err := ecsClient.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
 		Services: []string{c.Outputs.ServiceName},
@@ -50,7 +50,7 @@ func (c InfraConfig) GetTaskDefinition() (*ecstypes.TaskDefinition, error) {
 }
 
 func (c InfraConfig) UpdateTaskImageTag(taskDefinition *ecstypes.TaskDefinition, imageTag string) (*ecstypes.TaskDefinition, error) {
-	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
 
 	defIndex, err := c.findMainContainerDefinitionIndex(taskDefinition.ContainerDefinitions)
 	if err != nil {
@@ -119,7 +119,7 @@ func (c InfraConfig) findMainContainerDefinitionIndex(containerDefs []ecstypes.C
 }
 
 func (c InfraConfig) GetService() (*ecstypes.Service, error) {
-	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
 	out, err := ecsClient.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
 		Services: []string{c.Outputs.ServiceName},
 		Cluster:  aws.String(c.Outputs.Cluster.ClusterArn),
@@ -134,7 +134,7 @@ func (c InfraConfig) GetService() (*ecstypes.Service, error) {
 }
 
 func (c InfraConfig) GetTargetGroupHealth(targetGroupArn string) ([]elbv2types.TargetHealthDescription, error) {
-	elbClient := elasticloadbalancingv2.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
+	elbClient := elasticloadbalancingv2.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
 	out, err := elbClient.DescribeTargetHealth(context.Background(), &elasticloadbalancingv2.DescribeTargetHealthInput{
 		TargetGroupArn: aws.String(targetGroupArn),
 	})
@@ -145,7 +145,7 @@ func (c InfraConfig) GetTargetGroupHealth(targetGroupArn string) ([]elbv2types.T
 }
 
 func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {
-	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.Cluster.Deployer, c.Outputs.Region))
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
 
 	_, err := ecsClient.UpdateService(context.Background(), &ecs.UpdateServiceInput{
 		Service:            aws.String(c.Outputs.ServiceName),
