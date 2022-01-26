@@ -80,6 +80,9 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	logger.Printf("Deployed app %q\n", details.App.Name)
 	return nil
 }
+func (p Provider) Exec(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+	return fmt.Errorf("exec is not supported for the aws-fargate provider")
+}
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
 	ic := &InfraConfig{}

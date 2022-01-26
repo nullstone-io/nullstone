@@ -65,11 +65,12 @@ func main() {
 			cmd.Apps,
 			cmd.Stacks,
 			cmd.Envs,
-			cmd.Deploy(appProviders),
 			cmd.Push(appProviders),
-			cmd.Logs(appProviders, logProviders),
+			cmd.Deploy(appProviders),
 			cmd.Launch(appProviders, logProviders),
+			cmd.Logs(appProviders, logProviders),
 			cmd.Status(appProviders),
+			cmd.Exec(appProviders),
 		},
 	}
 	sort.Sort(cli.FlagsByName(cliApp.Flags))
