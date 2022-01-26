@@ -2,7 +2,6 @@ package aws_fargate
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
@@ -191,5 +190,5 @@ func (c InfraConfig) ExecCommand(taskId string, cmd string) error {
 		return fmt.Errorf("error establishing ecs execute command: %w", err)
 	}
 
-	return ssm.StartEcsSession(out.Session, c.Outputs.Region, cluster, taskId, containerName)
+	return ssm.StartEcsSession(out.Session, region, cluster, taskId, containerName)
 }

@@ -10,6 +10,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"os"
 	"os/exec"
+	"os/signal"
+	"syscall"
 )
 
 type EcsSession struct {
@@ -36,15 +38,19 @@ func StartEcsSession(session *ecstypes.Session, region, cluster, task, container
 		endpoint.URL,
 	}
 
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, os.Interrupt, syscall.SIGINT)
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		for {
 			select {
-			case <-ctx.Done():
+			case <-sigs:
 				cancel()
+				return
 			}
 		}
 	}()
+	defer close(sigs)
 
 	process, err := getSessionManagerPluginPath()
 	if err != nil {
