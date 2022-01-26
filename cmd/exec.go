@@ -11,7 +11,7 @@ var Exec = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "exec",
 		Usage:     "Execute command on running service",
-		UsageText: "nullstone exec [options] <app-name> <env-name>",
+		UsageText: "nullstone exec [options] <app-name> <env-name> [command]",
 		Flags: []cli.Flag{
 			StackFlag,
 			TaskFlag,
@@ -20,6 +20,10 @@ var Exec = func(providers app.Providers) *cli.Command {
 			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
 				userConfig := map[string]string{
 					"task": c.String("task"),
+					"cmd":  "/bin/sh",
+				}
+				if c.Args().Len() > 2 {
+					userConfig["cmd"] = c.Args().Get(2)
 				}
 				return provider.Exec(cfg, details, userConfig)
 			})

@@ -80,8 +80,23 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	logger.Printf("Deployed app %q\n", details.App.Name)
 	return nil
 }
+
 func (p Provider) Exec(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return fmt.Errorf("exec is not supported for the aws-fargate provider")
+	ic, err := p.identify(nsConfig, details)
+	if err != nil {
+		return err
+	}
+
+	task := userConfig["task"]
+	if task == "" {
+		if task, err = ic.GetRandomTask(); err != nil {
+			return err
+		} else if task == "" {
+			return fmt.Errorf("cannot exec command with no running tasks")
+		}
+	}
+
+	return ic.ExecCommand(task, userConfig["cmd"])
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {

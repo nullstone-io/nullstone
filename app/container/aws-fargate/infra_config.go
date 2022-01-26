@@ -2,6 +2,7 @@ package aws_fargate
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
@@ -9,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
 	elbv2types "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/ssm"
 	aws_fargate_service "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-fargate-service"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
 	"log"
@@ -154,4 +156,40 @@ func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {
 		TaskDefinition:     aws.String(taskDefinitionArn),
 	})
 	return err
+}
+
+func (c InfraConfig) GetRandomTask() (string, error) {
+	svc, err := c.GetService()
+	if err != nil {
+		return "", err
+	} else if svc == nil {
+		return "", fmt.Errorf("could not find service")
+	}
+	for _, ts := range svc.TaskSets {
+		return *ts.Id, nil
+	}
+	return "", nil
+}
+
+func (c InfraConfig) ExecCommand(taskId string, cmd string) error {
+	region := c.Outputs.Region
+	cluster := c.Outputs.Cluster.ClusterArn
+	containerName := c.Outputs.MainContainerName
+
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), region))
+
+	input := &ecs.ExecuteCommandInput{
+		Cluster:     aws.String(cluster),
+		Task:        aws.String(taskId),
+		Container:   aws.String(containerName), // TODO: Allow user to select which container
+		Command:     aws.String(cmd),
+		Interactive: true,
+	}
+
+	out, err := ecsClient.ExecuteCommand(context.Background(), input)
+	if err != nil {
+		return fmt.Errorf("error establishing ecs execute command: %w", err)
+	}
+
+	return ssm.StartEcsSession(out.Session, c.Outputs.Region, cluster, taskId, containerName)
 }
