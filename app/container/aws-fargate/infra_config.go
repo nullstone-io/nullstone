@@ -157,15 +157,26 @@ func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {
 	return err
 }
 
+func (c InfraConfig) GetTasks() ([]string, error) {
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
+	out, err := ecsClient.ListTasks(context.Background(), &ecs.ListTasksInput{
+		Cluster:     aws.String(c.Outputs.Cluster.ClusterArn),
+		ServiceName: aws.String(c.Outputs.ServiceName),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out.TaskArns, nil
+}
+
 func (c InfraConfig) GetRandomTask() (string, error) {
-	svc, err := c.GetService()
+	taskArns, err := c.GetTasks()
 	if err != nil {
 		return "", err
-	} else if svc == nil {
-		return "", fmt.Errorf("could not find service")
 	}
-	for _, ts := range svc.TaskSets {
-		return *ts.Id, nil
+
+	for _, taskArn := range taskArns {
+		return taskArn, nil
 	}
 	return "", nil
 }
