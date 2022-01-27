@@ -10,7 +10,7 @@ import (
 var Exec = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "exec",
-		Usage:     "Execute command on running service. Defaults [command] to /bin/sh.",
+		Usage:     "Execute command on running service. Defaults command to '/bin/sh' which acts as opening a shell to the running container.",
 		UsageText: "nullstone exec [options] <app-name> <env-name> [command]",
 		Flags: []cli.Flag{
 			StackFlag,
