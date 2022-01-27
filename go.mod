@@ -3,7 +3,7 @@ module gopkg.in/nullstone-io/nullstone.v0
 go 1.17
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.9.2
+	github.com/aws/aws-sdk-go-v2 v1.13.0
 	github.com/aws/aws-sdk-go-v2/credentials v1.4.3
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.5.4
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.8.2
@@ -13,7 +13,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.9.0
 	github.com/aws/aws-sdk-go-v2/service/lambda v1.9.1
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.16.1
-	github.com/aws/smithy-go v1.8.0
+	github.com/aws/smithy-go v1.10.0
 	github.com/docker/cli v20.10.9+incompatible
 	github.com/docker/docker v20.10.9+incompatible
 	github.com/fatih/color v1.13.0
@@ -40,6 +40,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.3.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.3.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.7.2 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.20.0
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/containerd/containerd v1.5.7 // indirect
@@ -102,4 +103,9 @@ require (
 	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20211102214026-caeea080d53c
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+)
+
+require (
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.4 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.2.0 // indirect
 )

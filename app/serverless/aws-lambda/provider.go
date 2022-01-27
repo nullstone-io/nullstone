@@ -103,6 +103,10 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	return nil
 }
 
+func (p Provider) Exec(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+	return fmt.Errorf("exec is not supported for the aws-lambda provider")
+}
+
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
 	return app.StatusReport{}, nil
 }

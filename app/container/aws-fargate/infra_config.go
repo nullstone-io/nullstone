@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
 	elbv2types "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/ssm"
 	aws_fargate_service "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-fargate-service"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
 	"log"
@@ -154,4 +155,51 @@ func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {
 		TaskDefinition:     aws.String(taskDefinitionArn),
 	})
 	return err
+}
+
+func (c InfraConfig) GetTasks() ([]string, error) {
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
+	out, err := ecsClient.ListTasks(context.Background(), &ecs.ListTasksInput{
+		Cluster:     aws.String(c.Outputs.Cluster.ClusterArn),
+		ServiceName: aws.String(c.Outputs.ServiceName),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out.TaskArns, nil
+}
+
+func (c InfraConfig) GetRandomTask() (string, error) {
+	taskArns, err := c.GetTasks()
+	if err != nil {
+		return "", err
+	}
+
+	for _, taskArn := range taskArns {
+		return taskArn, nil
+	}
+	return "", nil
+}
+
+func (c InfraConfig) ExecCommand(taskId string, cmd string) error {
+	region := c.Outputs.Region
+	cluster := c.Outputs.Cluster.ClusterArn
+	containerName := c.Outputs.MainContainerName
+
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), region))
+
+	input := &ecs.ExecuteCommandInput{
+		Cluster:     aws.String(cluster),
+		Task:        aws.String(taskId),
+		Container:   aws.String(containerName), // TODO: Allow user to select which container
+		Command:     aws.String(cmd),
+		Interactive: true,
+	}
+
+	out, err := ecsClient.ExecuteCommand(context.Background(), input)
+	if err != nil {
+		return fmt.Errorf("error establishing ecs execute command: %w", err)
+	}
+
+	return ssm.StartEcsSession(out.Session, region, cluster, taskId, containerName)
 }
