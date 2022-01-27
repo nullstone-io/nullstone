@@ -63,3 +63,21 @@ func StartEcsSession(session *ecstypes.Session, region, cluster, task, container
 	cmd.Stdin = os.Stdin
 	return cmd.Run()
 }
+
+const (
+	sessionManagerBinary = "session-manager-plugin"
+	sessionManagerUrl    = "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html"
+)
+
+// getSessionManagerPluginPath attempts to find "session-manager-plugin"
+// If it's in PATH, will simply return binary name
+// If not, will attempt OS-specific locations
+func getSessionManagerPluginPath() (string, error) {
+	if _, err := exec.LookPath(sessionManagerBinary); err == nil {
+		return sessionManagerBinary, nil
+	}
+	if _, err := os.Stat(osSessionManagerPluginPath); err != nil {
+		return "", fmt.Errorf("Could not find session-manager-plugin. Visit %q to install.", sessionManagerUrl)
+	}
+	return osSessionManagerPluginPath, nil
+}

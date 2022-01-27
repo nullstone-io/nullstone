@@ -1,8 +1,8 @@
-//go:build !darwin && !windows
-// +build !darwin,!windows
+//go:build !windows
+// +build !windows
 
 package ssm
 
-func getSessionManagerPluginPath() (string, error) {
-	return "session-manager-plugin", nil
-}
+const (
+	osSessionManagerPluginPath = "/usr/local/bin/session-manager-plugin"
+)
