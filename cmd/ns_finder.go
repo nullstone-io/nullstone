@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/response"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"strings"
@@ -160,7 +161,19 @@ func (f NsFinder) GetAppModule(app types.Application) (*types.Module, error) {
 	if err != nil {
 		return nil, err
 	}
-	return client.Org(ms.OrgName).Modules().Get(ms.ModuleName)
+
+	module, err := client.Org(ms.OrgName).Modules().Get(ms.ModuleName)
+	var uae response.UnauthorizedError
+	if errors.As(err, &uae) {
+		// If we cannot access the module because it's forbidden, attempt as public module
+		module, err = client.Org(ms.OrgName).PublicModules().Get(ms.ModuleName)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving app %q module: %w", app.Name, err)
+	} else if module == nil {
+		return nil, fmt.Errorf("module does not exist: %s", app.ModuleSource)
+	}
+	return module, nil
 }
 
 var ErrInvalidModuleSource = errors.New("invalid module source")

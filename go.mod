@@ -27,6 +27,7 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/vmihailenco/tagparser v0.1.2
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20220126230430-a3cd4f245aa3
 )
 
 require (
@@ -100,7 +101,6 @@ require (
 	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c // indirect
 	google.golang.org/grpc v1.41.0 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20211102214026-caeea080d53c
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
