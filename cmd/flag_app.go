@@ -2,9 +2,17 @@ package cmd
 
 import "github.com/urfave/cli/v2"
 
-var AppFlag = &cli.StringFlag{
-	Name:     "app",
-	Usage:    `The application name.`,
-	// TODO: Once we deprecate `nullstone cmd <app> <env>` -> Set this to required
-	// Required: true,
+var GlobalAppFlag = &cli.StringFlag{
+	Name:    "app",
+	Usage:   "Set the application name for commands that require an application.",
+	EnvVars: []string{"NULLSTONE_APP"},
+}
+
+func GetApp(c *cli.Context) string {
+	appName := c.String(GlobalAppFlag.Name)
+	// TODO: Drop parsing of first command arg as app once fully deprecated
+	if appName == "" && c.NArg() >= 1 {
+		appName = c.Args().Get(0)
+	}
+	return appName
 }

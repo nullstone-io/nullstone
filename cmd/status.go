@@ -19,11 +19,8 @@ var Status = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "status",
 		Usage:     "Application Status",
-		UsageText: "nullstone status --app=<app-name> [--env=<env-name>] [options]",
+		UsageText: "nullstone [--stack=<stack-name>] --app=<app-name> [--env=<env-name>] status [options]",
 		Flags: []cli.Flag{
-			AppFlag,
-			EnvOptionalFlag,
-			StackFlag,
 			AppVersionFlag,
 			&cli.BoolFlag{
 				Name:    "watch",
@@ -31,34 +28,20 @@ var Status = func(providers app.Providers) *cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
+			watchInterval := -1 * time.Second
+			if c.IsSet("watch") {
+				watchInterval = defaultWatchInterval
+			}
+
 			return ProfileAction(c, func(cfg api.Config) error {
-				return CancellableAction(func(ctx context.Context) error {
-					appName := c.String(AppFlag.Name)
-					envName := c.String(EnvOptionalFlag.Name)
-					stackName := c.String(StackFlag.Name)
-
-					watchInterval := -1 * time.Second
-					if c.IsSet("watch") {
-						watchInterval = defaultWatchInterval
-					}
-
-					if appName == "" && c.NArg() >= 1 {
-						appName = c.Args().Get(0)
-					}
-					if envName == "" && c.NArg() >= 2 {
-						envName = c.Args().Get(1)
-					}
-
-					if appName == "" {
-						cli.ShowCommandHelp(c, c.Command.Name)
-						return fmt.Errorf("'--app' flag is required to run this command")
-					}
-
-					if envName == "" {
-						return appStatus(ctx, cfg, providers, watchInterval, stackName, appName)
-					} else {
-						return appEnvStatus(ctx, cfg, providers, watchInterval, stackName, appName, envName)
-					}
+				return ParseAppEnv(c, false, func(stackName, appName, envName string) error {
+					return CancellableAction(func(ctx context.Context) error {
+						if envName == "" {
+							return appStatus(ctx, cfg, providers, watchInterval, stackName, appName)
+						} else {
+							return appEnvStatus(ctx, cfg, providers, watchInterval, stackName, appName, envName)
+						}
+					})
 				})
 			})
 		},

@@ -51,6 +51,10 @@ func main() {
 		Flags: []cli.Flag{
 			cmd.ProfileFlag,
 			cmd.OrgFlag,
+			cmd.GlobalStackFlag,
+			cmd.GlobalAppFlag,
+			cmd.GlobalBlockFlag,
+			cmd.GlobalEnvFlag,
 		},
 		Commands: []*cli.Command{
 			{

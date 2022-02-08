@@ -2,8 +2,13 @@ package cmd
 
 import "github.com/urfave/cli/v2"
 
-var StackFlag = &cli.StringFlag{
+var GlobalStackFlag = &cli.StringFlag{
 	Name: "stack",
-	Usage: `The stack name where the app resides.
-       This is only required if multiple apps have the same 'app-name'.`,
+	Usage: `Set the stack name that owns the app/block.
+       This is only required if multiple apps/blocks have the same name.`,
+	EnvVars: []string{"NULLSTONE_STACK"},
+}
+
+func GetStack(c *cli.Context) string {
+	return c.String(GlobalStackFlag.Name)
 }

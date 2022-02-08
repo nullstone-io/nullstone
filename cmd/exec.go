@@ -11,22 +11,20 @@ var Exec = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "exec",
 		Usage:     "Execute command on running service. Defaults command to '/bin/sh' which acts as opening a shell to the running container.",
-		UsageText: "nullstone exec --app=<app-name> --env=<env-name> [options] [command]",
+		UsageText: "nullstone [--stack=<stack-name>] --app=<app-name> --env=<env-name> exec [options] [command]",
 		Flags: []cli.Flag{
-			AppFlag,
-			EnvFlag,
-			StackFlag,
 			TaskFlag,
 		},
 		Action: func(c *cli.Context) error {
+			userConfig := map[string]string{
+				"task": c.String("task"),
+				"cmd":  "/bin/sh",
+			}
+			if c.Args().Len() >= 1 {
+				userConfig["cmd"] = c.Args().Get(c.Args().Len() - 1)
+			}
+
 			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
-				userConfig := map[string]string{
-					"task": c.String("task"),
-					"cmd":  "/bin/sh",
-				}
-				if c.Args().Len() > 2 {
-					userConfig["cmd"] = c.Args().Get(2)
-				}
 				return provider.Exec(cfg, details, userConfig)
 			})
 		},
