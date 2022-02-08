@@ -14,8 +14,10 @@ var Outputs = func() *cli.Command {
 	return &cli.Command{
 		Name:      "outputs",
 		Usage:     "Retrieve outputs",
-		UsageText: "nullstone outputs [options] <block-name> <env-name>",
+		UsageText: "nullstone outputs --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
+			BlockFlag,
+			EnvFlag,
 			StackFlag,
 		},
 		Action: func(c *cli.Context) error {

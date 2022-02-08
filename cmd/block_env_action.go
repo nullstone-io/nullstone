@@ -9,8 +9,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
 )
 
 type BlockEnvActionFn func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment) error
@@ -21,13 +19,16 @@ func BlockEnvAction(c *cli.Context, fn BlockEnvActionFn) error {
 		return err
 	}
 
-	if c.NArg() != 2 {
+	blockName := c.String(BlockFlag.Name)
+	envName := c.String(EnvFlag.Name)
+
+	// TODO: Remove this block once we deprecate `nullstone cmd <app> <env>`
+	if envName == "" {
 		cli.ShowCommandHelp(c, c.Command.Name)
-		return fmt.Errorf("invalid usage")
+		return fmt.Errorf("'--env' flag is required to run this command")
 	}
-	blockName := c.Args().Get(0)
-	envName := c.Args().Get(1)
-	stackName := c.String("stack-name")
+
+	stackName := c.String(StackFlag.Name)
 	specifiedStack := stackName
 	if specifiedStack == "" {
 		specifiedStack = "<unspecified>"
@@ -42,15 +43,7 @@ func BlockEnvAction(c *cli.Context, fn BlockEnvActionFn) error {
 		return err
 	}
 
-	// Handle Ctrl+C, kill stream
-	ctx, cancelFn := context.WithCancel(context.Background())
-	defer cancelFn()
-	term := make(chan os.Signal, 1)
-	signal.Notify(term, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-term
-		cancelFn()
-	}()
-
-	return fn(ctx, cfg, sbe.Stack, sbe.Block, sbe.Env)
+	return CancellableAction(func(ctx context.Context) error {
+		return fn(ctx, cfg, sbe.Stack, sbe.Block, sbe.Env)
+	})
 }
