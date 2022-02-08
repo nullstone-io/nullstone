@@ -19,8 +19,11 @@ var Status = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "status",
 		Usage:     "Application Status",
-		UsageText: "nullstone [--stack=<stack-name>] --app=<app-name> [--env=<env-name>] status [options]",
+		UsageText: "nullstone status [--stack=<stack-name>] --app=<app-name> [--env=<env-name>] [options]",
 		Flags: []cli.Flag{
+			StackFlag,
+			AppFlag,
+			EnvOptionalFlag,
 			AppVersionFlag,
 			&cli.BoolFlag{
 				Name:    "watch",

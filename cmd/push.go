@@ -12,8 +12,11 @@ var Push = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "push",
 		Usage:     "Push artifact",
-		UsageText: "nullstone [--stack=<stack-name>] --app=<app-name> --env=<env-name> push [options]",
+		UsageText: "nullstone push [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
+			StackFlag,
+			AppFlag,
+			OldEnvFlag,
 			AppSourceFlag,
 			AppVersionFlag,
 		},

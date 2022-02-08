@@ -15,8 +15,11 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
 	return &cli.Command{
 		Name:      "logs",
 		Usage:     "Emit application logs",
-		UsageText: "nullstone [--stack=<stack-name>] --app=<app-name> --env=<env-name> logs [options]",
+		UsageText: "nullstone logs [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
+			StackFlag,
+			AppFlag,
+			OldEnvFlag,
 			&cli.DurationFlag{
 				Name:        "start-time",
 				Aliases:     []string{"s"},

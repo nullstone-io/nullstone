@@ -14,8 +14,12 @@ var Outputs = func() *cli.Command {
 	return &cli.Command{
 		Name:      "outputs",
 		Usage:     "Retrieve outputs",
-		UsageText: "nullstone [--stack=<stack-name>] --block=<block-name> --env=<env-name> outputs [options]",
-		Flags:     []cli.Flag{},
+		UsageText: "nullstone outputs [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
+		Flags: []cli.Flag{
+			StackFlag,
+			BlockFlag,
+			EnvFlag,
+		},
 		Action: func(c *cli.Context) error {
 			return BlockEnvAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment) error {
 				client := api.Client{Config: cfg}
