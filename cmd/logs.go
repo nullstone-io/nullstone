@@ -15,9 +15,11 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
 	return &cli.Command{
 		Name:      "logs",
 		Usage:     "Emit application logs",
-		UsageText: "nullstone logs [options] <app-name> <env-name>",
+		UsageText: "nullstone logs [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
+			AppFlag,
+			OldEnvFlag,
 			&cli.DurationFlag{
 				Name:        "start-time",
 				Aliases:     []string{"s"},
@@ -53,26 +55,26 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
 			},
 		},
 		Action: func(c *cli.Context) error {
-			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
-				logStreamOptions := config.LogStreamOptions{
-					WatchInterval: -1 * time.Second, // Disabled by default
-					Out:           os.Stdout,
+			logStreamOptions := config.LogStreamOptions{
+				WatchInterval: -1 * time.Second, // Disabled by default
+				Out:           os.Stdout,
+			}
+			if c.IsSet("start-time") {
+				absoluteTime := time.Now().Add(-c.Duration("start-time"))
+				logStreamOptions.StartTime = &absoluteTime
+			}
+			if c.IsSet("end-time") {
+				absoluteTime := time.Now().Add(-c.Duration("end-time"))
+				logStreamOptions.EndTime = &absoluteTime
+			}
+			if c.IsSet("tail") {
+				logStreamOptions.WatchInterval = time.Duration(0)
+				if c.IsSet("interval") {
+					logStreamOptions.WatchInterval = c.Duration("interval")
 				}
-				if c.IsSet("start-time") {
-					absoluteTime := time.Now().Add(-c.Duration("start-time"))
-					logStreamOptions.StartTime = &absoluteTime
-				}
-				if c.IsSet("end-time") {
-					absoluteTime := time.Now().Add(-c.Duration("end-time"))
-					logStreamOptions.EndTime = &absoluteTime
-				}
-				if c.IsSet("tail") {
-					logStreamOptions.WatchInterval = time.Duration(0)
-					if c.IsSet("interval") {
-						logStreamOptions.WatchInterval = c.Duration("interval")
-					}
-				}
+			}
 
+			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
 				logProvider, err := logProviders.Identify(provider.DefaultLogProvider(), cfg, details)
 				if err != nil {
 					return err
