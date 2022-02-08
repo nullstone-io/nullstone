@@ -20,13 +20,25 @@ func AppEnvAction(c *cli.Context, providers app.Providers, fn AppEnvActionFn) er
 		return err
 	}
 
-	if c.NArg() != 2 {
-		cli.ShowCommandHelp(c, c.Command.Name)
-		return fmt.Errorf("invalid usage")
+	appName := c.String(AppFlag.Name)
+	envName := c.String(EnvFlag.Name)
+
+	// TODO: `nullstone cmd <app> <env>` is deprecated
+	// Drop the following block to parse this format once fully removed
+	// This format is only parsed if --app and --env are empty
+	if appName == "" && envName == "" {
+		if c.NArg() >= 2 {
+			appName = c.Args().Get(0)
+			envName = c.Args().Get(1)
+		}
 	}
-	appName := c.Args().Get(0)
-	envName := c.Args().Get(1)
-	stackName := c.String("stack-name")
+
+	if appName == "" || envName == "" {
+		cli.ShowCommandHelp(c, c.Command.Name)
+		return fmt.Errorf("'--app' and '--env' flags are required to run this command")
+	}
+
+	stackName := c.String(StackFlag.Name)
 	specifiedStack := stackName
 	if specifiedStack == "" {
 		specifiedStack = "<unspecified>"

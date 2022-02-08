@@ -19,8 +19,10 @@ var Status = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "status",
 		Usage:     "Application Status",
-		UsageText: "nullstone status [options] <app-name> [<env-name>]",
+		UsageText: "nullstone status --app=<app-name> [--env=<env-name>] [options]",
 		Flags: []cli.Flag{
+			AppFlag,
+			EnvOptionalFlag,
 			StackFlag,
 			AppVersionFlag,
 			&cli.BoolFlag{
@@ -31,25 +33,31 @@ var Status = func(providers app.Providers) *cli.Command {
 		Action: func(c *cli.Context) error {
 			return ProfileAction(c, func(cfg api.Config) error {
 				return CancellableAction(func(ctx context.Context) error {
-					var appName, envName string
-					stackName := c.String("stack-name")
+					appName := c.String(AppFlag.Name)
+					envName := c.String(EnvOptionalFlag.Name)
+					stackName := c.String(StackFlag.Name)
 
 					watchInterval := -1 * time.Second
 					if c.IsSet("watch") {
 						watchInterval = defaultWatchInterval
 					}
 
-					switch c.NArg() {
-					case 1:
+					if appName == "" && c.NArg() >= 1 {
 						appName = c.Args().Get(0)
-						return appStatus(ctx, cfg, providers, watchInterval, stackName, appName)
-					case 2:
-						appName = c.Args().Get(0)
+					}
+					if envName == "" && c.NArg() >= 2 {
 						envName = c.Args().Get(1)
-						return appEnvStatus(ctx, cfg, providers, watchInterval, stackName, appName, envName)
-					default:
+					}
+
+					if appName == "" {
 						cli.ShowCommandHelp(c, c.Command.Name)
-						return fmt.Errorf("invalid usage")
+						return fmt.Errorf("'--app' flag is required to run this command")
+					}
+
+					if envName == "" {
+						return appStatus(ctx, cfg, providers, watchInterval, stackName, appName)
+					} else {
+						return appEnvStatus(ctx, cfg, providers, watchInterval, stackName, appName, envName)
 					}
 				})
 			})

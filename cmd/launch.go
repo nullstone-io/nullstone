@@ -18,8 +18,10 @@ var Launch = func(providers app.Providers, logProviders app_logs.Providers) *cli
 	return &cli.Command{
 		Name:      "launch",
 		Usage:     "Launch application (push, deploy, log)",
-		UsageText: "nullstone launch [options] <app-name> <env-name>",
+		UsageText: "nullstone launch --app=<app-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
+			AppFlag,
+			EnvFlag,
 			StackFlag,
 			AppSourceFlag,
 			AppVersionFlag,

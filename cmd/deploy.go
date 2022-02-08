@@ -11,8 +11,10 @@ var Deploy = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "deploy",
 		Usage:     "Deploy application",
-		UsageText: "nullstone deploy [options] <app-name> <env-name>",
+		UsageText: "nullstone deploy --app=<app-name> --env=<env-name>[options]",
 		Flags: []cli.Flag{
+			AppFlag,
+			EnvFlag,
 			StackFlag,
 			AppVersionFlag,
 		},
