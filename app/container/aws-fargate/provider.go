@@ -97,7 +97,7 @@ func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Det
 		}
 	}
 
-	return ic.ExecCommand(task, userConfig["cmd"])
+	return ic.ExecCommand(ctx, task, userConfig["cmd"])
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {

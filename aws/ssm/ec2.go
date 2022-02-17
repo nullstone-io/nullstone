@@ -14,9 +14,7 @@ import (
 //   - ec2 instance has SSM agent installed and registered
 //   - ec2 instance is configured with instance profile that has the AmazonSSMManagedInstanceCore policy attached (or an equivalent custom policy)
 //   - config contains an AWS identity that has access to ssm:StartSession on the EC2 Instance
-func StartEc2Session(config aws.Config, region, instanceId string) error {
-	ctx := context.Background()
-
+func StartEc2Session(ctx context.Context, config aws.Config, region, instanceId string) error {
 	ssmClient := ssm.NewFromConfig(config)
 	input := &ssm.StartSessionInput{
 		Target:       aws.String(instanceId),
@@ -25,11 +23,15 @@ func StartEc2Session(config aws.Config, region, instanceId string) error {
 	}
 	out, err := ssmClient.StartSession(ctx, input)
 	if err != nil {
-		return fmt.Errorf("error establishing ecs execute command: %w", err)
+		return fmt.Errorf("error starting ssm session: %w", err)
+	}
+
+	target := ssm.StartSessionInput{
+		Target: aws.String(instanceId),
 	}
 
 	er := ec2.NewDefaultEndpointResolver()
 	endpoint, _ := er.ResolveEndpoint(region, ec2.EndpointResolverOptions{})
 
-	return StartSession(ctx, out, region, instanceId, endpoint.URL)
+	return StartSession(ctx, out, target, region, endpoint.URL)
 }

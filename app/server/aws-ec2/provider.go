@@ -47,11 +47,8 @@ func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Det
 	if err != nil {
 		return err
 	}
-	if userConfig["cmd"] != "" {
-		return fmt.Errorf("'cmd' is not currently supported for the ec2 provider")
-	}
 
-	return ic.ExecCommand()
+	return ic.ExecCommand(ctx, userConfig["cmd"])
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {

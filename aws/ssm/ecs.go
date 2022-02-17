@@ -2,21 +2,34 @@ package ssm
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
-	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
 
-func StartEcsSession(session *ecstypes.Session, region, cluster, task, containerName string) error {
-	targetRaw, _ := json.Marshal(ssm.StartSessionInput{
-		Target: aws.String(fmt.Sprintf("ecs:%s_%s_%s", cluster, task, containerName)),
-	})
+func StartEcsSession(ctx context.Context, config aws.Config, region, cluster, taskId, containerName, cmd string) error {
+	ecsClient := ecs.NewFromConfig(config)
+
+	input := &ecs.ExecuteCommandInput{
+		Cluster:     aws.String(cluster),
+		Task:        aws.String(taskId),
+		Container:   aws.String(containerName), // TODO: Allow user to select which container
+		Command:     aws.String(cmd),
+		Interactive: true,
+	}
+
+	out, err := ecsClient.ExecuteCommand(context.Background(), input)
+	if err != nil {
+		return fmt.Errorf("error establishing ecs execute command: %w", err)
+	}
+
+	target := ssm.StartSessionInput{
+		Target: aws.String(fmt.Sprintf("ecs:%s_%s_%s", cluster, taskId, containerName)),
+	}
 
 	er := ecs.NewDefaultEndpointResolver()
 	endpoint, _ := er.ResolveEndpoint(region, ecs.EndpointResolverOptions{})
 
-	return StartSession(context.Background(), session, region, string(targetRaw), endpoint.URL)
+	return StartSession(ctx, out.Session, target, region, endpoint.URL)
 }

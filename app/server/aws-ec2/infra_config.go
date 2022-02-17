@@ -1,6 +1,7 @@
 package aws_ec2
 
 import (
+	"context"
 	nsaws "gopkg.in/nullstone-io/nullstone.v0/aws"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ssm"
 	aws_ec2 "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-ec2"
@@ -16,8 +17,9 @@ func (c InfraConfig) Print(logger *log.Logger) {
 	logger.Printf("instance id: %q\n", c.Outputs.InstanceId)
 }
 
-func (c InfraConfig) ExecCommand() error {
+func (c InfraConfig) ExecCommand(ctx context.Context, cmd string) error {
+	// TODO: Add support for cmd
 	region := c.Outputs.Region
 	awsConfig := nsaws.NewConfig(c.Outputs.Adminer, region)
-	return ssm.StartEc2Session(awsConfig, region, c.Outputs.InstanceId)
+	return ssm.StartEc2Session(ctx, awsConfig, region, c.Outputs.InstanceId)
 }

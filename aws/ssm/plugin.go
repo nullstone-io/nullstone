@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"os"
 	"os/exec"
 )
@@ -13,19 +14,20 @@ const (
 	sessionManagerUrl    = "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html"
 )
 
-func StartSession(ctx context.Context, session interface{}, region, target, endpointUrl string) error {
+func StartSession(ctx context.Context, session interface{}, target ssm.StartSessionInput, region, endpointUrl string) error {
 	process, err := getSessionManagerPluginPath()
 	if err != nil {
 		return fmt.Errorf("could not find AWS session-manager-plugin: %w", err)
 	}
 
 	sessionJsonRaw, _ := json.Marshal(session)
+	targetRaw, _ := json.Marshal(target)
 	args := []string{
 		string(sessionJsonRaw),
 		region,
 		"StartSession",
 		"", // empty profile name
-		target,
+		string(targetRaw),
 		endpointUrl,
 	}
 	cmd := exec.CommandContext(ctx, process, args...)

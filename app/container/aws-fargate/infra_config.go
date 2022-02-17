@@ -181,25 +181,11 @@ func (c InfraConfig) GetRandomTask() (string, error) {
 	return "", nil
 }
 
-func (c InfraConfig) ExecCommand(taskId string, cmd string) error {
+func (c InfraConfig) ExecCommand(ctx context.Context, taskId string, cmd string) error {
 	region := c.Outputs.Region
 	cluster := c.Outputs.Cluster.ClusterArn
 	containerName := c.Outputs.MainContainerName
+	awsConfig := nsaws.NewConfig(c.Outputs.GetDeployer(), region)
 
-	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), region))
-
-	input := &ecs.ExecuteCommandInput{
-		Cluster:     aws.String(cluster),
-		Task:        aws.String(taskId),
-		Container:   aws.String(containerName), // TODO: Allow user to select which container
-		Command:     aws.String(cmd),
-		Interactive: true,
-	}
-
-	out, err := ecsClient.ExecuteCommand(context.Background(), input)
-	if err != nil {
-		return fmt.Errorf("error establishing ecs execute command: %w", err)
-	}
-
-	return ssm.StartEcsSession(out.Session, region, cluster, taskId, containerName)
+	return ssm.StartEcsSession(ctx, awsConfig, region, cluster, taskId, containerName, cmd)
 }
