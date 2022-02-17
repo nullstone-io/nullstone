@@ -8,7 +8,7 @@ import (
 )
 
 func CancellableAction(fn func(ctx context.Context) error) error {
-	ctx := context.Background()
-	signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 	return fn(ctx)
 }
