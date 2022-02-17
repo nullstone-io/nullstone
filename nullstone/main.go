@@ -37,7 +37,7 @@ func main() {
 			"service/aws-lambda": aws_lambda.Provider{},
 		},
 		types.CategoryAppServer: {
-			"service/aws-ec2": aws_ec2.Provider{},
+			"server/aws-ec2": aws_ec2.Provider{},
 		},
 	}
 	logProviders := app_logs.Providers{
