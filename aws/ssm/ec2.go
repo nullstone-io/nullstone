@@ -17,9 +17,8 @@ import (
 func StartEc2Session(ctx context.Context, config aws.Config, region, instanceId string) error {
 	ssmClient := ssm.NewFromConfig(config)
 	input := &ssm.StartSessionInput{
-		Target:       aws.String(instanceId),
-		DocumentName: aws.String("AWS-StartSSHSession"),
-		Reason:       aws.String("nullstone exec"),
+		Target: aws.String(instanceId),
+		Reason: aws.String("nullstone exec"),
 	}
 	out, err := ssmClient.StartSession(ctx, input)
 	if err != nil {
