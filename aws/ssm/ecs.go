@@ -10,7 +10,6 @@ import (
 
 func StartEcsSession(ctx context.Context, config aws.Config, region, cluster, taskId, containerName, cmd string) error {
 	ecsClient := ecs.NewFromConfig(config)
-
 	input := &ecs.ExecuteCommandInput{
 		Cluster:     aws.String(cluster),
 		Task:        aws.String(taskId),
@@ -18,7 +17,6 @@ func StartEcsSession(ctx context.Context, config aws.Config, region, cluster, ta
 		Command:     aws.String(cmd),
 		Interactive: true,
 	}
-
 	out, err := ecsClient.ExecuteCommand(context.Background(), input)
 	if err != nil {
 		return fmt.Errorf("error establishing ecs execute command: %w", err)
