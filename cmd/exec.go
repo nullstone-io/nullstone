@@ -28,7 +28,7 @@ var Exec = func(providers app.Providers) *cli.Command {
 			}
 
 			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
-				return provider.Exec(cfg, details, userConfig)
+				return provider.Exec(ctx, cfg, details, userConfig)
 			})
 		},
 	}

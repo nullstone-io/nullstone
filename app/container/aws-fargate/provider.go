@@ -1,6 +1,7 @@
 package aws_fargate
 
 import (
+	"context"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
@@ -81,7 +82,7 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	return nil
 }
 
-func (p Provider) Exec(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
 	ic, err := p.identify(nsConfig, details)
 	if err != nil {
 		return err
