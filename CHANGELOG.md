@@ -2,6 +2,7 @@
 * Added `aws-ec2` provider for `app/server` category with support for only `exec` command to SSH into a box.
 * Added `stacks new` command.
 * Added `envs new` command.
+* Added `modules new` command.
 
 # 0.0.43 (Feb 08 2022)
 * Changed all commands to use flags (e.g. `nullstone [command] --app=<app> --env=<env>`) instead of positional args (e.g. `nullstone [command] <app> <env>`).
