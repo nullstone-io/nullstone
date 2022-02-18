@@ -65,7 +65,7 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 	return nil
 }
 
-func (p Provider) Exec(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
 	return fmt.Errorf("exec is not supported for the aws-s3 provider")
 }
 

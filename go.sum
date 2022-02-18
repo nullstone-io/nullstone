@@ -132,6 +132,8 @@ github.com/aws/aws-sdk-go-v2/service/cloudfront v1.8.2 h1:EZwLcvmj+y2sn1DEH86ja7
 github.com/aws/aws-sdk-go-v2/service/cloudfront v1.8.2/go.mod h1:SCoyx6YKezLdYuFcbhuV4EShiu66Gr4BbNMmqr0BFFE=
 github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.7.2 h1:Ytlx4bQ6Nsnd1ZUOknHEZaXTQyWoY1wdCXiT1MnujeI=
 github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.7.2/go.mod h1:OMEa8/xxAnMr21Pcl8fYr1oH1mwwWCBh+whUuJrrEPk=
+github.com/aws/aws-sdk-go-v2/service/ec2 v1.29.0 h1:7jk4NfzDnnSbaR9E4mOBWRZXQThq5rsqjlDC+uu9dsI=
+github.com/aws/aws-sdk-go-v2/service/ec2 v1.29.0/go.mod h1:HoTu0hnXGafTpKIZQ60jw0ybhhCH1QYf20oL7GEJFdg=
 github.com/aws/aws-sdk-go-v2/service/ecr v1.7.1 h1:ido0AMjccjxFXFCDpL0wBhx7CnPbhY5QpcFihz7dcjo=
 github.com/aws/aws-sdk-go-v2/service/ecr v1.7.1/go.mod h1:qAlEzAqi1r8VgxbeW2hFhX4+6289+twWZJgzu2CtgnA=
 github.com/aws/aws-sdk-go-v2/service/ecs v1.9.2 h1:5Gmw7ets6uAzwVT4XZYQaEbRIilnocz307veedDGoeA=
@@ -140,8 +142,9 @@ github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.9.0 h1:m+j2j5Nomq
 github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.9.0/go.mod h1:AtEwsM+3UFLpJLIj2ys+Uc1WpaXECCv067AswxpKU+U=
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.3.0 h1:gceOysEWNNwLd6cki65IMBZ4WAM0MwgBQq2n7kejoT8=
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.3.0/go.mod h1:v8ygadNyATSm6elwJ/4gzJwcFhri9RqS8skgHKiwXPU=
-github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.3.2 h1:r7jel2aa4d9Duys7wEmWqDd5ebpC9w6Kxu6wIjjp18E=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.3.2/go.mod h1:72HRZDLMtmVQiLG2tLfQcaWLCssELvGl+Zf2WVxMmR8=
+github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.7.0 h1:4QAOB3KrvI1ApJK14sliGr3Ie2pjyvNypn/lfzDHfUw=
+github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.7.0/go.mod h1:K/qPe6AP2TGYv4l6n7c88zh9jWBDf6nHhvg1fx/EWfU=
 github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.7.2 h1:RnZjLgtCGLsF2xYYksy0yrx6xPvKG9BYv29VfK4p/J8=
 github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.7.2/go.mod h1:np7TMuJNT83O0oDOSF8i4dF3dvGqA6hPYYo6YYkzgRA=
 github.com/aws/aws-sdk-go-v2/service/lambda v1.9.1 h1:xDnEGBvB7NmaetDI4e7f3+AxGmOhq1QySgUgA9S2pQo=

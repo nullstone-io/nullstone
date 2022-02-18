@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 )
 
@@ -35,7 +36,7 @@ type Provider interface {
 
 	// Exec allows a user to execute a command (usually tunneling) into a running service
 	// This only makes sense for container-based providers
-	Exec(nsConfig api.Config, details Details, userConfig map[string]string) error
+	Exec(ctx context.Context, nsConfig api.Config, details Details, userConfig map[string]string) error
 
 	// Status returns a high-level status report on the specified app env
 	Status(nsConfig api.Config, details Details) (StatusReport, error)
