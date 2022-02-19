@@ -27,7 +27,7 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/vmihailenco/tagparser v0.1.2
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20220219152045-2ca0e46567fc
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20220219154053-51726212dfff
 )
 
 require (
@@ -112,4 +112,5 @@ require (
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.2.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
+	golang.org/x/mod v0.5.1 // indirect
 )

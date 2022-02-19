@@ -7,6 +7,8 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"sort"
+	"strings"
 )
 
 var Blocks = &cli.Command{
@@ -15,6 +17,7 @@ var Blocks = &cli.Command{
 	UsageText: "nullstone blocks [subcommand]",
 	Subcommands: []*cli.Command{
 		BlocksList,
+		BlocksNew,
 	},
 }
 
@@ -68,4 +71,127 @@ var BlocksList = &cli.Command{
 			return nil
 		})
 	},
+}
+
+var BlocksNew = &cli.Command{
+	Name:      "new",
+	Usage:     "Create block",
+	UsageText: "nullstone blocks new --name=<name> --stack=<stack> --module=<module>",
+	Flags: []cli.Flag{
+		StackRequiredFlag,
+		&cli.StringFlag{
+			Name:     "name",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:     "module",
+			Usage:    `Specify the unique name of the module to use for this block. Example: nullstone/aws-network`,
+			Required: true,
+		},
+		&cli.StringSliceFlag{
+			Name:  "connection",
+			Usage: "Map the connection name on the module to the block name in the stack. Example: --connection network=network0",
+		},
+	},
+	Action: func(c *cli.Context) error {
+		return ProfileAction(c, func(cfg api.Config) error {
+			client := api.Client{Config: cfg}
+
+			stackName := c.String(StackRequiredFlag.Name)
+			stack, err := client.StacksByName().Get(stackName)
+			if err != nil {
+				return fmt.Errorf("error looking for stack %q: %w", stackName, err)
+			} else if stack == nil {
+				return fmt.Errorf("stack %q does not exist in organization %q", stackName, cfg.OrgName)
+			}
+
+			name := c.String("name")
+			moduleSource := c.String("module")
+			connectionSlice := c.StringSlice("connection")
+
+			// TODO: Add support for module version in --module
+			module, err := find.Module(cfg, moduleSource)
+			if err != nil {
+				return err
+			}
+			sort.Sort(sort.Reverse(module.Versions)) // "latest" will be at the beginning now
+			var latestModuleVersion *types.ModuleVersion
+			if len(module.Versions) > 0 {
+				latestModuleVersion = &module.Versions[0]
+			}
+
+			connections, err := mapConnectionsToTargets(cfg, stack, connectionSlice)
+			if err != nil {
+				return err
+			}
+			if err := validateConnections(latestModuleVersion, connections); err != nil {
+				return err
+			}
+			fmt.Println(connections)
+
+			block := &types.Block{
+				Type:                blockTypeFromModuleCategory(module.Category),
+				Name:                name,
+				ModuleSource:        moduleSource,
+				ModuleSourceVersion: "latest",
+				Connections:         connections,
+			}
+
+			newBlock, err := client.Blocks().Create(stack.Id, block)
+			if err != nil {
+				return err
+			}
+
+			fmt.Printf("created %q\n", newBlock.Name)
+			return nil
+		})
+	},
+}
+
+func blockTypeFromModuleCategory(categoryName types.CategoryName) string {
+	category := string(categoryName)
+	if strings.HasPrefix(category, "app/") {
+		return "Application"
+	}
+	if strings.HasPrefix(category, "capability/") {
+		return "Block"
+	}
+	return strings.Title(category)
+}
+
+func mapConnectionsToTargets(cfg api.Config, stack *types.Stack, mappings []string) (map[string]types.ConnectionTarget, error) {
+	connections := map[string]types.ConnectionTarget{}
+	for _, connMapping := range mappings {
+		tokens := strings.SplitN(connMapping, "=", 2)
+		if len(tokens) < 2 {
+			return nil, fmt.Errorf("invalid connection mapping %q: must specify <connection-name>=<block-name>", connMapping)
+		}
+		ct, err := find.ConnectionTarget(cfg, stack.Name, tokens[1])
+		if err != nil {
+			return nil, fmt.Errorf("error finding %q: %w", tokens[1], err)
+		}
+		connections[tokens[0]] = *ct
+	}
+	return connections, nil
+}
+
+func validateConnections(moduleVersion *types.ModuleVersion, connections map[string]types.ConnectionTarget) error {
+	if moduleVersion == nil {
+		return nil
+	}
+
+	missing := make([]string, 0)
+	for name, connection := range moduleVersion.Manifest.Connections {
+		if !connection.Optional {
+			if _, ok := connections[name]; !ok {
+				missing = append(missing, fmt.Sprintf("%s=%s", name, connection.Type))
+			}
+		}
+	}
+
+	if len(missing) > 0 {
+		return fmt.Errorf("missing required connections (%s), specify using --connection", strings.Join(missing, ", "))
+	}
+
+	return nil
 }

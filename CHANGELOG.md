@@ -3,6 +3,7 @@
 * Added `stacks new` command.
 * Added `envs new` command.
 * Added `blocks list` command.
+* Added `blocks new` command.
 * Added `modules new` command.
 
 # 0.0.43 (Feb 08 2022)
