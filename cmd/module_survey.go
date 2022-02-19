@@ -68,19 +68,9 @@ Examples: subdomain/aws, server/ec2, service/aws-fargate, capability/postgres-ac
 	}
 
 	// Category
-	categories := []string{
-		string(types.CategoryAppServer),
-		string(types.CategoryAppContainer),
-		string(types.CategoryAppServerless),
-		string(types.CategoryAppStaticSite),
-		string(types.CategorySubdomain),
-		string(types.CategoryDomain),
-		string(types.CategoryCapability),
-		string(types.CategoryBlock),
-	}
 	categoryPrompt := &survey.Select{
 		Message: "Category:",
-		Options: categories,
+		Options: types.AllCategoryNames,
 	}
 	var category string
 	if err := survey.AskOne(categoryPrompt, &category); err != nil {
@@ -90,16 +80,9 @@ Examples: subdomain/aws, server/ec2, service/aws-fargate, capability/postgres-ac
 	fmt.Println(category, module.Category)
 
 	// Layer
-	layers := []string{
-		string(types.LayerPublicEntry),
-		string(types.LayerService),
-		string(types.LayerDatabase),
-		string(types.LayerCluster),
-		string(types.LayerNetwork),
-	}
 	layerPrompt := &survey.Select{
 		Message: "Layer:",
-		Options: layers,
+		Options: types.AllLayerNames,
 	}
 	var layer string
 	if err := survey.AskOne(layerPrompt, &layer); err != nil {
