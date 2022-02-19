@@ -2,6 +2,7 @@
 * Added `aws-ec2` provider for `app/server` category with support for only `exec` command to SSH into a box.
 * Added `stacks new` command.
 * Added `envs new` command.
+* Added `blocks list` command.
 * Added `modules new` command.
 
 # 0.0.43 (Feb 08 2022)
