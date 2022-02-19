@@ -33,7 +33,7 @@ var BlocksList = &cli.Command{
 		return ProfileAction(c, func(cfg api.Config) error {
 			client := api.Client{Config: cfg}
 
-			stackName := c.String("stack")
+			stackName := c.String(StackRequiredFlag.Name)
 			stack, err := client.StacksByName().Get(stackName)
 			if err != nil {
 				return fmt.Errorf("error looking for stack %q: %w", stackName, err)
@@ -52,7 +52,7 @@ var BlocksList = &cli.Command{
 				for i, block := range allBlocks {
 					var blockCategory types.CategoryName
 					var blockType string
-					if blockModule, err := find.BlockModule(cfg, block); err == nil {
+					if blockModule, err := find.Module(cfg, block.ModuleSource); err == nil {
 						blockCategory = blockModule.Category
 						blockType = blockModule.Type
 					}

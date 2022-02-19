@@ -28,7 +28,7 @@ func (s NsStatus) GetAppWorkspaceInfo(application *types.Application, env *types
 		Version: "not-deployed",
 	}
 
-	module, err := find.BlockModule(s.Config, awi.AppDetails.App.Block)
+	module, err := find.Module(s.Config, awi.AppDetails.App.ModuleSource)
 	if err != nil {
 		return awi, err
 	} else if module == nil {

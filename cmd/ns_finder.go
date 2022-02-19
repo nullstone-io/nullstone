@@ -56,7 +56,7 @@ func (f NsFinder) FindAppDetails(appName, stackName, envName string) (app.Detail
 		return appDetails, err
 	}
 
-	if appDetails.Module, err = find.BlockModule(f.Config, appDetails.App.Block); err != nil {
+	if appDetails.Module, err = find.Module(f.Config, appDetails.App.ModuleSource); err != nil {
 		return appDetails, err
 	} else if appDetails.Module == nil {
 		return appDetails, fmt.Errorf("can't find app module %s", appDetails.App.ModuleSource)
