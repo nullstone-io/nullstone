@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -92,16 +93,14 @@ var WorkspacesSelect = &cli.Command{
   Workspace: %s
 `, sbe.Stack.Name, sbe.Block.Name, sbe.Env.Name, workspace.Uid)
 
-			if workspaces.HasLocalConfigured() {
-				fmt.Printf("Removing `.terraform/` directory to clear terraform configuration...\n")
-				if err := workspaces.ClearLocalConfiguration(); err != nil {
-					return err
+			return CancellableAction(func(ctx context.Context) error {
+				if err := workspaces.Init(ctx); err != nil {
+					fallbackMessage := `Unable to initialize terraform.
+Reset .terraform/ directory and run 'terraform init'.`
+					fmt.Println(fallbackMessage)
 				}
-			}
-
-			fmt.Println("Make sure to run 'terraform init'")
-
-			return nil
+				return nil
+			})
 		})
 	},
 }
