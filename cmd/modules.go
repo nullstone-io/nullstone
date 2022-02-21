@@ -24,9 +24,46 @@ var Modules = &cli.Command{
 	Usage:     "View and modify modules",
 	UsageText: "nullstone modules [subcommand]",
 	Subcommands: []*cli.Command{
+		ModulesGenerate,
 		ModulesNew,
 		ModulesPublish,
 		ModulesPackage,
+	},
+}
+
+var ModulesGenerate = &cli.Command{
+	Name:      "generate",
+	Usage:     "Generate new module manifest (and optionally register)",
+	UsageText: "nullstone modules generate [--register]",
+	Flags: []cli.Flag{
+		&cli.BoolFlag{Name: "register"},
+	},
+	Action: func(c *cli.Context) error {
+		return ProfileAction(c, func(cfg api.Config) error {
+			survey := &moduleSurvey{}
+			manifest, err := survey.Ask(cfg)
+			if err != nil {
+				return err
+			}
+			if err := manifest.WriteManifestToFile(moduleManifestFilename); err != nil {
+				return err
+			}
+			fmt.Printf("generated module manifest file to %s\n", moduleManifestFilename)
+
+			if err := modules.Generate(manifest); err != nil {
+				return err
+			}
+			fmt.Printf("generated base Terraform\n")
+
+			if c.IsSet("register") {
+				module, err := modules.Register(cfg, manifest)
+				if err != nil {
+					return err
+				}
+				fmt.Printf("registered %s/%s\n", module.OrgName, module.Name)
+			}
+			return nil
+		})
 	},
 }
 
@@ -37,14 +74,17 @@ var ModulesNew = &cli.Command{
 	Flags:     []cli.Flag{},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
-			survey := &moduleSurvey{}
-			module, err := survey.Ask(cfg)
+			manifest, err := modules.ManifestFromFile(moduleManifestFilename)
 			if err != nil {
 				return err
 			}
 
-			client := api.Client{Config: cfg}
-			return client.Org(module.OrgName).Modules().Create(module)
+			module, err := modules.Register(cfg, manifest)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("registered %s/%s\n", module.OrgName, module.Name)
+			return nil
 		})
 	},
 }

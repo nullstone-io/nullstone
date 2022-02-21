@@ -1,19 +1,17 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/AlecAivazis/survey/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/modules"
 	"strings"
 )
 
 type moduleSurvey struct{}
 
-func (m *moduleSurvey) Ask(cfg api.Config) (*types.Module, error) {
-	module := types.Module{
-		Status: types.ModuleStatusDraft,
-	}
+func (m *moduleSurvey) Ask(cfg api.Config) (*modules.Manifest, error) {
+	manifest := modules.Manifest{}
 
 	initialQuestions := []*survey.Question{
 		m.questionOrgName(cfg),
@@ -54,7 +52,7 @@ Examples: subdomain/aws, server/ec2, service/aws-fargate, capability/postgres-ac
 			},
 		},
 	}
-	if err := survey.Ask(initialQuestions, &module); err != nil {
+	if err := survey.Ask(initialQuestions, &manifest); err != nil {
 		return nil, err
 	}
 
@@ -63,7 +61,7 @@ Examples: subdomain/aws, server/ec2, service/aws-fargate, capability/postgres-ac
 		Message: "Make this module available to everybody?",
 		Default: false,
 	}
-	if err := survey.AskOne(isPublicPrompt, &module.IsPublic); err != nil {
+	if err := survey.AskOne(isPublicPrompt, &manifest.IsPublic); err != nil {
 		return nil, err
 	}
 
@@ -72,23 +70,18 @@ Examples: subdomain/aws, server/ec2, service/aws-fargate, capability/postgres-ac
 		Message: "Category:",
 		Options: types.AllCategoryNames,
 	}
-	var category string
-	if err := survey.AskOne(categoryPrompt, &category); err != nil {
+	if err := survey.AskOne(categoryPrompt, &manifest.Category); err != nil {
 		return nil, err
 	}
-	module.Category = types.CategoryName(category)
-	fmt.Println(category, module.Category)
 
 	// Layer
 	layerPrompt := &survey.Select{
 		Message: "Layer:",
 		Options: types.AllLayerNames,
 	}
-	var layer string
-	if err := survey.AskOne(layerPrompt, &layer); err != nil {
+	if err := survey.AskOne(layerPrompt, &manifest.Layer); err != nil {
 		return nil, err
 	}
-	module.Layer = types.Layer(layer)
 
 	allProviderTypes := []string{
 		"aws",
@@ -98,18 +91,16 @@ Examples: subdomain/aws, server/ec2, service/aws-fargate, capability/postgres-ac
 		Message: "Provider Types:",
 		Options: allProviderTypes,
 	}
-	providerTypes := types.ProviderTypes{}
-	if err := survey.AskOne(providerTypesPrompt, &providerTypes); err != nil {
+	if err := survey.AskOne(providerTypesPrompt, &manifest.ProviderTypes); err != nil {
 		return nil, err
 	}
 
-	return &module, nil
+	return &manifest, nil
 }
 
 func (m *moduleSurvey) questionOrgName(cfg api.Config) *survey.Question {
 	client := api.Client{Config: cfg}
-	orgs, err := client.Organizations().List()
-	fmt.Println(cfg, orgs, err)
+	orgs, _ := client.Organizations().List()
 
 	return &survey.Question{
 		Name:     "OrgName",

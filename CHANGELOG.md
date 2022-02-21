@@ -4,6 +4,7 @@
 * Added `envs new` command.
 * Added `blocks list` command.
 * Added `blocks new` command.
+* Added `modules generate` command.
 * Added `modules new` command.
 * Added `modules publish` command.
 * Added `workspaces select` command.
