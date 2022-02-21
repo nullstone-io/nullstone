@@ -6,6 +6,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -22,7 +23,9 @@ var (
 )
 
 func WriteBackendTf(cfg api.Config, workspaceUid uuid.UUID, filename string) error {
-	backend := fmt.Sprintf(backendTmpl, cfg.BaseAddress, cfg.OrgName, workspaceUid)
+	// backend stanza expects a hostname without the scheme -> TF will add `https://` automatically
+	hostname := strings.Replace(strings.Replace(cfg.BaseAddress, "https://", "", 1), "http://", "", 1)
+	backend := fmt.Sprintf(backendTmpl, hostname, cfg.OrgName, workspaceUid)
 	if err := os.MkdirAll(filepath.Dir(filename), 0755); err != nil {
 		return err
 	}
