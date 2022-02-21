@@ -90,8 +90,17 @@ var WorkspacesSelect = &cli.Command{
   Block:     %s
   Env:       %s
   Workspace: %s
-Make sure to run 'terraform init'
 `, sbe.Stack.Name, sbe.Block.Name, sbe.Env.Name, workspace.Uid)
+
+			if workspaces.HasLocalConfigured() {
+				fmt.Printf("Removing `.terraform/` directory to clear terraform configuration...\n")
+				if err := workspaces.ClearLocalConfiguration(); err != nil {
+					return err
+				}
+			}
+
+			fmt.Println("Make sure to run 'terraform init'")
+
 			return nil
 		})
 	},
