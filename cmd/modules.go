@@ -69,7 +69,7 @@ var ModulesGenerate = &cli.Command{
 
 var ModulesNew = &cli.Command{
 	Name:      "new",
-	Usage:     "Create new module",
+	Usage:     "Create new module from .nullstone/module.yml",
 	UsageText: "nullstone modules new",
 	Flags:     []cli.Flag{},
 	Action: func(c *cli.Context) error {
