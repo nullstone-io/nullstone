@@ -33,8 +33,8 @@ func IsCredsConfigured(cfg api.Config) bool {
 
 // ConfigCreds configures Terraform with configuration to authenticate Terraform with Nullstone server
 // This configuration enables Terraform to:
-//   - Utilize `backend "remote"`
-//   - Download private modules in the Nullstone registry
+//   - Configure `backend "remote"` to reach Nullstone state backend
+//   - Download private modules from the Nullstone registry
 func ConfigCreds(cfg api.Config) error {
 	credsFilename, err := GetCredentialsFilename()
 	if err != nil {
