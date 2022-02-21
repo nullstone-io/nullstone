@@ -12,7 +12,7 @@ type Manifest struct {
 	Category      string   `yaml:"category"`
 	Type          string   `yaml:"type"`
 	Layer         string   `yaml:"layer"`
-	ProviderTypes []string `yaml:"providerTypes"`
+	ProviderTypes []string `yaml:"provider_types"`
 }
 
 func ManifestFromFile(filename string) (*Manifest, error) {
