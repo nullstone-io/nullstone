@@ -9,6 +9,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/modules"
 	"os"
 	"path"
+	"strings"
 )
 
 var (
@@ -104,6 +105,9 @@ var ModulesPublish = &cli.Command{
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
 			version := c.String("version")
+			if !strings.HasPrefix(version, "v") {
+				version = "v" + version
+			}
 			if isValid := semver.IsValid(version); !isValid {
 				return fmt.Errorf("version %q is not a valid semver", version)
 			}
@@ -128,7 +132,11 @@ var ModulesPublish = &cli.Command{
 			defer tarball.Close()
 
 			client := api.Client{Config: cfg}
-			return client.ModuleVersions().Create(manifest.Name, version, tarball)
+			if err := client.Org(manifest.OrgName).ModuleVersions().Create(manifest.Name, version, tarball); err != nil {
+				return err
+			}
+			fmt.Printf("published %s/%s@%s\n", manifest.OrgName, manifest.Name, version)
+			return nil
 		})
 	},
 }
