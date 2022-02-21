@@ -5,6 +5,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
+	"gopkg.in/nullstone-io/nullstone.v0/tfconfig"
 	"gopkg.in/nullstone-io/nullstone.v0/workspaces"
 	"path"
 )
@@ -40,6 +41,14 @@ var WorkspacesSelect = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
+			if !tfconfig.IsCredsConfigured(cfg) {
+				if err := tfconfig.ConfigCreds(cfg); err != nil {
+					fmt.Printf("Warning: unable to configure Terraform-based credentials with Nullstone servers: %s\n", err)
+				} else {
+					fmt.Println("Configured Terraform-based credentials with Nullstone servers.")
+				}
+			}
+
 			client := api.Client{Config: cfg}
 			stackName := c.String("stack")
 			blockName := c.String("block")
