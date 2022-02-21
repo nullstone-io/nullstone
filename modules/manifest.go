@@ -39,5 +39,6 @@ func (m Manifest) WriteManifestToFile(filename string) error {
 	}
 	defer file.Close()
 	encoder := yaml.NewEncoder(file)
+	defer encoder.Close()
 	return encoder.Encode(m)
 }

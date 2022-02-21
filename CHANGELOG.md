@@ -6,6 +6,7 @@
 * Added `blocks new` command.
 * Added `modules new` command.
 * Added `modules publish` command.
+* Added `workspaces select` command.
 
 # 0.0.43 (Feb 08 2022)
 * Changed all commands to use flags (e.g. `nullstone [command] --app=<app> --env=<env>`) instead of positional args (e.g. `nullstone [command] <app> <env>`).
