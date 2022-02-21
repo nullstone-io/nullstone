@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
+	"path/filepath"
 )
 
 type Manifest struct {
@@ -36,6 +37,9 @@ func ManifestFromFile(filename string) (*Manifest, error) {
 }
 
 func (m Manifest) WriteManifestToFile(filename string) error {
+	if err := os.MkdirAll(filepath.Dir(filename), 0755); err != nil {
+		return err
+	}
 	file, err := os.Create(filename)
 	if err != nil {
 		return err

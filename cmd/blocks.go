@@ -127,7 +127,6 @@ var BlocksNew = &cli.Command{
 			if err := validateConnections(latestModuleVersion, connections); err != nil {
 				return err
 			}
-			fmt.Println(connections)
 
 			block := &types.Block{
 				Type:                blockTypeFromModuleCategory(module.Category),
