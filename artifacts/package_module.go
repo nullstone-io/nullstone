@@ -9,7 +9,8 @@ import (
 
 // PackageModule creates a tar.gz containing the module files
 // 'filename' allows a developer to specify where to write the tar.gz
-// 'patterns' allows a developer to specify which files are included in the tar.gz
+// 'patterns' allows a developer to specify which file patterns are included in the tar.gz
+// This is more effective than the built-in tar command because it won't fail if a pattern doesn't match any files
 func PackageModule(dir, filename string, patterns []string) error {
 	targzFile, err := os.Create(filename)
 	if err != nil {

@@ -14,6 +14,8 @@ type GlobEntry struct {
 	Info    fs.FileInfo
 }
 
+// GlobMany performs a glob on many patterns and returns a set of entries (path and file info header)
+// The resulting set of entries is unique by filepath
 func GlobMany(dir string, patterns []string) (map[string]GlobEntry, error) {
 	entries := map[string]GlobEntry{}
 	for _, pattern := range patterns {
