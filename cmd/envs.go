@@ -141,7 +141,7 @@ var EnvsNew = &cli.Command{
 			if err != nil {
 				return fmt.Errorf("error creating stack: %w", err)
 			}
-			fmt.Printf("created %s\n", env.Name)
+			fmt.Printf("created %q environment\n", env.Name)
 			return nil
 		})
 	},

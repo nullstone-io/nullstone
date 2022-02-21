@@ -141,7 +141,7 @@ var BlocksNew = &cli.Command{
 				return err
 			}
 
-			fmt.Printf("created %q\n", newBlock.Name)
+			fmt.Printf("created %q block\n", newBlock.Name)
 			return nil
 		})
 	},

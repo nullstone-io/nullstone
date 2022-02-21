@@ -74,7 +74,7 @@ var StacksNew = &cli.Command{
 			if err != nil {
 				return fmt.Errorf("error creating stack: %w", err)
 			}
-			fmt.Printf("created %s\n", stack.Name)
+			fmt.Printf("created %q stack\n", stack.Name)
 			return nil
 		})
 	},
