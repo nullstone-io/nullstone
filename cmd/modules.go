@@ -92,7 +92,7 @@ var ModulesNew = &cli.Command{
 
 var ModulesPublish = &cli.Command{
 	Name:      "publish",
-	Usage:     "Publish new version of a module",
+	Usage:     "Package and publish new version of a module",
 	UsageText: "nullstone modules publish --version=<version>",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
@@ -101,6 +101,7 @@ var ModulesPublish = &cli.Command{
 			Usage:    "Specify a semver version for the module",
 			Required: true,
 		},
+		// TODO: We currently support *.tf, .*tf.tmpl patterns; add support for packaging additional files into the module package
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
@@ -145,6 +146,9 @@ var ModulesPackage = &cli.Command{
 	Name:      "package",
 	Usage:     "Package a module",
 	UsageText: "nullstone modules package",
+	Flags: []cli.Flag{
+		// TODO: We currently support *.tf, .*tf.tmpl patterns; add support for packaging additional files into the module package
+	},
 	Action: func(c *cli.Context) error {
 		// Read module name from manifest
 		manifest, err := modules.ManifestFromFile(moduleManifestFilename)
