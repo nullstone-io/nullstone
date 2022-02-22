@@ -1,3 +1,6 @@
+# 0.0.45 (Unreleased)
+* Fixed loading of profile so that address is set to `""` if there is no profile found.
+
 # 0.0.44 (Unreleased)
 * Added `aws-ec2` provider for `app/server` category with support for only `exec` command to SSH into a box.
 * Added `stacks new` command.
