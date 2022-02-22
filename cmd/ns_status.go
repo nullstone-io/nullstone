@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 )
@@ -27,8 +28,7 @@ func (s NsStatus) GetAppWorkspaceInfo(application *types.Application, env *types
 		Version: "not-deployed",
 	}
 
-	finder := NsFinder{Config: s.Config}
-	module, err := finder.GetAppModule(*awi.AppDetails.App)
+	module, err := find.Module(s.Config, awi.AppDetails.App.ModuleSource)
 	if err != nil {
 		return awi, err
 	} else if module == nil {

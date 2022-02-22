@@ -5,6 +5,7 @@ import (
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
@@ -35,15 +36,13 @@ var AppsList = &cli.Command{
 				return fmt.Errorf("error listing applications: %w", err)
 			}
 
-			finder := NsFinder{Config: cfg}
-
 			if c.IsSet("detail") {
 				appDetails := make([]string, len(allApps)+1)
 				appDetails[0] = "ID|Name|Reference|Category|Type|Module|Stack|Framework"
 				for i, app := range allApps {
 					var appCategory types.CategoryName
 					var appType string
-					if appModule, err := finder.GetAppModule(app); err == nil {
+					if appModule, err := find.Module(cfg, app.ModuleSource); err == nil {
 						appCategory = appModule.Category
 						appType = appModule.Type
 					}

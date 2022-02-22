@@ -1,10 +1,9 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/go-api-client.v0/response"
+	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"strings"
@@ -57,7 +56,7 @@ func (f NsFinder) FindAppDetails(appName, stackName, envName string) (app.Detail
 		return appDetails, err
 	}
 
-	if appDetails.Module, err = f.GetAppModule(*appDetails.App); err != nil {
+	if appDetails.Module, err = find.Module(f.Config, appDetails.App.ModuleSource); err != nil {
 		return appDetails, err
 	} else if appDetails.Module == nil {
 		return appDetails, fmt.Errorf("can't find app module %s", appDetails.App.ModuleSource)
@@ -153,55 +152,4 @@ func (f NsFinder) getAppWorkspace(app *types.Application, env *types.Environment
 		return nil, fmt.Errorf("app %q has not been provisioned in %q environment yet", app.Name, env.Name)
 	}
 	return workspace, nil
-}
-
-func (f NsFinder) GetAppModule(app types.Application) (*types.Module, error) {
-	client := api.Client{Config: f.Config}
-	ms, err := ParseSource(app.ModuleSource)
-	if err != nil {
-		return nil, err
-	}
-
-	module, err := client.Org(ms.OrgName).Modules().Get(ms.ModuleName)
-	var uae response.UnauthorizedError
-	if errors.As(err, &uae) {
-		// If we cannot access the module because it's forbidden, attempt as public module
-		module, err = client.Org(ms.OrgName).PublicModules().Get(ms.ModuleName)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving app %q module: %w", app.Name, err)
-	} else if module == nil {
-		return nil, fmt.Errorf("module does not exist: %s", app.ModuleSource)
-	}
-	return module, nil
-}
-
-var ErrInvalidModuleSource = errors.New("invalid module source")
-
-type ModuleSource struct {
-	Host       string
-	OrgName    string
-	ModuleName string
-}
-
-func ParseSource(source string) (*ModuleSource, error) {
-	tokens := strings.Split(source, "/")
-	switch len(tokens) {
-	case 2:
-		// nullstone registry implied
-		return &ModuleSource{
-			Host:       "",
-			OrgName:    tokens[0],
-			ModuleName: tokens[1],
-		}, nil
-	case 3:
-		return &ModuleSource{
-			Host:       tokens[0],
-			OrgName:    tokens[1],
-			ModuleName: tokens[2],
-		}, nil
-	default:
-		// this does not match anything resembling a nullstone registry source
-		return nil, ErrInvalidModuleSource
-	}
 }

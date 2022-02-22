@@ -5,6 +5,7 @@ import (
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
 var Stacks = &cli.Command{
@@ -13,6 +14,7 @@ var Stacks = &cli.Command{
 	UsageText: "nullstone stacks [subcommand]",
 	Subcommands: []*cli.Command{
 		StacksList,
+		StacksNew,
 	},
 }
 
@@ -47,6 +49,32 @@ var StacksList = &cli.Command{
 				}
 			}
 
+			return nil
+		})
+	},
+}
+
+var StacksNew = &cli.Command{
+	Name:      "new",
+	Usage:     "Create new stack",
+	UsageText: "nullstone stacks new --name=<name> --description=<description>",
+	Flags: []cli.Flag{
+		&cli.StringFlag{Name: "name", Required: true},
+		&cli.StringFlag{Name: "description", Required: true},
+	},
+	Action: func(c *cli.Context) error {
+		return ProfileAction(c, func(cfg api.Config) error {
+			client := api.Client{Config: cfg}
+			name := c.String("name")
+			description := c.String("description")
+			stack, err := client.Stacks().Create(&types.Stack{
+				Name:        name,
+				Description: description,
+			})
+			if err != nil {
+				return fmt.Errorf("error creating stack: %w", err)
+			}
+			fmt.Printf("created %q stack\n", stack.Name)
 			return nil
 		})
 	},
