@@ -11,7 +11,7 @@ import (
 // 'filename' allows a developer to specify where to write the tar.gz
 // 'patterns' allows a developer to specify which file patterns are included in the tar.gz
 // This is more effective than the built-in tar command because it won't fail if a pattern doesn't match any files
-func PackageModule(dir, filename string, patterns []string) error {
+func PackageModule(dir, filename string, patterns []string, excludeFn func(entry GlobEntry) bool) error {
 	targzFile, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("error creating module package: %w", err)
@@ -27,6 +27,11 @@ func PackageModule(dir, filename string, patterns []string) error {
 
 	addEntry := func(entry GlobEntry) error {
 		if entry.Path == dir {
+			return nil
+		}
+		if excludeFn != nil && excludeFn(entry) {
+			// Skip files that match exclude function
+			fmt.Printf("excluding %s\n", entry.Path)
 			return nil
 		}
 		relPath, err := filepath.Rel(dir, entry.Path)

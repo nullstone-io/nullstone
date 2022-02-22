@@ -5,7 +5,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/mod/semver"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/nullstone.v0/artifacts"
 	"gopkg.in/nullstone-io/nullstone.v0/modules"
 	"os"
 	"path"
@@ -14,10 +13,6 @@ import (
 
 var (
 	moduleManifestFilename = path.Join(".nullstone", "module.yml")
-	moduleFilePatterns     = []string{
-		"*.tf",
-		"*.tf.tmpl",
-	}
 )
 
 var Modules = &cli.Command{
@@ -120,10 +115,11 @@ var ModulesPublish = &cli.Command{
 			}
 
 			// Package module files into tar.gz
-			tarballFilename := fmt.Sprintf("%s-%s.tar.gz", manifest.Name, version)
-			if err := artifacts.PackageModule(".", tarballFilename, moduleFilePatterns); err != nil {
+			tarballFilename, err := modules.Package(manifest, version)
+			if err != nil {
 				return err
 			}
+			fmt.Printf("created module package %q\n", tarballFilename)
 
 			// Open tarball to publish
 			tarball, err := os.Open(tarballFilename)
@@ -156,7 +152,10 @@ var ModulesPackage = &cli.Command{
 			return err
 		}
 
-		tarballFilename := fmt.Sprintf("%s.tar.gz", manifest.Name)
-		return artifacts.PackageModule(".", tarballFilename, moduleFilePatterns)
+		tarballFilename, err := modules.Package(manifest, "")
+		if err == nil {
+			fmt.Printf("created module package %q\n", tarballFilename)
+		}
+		return err
 	},
 }
