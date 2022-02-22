@@ -6,9 +6,11 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
+	"gopkg.in/nullstone-io/nullstone.v0/git"
 	"gopkg.in/nullstone-io/nullstone.v0/tfconfig"
 	"gopkg.in/nullstone-io/nullstone.v0/workspaces"
 	"path"
+	"strings"
 )
 
 var (
@@ -84,6 +86,19 @@ var WorkspacesSelect = &cli.Command{
 			}
 			if err := targetWorkspace.WriteToFile(activeWorkspaceFilename); err != nil {
 				return fmt.Errorf("error writing active workspace file: %w", err)
+			}
+
+			repo := git.RepoFromDir(".")
+			if repo != nil {
+				// Add gitignores for __backend__.tf and .nullstone/active-workspace.yml
+				_, missing := git.FindGitIgnores(repo, []string{
+					backendFilename,
+					activeWorkspaceFilename,
+				})
+				if len(missing) > 0 {
+					fmt.Printf("Adding %s to .gitignore\n", strings.Join(missing, ", "))
+					git.AddGitIgnores(repo, missing)
+				}
 			}
 
 			fmt.Printf(`Selected workspace:
