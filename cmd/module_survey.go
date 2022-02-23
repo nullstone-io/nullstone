@@ -39,18 +39,6 @@ func (m *moduleSurvey) Ask(cfg api.Config) (*modules.Manifest, error) {
 				Help:    "A description helps users understand what the module does.",
 			},
 		},
-		{
-			Name:     "Type",
-			Validate: survey.Required,
-			Prompt: &survey.Input{
-				Message: "Type:",
-				Help: `Type is a generic identifier to make connections between modules.
-For example, the aws-fargate module needs a network so it defines a connection to a network/aws.
-Any module that is defined with the type network/aws can satisfy the aws-fargate needs when launched.
-Typically, this looks like <generic-resource>/<provider-platform>.
-Examples: subdomain/aws, server/ec2, service/aws-fargate, capability/postgres-access/aws`,
-			},
-		},
 	}
 	if err := survey.Ask(initialQuestions, &manifest); err != nil {
 		return nil, err
@@ -75,11 +63,33 @@ Examples: subdomain/aws, server/ec2, service/aws-fargate, capability/postgres-ac
 	}
 
 	// Layer
-	layerPrompt := &survey.Select{
-		Message: "Layer:",
-		Options: types.AllLayerNames,
+	// Attempt to find the layer from the chosen category
+	// If ambiguous, the mapping will set layer to "" which means we need to prompt the user
+	manifest.Layer = m.mapCategoryToLayer(manifest.Category)
+	if manifest.Layer == "" {
+		layerPrompt := &survey.Select{
+			Message: "Layer:",
+			Options: types.AllLayerNames,
+		}
+		if err := survey.AskOne(layerPrompt, &manifest.Layer); err != nil {
+			return nil, err
+		}
 	}
-	if err := survey.AskOne(layerPrompt, &manifest.Layer); err != nil {
+
+	// Type
+	typePrompt := &survey.Question{
+		Name:     "Type",
+		Validate: survey.Required,
+		Prompt: &survey.Input{
+			Message: "Type:",
+			Help: `Type is a generic identifier to make connections between modules.
+For example, the aws-fargate module needs a network so it defines a connection to a network/aws.
+Any module that is defined with the type network/aws can satisfy the aws-fargate needs when launched.
+Typically, this looks like <generic-resource>/<provider-platform>.
+Examples: subdomain/aws, server/ec2, service/aws-fargate, capability/postgres-access/aws`,
+		},
+	}
+	if err := survey.Ask([]*survey.Question{typePrompt}, &manifest.Type); err != nil {
 		return nil, err
 	}
 
@@ -119,4 +129,19 @@ func (m *moduleSurvey) questionOrgName(cfg api.Config) *survey.Question {
 			},
 		},
 	}
+}
+
+func (m *moduleSurvey) mapCategoryToLayer(category string) string {
+	if strings.HasPrefix(category, "app/") {
+		return string(types.LayerService)
+	} else if strings.HasPrefix(category, "capability/") {
+		return string(types.LayerService)
+	} else if category == types.CategoryDatastore {
+		return string(types.LayerDatabase)
+	} else if category == types.CategoryDomain {
+		return string(types.LayerPublicEntry)
+	} else if category == types.CategorySubdomain {
+		return string(types.LayerPublicEntry)
+	}
+	return ""
 }
