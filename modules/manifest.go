@@ -14,6 +14,7 @@ type Manifest struct {
 	Description   string   `yaml:"description"`
 	Category      string   `yaml:"category"`
 	Type          string   `yaml:"type"`
+	AppCategories []string `yaml:"appCategories"`
 	Layer         string   `yaml:"layer"`
 	IsPublic      bool     `yaml:"is_public"`
 	ProviderTypes []string `yaml:"provider_types"`

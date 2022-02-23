@@ -62,6 +62,19 @@ func (m *moduleSurvey) Ask(cfg api.Config) (*modules.Manifest, error) {
 		return nil, err
 	}
 
+	// App Categories
+	if strings.HasPrefix(manifest.Category, "capability/") {
+		// Only capabilities are able to limit their targets to a set of app categories
+		appCategoriesPrompt := &survey.MultiSelect{
+			Message: "Supported App Category: (select none if all apps are supported)",
+			Options: types.AllAppCategoryNames,
+			Help:    "This allows you to limit which types of apps are allowed to use this capability module",
+		}
+		if err := survey.AskOne(appCategoriesPrompt, &manifest.AppCategories); err != nil {
+			return nil, err
+		}
+	}
+
 	// Layer
 	// Attempt to find the layer from the chosen category
 	// If ambiguous, the mapping will set layer to "" which means we need to prompt the user

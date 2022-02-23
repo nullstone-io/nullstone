@@ -1,3 +1,9 @@
+# 0.0.47 (Unreleased)
+* During `modules generate`
+  * `layer` is inferred from `category` unless `category=block`.
+  * Added `appCategories` when generating a capability module.
+* Fixed `--connection` flags in `blocks new` command.
+
 # 0.0.46 (Feb 24, 2022)
 * Updated CLI to utilize new stack-based API endpoints in Nullstone API.
 * Added `connections` to `.nullstone/active-workspace.yml`.
