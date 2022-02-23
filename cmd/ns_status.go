@@ -46,7 +46,7 @@ func (s NsStatus) GetAppWorkspaceInfo(application *types.Application, env *types
 	awi.AppDetails.Workspace = workspace
 	awi.Status = s.calcInfraStatus(workspace)
 
-	appEnv, err := client.AppEnvs().Get(application.Id, env.Name)
+	appEnv, err := client.AppEnvs().Get(application.StackId, application.Id, env.Name)
 	if err != nil {
 		return awi, err
 	}

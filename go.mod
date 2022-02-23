@@ -114,3 +114,5 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 )
+
+replace gopkg.in/nullstone-io/go-api-client.v0 => ../go-api-client
