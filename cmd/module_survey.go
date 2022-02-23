@@ -127,9 +127,11 @@ Examples: subdomain/aws, server/ec2, service/aws-fargate, capability/postgres-ac
 		Options: allProviderTypes,
 		Default: manifest.ProviderTypes,
 	}
-	if err := survey.AskOne(providerTypesPrompt, &manifest.ProviderTypes); err != nil {
+	providerTypes := make([]string, 0)
+	if err := survey.AskOne(providerTypesPrompt, &providerTypes); err != nil {
 		return nil, err
 	}
+	manifest.ProviderTypes = providerTypes
 
 	return &manifest, nil
 }

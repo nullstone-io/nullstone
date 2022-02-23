@@ -24,6 +24,27 @@ locals {
 }
 `
 
+	appOutputsTfFilename = "outputs.tf"
+	appOutputsTf = `
+locals {
+  // Private and public URLs are shown in the Nullstone UI
+  // Typically, they are created through capabilities attached to the application
+  // If this module has URLs, add them here as list(string) 
+  additional_private_urls = []
+  additional_public_urls  = []
+}
+
+output "private_urls" {
+  value       = concat([for url in try(local.capabilities.private_urls, []) : url["url"]], local.additional_private_urls)
+  description = "list(string) ||| A list of URLs only accessible inside the network"
+}
+
+output "public_urls" {
+  value       = concat([for url in try(local.capabilities.public_urls, []) : url["url"]], local.additional_public_urls)
+  description = "list(string) ||| A list of URLs accessible to the public"
+}
+`
+
 	capabilitiesTfFilename = "capabilities.tf"
 	capabilitiesTf         = `// This file is replaced by code-generation using 'capabilities.tf.tmpl'
 // This file helps app module creators define a contract for what types of capability outputs are supported.
@@ -49,6 +70,7 @@ locals {
   }
 }
 `
+
 	capabilitiesTfTmplFilename = "capabilities.tf.tmpl"
 	capabilitiesTfTmpl         = `{{ range . -}}
 provider "ns" {
@@ -98,6 +120,9 @@ func generateApp(manifest *Manifest) error {
 		return err
 	}
 	if err := generateFile(capabilitiesTfFilename, capabilitiesTf); err != nil {
+		return err
+	}
+	if err := generateFile(appOutputsTfFilename, appOutputsTf); err != nil {
 		return err
 	}
 	return generateFile(capabilitiesTfTmplFilename, capabilitiesTfTmpl)

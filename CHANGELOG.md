@@ -3,7 +3,7 @@
   * `layer` is inferred from `category` unless `category=block`.
   * Added `appCategories` when generating a capability module.
   * Generating `variables.tf` for capability modules.
-  * Generating `capabilities.tf` and `capabilities.tf.tmpl` for app modules.
+  * Generating `capabilities.tf`, `capabilities.tf.tmpl`, `outputs.tf` for app modules.
 * Fixed `--connection` flags in `blocks new` command.
 
 # 0.0.46 (Feb 24, 2022)
