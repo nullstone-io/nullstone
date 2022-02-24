@@ -1,7 +1,11 @@
-# 0.0.45 (Unreleased)
+# 0.0.46 (Feb 24, 2022)
+* Updated CLI to utilize new stack-based API endpoints in Nullstone API.
+* Added `connections` to `.nullstone/active-workspace.yml`.
+
+# 0.0.45 (Feb 22, 2022)
 * Fixed loading of profile so that address is set to `""` if there is no profile found.
 
-# 0.0.44 (Unreleased)
+# 0.0.44 (Not released)
 * Added `aws-ec2` provider for `app/server` category with support for only `exec` command to SSH into a box.
 * Added `stacks new` command.
 * Added `envs new` command.
@@ -44,7 +48,7 @@
 * Added `site/aws-s3` provider for `app/static-site` category.
 
 # 0.0.30 (Sep 30 2021)
-* Fix panic when detecting git commit sha if there is no commit sha. 
+* Fix panic when detecting git commit sha if there is no commit sha.
 
 # 0.0.29 (Sep 15 2021)
 * Fix panic when detecting git commit sha if there is no current git repo.
@@ -83,7 +87,7 @@
 * Updated retrieval of module outputs to pull the last finished run instead of the last successful run.
 
 # 0.0.18 (May 21 2021)
-* Updated API client to use ID-based endpoints. 
+* Updated API client to use ID-based endpoints.
 
 # 0.0.17 (May 12 2021)
 * Added support for `main_container_name` in `aws-fargate` outputs as a way of selecting the primary container.
