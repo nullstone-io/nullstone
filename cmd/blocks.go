@@ -148,14 +148,18 @@ var BlocksNew = &cli.Command{
 				}
 				if newApp, err := client.Apps().Create(app); err != nil {
 					return err
-				} else {
+				} else if newApp != nil {
 					fmt.Printf("created %s app\n", newApp.Name)
+				} else {
+					fmt.Println("unable to create app")
 				}
 			} else {
 				if newBlock, err := client.Blocks().Create(stack.Id, block); err != nil {
 					return err
-				} else {
+				} else if newBlock != nil {
 					fmt.Printf("created %q block\n", newBlock.Name)
+				} else {
+					fmt.Println("unable to create block")
 				}
 			}
 			return nil
