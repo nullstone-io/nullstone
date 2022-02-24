@@ -22,6 +22,8 @@ type Manifest struct {
 	WorkspaceUid string `json:"workspaceUid" yaml:"workspace_uid"`
 
 	CapabilityId int64 `json:"capabilityId,omitempty" yaml:"capability_id,omitempty"`
+
+	Connections ManifestConnections `json:"connections" yaml:"connections"`
 }
 
 func (m Manifest) WriteToFile(filename string) error {
@@ -36,4 +38,13 @@ func (m Manifest) WriteToFile(filename string) error {
 	encoder := yaml.NewEncoder(file)
 	defer encoder.Close()
 	return encoder.Encode(m)
+}
+
+type ManifestConnections map[string]ManifestConnectionTarget
+
+type ManifestConnectionTarget struct {
+	StackId   int64  `json:"stackId" yaml:"stack_id"`
+	BlockId   int64  `json:"blockId" yaml:"block_id"`
+	BlockName string `json:"blockName" yaml:"block_name"`
+	EnvId     *int64 `json:"envId,omitempty" yaml:"env_id,omitempty"`
 }
