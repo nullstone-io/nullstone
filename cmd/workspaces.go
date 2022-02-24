@@ -108,6 +108,18 @@ var WorkspacesSelect = &cli.Command{
   Workspace: %s
 `, sbe.Stack.Name, sbe.Block.Name, sbe.Env.Name, workspace.Uid)
 
+			capGenerator := workspaces.CapabilitiesGenerator{
+				Manifest:         targetWorkspace,
+				TemplateFilename: "capabilities.tf.tmpl",
+				TargetFilename:   "capabilities.tf",
+			}
+			if capGenerator.ShouldGenerate() {
+				fmt.Println("Generating %q from %q", capGenerator.TargetFilename, capGenerator.TemplateFilename)
+				if err := capGenerator.Generate(cfg); err != nil {
+					return fmt.Errorf("Could not generate %q: %w", capGenerator.TargetFilename, err)
+				}
+			}
+
 			return CancellableAction(func(ctx context.Context) error {
 				if err := workspaces.Init(ctx); err != nil {
 					fallbackMessage := `Unable to initialize terraform.
