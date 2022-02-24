@@ -140,13 +140,24 @@ var BlocksNew = &cli.Command{
 				Connections:         connections,
 				ParentBlocks:        parentBlocks,
 			}
-
-			newBlock, err := client.Blocks().Create(stack.Id, block)
-			if err != nil {
-				return err
+			if strings.HasPrefix(string(module.Category), "app/") {
+				app := &types.Application{
+					Block:     *block,
+					Repo:      "",
+					Framework: "other",
+				}
+				if newApp, err := client.Apps().Create(app); err != nil {
+					return err
+				} else {
+					fmt.Printf("created %s app\n", newApp.Name)
+				}
+			} else {
+				if newBlock, err := client.Blocks().Create(stack.Id, block); err != nil {
+					return err
+				} else {
+					fmt.Printf("created %q block\n", newBlock.Name)
+				}
 			}
-
-			fmt.Printf("created %q block\n", newBlock.Name)
 			return nil
 		})
 	},

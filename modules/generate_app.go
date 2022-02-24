@@ -25,7 +25,7 @@ locals {
 `
 
 	appOutputsTfFilename = "outputs.tf"
-	appOutputsTf = `
+	appOutputsTf         = `
 locals {
   // Private and public URLs are shown in the Nullstone UI
   // Typically, they are created through capabilities attached to the application
