@@ -3,19 +3,13 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
-	"gopkg.in/nullstone-io/nullstone.v0/git"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/tfconfig"
 	"gopkg.in/nullstone-io/nullstone.v0/workspaces"
-	"path"
-	"strings"
-)
-
-var (
-	backendFilename         = "__backend__.tf"
-	activeWorkspaceFilename = path.Join(".nullstone", "active-workspace.yml")
 )
 
 var Workspaces = &cli.Command{
@@ -64,14 +58,15 @@ var WorkspacesSelect = &cli.Command{
 			// TODO: Add support for capability testing --> workspaces.Manifest.CapabilityId
 
 			targetWorkspace := workspaces.Manifest{
-				OrgName:   cfg.OrgName,
-				StackId:   sbe.Stack.Id,
-				StackName: sbe.Stack.Name,
-				BlockId:   sbe.Block.Id,
-				BlockName: sbe.Block.Name,
-				BlockRef:  sbe.Block.Reference,
-				EnvId:     sbe.Env.Id,
-				EnvName:   sbe.Env.Name,
+				OrgName:     cfg.OrgName,
+				StackId:     sbe.Stack.Id,
+				StackName:   sbe.Stack.Name,
+				BlockId:     sbe.Block.Id,
+				BlockName:   sbe.Block.Name,
+				BlockRef:    sbe.Block.Reference,
+				EnvId:       sbe.Env.Id,
+				EnvName:     sbe.Env.Name,
+				Connections: workspaces.ManifestConnections{},
 			}
 			workspace, err := client.Workspaces().Get(targetWorkspace.StackId, targetWorkspace.BlockId, targetWorkspace.EnvId)
 			if err != nil {
@@ -81,53 +76,49 @@ var WorkspacesSelect = &cli.Command{
 			}
 			targetWorkspace.WorkspaceUid = workspace.Uid.String()
 
-			if err := workspaces.WriteBackendTf(cfg, workspace.Uid, backendFilename); err != nil {
-				return fmt.Errorf("error writing terraform backend file: %w", err)
+			runConfig, err := workspaces.GetRunConfig(cfg, targetWorkspace)
+			if err != nil {
+				return fmt.Errorf("could not retreive current workspace configuration: %w", err)
 			}
-			if err := targetWorkspace.WriteToFile(activeWorkspaceFilename); err != nil {
-				return fmt.Errorf("error writing active workspace file: %w", err)
+			if err := surveyMissingConnections(cfg, targetWorkspace.StackName, &runConfig); err != nil {
+				return err
 			}
-
-			repo := git.RepoFromDir(".")
-			if repo != nil {
-				// Add gitignores for __backend__.tf and .nullstone/active-workspace.yml
-				_, missing := git.FindGitIgnores(repo, []string{
-					backendFilename,
-					activeWorkspaceFilename,
-				})
-				if len(missing) > 0 {
-					fmt.Printf("Adding %s to .gitignore\n", strings.Join(missing, ", "))
-					git.AddGitIgnores(repo, missing)
-				}
-			}
-
-			fmt.Printf(`Selected workspace:
-  Stack:     %s
-  Block:     %s
-  Env:       %s
-  Workspace: %s
-`, sbe.Stack.Name, sbe.Block.Name, sbe.Env.Name, workspace.Uid)
-
-			capGenerator := workspaces.CapabilitiesGenerator{
-				Manifest:         targetWorkspace,
-				TemplateFilename: "capabilities.tf.tmpl",
-				TargetFilename:   "capabilities.tf",
-			}
-			if capGenerator.ShouldGenerate() {
-				fmt.Println("Generating %q from %q", capGenerator.TargetFilename, capGenerator.TemplateFilename)
-				if err := capGenerator.Generate(cfg); err != nil {
-					return fmt.Errorf("Could not generate %q: %w", capGenerator.TargetFilename, err)
+			for name, conn := range runConfig.Connections {
+				targetWorkspace.Connections[name] = workspaces.ManifestConnectionTarget{
+					StackId:   conn.Reference.StackId,
+					BlockId:   conn.Reference.BlockId,
+					BlockName: conn.Reference.BlockName,
+					EnvId:     conn.Reference.EnvId,
 				}
 			}
 
 			return CancellableAction(func(ctx context.Context) error {
-				if err := workspaces.Init(ctx); err != nil {
-					fallbackMessage := `Unable to initialize terraform.
-Reset .terraform/ directory and run 'terraform init'.`
-					fmt.Println(fallbackMessage)
-				}
-				return nil
+				return workspaces.Select(ctx, cfg, targetWorkspace, runConfig)
 			})
 		})
 	},
+}
+
+func surveyMissingConnections(cfg api.Config, sourceStackName string, runConfig *types.RunConfig) error {
+	for name, conn := range runConfig.Connections {
+		// If a connection is required and does not have a target
+		//   let's require the user to set a target manually
+		if !conn.Optional && (conn.Reference == nil || conn.Reference.BlockId < 1) {
+			input := &survey.Input{
+				Message: "Connection %q is required. Choose a block to use for the connection:",
+			}
+			var answer string
+			if err := survey.AskOne(input, &answer); err != nil {
+				return err
+			}
+			ct, err := find.ConnectionTarget(cfg, sourceStackName, answer)
+			if err != nil {
+				return err
+			}
+			conn.Reference = ct
+			// conn is byval, set it back on the map
+			runConfig.Connections[name] = conn
+		}
+	}
+	return nil
 }

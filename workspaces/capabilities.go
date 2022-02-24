@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
-	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/artifacts"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"io/ioutil"
@@ -39,6 +37,7 @@ func init() {
 }
 
 type CapabilitiesGenerator struct {
+	RegistryAddress  string
 	Manifest         Manifest
 	TemplateFilename string
 	TargetFilename   string
@@ -49,8 +48,8 @@ func (g CapabilitiesGenerator) ShouldGenerate() bool {
 	return err == nil || !os.IsNotExist(err)
 }
 
-func (g CapabilitiesGenerator) Generate(cfg api.Config) error {
-	capabilities, err := g.getCapabilities(cfg)
+func (g CapabilitiesGenerator) Generate(runConfig types.RunConfig) error {
+	capabilities, err := g.transformCapabilities(runConfig)
 	if err != nil {
 		return fmt.Errorf("error retrieving current configuration of capabilities: %w", err)
 	}
@@ -76,16 +75,7 @@ func (g CapabilitiesGenerator) Generate(cfg api.Config) error {
 	return nil
 }
 
-func (g CapabilitiesGenerator) getCapabilities(cfg api.Config) (types.CapabilityConfigs, error) {
-	client := api.Client{Config: cfg}
-	workspaceUid, _ := uuid.Parse(g.Manifest.WorkspaceUid)
-	runConfig, err := client.RunConfigs().GetLatest(g.Manifest.StackId, workspaceUid)
-	if err != nil {
-		return types.CapabilityConfigs{}, err
-	} else if runConfig == nil {
-		return types.CapabilityConfigs{}, nil
-	}
-
+func (g CapabilitiesGenerator) transformCapabilities(runConfig types.RunConfig) (types.CapabilityConfigs, error) {
 	capabilities := runConfig.Capabilities
 	// Terraform assumes that module source has a host of `registry.terraform.io` if not specified
 	// We are going to override that behavior to presume `api.nullstone.io` instead
@@ -93,7 +83,7 @@ func (g CapabilitiesGenerator) getCapabilities(cfg api.Config) (types.Capability
 		if ms, err := artifacts.ParseSource(capability.Source); err == nil {
 			if ms.Host == "" {
 				// Set the module source host to api.nullstone.io without the URI scheme
-				ms.Host = strings.TrimPrefix(strings.TrimPrefix(cfg.BaseAddress, "https://"), "http://")
+				ms.Host = strings.TrimPrefix(strings.TrimPrefix(g.RegistryAddress, "https://"), "http://")
 				capability.Source = ms.String()
 				capabilities[i] = capability
 			}
