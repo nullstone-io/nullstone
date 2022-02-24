@@ -10,6 +10,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/tfconfig"
 	"gopkg.in/nullstone-io/nullstone.v0/workspaces"
+	"sync"
 )
 
 var Workspaces = &cli.Command{
@@ -80,10 +81,11 @@ var WorkspacesSelect = &cli.Command{
 			if err != nil {
 				return fmt.Errorf("could not retreive current workspace configuration: %w", err)
 			}
-			if err := surveyMissingConnections(cfg, targetWorkspace.StackName, &runConfig); err != nil {
+			manualConnections, err := surveyMissingConnections(cfg, targetWorkspace.StackName, runConfig)
+			if err != nil {
 				return err
 			}
-			for name, conn := range runConfig.Connections {
+			for name, conn := range manualConnections {
 				targetWorkspace.Connections[name] = workspaces.ManifestConnectionTarget{
 					StackId:   conn.Reference.StackId,
 					BlockId:   conn.Reference.BlockId,
@@ -99,26 +101,52 @@ var WorkspacesSelect = &cli.Command{
 	},
 }
 
-func surveyMissingConnections(cfg api.Config, sourceStackName string, runConfig *types.RunConfig) error {
+func surveyMissingConnections(cfg api.Config, sourceStackName string, runConfig types.RunConfig) (types.Connections, error) {
+	initialPrompt := &sync.Once{}
+	connections := types.Connections{}
 	for name, conn := range runConfig.Connections {
-		// If a connection is required and does not have a target
-		//   let's require the user to set a target manually
-		if !conn.Optional && (conn.Reference == nil || conn.Reference.BlockId < 1) {
-			input := &survey.Input{
-				Message: "Connection %q is required. Choose a block to use for the connection:",
-			}
-			var answer string
-			if err := survey.AskOne(input, &answer); err != nil {
-				return err
-			}
-			ct, err := find.ConnectionTarget(cfg, sourceStackName, answer)
+		// Let's ask the user if the connection has no reference
+		if conn.Reference == nil || conn.Reference.BlockId < 1 {
+			initialPrompt.Do(func() {
+				fmt.Println("There are connections in this module that do not have a target set.")
+				fmt.Println("Type the block name for each connection to configure the connection locally.")
+			})
+			ct, err := surveyMissingConnection(cfg, sourceStackName, name, conn)
 			if err != nil {
-				return err
+				return nil, err
+			} else if ct != nil {
+				connections[name] = types.Connection{
+					Connection: conn.Connection,
+					Reference:  ct,
+				}
 			}
-			conn.Reference = ct
-			// conn is byval, set it back on the map
-			runConfig.Connections[name] = conn
 		}
 	}
-	return nil
+	return connections, nil
+}
+
+func surveyMissingConnection(cfg api.Config, sourceStackName, name string, conn types.Connection) (*types.ConnectionTarget, error) {
+	preface := "[required]"
+	if conn.Optional {
+		preface = "[optional]"
+	}
+	input := &survey.Input{
+		Message: fmt.Sprintf("%s connection %q (type=%s):", preface, name, conn.Type),
+	}
+	for {
+		var answer string
+		if err := survey.AskOne(input, &answer); err != nil {
+			return nil, err
+		}
+		if answer == "" && conn.Optional {
+			return nil, nil
+		}
+
+		ct, err := find.ConnectionTarget(cfg, sourceStackName, answer)
+		if err != nil {
+			fmt.Printf("Invalid connection: %s\n", err)
+			fmt.Println("Try again.")
+		}
+		return ct, nil
+	}
 }
