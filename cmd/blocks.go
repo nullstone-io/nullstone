@@ -133,6 +133,8 @@ var BlocksNew = &cli.Command{
 			}
 
 			block := &types.Block{
+				OrgName:             cfg.OrgName,
+				StackId:             stack.Id,
 				Type:                blockTypeFromModuleCategory(module.Category),
 				Name:                name,
 				ModuleSource:        moduleSource,
