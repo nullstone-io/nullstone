@@ -146,6 +146,7 @@ func surveyMissingConnection(cfg api.Config, sourceStackName, name string, conn 
 		if err != nil {
 			fmt.Printf("Invalid connection: %s\n", err)
 			fmt.Println("Try again.")
+			continue
 		}
 		return ct, nil
 	}
