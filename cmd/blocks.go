@@ -148,7 +148,7 @@ var BlocksNew = &cli.Command{
 					Repo:      "",
 					Framework: "other",
 				}
-				if newApp, err := client.Apps().Create(app); err != nil {
+				if newApp, err := client.Apps().Create(stack.Id, app); err != nil {
 					return err
 				} else if newApp != nil {
 					fmt.Printf("created %s app\n", newApp.Name)
