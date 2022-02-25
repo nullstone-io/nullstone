@@ -1,3 +1,7 @@
+# 0.0.48 (Feb 25, 2022)
+* Added `up` command that provisions a workspace if not provisioned already.
+* `up` command includes `--wait` flag which streams the run logs as Nullstone provisions infrastructure.
+
 # 0.0.47 (Feb 25, 2022)
 * Enhanced `modules generate`
   * `layer` is inferred from `category` unless `category=block`.
