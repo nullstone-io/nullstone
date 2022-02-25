@@ -27,7 +27,7 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/vmihailenco/tagparser v0.1.2
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20220224194550-ef55271e39bd
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20220225131818-119df3eae982
 )
 
 require (
