@@ -36,8 +36,9 @@ var ModulesGenerate = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
+			existing, _ := modules.ManifestFromFile(moduleManifestFilename)
 			survey := &moduleSurvey{}
-			manifest, err := survey.Ask(cfg)
+			manifest, err := survey.Ask(cfg, existing)
 			if err != nil {
 				return err
 			}

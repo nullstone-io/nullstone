@@ -1,11 +1,10 @@
 package modules
 
 import (
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"io"
-	"os"
-	"strings"
+	"io/ioutil"
 )
+
+type generateFunc func(manifest *Manifest) error
 
 var (
 	scaffoldTfFilename = "nullstone.tf"
@@ -34,48 +33,28 @@ locals {
   resource_name = "${data.ns_workspace.this.block_ref}-${random_string.resource_suffix.result}"
 }
 `
-	appScaffoldTf = `
-data "ns_app_env" "this" {
-  stack_id = data.ns_workspace.this.stack_id
-  app_id   = data.ns_workspace.this.block_id
-  env_id   = data.ns_workspace.this.env_id
-}
 
-locals {
-  app_version = data.ns_app_env.this.version
-}
-`
-	subdomainScaffoldTf = `
-data "ns_subdomain" "this" {
-  stack_id = data.ns_workspace.this.stack_id
-  block_id = data.ns_workspace.this.block_id
-}
-
-locals {
-  subdomain_dns_name = data.ns_subdomain.this.dns_name
-}
-`
+	generateFns = []generateFunc{
+		generateScaffold,
+		generateApp,
+		generateCapability,
+		generateSubdomain,
+	}
 )
 
 func Generate(manifest *Manifest) error {
-	file, err := os.Create(scaffoldTfFilename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	if _, err := io.WriteString(file, baseScaffoldTf); err != nil {
-		return err
-	}
-	if strings.HasPrefix(manifest.Category, "app/") {
-		if _, err := io.WriteString(file, appScaffoldTf); err != nil {
-			return err
-		}
-	}
-	if manifest.Category == types.CategorySubdomain {
-		if _, err := io.WriteString(file, subdomainScaffoldTf); err != nil {
+	for _, gfn := range generateFns {
+		if err := gfn(manifest); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func generateScaffold(manifest *Manifest) error {
+	return generateFile(scaffoldTfFilename, baseScaffoldTf)
+}
+
+func generateFile(filename string, content string) error {
+	return ioutil.WriteFile(filename, []byte(content), 0644)
 }

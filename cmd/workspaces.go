@@ -3,19 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
-	"gopkg.in/nullstone-io/nullstone.v0/git"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/tfconfig"
 	"gopkg.in/nullstone-io/nullstone.v0/workspaces"
-	"path"
-	"strings"
-)
-
-var (
-	backendFilename         = "__backend__.tf"
-	activeWorkspaceFilename = path.Join(".nullstone", "active-workspace.yml")
+	"sync"
 )
 
 var Workspaces = &cli.Command{
@@ -64,14 +59,15 @@ var WorkspacesSelect = &cli.Command{
 			// TODO: Add support for capability testing --> workspaces.Manifest.CapabilityId
 
 			targetWorkspace := workspaces.Manifest{
-				OrgName:   cfg.OrgName,
-				StackId:   sbe.Stack.Id,
-				StackName: sbe.Stack.Name,
-				BlockId:   sbe.Block.Id,
-				BlockName: sbe.Block.Name,
-				BlockRef:  sbe.Block.Reference,
-				EnvId:     sbe.Env.Id,
-				EnvName:   sbe.Env.Name,
+				OrgName:     cfg.OrgName,
+				StackId:     sbe.Stack.Id,
+				StackName:   sbe.Stack.Name,
+				BlockId:     sbe.Block.Id,
+				BlockName:   sbe.Block.Name,
+				BlockRef:    sbe.Block.Reference,
+				EnvId:       sbe.Env.Id,
+				EnvName:     sbe.Env.Name,
+				Connections: workspaces.ManifestConnections{},
 			}
 			workspace, err := client.Workspaces().Get(targetWorkspace.StackId, targetWorkspace.BlockId, targetWorkspace.EnvId)
 			if err != nil {
@@ -81,41 +77,77 @@ var WorkspacesSelect = &cli.Command{
 			}
 			targetWorkspace.WorkspaceUid = workspace.Uid.String()
 
-			if err := workspaces.WriteBackendTf(cfg, workspace.Uid, backendFilename); err != nil {
-				return fmt.Errorf("error writing terraform backend file: %w", err)
+			runConfig, err := workspaces.GetRunConfig(cfg, targetWorkspace)
+			if err != nil {
+				return fmt.Errorf("could not retreive current workspace configuration: %w", err)
 			}
-			if err := targetWorkspace.WriteToFile(activeWorkspaceFilename); err != nil {
-				return fmt.Errorf("error writing active workspace file: %w", err)
+			manualConnections, err := surveyMissingConnections(cfg, targetWorkspace.StackName, runConfig)
+			if err != nil {
+				return err
 			}
-
-			repo := git.RepoFromDir(".")
-			if repo != nil {
-				// Add gitignores for __backend__.tf and .nullstone/active-workspace.yml
-				_, missing := git.FindGitIgnores(repo, []string{
-					backendFilename,
-					activeWorkspaceFilename,
-				})
-				if len(missing) > 0 {
-					fmt.Printf("Adding %s to .gitignore\n", strings.Join(missing, ", "))
-					git.AddGitIgnores(repo, missing)
+			for name, conn := range manualConnections {
+				targetWorkspace.Connections[name] = workspaces.ManifestConnectionTarget{
+					StackId:   conn.Reference.StackId,
+					BlockId:   conn.Reference.BlockId,
+					BlockName: conn.Reference.BlockName,
+					EnvId:     conn.Reference.EnvId,
 				}
 			}
-
-			fmt.Printf(`Selected workspace:
-  Stack:     %s
-  Block:     %s
-  Env:       %s
-  Workspace: %s
-`, sbe.Stack.Name, sbe.Block.Name, sbe.Env.Name, workspace.Uid)
 
 			return CancellableAction(func(ctx context.Context) error {
-				if err := workspaces.Init(ctx); err != nil {
-					fallbackMessage := `Unable to initialize terraform.
-Reset .terraform/ directory and run 'terraform init'.`
-					fmt.Println(fallbackMessage)
-				}
-				return nil
+				return workspaces.Select(ctx, cfg, targetWorkspace, runConfig)
 			})
 		})
 	},
+}
+
+func surveyMissingConnections(cfg api.Config, sourceStackName string, runConfig types.RunConfig) (types.Connections, error) {
+	initialPrompt := &sync.Once{}
+	connections := types.Connections{}
+	for name, conn := range runConfig.Connections {
+		// Let's ask the user if the connection has no reference
+		if conn.Reference == nil || conn.Reference.BlockId < 1 {
+			initialPrompt.Do(func() {
+				fmt.Println("There are connections in this module that do not have a target set.")
+				fmt.Println("Type the block name for each connection to configure the connection locally.")
+			})
+			ct, err := surveyMissingConnection(cfg, sourceStackName, name, conn)
+			if err != nil {
+				return nil, err
+			} else if ct != nil {
+				connections[name] = types.Connection{
+					Connection: conn.Connection,
+					Reference:  ct,
+				}
+			}
+		}
+	}
+	return connections, nil
+}
+
+func surveyMissingConnection(cfg api.Config, sourceStackName, name string, conn types.Connection) (*types.ConnectionTarget, error) {
+	preface := "[required]"
+	if conn.Optional {
+		preface = "[optional]"
+	}
+	input := &survey.Input{
+		Message: fmt.Sprintf("%s connection %q (type=%s):", preface, name, conn.Type),
+	}
+	for {
+		var answer string
+		if err := survey.AskOne(input, &answer); err != nil {
+			return nil, err
+		}
+		if answer == "" && conn.Optional {
+			return nil, nil
+		}
+
+		ct, err := find.ConnectionTarget(cfg, sourceStackName, answer)
+		if err != nil {
+			fmt.Printf("Invalid connection: %s\n", err)
+			fmt.Println("Try again.")
+			continue
+		}
+		return ct, nil
+	}
 }

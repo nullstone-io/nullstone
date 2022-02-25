@@ -28,8 +28,9 @@ var Envs = &cli.Command{
 var EnvsList = &cli.Command{
 	Name:      "list",
 	Usage:     "List environments",
-	UsageText: "nullstone envs list <stack-name>",
+	UsageText: "nullstone envs list --stack=<stack-name>",
 	Flags: []cli.Flag{
+		StackRequiredFlag,
 		&cli.BoolFlag{
 			Name:    "detail",
 			Aliases: []string{"d"},
@@ -37,12 +38,7 @@ var EnvsList = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
-			if c.NArg() != 1 {
-				cli.ShowCommandHelp(c, c.Command.Name)
-				return fmt.Errorf("stack-name is required to list environments")
-			}
-			stackName := c.Args().Get(0)
-
+			stackName := c.String(StackRequiredFlag.Name)
 			finder := NsFinder{Config: cfg}
 			stack, err := finder.FindStack(stackName)
 			if err != nil {

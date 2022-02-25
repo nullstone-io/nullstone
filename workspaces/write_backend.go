@@ -2,7 +2,6 @@ package workspaces
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"os"
 	"path/filepath"
@@ -22,7 +21,7 @@ var (
 }`
 )
 
-func WriteBackendTf(cfg api.Config, workspaceUid uuid.UUID, filename string) error {
+func WriteBackendTf(cfg api.Config, workspaceUid string, filename string) error {
 	// backend stanza expects a hostname without the scheme -> TF will add `https://` automatically
 	hostname := strings.Replace(strings.Replace(cfg.BaseAddress, "https://", "", 1), "http://", "", 1)
 	backend := fmt.Sprintf(backendTmpl, hostname, cfg.OrgName, workspaceUid)

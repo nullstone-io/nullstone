@@ -14,9 +14,10 @@ func Register(cfg api.Config, manifest *Manifest) (*types.Module, error) {
 		IsPublic:      manifest.IsPublic,
 		Category:      types.CategoryName(manifest.Category),
 		Layer:         types.Layer(manifest.Layer),
+		AppCategories: manifest.AppCategories,
 		Type:          manifest.Type,
 		ProviderTypes: manifest.ProviderTypes,
-		Status:        types.ModuleStatusDraft,
+		Status:        types.ModuleStatusPublished,
 	}
 
 	client := api.Client{Config: cfg}

@@ -1,3 +1,14 @@
+# 0.0.47 (Feb 25, 2022)
+* Enhanced `modules generate`
+  * `layer` is inferred from `category` unless `category=block`.
+  * Added `appCategories` when generating a capability module.
+  * Generating `variables.tf` for capability modules.
+  * Generating `capabilities.tf`, `capabilities.tf.tmpl`, `outputs.tf` for app modules.
+* Fixed `--connection` flags in `blocks new` command.
+* Updated `workspaces select` command:
+  * Generating `capabilities.tf` from `capabilities.tf.tmpl`.
+  * If new `ns_connection` exist locally, will prompt user to select a target for the connection.
+
 # 0.0.46 (Feb 24, 2022)
 * Updated CLI to utilize new stack-based API endpoints in Nullstone API.
 * Added `connections` to `.nullstone/active-workspace.yml`.
