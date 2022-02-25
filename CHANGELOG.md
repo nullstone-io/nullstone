@@ -1,4 +1,4 @@
-# 0.0.47 (Unreleased)
+# 0.0.47 (Feb 25, 2022)
 * Enhanced `modules generate`
   * `layer` is inferred from `category` unless `category=block`.
   * Added `appCategories` when generating a capability module.
