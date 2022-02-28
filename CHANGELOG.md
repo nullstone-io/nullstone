@@ -1,6 +1,7 @@
-# 0.0.48 (Feb 25, 2022)
-* Added `up` command that provisions a workspace if not provisioned already.
-* `up` command includes `--wait` flag which streams the run logs as Nullstone provisions infrastructure.
+# 0.0.48 (Feb 28, 2022)
+* Added `up` command for provisioning workspaces.
+  * This command will only launch workspaces that have not provisioned yet.
+  * This command comes with a `--wait` flag that will stream Terraform logs from the server.
 
 # 0.0.47 (Feb 25, 2022)
 * Enhanced `modules generate`
