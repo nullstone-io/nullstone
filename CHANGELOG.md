@@ -1,3 +1,8 @@
+# 0.0.48 (Feb 28, 2022)
+* Added `up` command for provisioning workspaces.
+  * This command will only launch workspaces that have not provisioned yet.
+  * This command comes with a `--wait` flag that will stream Terraform logs from the server.
+
 # 0.0.47 (Feb 25, 2022)
 * Enhanced `modules generate`
   * `layer` is inferred from `category` unless `category=block`.
