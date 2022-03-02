@@ -1,3 +1,8 @@
+# 0.0.49 (Mar 01, 2022)
+* Fixed `up` command:
+  * If an error occurs when creating the run, do not attempt to stream the logs.
+  * If we are unable to stream the logs and the user cancels (Ctrl+C/Cmd+C), then kill the process.
+
 # 0.0.48 (Feb 28, 2022)
 * Added `up` command for provisioning workspaces.
   * This command will only launch workspaces that have not provisioned yet.
