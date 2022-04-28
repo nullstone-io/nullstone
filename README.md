@@ -15,6 +15,7 @@ Visit [nullstone/README.md](nullstone/README.md) for CLI instructions.
 ## Community & Support
 
 - [Public Roadmap](https://github.com/orgs/nullstone-io/projects/1/views/1) - View upcoming features.
+- [Discussions](https://github.com/nullstone-io/nullstone/discussions) - View product updates.
 - [GitHub Issues](https://github.com/nullstone-io/nullstone/issues) - Request new features, report bugs and errors you encounter.
 - [Slack](https://join.slack.com/t/nullstone-community/signup) - Ask questions, get support, and hang out.
 - Email Support - support@nullstone.io
