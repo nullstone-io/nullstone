@@ -37,13 +37,13 @@ Copy and run the command that is displayed in the dialog.
 nullstone configure --api-key=...
 ```
 
-Once you have your API Key configure, choose an org to scope CLI commands.
-If you are using your personal account, use the following:
+When you initially log in, Nullstone sets up a personal organization matching your username.
+To scope your nullstone commands to this organization, use the following:
 ```shell
 nullstone set-org <user-name>
 ```
 
-If you are connecting to your organization, use the following:
+If you create or join an organization, you will need to use the same command to switch to that organization.
 ```shell
 nullstone set-org <org-name>
 ```
