@@ -45,6 +45,8 @@ var Up = func() *cli.Command {
 					return err
 				}
 
+				fillVariables(newRunConfig)
+
 				isApproved := true
 				input := types.CreateRunInput{
 					IsDestroy:     false,
@@ -122,4 +124,22 @@ func pollRun(ctx context.Context, cfg api.Config, stackId int64, runUid uuid.UUI
 		}
 	}()
 	return ch
+}
+
+func fillVariables(rc *types.RunConfig) {
+	for k, v := range rc.Variables {
+		if v.Value == nil {
+			v.Value = v.Default
+		}
+		rc.Variables[k] = v
+	}
+	for i, c := range rc.Capabilities {
+		for k, v := range c.Variables {
+			if v.Value == nil {
+				v.Value = v.Default
+			}
+			c.Variables[k] = v
+		}
+		rc.Capabilities[i] = c
+	}
 }
