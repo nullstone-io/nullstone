@@ -1,5 +1,6 @@
 # 0.0.53 (May 10, 2022)
-* Improved `nullstone up` to set variable `Value` to `Default` if `nil`. 
+* Improved `nullstone up` to set variable `Value` to `Default` if `nil`.
+* Added `--var` to `nullstone up` to specify Terraform variables upon launch.
 
 # 0.0.52 (Apr 01, 2022)
 * Fixed usage of `StackId` in Deploys endpoint.
