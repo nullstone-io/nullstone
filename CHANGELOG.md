@@ -1,3 +1,15 @@
+# 0.0.53 (May 10, 2022)
+* Improved `nullstone up` to set variable `Value` to `Default` if `nil`. 
+
+# 0.0.52 (Apr 01, 2022)
+* Fixed usage of `StackId` in Deploys endpoint.
+
+# 0.0.51 (Apr 01, 2022)
+* Migrated "Update AppEnvs" endpoint to new "Create Deploy" endpoint. 
+
+# 0.0.50 (Mar 17, 2022)
+* Removed use of deprecated public module endpoints.
+
 # 0.0.49 (Mar 01, 2022)
 * Fixed `up` command:
   * If an error occurs when creating the run, do not attempt to stream the logs.
