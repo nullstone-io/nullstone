@@ -56,7 +56,11 @@ var Up = func() *cli.Command {
 
 				fillRunConfigVariables(newRunConfig)
 
-				if err := setRunConfigVars(newRunConfig, varFlags); err != nil {
+				skipped, err := setRunConfigVars(newRunConfig, varFlags)
+				if len(skipped) > 0 {
+					fmt.Printf("[Warning] The following variables were skipped because they don't exist in the module: %s\n\n", strings.Join(skipped, ", "))
+				}
+				if err != nil {
 					return err
 				}
 
@@ -162,8 +166,9 @@ func fillVariables(vars types.Variables) types.Variables {
 	return vars
 }
 
-func setRunConfigVars(rc *types.RunConfig, varFlags []string) error {
+func setRunConfigVars(rc *types.RunConfig, varFlags []string) ([]string, error) {
 	var errs []string
+	skipped := make([]string, 0)
 
 	for _, varFlag := range varFlags {
 		tokens := strings.SplitN(varFlag, "=", 2)
@@ -181,16 +186,18 @@ func setRunConfigVars(rc *types.RunConfig, varFlags []string) error {
 				v.Value = out
 				rc.Variables[name] = v
 			}
+		} else {
+			skipped = append(skipped, name)
 		}
 	}
 
 	if len(errs) > 0 {
-		return fmt.Errorf(`"--var" flags contain invalid values:
+		return skipped, fmt.Errorf(`"--var" flags contain invalid values:
     * %s
 `, strings.Join(errs, `
     * `))
 	}
-	return nil
+	return skipped, nil
 }
 
 func parseVarFlag(variable types.Variable, name, value string) (interface{}, error) {
