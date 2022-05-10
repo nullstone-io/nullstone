@@ -2,11 +2,14 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -24,9 +27,15 @@ var Up = func() *cli.Command {
 				Aliases: []string{"w"},
 				Usage:   "Wait for Nullstone to fully provision the workspace.",
 			},
+			&cli.StringSliceFlag{
+				Name:  "var",
+				Usage: "Set variable values when issuing `up`",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			return BlockEnvAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment) error {
+				varFlags := c.StringSlice("var")
+
 				client := api.Client{Config: cfg}
 				workspace, err := client.Workspaces().Get(stack.Id, block.Id, env.Id)
 				if err != nil {
@@ -46,6 +55,10 @@ var Up = func() *cli.Command {
 				}
 
 				fillRunConfigVariables(newRunConfig)
+
+				if err := setRunConfigVars(newRunConfig, varFlags); err != nil {
+					return err
+				}
 
 				isApproved := true
 				input := types.CreateRunInput{
@@ -147,4 +160,63 @@ func fillVariables(vars types.Variables) types.Variables {
 		vars[k] = v
 	}
 	return vars
+}
+
+func setRunConfigVars(rc *types.RunConfig, varFlags []string) error {
+	var errs []string
+
+	for _, varFlag := range varFlags {
+		tokens := strings.SplitN(varFlag, "=", 2)
+		if len(tokens) < 2 {
+			// We skip any variables that don't have an `=` sign
+			continue
+		}
+		name, value := tokens[0], tokens[1]
+		// Look in RunConfig for variable matching `name`
+		// If we don't find a matching variable, we just skip it
+		if v, ok := rc.Variables[name]; ok {
+			if out, err := parseVarFlag(v, name, value); err != nil {
+				errs = append(errs, err.Error())
+			} else {
+				v.Value = out
+				rc.Variables[name] = v
+			}
+		}
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf(`"--var" flags contain invalid values:
+    * %s
+`, strings.Join(errs, `
+    * `))
+	}
+	return nil
+}
+
+func parseVarFlag(variable types.Variable, name, value string) (interface{}, error) {
+	// Look in RunConfig for variable matching `name`
+	switch variable.Type {
+	case "string":
+		return value, nil
+	case "number":
+		if iout, err := strconv.Atoi(value); err == nil {
+			return iout, nil
+		} else if fout, err := strconv.ParseFloat(value, 64); err == nil {
+			return fout, nil
+		} else {
+			return nil, fmt.Errorf("%s: expected 'number' - %s", name, err)
+		}
+	case "bool":
+		if out, err := strconv.ParseBool(value); err != nil {
+			return nil, fmt.Errorf("%s: expected 'bool' - %s", name, err)
+		} else {
+			return out, nil
+		}
+	}
+
+	var out interface{}
+	if err := json.Unmarshal([]byte(value), &out); err != nil {
+		return nil, fmt.Errorf("%s: expected json %s", name, err)
+	}
+	return out, nil
 }
