@@ -177,8 +177,6 @@ func setRunConfigVars(rc *types.RunConfig, varFlags []string) ([]string, error) 
 			continue
 		}
 		name, value := tokens[0], tokens[1]
-		// Look in RunConfig for variable matching `name`
-		// If we don't find a matching variable, we just skip it
 		if v, ok := rc.Variables[name]; ok {
 			if out, err := parseVarFlag(v, name, value); err != nil {
 				errs = append(errs, err.Error())
