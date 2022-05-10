@@ -45,7 +45,7 @@ var Up = func() *cli.Command {
 					return err
 				}
 
-				fillVariables(newRunConfig)
+				fillRunConfigVariables(newRunConfig)
 
 				isApproved := true
 				input := types.CreateRunInput{
