@@ -45,17 +45,20 @@ var Up = func() *cli.Command {
 					return err
 				}
 
+				fillRunConfigVariables(newRunConfig)
+
 				isApproved := true
 				input := types.CreateRunInput{
-					IsDestroy:     false,
-					IsApproved:    &isApproved,
-					Source:        newRunConfig.Source,
-					SourceVersion: newRunConfig.SourceVersion,
-					Variables:     newRunConfig.Variables,
-					EnvVariables:  newRunConfig.EnvVariables,
-					Connections:   newRunConfig.Connections,
-					Capabilities:  newRunConfig.Capabilities,
-					Providers:     newRunConfig.Providers,
+					IsDestroy:         false,
+					IsApproved:        &isApproved,
+					Source:            newRunConfig.Source,
+					SourceVersion:     newRunConfig.SourceVersion,
+					Variables:         newRunConfig.Variables,
+					EnvVariables:      newRunConfig.EnvVariables,
+					Connections:       newRunConfig.Connections,
+					Capabilities:      newRunConfig.Capabilities,
+					Providers:         newRunConfig.Providers,
+					DependencyConfigs: newRunConfig.DependencyConfigs,
 				}
 
 				newRun, err := client.Runs().Create(workspace.StackId, workspace.Uid, input)
@@ -122,4 +125,26 @@ func pollRun(ctx context.Context, cfg api.Config, stackId int64, runUid uuid.UUI
 		}
 	}()
 	return ch
+}
+
+func fillRunConfigVariables(rc *types.RunConfig) {
+	rc.Variables = fillVariables(rc.Variables)
+	for i, c := range rc.Capabilities {
+		c.Variables = fillVariables(c.Variables)
+		rc.Capabilities[i] = c
+	}
+	for i, dc := range rc.DependencyConfigs {
+		dc.Variables = fillVariables(dc.Variables)
+		rc.DependencyConfigs[i] = dc
+	}
+}
+
+func fillVariables(vars types.Variables) types.Variables {
+	for k, v := range vars {
+		if v.Value == nil {
+			v.Value = v.Default
+		}
+		vars[k] = v
+	}
+	return vars
 }
