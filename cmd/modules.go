@@ -102,10 +102,8 @@ var ModulesPublish = &cli.Command{
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
 			version := c.String("version")
-			if !strings.HasPrefix(version, "v") {
-				version = "v" + version
-			}
-			if isValid := semver.IsValid(version); !isValid {
+			version = strings.TrimPrefix(version, "v")
+			if isValid := semver.IsValid(fmt.Sprintf("v%s", version)); !isValid {
 				return fmt.Errorf("version %q is not a valid semver", version)
 			}
 

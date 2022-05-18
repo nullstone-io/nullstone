@@ -1,3 +1,6 @@
+# 0.0.54 (May 18, 2022)
+* Fixed issue with `nullstone publish` including `v` prefix in version number.
+
 # 0.0.53 (May 10, 2022)
 * Improved `nullstone up` to set variable `Value` to `Default` if `nil`.
 * Added `--var` to `nullstone up` to specify Terraform variables upon launch.
