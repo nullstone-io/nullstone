@@ -26,3 +26,12 @@ Visit [nullstone/README.md](nullstone/README.md) for CLI instructions.
 - GitHub Action (In Development)
 - [Go API Client](https://github.com/nullstone-io/go-api-client)
 - [Nullstone Modules](https://github.com/nullstone-modules)
+
+## How it works
+
+The Nullstone platform operates similar to a developer platform that is internally built and used at large tech companies.
+It consists of a UI, API, and CLI to serve both software engineers and platform engineers.
+Software engineers use official Nullstone modules combined with modules built by their own platform engineers to launch and configure their application.
+Platform engineers utilize the Nullstone platform to codify and administer infrastructure architectures for their teams without worrying about building user interfaces.
+
+![How it works](doc/images/how-it-works.svg)
