@@ -111,7 +111,7 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *modules.Manifest) (*modules
 For example, the aws-fargate module needs a network so it defines a connection to a network/aws.
 Any module that is defined with the type network/aws can satisfy the aws-fargate needs when launched.
 Typically, this looks like <generic-resource>/<provider-platform>.
-Examples: subdomain/aws, server/ec2, service/aws-fargate, capability/postgres-access/aws`,
+Examples: subdomain/aws, server/aws-ec2, service/aws-fargate, capability/postgres-access/aws`,
 		},
 	}
 	if err := survey.Ask([]*survey.Question{typePrompt}, &manifest.Type); err != nil {
