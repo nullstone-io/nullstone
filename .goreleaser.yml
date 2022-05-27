@@ -40,3 +40,22 @@ scoop:
   homepage: https://nullstone.io
   description: Launch apps on your cloud in minutes
   license: MIT
+snapcrafts:
+  - id: nullstone
+    name: nullstone
+    summary: Launch apps and IaC from one platform
+    description: A CLI for the Nullstone platform. Install to automate configuration, delivery, and diagnosis of cloud infrastructure.
+    license: MIT
+    base: bare
+    grade: stable
+    confinement: strict
+    plugs:
+      personal-files:
+        write:
+          - $HOME/.nullstone/
+    apps:
+      nullstone:
+        command: bin/nullstone
+        aliases:
+          - ns
+        plugs: ["personal-files"]

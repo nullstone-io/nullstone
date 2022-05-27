@@ -6,6 +6,26 @@ We offer a simple developer experience for teams that want to use Infrastructure
 This repository contains code for the Nullstone CLI which is used to manage Nullstone from the command line.
 This includes creating and deploying app, domains, and datastore as well as creating and managing Terraform workspaces.
 
+## How to Install
+
+### Homebrew (Mac)
+
+```shell
+brew tap nullstone-io/nullstone https://github.com/nullstone-io/nullstone.git
+brew install nullstone
+```
+
+### Snap (Linux)
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/nullstone)
+
+### Scoop (Windows)
+
+```shell
+scoop bucket add nullstone https://github.com/nullstone-io/nullstone.git
+scoop install nullstone
+```
+
 ## Documentation
 
 For full documentation, visit [docs.nullstone.io](https://docs.nullstone.io).
