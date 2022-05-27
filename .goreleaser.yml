@@ -55,7 +55,7 @@ snapcrafts:
           - $HOME/.nullstone/
     apps:
       nullstone:
-        command: bin/nullstone
+        command: nullstone
         aliases:
           - ns
         plugs: ["personal-files"]
