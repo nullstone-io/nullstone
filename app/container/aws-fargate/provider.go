@@ -6,6 +6,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
+	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
@@ -97,7 +98,29 @@ func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Det
 		}
 	}
 
-	return ic.ExecCommand(ctx, task, userConfig["cmd"])
+	return ic.ExecCommand(ctx, task, userConfig["cmd"], nil)
+}
+
+func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
+	ic, err := p.identify(nsConfig, details)
+	if err != nil {
+		return err
+	}
+
+	task, _ := userConfig["task"].(string)
+	if task == "" {
+		if task, err = ic.GetRandomTask(); err != nil {
+			return err
+		} else if task == "" {
+			return fmt.Errorf("cannot exec command with no running tasks")
+		}
+	}
+
+	if forwards, ok := userConfig["forwards"].([]config.PortForward); ok && len(forwards) > 0 {
+		return fmt.Errorf("aws-fargate does not support port forwarding")
+	}
+
+	return ic.ExecCommand(ctx, task, "/bin/sh", nil)
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {

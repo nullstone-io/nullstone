@@ -101,6 +101,10 @@ func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Det
 	return fmt.Errorf("exec is not supported for the aws-ecr provider")
 }
 
+func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
+	return fmt.Errorf("ssh is not supported for the aws-ecr provider")
+}
+
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
 	return app.StatusReport{}, nil
 }

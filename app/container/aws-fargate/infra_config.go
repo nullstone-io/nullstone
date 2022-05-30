@@ -181,11 +181,11 @@ func (c InfraConfig) GetRandomTask() (string, error) {
 	return "", nil
 }
 
-func (c InfraConfig) ExecCommand(ctx context.Context, taskId string, cmd string) error {
+func (c InfraConfig) ExecCommand(ctx context.Context, taskId string, cmd string, parameters map[string][]string) error {
 	region := c.Outputs.Region
 	cluster := c.Outputs.Cluster.ClusterArn
 	containerName := c.Outputs.MainContainerName
 	awsConfig := nsaws.NewConfig(c.Outputs.GetDeployer(), region)
 
-	return ssm.StartEcsSession(ctx, awsConfig, region, cluster, taskId, containerName, cmd)
+	return ssm.StartEcsSession(ctx, awsConfig, region, cluster, taskId, containerName, cmd, parameters)
 }
