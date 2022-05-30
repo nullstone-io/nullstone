@@ -6,8 +6,7 @@ import (
 
 var (
 	subdomainScaffoldTfFilename = "subdomain.tf"
-	subdomainScaffoldTf         = `
-data "ns_subdomain" "this" {
+	subdomainScaffoldTf         = `data "ns_subdomain" "this" {
   stack_id = data.ns_workspace.this.stack_id
   block_id = data.ns_workspace.this.block_id
 }
