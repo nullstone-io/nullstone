@@ -6,7 +6,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
-	"gopkg.in/nullstone-io/nullstone.v0/aws/ssm"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
@@ -117,14 +116,11 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 		}
 	}
 
-	var parameters map[string][]string
-	if val, ok := userConfig["forwards"].([]config.PortForward); ok {
-		if parameters, err = ssm.SessionParametersFromPortForwards(val); err != nil {
-			return err
-		}
+	if forwards, ok := userConfig["forwards"].([]config.PortForward); ok && len(forwards) > 0 {
+		return fmt.Errorf("aws-fargate does not support port forwarding")
 	}
 
-	return ic.ExecCommand(ctx, task, "/bin/sh", parameters)
+	return ic.ExecCommand(ctx, task, "/bin/sh", nil)
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
