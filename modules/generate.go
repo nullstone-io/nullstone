@@ -39,6 +39,7 @@ locals {
 		generateApp,
 		generateCapability,
 		generateSubdomain,
+		generateDomain,
 	}
 )
 

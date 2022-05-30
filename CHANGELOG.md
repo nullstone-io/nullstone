@@ -1,3 +1,6 @@
+# 0.0.57 (May 30, 2022)
+* Added generation for `domain` modules when running `modules generate`.
+
 # 0.0.56 (May 30, 2022)
 * Added `ssh` command
   * Supports ssh for `aws-fargate` and `aws-ec2` providers.
