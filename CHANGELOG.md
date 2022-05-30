@@ -1,3 +1,8 @@
+# 0.0.56 (May 30, 2022)
+* Added `ssh` command
+  * Supports ssh for `aws-fargate` and `aws-ec2` providers.
+  * Support port forwarding `--forward/-L` for `aws-ec2` provider.
+
 # 0.0.54 (May 18, 2022)
 * Fixed issue with `nullstone publish` including `v` prefix in version number.
 
