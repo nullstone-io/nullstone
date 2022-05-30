@@ -8,7 +8,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
 
-func StartEcsSession(ctx context.Context, config aws.Config, region, cluster, taskId, containerName, cmd string) error {
+func StartEcsSession(ctx context.Context, config aws.Config, region, cluster, taskId, containerName, cmd string, parameters map[string][]string) error {
+	docName := GetDocumentName(parameters)
+
 	ecsClient := ecs.NewFromConfig(config)
 	input := &ecs.ExecuteCommandInput{
 		Cluster:     aws.String(cluster),
@@ -23,7 +25,9 @@ func StartEcsSession(ctx context.Context, config aws.Config, region, cluster, ta
 	}
 
 	target := ssm.StartSessionInput{
-		Target: aws.String(fmt.Sprintf("ecs:%s_%s_%s", cluster, taskId, containerName)),
+		DocumentName: docName,
+		Target:       aws.String(fmt.Sprintf("ecs:%s_%s_%s", cluster, taskId, containerName)),
+		Parameters:   parameters,
 	}
 
 	er := ecs.NewDefaultEndpointResolver()

@@ -17,9 +17,9 @@ func (c InfraConfig) Print(logger *log.Logger) {
 	logger.Printf("instance id: %q\n", c.Outputs.InstanceId)
 }
 
-func (c InfraConfig) ExecCommand(ctx context.Context, cmd string) error {
+func (c InfraConfig) ExecCommand(ctx context.Context, cmd string, parameters map[string][]string) error {
 	// TODO: Add support for cmd
 	region := c.Outputs.Region
 	awsConfig := nsaws.NewConfig(c.Outputs.Adminer, region)
-	return ssm.StartEc2Session(ctx, awsConfig, region, c.Outputs.InstanceId)
+	return ssm.StartEc2Session(ctx, awsConfig, region, c.Outputs.InstanceId, parameters)
 }

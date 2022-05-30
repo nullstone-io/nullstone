@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/ssm"
+	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
@@ -48,7 +50,7 @@ func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Det
 		return err
 	}
 
-	return ic.ExecCommand(ctx, userConfig["cmd"])
+	return ic.ExecCommand(ctx, userConfig["cmd"], nil)
 }
 
 func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
@@ -57,7 +59,14 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 		return err
 	}
 
-	return ic.ExecCommand(ctx, "/bin/sh")
+	var parameters map[string][]string
+	if val, ok := userConfig["forwards"].([]config.PortForward); ok {
+		if parameters, err = ssm.SessionParametersFromPortForwards(val); err != nil {
+			return err
+		}
+	}
+
+	return ic.ExecCommand(ctx, "/bin/sh", parameters)
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {

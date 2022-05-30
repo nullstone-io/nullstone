@@ -14,11 +14,14 @@ import (
 //   - ec2 instance has SSM agent installed and registered
 //   - ec2 instance is configured with instance profile that has the AmazonSSMManagedInstanceCore policy attached (or an equivalent custom policy)
 //   - config contains an AWS identity that has access to ssm:StartSession on the EC2 Instance
-func StartEc2Session(ctx context.Context, config aws.Config, region, instanceId string) error {
+func StartEc2Session(ctx context.Context, config aws.Config, region, instanceId string, parameters map[string][]string) error {
+	docName := GetDocumentName(parameters)
+
 	ssmClient := ssm.NewFromConfig(config)
 	input := &ssm.StartSessionInput{
-		Target: aws.String(instanceId),
-		Reason: aws.String("nullstone exec"),
+		DocumentName: docName,
+		Target:       aws.String(instanceId),
+		Reason:       aws.String("nullstone exec"),
 	}
 	out, err := ssmClient.StartSession(ctx, input)
 	if err != nil {
@@ -26,7 +29,9 @@ func StartEc2Session(ctx context.Context, config aws.Config, region, instanceId 
 	}
 
 	target := ssm.StartSessionInput{
-		Target: aws.String(instanceId),
+		DocumentName: docName,
+		Target:       aws.String(instanceId),
+		Parameters:   parameters,
 	}
 
 	er := ec2.NewDefaultEndpointResolver()
