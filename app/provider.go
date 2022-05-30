@@ -38,6 +38,9 @@ type Provider interface {
 	// This only makes sense for container-based providers
 	Exec(ctx context.Context, nsConfig api.Config, details Details, userConfig map[string]string) error
 
+	// Ssh allows a user to SSH into a running service
+	Ssh(ctx context.Context, nsConfig api.Config, details Details, userConfig map[string]any) error
+
 	// Status returns a high-level status report on the specified app env
 	Status(nsConfig api.Config, details Details) (StatusReport, error)
 

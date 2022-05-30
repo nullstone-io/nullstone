@@ -100,6 +100,24 @@ func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Det
 	return ic.ExecCommand(ctx, task, userConfig["cmd"])
 }
 
+func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
+	ic, err := p.identify(nsConfig, details)
+	if err != nil {
+		return err
+	}
+
+	task, _ := userConfig["task"].(string)
+	if task == "" {
+		if task, err = ic.GetRandomTask(); err != nil {
+			return err
+		} else if task == "" {
+			return fmt.Errorf("cannot exec command with no running tasks")
+		}
+	}
+
+	return ic.ExecCommand(ctx, task, "/bin/sh")
+}
+
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}

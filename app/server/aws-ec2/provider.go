@@ -51,6 +51,15 @@ func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Det
 	return ic.ExecCommand(ctx, userConfig["cmd"])
 }
 
+func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
+	ic, err := p.identify(nsConfig, details)
+	if err != nil {
+		return err
+	}
+
+	return ic.ExecCommand(ctx, "/bin/sh")
+}
+
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
 	return app.StatusReport{}, fmt.Errorf("status is not supported for the aws-ec2 provider")
 }

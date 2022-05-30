@@ -80,6 +80,7 @@ func main() {
 			cmd.Logs(appProviders, logProviders),
 			cmd.Status(appProviders),
 			cmd.Exec(appProviders),
+			cmd.Ssh(appProviders),
 		},
 	}
 	sort.Sort(cli.FlagsByName(cliApp.Flags))
