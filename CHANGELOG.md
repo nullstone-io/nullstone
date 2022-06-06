@@ -1,3 +1,6 @@
+# 0.0.58 (Jun 06, 2022)
+* Updated terraform generation of `random_string.resource_suffix` to use `numeric` instead of deprecated `number` attribute.
+
 # 0.0.57 (May 30, 2022)
 * Added generation for `domain` modules when running `modules generate`.
 
