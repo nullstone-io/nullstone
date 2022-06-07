@@ -99,8 +99,8 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	}
 
 	logger.Println("Invalidating sitemap.xml cache in CDNs")
-	if err := ic.InvalidateCdnPaths(ctx, []string{"/sitemap.xml"}); err != nil {
-		return fmt.Errorf("error invalidating sitemap.xml: %w", err)
+	if err := ic.InvalidateCdnPaths(ctx, []string{"/*"}); err != nil {
+		return fmt.Errorf("error invalidating /*: %w", err)
 	}
 
 	logger.Printf("Deployed app %q\n", details.App.Name)

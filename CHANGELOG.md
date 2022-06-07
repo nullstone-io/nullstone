@@ -1,3 +1,6 @@
+# 0.0.60 (Jun 07, 2022)
+* Changed `aws/s3` provider to invalidate **all** content when deploying new version.
+
 # 0.0.59 (Jun 07, 2022)
 * Fixed CLI panic when `--source` directory does not exist.
 
