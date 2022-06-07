@@ -1,3 +1,6 @@
+# 0.0.59 (Jun 07, 2022)
+* Fixed CLI panic when `--source` directory does not exist.
+
 # 0.0.58 (Jun 06, 2022)
 * Updated terraform generation of `random_string.resource_suffix` to use `numeric` instead of deprecated `number` attribute.
 

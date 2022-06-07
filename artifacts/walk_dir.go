@@ -9,6 +9,9 @@ import (
 func WalkDir(dir string) ([]string, error) {
 	filepaths := make([]string, 0)
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if d == nil {
+			return fmt.Errorf("directory %q does not exist", path)
+		}
 		if d.IsDir() {
 			// we don't care about directories
 			return nil
