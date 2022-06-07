@@ -1,19 +1,19 @@
 {
-    "version": "0.0.58",
+    "version": "0.0.59",
     "architecture": {
         "32bit": {
-            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.58/nullstone_0.0.58_windows_386.tar.gz",
+            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.59/nullstone_0.0.59_windows_386.tar.gz",
             "bin": [
                 "nullstone.exe"
             ],
-            "hash": "a094e2eaa294ce7365b4b1808ba8723098612a4ad912021df4035263886900d3"
+            "hash": "8e3c936772408a718a0f0487048f16fccaa8c37ef39f8ddf1e3c349bf0fea491"
         },
         "64bit": {
-            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.58/nullstone_0.0.58_windows_amd64.tar.gz",
+            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.59/nullstone_0.0.59_windows_amd64.tar.gz",
             "bin": [
                 "nullstone.exe"
             ],
-            "hash": "41e5673f8f5d14a448a115b14127030dd0fb179d4a98b4a5922f4be5bf6ebd7f"
+            "hash": "275aa049c9d485ef889236513e8b8f023d142df941a2a8c6f10aa2b0cc81a625"
         }
     },
     "homepage": "https://nullstone.io",
