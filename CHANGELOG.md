@@ -1,3 +1,6 @@
+# 0.0.61 (Jun 08, 2022)
+* Changed `aws/lambda` provider to upload artifacts with `Content-MD5` header to work for S3 Artifacts bucket that has object lock enabled.
+
 # 0.0.60 (Jun 07, 2022)
 * Changed `aws/s3` provider to invalidate **all** content when deploying new version.
 
