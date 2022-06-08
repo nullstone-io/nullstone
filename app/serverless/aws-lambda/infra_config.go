@@ -3,7 +3,7 @@ package aws_lambda
 import (
 	"context"
 	"crypto/md5"
-	"encoding/hex"
+	"encoding/base64"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/lambda"
@@ -35,7 +35,7 @@ func (c InfraConfig) UploadArtifact(ctx context.Context, content io.ReadSeeker, 
 	if _, err := io.Copy(md5Summer, content); err != nil {
 		return fmt.Errorf("error calculating md5 hash: %w", err)
 	}
-	md5Sum := hex.EncodeToString(md5Summer.Sum(nil))
+	md5Sum := base64.StdEncoding.EncodeToString(md5Summer.Sum(nil))
 	if _, err := content.Seek(0, io.SeekStart); err != nil {
 		return fmt.Errorf("error resetting uploaded content after calculating md5 hash: %w", err)
 	}
