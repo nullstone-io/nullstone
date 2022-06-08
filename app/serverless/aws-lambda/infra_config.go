@@ -29,7 +29,8 @@ func (c InfraConfig) Print(logger *log.Logger) {
 func (c InfraConfig) UploadArtifact(ctx context.Context, content io.ReadSeeker, version string) error {
 	s3Client := s3.NewFromConfig(nsaws.NewConfig(c.Outputs.Deployer, c.Outputs.Region))
 
-	// Calculate MD5 of content and reset reader so it can transmit using s3.PutObject
+	// Calculate md5 content to add as header (necessary for s3 buckets that have object lock enabled)
+	// After calculating, we need to reset the content stream to transmit using s3.PutObject
 	md5Summer := md5.New()
 	if _, err := io.Copy(md5Summer, content); err != nil {
 		return fmt.Errorf("error calculating md5 hash: %w", err)
