@@ -36,7 +36,7 @@ func (c InfraConfig) UploadArtifact(ctx context.Context, content io.ReadSeeker, 
 	}
 	md5Sum := hex.EncodeToString(md5Summer.Sum(nil))
 	if _, err := content.Seek(0, io.SeekStart); err != nil {
-		return fmt.Errorf("error resetting uploaded content after calculating md5 hash")
+		return fmt.Errorf("error resetting uploaded content after calculating md5 hash: %w", err)
 	}
 
 	_, err := s3Client.PutObject(ctx, &s3.PutObjectInput{
