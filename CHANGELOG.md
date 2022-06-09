@@ -1,3 +1,8 @@
+# 0.0.62 (Unreleased)
+* Updated module generation and registration to use contract-based module taxonomy.
+* Renamed `modules new` to `modules register`.
+* Marked `modules new` for deprecation.
+
 # 0.0.61 (Jun 08, 2022)
 * Changed `aws/lambda` provider to upload artifacts with `Content-MD5` header to work for S3 Artifacts bucket that has object lock enabled.
 
