@@ -20,7 +20,7 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6
-	github.com/nullstone-io/module v0.2.7
+	github.com/nullstone-io/module v0.2.8
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
