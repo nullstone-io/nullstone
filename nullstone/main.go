@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
-	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
-	"gopkg.in/nullstone-io/nullstone.v0/app/container/aws-fargate"
-	aws_ec2 "gopkg.in/nullstone-io/nullstone.v0/app/server/aws-ec2"
-	aws_lambda "gopkg.in/nullstone-io/nullstone.v0/app/serverless/aws-lambda"
-	aws_s3 "gopkg.in/nullstone-io/nullstone.v0/app/static-site/aws-s3"
+	"gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
+	"gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecs-fargate"
+	"gopkg.in/nullstone-io/nullstone.v0/app/server/aws-ec2"
+	"gopkg.in/nullstone-io/nullstone.v0/app/serverless/aws-lambda-zip"
+	"gopkg.in/nullstone-io/nullstone.v0/app/static-site/aws-s3"
 	"gopkg.in/nullstone-io/nullstone.v0/app_logs"
 	"gopkg.in/nullstone-io/nullstone.v0/app_logs/aws/cloudwatch"
 	"gopkg.in/nullstone-io/nullstone.v0/cmd"
@@ -25,11 +25,11 @@ var (
 
 func main() {
 	appProviders := app.Providers{
-		aws_ecr.ModuleContractName:     aws_ecr.Provider{},
-		aws_fargate.ModuleContractName: aws_fargate.Provider{},
-		aws_s3.ModuleContractName:      aws_s3.Provider{},
-		aws_lambda.ModuleContractName:  aws_lambda.Provider{},
-		aws_ec2.ModuleContractName:     aws_ec2.Provider{},
+		aws_ecr.ModuleContractName:         aws_ecr.Provider{},
+		aws_ecs_fargate.ModuleContractName: aws_ecs_fargate.Provider{},
+		aws_s3.ModuleContractName:          aws_s3.Provider{},
+		aws_lambda_zip.ModuleContractName:  aws_lambda_zip.Provider{},
+		aws_ec2.ModuleContractName:         aws_ec2.Provider{},
 	}
 	logProviders := app_logs.Providers{
 		"cloudwatch": cloudwatch.Provider{},

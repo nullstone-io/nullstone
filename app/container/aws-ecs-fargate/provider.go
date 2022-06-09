@@ -1,4 +1,4 @@
-package aws_fargate
+package aws_ecs_fargate
 
 import (
 	"context"
@@ -22,7 +22,7 @@ var ModuleContractName = types.ModuleContractName{
 	Subcategory: string(types.SubcategoryAppContainer),
 	Provider:    "aws",
 	Platform:    "ecs",
-	Subplatform: "",
+	Subplatform: "fargate",
 }
 
 var _ app.Provider = Provider{}
@@ -49,7 +49,7 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 	return (aws_ecr.Provider{}).Push(nsConfig, details, userConfig)
 }
 
-// Deploy takes the following steps to deploy an AWS Fargate service
+// Deploy takes the following steps to deploy an AWS ECS service
 //   Get task definition
 //   Change image tag in task definition
 //   Register new task definition
@@ -126,7 +126,7 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 	}
 
 	if forwards, ok := userConfig["forwards"].([]config.PortForward); ok && len(forwards) > 0 {
-		return fmt.Errorf("aws-fargate does not support port forwarding")
+		return fmt.Errorf("ecs:fargate provider does not support port forwarding")
 	}
 
 	return ic.ExecCommand(ctx, task, "/bin/sh", nil)

@@ -1,4 +1,4 @@
-package aws_lambda
+package aws_lambda_zip
 
 import (
 	"context"
@@ -22,7 +22,7 @@ var ModuleContractName = types.ModuleContractName{
 	Subcategory: string(types.SubcategoryAppServerless),
 	Provider:    "aws",
 	Platform:    "lambda",
-	Subplatform: "",
+	Subplatform: "zip",
 }
 
 type Provider struct {
@@ -113,11 +113,11 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 }
 
 func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return fmt.Errorf("exec is not implemented for the aws-lambda provider yet")
+	return fmt.Errorf("exec is not implemented for the lambda:zip provider yet")
 }
 
 func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
-	return fmt.Errorf("ssh is not supported for the aws-lambda provider")
+	return fmt.Errorf("ssh is not supported for the lambda:zip provider")
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {

@@ -79,9 +79,9 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
-	return app.StatusReport{}, fmt.Errorf("status is not supported for the aws-ec2 provider")
+	return app.StatusReport{}, fmt.Errorf("status is not supported for the ec2 provider")
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
-	return app.StatusDetailReports{}, fmt.Errorf("status detail is not supported for the aws-ec2 provider")
+	return app.StatusDetailReports{}, fmt.Errorf("status detail is not supported for the ec2 provider")
 }
