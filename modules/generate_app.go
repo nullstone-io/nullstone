@@ -6,8 +6,7 @@ import (
 
 var (
 	appScaffoldTfFilename = "app.tf"
-	appScaffoldTf         = `
-data "ns_app_env" "this" {
+	appScaffoldTf         = `data "ns_app_env" "this" {
   stack_id = data.ns_workspace.this.stack_id
   app_id   = data.ns_workspace.this.block_id
   env_id   = data.ns_workspace.this.env_id
@@ -25,8 +24,7 @@ locals {
 `
 
 	appOutputsTfFilename = "outputs.tf"
-	appOutputsTf         = `
-locals {
+	appOutputsTf         = `locals {
   // Private and public URLs are shown in the Nullstone UI
   // Typically, they are created through capabilities attached to the application
   // If this module has URLs, add them here as list(string) 
