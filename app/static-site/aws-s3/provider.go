@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"gopkg.in/nullstone-io/nullstone.v0/artifacts"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
@@ -16,6 +17,14 @@ var (
 )
 
 var _ app.Provider = Provider{}
+
+var ModuleContractName = types.ModuleContractName{
+	Category:    string(types.CategoryApp),
+	Subcategory: string(types.SubcategoryAppStaticSite),
+	Provider:    "aws",
+	Platform:    "s3",
+	Subplatform: "",
+}
 
 type Provider struct {
 }

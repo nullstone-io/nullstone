@@ -29,7 +29,7 @@ func AppEnvAction(c *cli.Context, providers app.Providers, fn AppEnvActionFn) er
 			return err
 		}
 
-		provider := providers.Find(appDetails.Module.Category, appDetails.Module.Type)
+		provider := providers.Find(*appDetails.Module)
 		if provider == nil {
 			return fmt.Errorf("this CLI does not support application category=%s, type=%s", appDetails.Module.Category, appDetails.Module.Type)
 		}

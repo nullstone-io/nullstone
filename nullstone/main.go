@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/urfave/cli/v2"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
 	"gopkg.in/nullstone-io/nullstone.v0/app/container/aws-fargate"
@@ -26,19 +25,11 @@ var (
 
 func main() {
 	appProviders := app.Providers{
-		types.CategoryAppContainer: {
-			"service/aws-fargate": aws_fargate.Provider{},
-			"service/aws-ecr":     aws_ecr.Provider{},
-		},
-		types.CategoryAppStaticSite: {
-			"site/aws-s3": aws_s3.Provider{},
-		},
-		types.CategoryAppServerless: {
-			"service/aws-lambda": aws_lambda.Provider{},
-		},
-		types.CategoryAppServer: {
-			"server/aws-ec2": aws_ec2.Provider{},
-		},
+		aws_ecr.ModuleContractName:     aws_ecr.Provider{},
+		aws_fargate.ModuleContractName: aws_fargate.Provider{},
+		aws_s3.ModuleContractName:      aws_s3.Provider{},
+		aws_lambda.ModuleContractName:  aws_lambda.Provider{},
+		aws_ec2.ModuleContractName:     aws_ec2.Provider{},
 	}
 	logProviders := app_logs.Providers{
 		"cloudwatch": cloudwatch.Provider{},

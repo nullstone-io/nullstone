@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
@@ -15,6 +16,14 @@ import (
 var (
 	logger = log.New(os.Stderr, "", 0)
 )
+
+var ModuleContractName = types.ModuleContractName{
+	Category:    string(types.CategoryApp),
+	Subcategory: string(types.SubcategoryAppContainer),
+	Provider:    "aws",
+	Platform:    "ecs",
+	Subplatform: "",
+}
 
 var _ app.Provider = Provider{}
 
