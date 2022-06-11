@@ -61,6 +61,16 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *modules.Manifest) (*modules
 		return nil, err
 	}
 
+	// While migrating modules, let's extract subcategory from category
+	tokens := strings.SplitN(manifest.Category, "/", 2)
+	if len(tokens) > 1 {
+		manifest.Category, manifest.Subcategory = tokens[0], tokens[1]
+	}
+	// Map 'public-entry' to 'ingress'
+	if manifest.Subcategory == "public-entry" {
+		manifest.Subcategory = string(types.SubcategoryCapabilityIngress)
+	}
+
 	// Category
 	categoryPrompt := &survey.Select{
 		Message: "Category:",
@@ -103,6 +113,7 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *modules.Manifest) (*modules
 			Help:    "This allows you to limit which types of apps are allowed to use this capability module",
 			Default: curAppCategories,
 		}
+		manifest.AppCategories = make([]string, 0)
 		if err := survey.AskOne(appCategoriesPrompt, &manifest.AppCategories); err != nil {
 			return nil, err
 		}
@@ -144,8 +155,11 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *modules.Manifest) (*modules
 	if err := survey.Ask(finalQuestions, &fullPlatform); err != nil {
 		return nil, err
 	}
-	tokens := strings.SplitN(fullPlatform.Platform, ":", 2)
-	manifest.Platform, manifest.Subplatform = tokens[0], tokens[1]
+	manifest.Platform = fullPlatform.Platform
+	tokens = strings.SplitN(manifest.Platform, ":", 2)
+	if len(tokens) > 1 {
+		manifest.Platform, manifest.Subplatform = tokens[0], tokens[1]
+	}
 
 	return &manifest, nil
 }
