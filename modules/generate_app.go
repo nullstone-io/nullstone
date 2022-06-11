@@ -1,7 +1,7 @@
 package modules
 
 import (
-	"strings"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
 var (
@@ -109,7 +109,7 @@ locals {
 )
 
 func generateApp(manifest *Manifest) error {
-	if !strings.HasPrefix(manifest.Category, "app/") {
+	if manifest.Category != string(types.CategoryApp) {
 		// We don't generate capabilities if not an app module
 		return nil
 	}
