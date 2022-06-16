@@ -1,4 +1,4 @@
-# 0.0.62 (Unreleased)
+# 0.0.62 (Jun 15, 20222)
 * Updated module generation and registration to use contract-based module taxonomy.
 * Renamed `modules new` to `modules register`.
 * Marked `modules new` for deprecation.
