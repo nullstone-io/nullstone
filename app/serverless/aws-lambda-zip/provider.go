@@ -1,9 +1,10 @@
-package aws_lambda
+package aws_lambda_zip
 
 import (
 	"context"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
@@ -15,6 +16,14 @@ var (
 )
 
 var _ app.Provider = Provider{}
+
+var ModuleContractName = types.ModuleContractName{
+	Category:    string(types.CategoryApp),
+	Subcategory: string(types.SubcategoryAppServerless),
+	Provider:    "aws",
+	Platform:    "lambda",
+	Subplatform: "zip",
+}
 
 type Provider struct {
 }
@@ -104,11 +113,11 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 }
 
 func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return fmt.Errorf("exec is not implemented for the aws-lambda provider yet")
+	return fmt.Errorf("exec is not implemented for the lambda:zip provider yet")
 }
 
 func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
-	return fmt.Errorf("ssh is not supported for the aws-lambda provider")
+	return fmt.Errorf("ssh is not supported for the lambda:zip provider")
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {

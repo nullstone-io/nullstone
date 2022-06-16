@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
@@ -17,6 +18,14 @@ var (
 )
 
 var _ app.Provider = Provider{}
+
+var ModuleContractName = types.ModuleContractName{
+	Category:    "*",
+	Subcategory: "",
+	Provider:    "aws",
+	Platform:    "ecr",
+	Subplatform: "",
+}
 
 type Provider struct {
 }
@@ -98,11 +107,11 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 }
 
 func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return fmt.Errorf("exec is not supported for the aws-ecr provider")
+	return fmt.Errorf("exec is not supported for the ecr provider")
 }
 
 func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
-	return fmt.Errorf("ssh is not supported for the aws-ecr provider")
+	return fmt.Errorf("ssh is not supported for the ecr provider")
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {

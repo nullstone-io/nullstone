@@ -20,14 +20,14 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6
-	github.com/nullstone-io/module v0.2.7
+	github.com/nullstone-io/module v0.2.8
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/vmihailenco/tagparser v0.1.2
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20220509211024-7cf127e08c54
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20220609182625-c7286ad3a15c
 )
 
 require (

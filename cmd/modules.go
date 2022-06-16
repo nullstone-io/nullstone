@@ -21,7 +21,7 @@ var Modules = &cli.Command{
 	UsageText: "nullstone modules [subcommand]",
 	Subcommands: []*cli.Command{
 		ModulesGenerate,
-		ModulesNew,
+		ModulesRegister,
 		ModulesPublish,
 		ModulesPackage,
 	},
@@ -64,11 +64,12 @@ var ModulesGenerate = &cli.Command{
 	},
 }
 
-var ModulesNew = &cli.Command{
-	Name:      "new",
-	Usage:     "Create new module from .nullstone/module.yml",
-	UsageText: "nullstone modules new",
+var ModulesRegister = &cli.Command{
+	Name:      "register",
+	Usage:     "Register module from .nullstone/module.yml",
+	UsageText: "nullstone modules register",
 	Flags:     []cli.Flag{},
+	Aliases:   []string{"new"},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
 			manifest, err := modules.ManifestFromFile(moduleManifestFilename)

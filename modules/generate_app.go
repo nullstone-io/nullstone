@@ -1,13 +1,12 @@
 package modules
 
 import (
-	"strings"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
 var (
 	appScaffoldTfFilename = "app.tf"
-	appScaffoldTf         = `
-data "ns_app_env" "this" {
+	appScaffoldTf         = `data "ns_app_env" "this" {
   stack_id = data.ns_workspace.this.stack_id
   app_id   = data.ns_workspace.this.block_id
   env_id   = data.ns_workspace.this.env_id
@@ -25,8 +24,7 @@ locals {
 `
 
 	appOutputsTfFilename = "outputs.tf"
-	appOutputsTf         = `
-locals {
+	appOutputsTf         = `locals {
   // Private and public URLs are shown in the Nullstone UI
   // Typically, they are created through capabilities attached to the application
   // If this module has URLs, add them here as list(string) 
@@ -111,7 +109,7 @@ locals {
 )
 
 func generateApp(manifest *Manifest) error {
-	if !strings.HasPrefix(manifest.Category, "app/") {
+	if manifest.Category != string(types.CategoryApp) {
 		// We don't generate capabilities if not an app module
 		return nil
 	}

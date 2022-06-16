@@ -13,10 +13,12 @@ func Register(cfg api.Config, manifest *Manifest) (*types.Module, error) {
 		Description:   manifest.Description,
 		IsPublic:      manifest.IsPublic,
 		Category:      types.CategoryName(manifest.Category),
-		Layer:         types.Layer(manifest.Layer),
+		Subcategory:   types.SubcategoryName(manifest.Subcategory),
+		ProviderTypes: manifest.ProviderTypes,
+		Platform:      manifest.Platform,
+		Subplatform:   manifest.Subplatform,
 		AppCategories: manifest.AppCategories,
 		Type:          manifest.Type,
-		ProviderTypes: manifest.ProviderTypes,
 		Status:        types.ModuleStatusPublished,
 	}
 

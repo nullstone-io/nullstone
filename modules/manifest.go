@@ -8,16 +8,18 @@ import (
 )
 
 type Manifest struct {
-	OrgName       string   `yaml:"org_name"`
-	Name          string   `yaml:"name"`
-	FriendlyName  string   `yaml:"friendly_name"`
-	Description   string   `yaml:"description"`
-	Category      string   `yaml:"category"`
-	Type          string   `yaml:"type"`
-	AppCategories []string `yaml:"appCategories"`
-	Layer         string   `yaml:"layer"`
-	IsPublic      bool     `yaml:"is_public"`
-	ProviderTypes []string `yaml:"provider_types"`
+	OrgName       string   `yaml:"org_name" json:"orgName"`
+	Name          string   `yaml:"name" json:"name"`
+	FriendlyName  string   `yaml:"friendly_name" json:"friendlyName"`
+	Description   string   `yaml:"description" json:"description"`
+	Category      string   `yaml:"category" json:"category"`
+	Subcategory   string   `yaml:"subcategory" json:"subcategory"`
+	ProviderTypes []string `yaml:"provider_types" json:"providerTypes"`
+	Platform      string   `yaml:"platform" json:"platform"`
+	Subplatform   string   `yaml:"subplatform" json:"subplatform"`
+	Type          string   `yaml:"type" json:"type"`
+	AppCategories []string `yaml:"appCategories" json:"appCategories"`
+	IsPublic      bool     `yaml:"is_public" json:"isPublic"`
 }
 
 func ManifestFromFile(filename string) (*Manifest, error) {

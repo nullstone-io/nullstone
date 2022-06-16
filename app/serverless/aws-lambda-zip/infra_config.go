@@ -1,4 +1,4 @@
-package aws_lambda
+package aws_lambda_zip
 
 import (
 	"context"

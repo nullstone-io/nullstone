@@ -1,4 +1,4 @@
-package aws_fargate
+package aws_ecs_fargate
 
 import (
 	"context"

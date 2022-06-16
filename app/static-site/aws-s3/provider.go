@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"gopkg.in/nullstone-io/nullstone.v0/artifacts"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
@@ -16,6 +17,14 @@ var (
 )
 
 var _ app.Provider = Provider{}
+
+var ModuleContractName = types.ModuleContractName{
+	Category:    string(types.CategoryApp),
+	Subcategory: string(types.SubcategoryAppStaticSite),
+	Provider:    "aws",
+	Platform:    "s3",
+	Subplatform: "",
+}
 
 type Provider struct {
 }
@@ -66,11 +75,11 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 }
 
 func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return fmt.Errorf("exec is not supported for the aws-s3 provider")
+	return fmt.Errorf("exec is not supported for the s3 provider")
 }
 
 func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
-	return fmt.Errorf("ssh is not supported for the aws-s3 provider")
+	return fmt.Errorf("ssh is not supported for the s3 provider")
 }
 
 func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {

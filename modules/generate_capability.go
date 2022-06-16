@@ -1,6 +1,8 @@
 package modules
 
-import "strings"
+import (
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
+)
 
 var (
 	capabilityVarsTfFilename = `variables.tf`
@@ -17,7 +19,7 @@ EOF
 )
 
 func generateCapability(manifest *Manifest) error {
-	if !strings.HasPrefix(manifest.Category, "capability/") {
+	if manifest.Category != string(types.CategoryCapability) {
 		// We don't generate capability tf if not a capability module
 		return nil
 	}

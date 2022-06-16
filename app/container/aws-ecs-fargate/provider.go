@@ -1,9 +1,10 @@
-package aws_fargate
+package aws_ecs_fargate
 
 import (
 	"context"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
@@ -15,6 +16,14 @@ import (
 var (
 	logger = log.New(os.Stderr, "", 0)
 )
+
+var ModuleContractName = types.ModuleContractName{
+	Category:    string(types.CategoryApp),
+	Subcategory: string(types.SubcategoryAppContainer),
+	Provider:    "aws",
+	Platform:    "ecs",
+	Subplatform: "fargate",
+}
 
 var _ app.Provider = Provider{}
 
@@ -40,7 +49,7 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 	return (aws_ecr.Provider{}).Push(nsConfig, details, userConfig)
 }
 
-// Deploy takes the following steps to deploy an AWS Fargate service
+// Deploy takes the following steps to deploy an AWS ECS service
 //   Get task definition
 //   Change image tag in task definition
 //   Register new task definition
@@ -117,7 +126,7 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 	}
 
 	if forwards, ok := userConfig["forwards"].([]config.PortForward); ok && len(forwards) > 0 {
-		return fmt.Errorf("aws-fargate does not support port forwarding")
+		return fmt.Errorf("ecs:fargate provider does not support port forwarding")
 	}
 
 	return ic.ExecCommand(ctx, task, "/bin/sh", nil)

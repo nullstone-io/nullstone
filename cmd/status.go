@@ -159,7 +159,7 @@ func getStatusReport(cfg api.Config, providers app.Providers, appDetails app.Det
 		return report, nil
 	}
 
-	provider := providers.Find(appDetails.Module.Category, appDetails.Module.Type)
+	provider := providers.Find(*appDetails.Module)
 	if provider == nil {
 		return report, nil
 	}
@@ -174,7 +174,7 @@ func getStatusDetailReports(cfg api.Config, providers app.Providers, appDetails 
 		return report, nil
 	}
 
-	provider := providers.Find(appDetails.Module.Category, appDetails.Module.Type)
+	provider := providers.Find(*appDetails.Module)
 	if provider == nil {
 		return report, nil
 	}
