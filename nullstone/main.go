@@ -68,6 +68,7 @@ func main() {
 			cmd.Modules,
 			cmd.Workspaces,
 			cmd.Up(),
+			cmd.Plan(),
 			cmd.Outputs(),
 			cmd.Push(appProviders),
 			cmd.Deploy(appProviders),
