@@ -1,4 +1,4 @@
-package aws_lambda_zip
+package aws_lambda_container
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
@@ -22,7 +23,7 @@ var ModuleContractName = types.ModuleContractName{
 	Subcategory: string(types.SubcategoryAppServerless),
 	Provider:    "aws",
 	Platform:    "lambda",
-	Subplatform: "zip",
+	Subplatform: "container",
 }
 
 type Provider struct {
@@ -43,46 +44,14 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 	return ic, nil
 }
 
-// Push will upload the versioned artifact to the source artifact bucket for the lambda
+// Push will upload the versioned artifact to the ECR repository for the lambda
 func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	ic, err := p.identify(nsConfig, details)
-	if err != nil {
-		return err
-	}
-
-	// TODO: Add cancellation support so users can press Control+C to kill push
-	ctx := context.TODO()
-
-	source := userConfig["source"]
-	if source == "" {
-		return fmt.Errorf("--source is required to upload artifact")
-	}
-	version := userConfig["version"]
-	if version == "" {
-		return fmt.Errorf("--version is required to upload artifact")
-	}
-
-	file, err := os.Open(source)
-	if os.IsNotExist(err) {
-		return fmt.Errorf("source file %q does not exist", source)
-	} else if err != nil {
-		return fmt.Errorf("error opening source file: %w", err)
-	}
-	defer file.Close()
-
-	logger.Printf("Uploading %s to artifacts bucket\n", ic.Outputs.ArtifactsKey(version))
-	if err := ic.UploadArtifact(ctx, file, version); err != nil {
-		return fmt.Errorf("error uploading artifact: %w", err)
-	}
-
-	logger.Printf("Upload complete")
-
-	return nil
+	return (aws_ecr.Provider{}).Push(nsConfig, details, userConfig)
 }
 
 // Deploy takes the following steps to deploy an AWS Lambda service
 //   Update app version in nullstone
-//   Update function code to use just-uploaded archive
+//   Update function code to use just-uploaded image
 func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
 	ic, err := p.identify(nsConfig, details)
 	if err != nil {
@@ -113,11 +82,11 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 }
 
 func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return fmt.Errorf("exec is not implemented for the lambda:zip provider yet")
+	return fmt.Errorf("exec is not implemented for the lambda:container provider yet")
 }
 
 func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
-	return fmt.Errorf("ssh is not supported for the lambda:zip provider")
+	return fmt.Errorf("ssh is not supported for the lambda:container provider")
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {

@@ -1,3 +1,6 @@
+# 0.0.63 (Jun 22, 2022)
+* Added support for `app:serverless/aws/lambda:container` apps.
+
 # 0.0.62 (Jun 15, 20222)
 * Updated module generation and registration to use contract-based module taxonomy.
 * Renamed `modules new` to `modules register`.
