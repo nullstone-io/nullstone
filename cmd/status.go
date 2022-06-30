@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -83,7 +84,7 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 				"Version": awi.Version,
 			}
 
-			report, err := getStatusReport(cfg, providers, awi.AppDetails)
+			_, report, _, err := getStatusReport(cfg, providers, awi.AppDetails)
 			if err != nil {
 				return fmt.Errorf("error retrieving app status: %w", err)
 			} else {
@@ -152,16 +153,16 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, 
 	})
 }
 
-func getStatusReport(cfg api.Config, providers app.Providers, appDetails app.Details) (app.StatusReport, error) {
+func getStatusReport(cfg api.Config, providers app.Providers, appDetails app.Details) (app.RolloutStatus, app.StatusReport, []ecstypes.ServiceEvent, error) {
 	var report app.StatusReport
 
 	if appDetails.Workspace.Status == types.WorkspaceStatusNotProvisioned {
-		return report, nil
+		return app.RolloutStatusUnknown, report, nil, nil
 	}
 
 	provider := providers.Find(*appDetails.Module)
 	if provider == nil {
-		return report, nil
+		return app.RolloutStatusUnknown, report, nil, nil
 	}
 
 	return provider.Status(cfg, appDetails)

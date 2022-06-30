@@ -3,6 +3,7 @@ package aws_ecs_fargate
 import (
 	"context"
 	"fmt"
+	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
@@ -132,26 +133,28 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 	return ic.ExecCommand(ctx, task, "/bin/sh", nil)
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.RolloutStatus, app.StatusReport, []ecstypes.ServiceEvent, error) {
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
-		return app.StatusReport{}, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+		return app.RolloutStatusUnknown, app.StatusReport{}, nil, fmt.Errorf("Unable to identify app infrastructure: %w", err)
 	}
 
 	svc, err := ic.GetService()
 	if err != nil {
-		return app.StatusReport{}, fmt.Errorf("error retrieving fargate service: %w", err)
+		return app.RolloutStatusUnknown, app.StatusReport{}, nil, fmt.Errorf("error retrieving fargate service: %w", err)
 	}
 
-	return app.StatusReport{
+	rolloutStatus := p.getRolloutStatus(svc)
+	report := app.StatusReport{
 		Fields: []string{"Running", "Desired", "Pending"},
 		Data: map[string]interface{}{
 			"Running": fmt.Sprintf("%d", svc.RunningCount),
 			"Desired": fmt.Sprintf("%d", svc.DesiredCount),
 			"Pending": fmt.Sprintf("%d", svc.PendingCount),
 		},
-	}, nil
+	}
+	return rolloutStatus, report, svc.Events, nil
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
@@ -174,13 +177,25 @@ func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.St
 	}
 	for _, deployment := range svc.Deployments {
 		record := app.StatusRecord{
-			Fields: []string{"Created", "Status", "Running", "Desired", "Pending"},
+			Fields: []string{
+				"Id",
+				"Created",
+				"Status",
+				"Running",
+				"Desired",
+				"Pending",
+				"Rollout Status",
+				"Rollout Status Reason",
+			},
 			Data: map[string]interface{}{
-				"Created": fmt.Sprintf("%s", *deployment.CreatedAt),
-				"Status":  *deployment.Status,
-				"Running": fmt.Sprintf("%d", deployment.RunningCount),
-				"Desired": fmt.Sprintf("%d", deployment.DesiredCount),
-				"Pending": fmt.Sprintf("%d", deployment.PendingCount),
+				"Id":                    deployment.Id,
+				"Created":               fmt.Sprintf("%s", *deployment.CreatedAt),
+				"Status":                *deployment.Status,
+				"Running":               fmt.Sprintf("%d", deployment.RunningCount),
+				"Desired":               fmt.Sprintf("%d", deployment.DesiredCount),
+				"Pending":               fmt.Sprintf("%d", deployment.PendingCount),
+				"Rollout Status":        deployment.RolloutState,
+				"Rollout Status Reason": deployment.RolloutStateReason,
 			},
 		}
 		deploymentReport.Records = append(deploymentReport.Records, record)
@@ -215,4 +230,14 @@ func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.St
 	reports = append(reports, lbReport)
 
 	return reports, nil
+}
+
+func (p Provider) getRolloutStatus(svc *ecstypes.Service) app.RolloutStatus {
+	if svc.RunningCount == svc.DesiredCount {
+		return app.RolloutStatusComplete
+	} else if svc.PendingCount > 0 {
+		return app.RolloutStatusInProgress
+	} else {
+		return app.RolloutStatusFailed
+	}
 }

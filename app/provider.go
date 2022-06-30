@@ -2,7 +2,17 @@ package app
 
 import (
 	"context"
+	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+)
+
+type RolloutStatus string
+
+const (
+	RolloutStatusComplete   RolloutStatus = "complete"
+	RolloutStatusInProgress               = "in-progress"
+	RolloutStatusFailed                   = "failed"
+	RolloutStatusUnknown                  = "unknown"
 )
 
 type StatusReport struct {
@@ -42,7 +52,7 @@ type Provider interface {
 	Ssh(ctx context.Context, nsConfig api.Config, details Details, userConfig map[string]any) error
 
 	// Status returns a high-level status report on the specified app env
-	Status(nsConfig api.Config, details Details) (StatusReport, error)
+	Status(nsConfig api.Config, details Details) (RolloutStatus, StatusReport, []ecstypes.ServiceEvent, error)
 
 	// StatusDetail returns a detailed status report on the specified app env
 	StatusDetail(nsConfig api.Config, details Details) (StatusDetailReports, error)
