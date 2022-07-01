@@ -1,3 +1,6 @@
+# 0.0.64 (Jul 01, 2022)
+* Fixed selection of category when running `modules generate`.
+
 # 0.0.63 (Jun 22, 2022)
 * Added support for `app:serverless/aws/lambda:container` apps.
 

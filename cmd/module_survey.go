@@ -61,26 +61,14 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *modules.Manifest) (*modules
 		return nil, err
 	}
 
-	// While migrating modules, let's extract subcategory from category
-	tokens := strings.SplitN(manifest.Category, "/", 2)
-	if len(tokens) > 1 {
-		manifest.Category, manifest.Subcategory = tokens[0], tokens[1]
-	}
-	// Map 'public-entry' to 'ingress'
-	if manifest.Subcategory == "public-entry" {
-		manifest.Subcategory = string(types.SubcategoryCapabilityIngress)
-	}
-
 	// Category
 	categoryPrompt := &survey.Select{
 		Message: "Category:",
 		Options: types.AllCategoryNames,
-		Default: manifest.Category,
 	}
 	if err := survey.AskOne(categoryPrompt, &manifest.Category); err != nil {
 		return nil, err
 	}
-	manifest.Category = strings.ToLower(manifest.Category)
 
 	// [Optional] Subcategory
 	subcategories, _ := types.AllSubcategoryNames[types.CategoryName(manifest.Category)]
@@ -88,7 +76,6 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *modules.Manifest) (*modules
 		subcategoryPrompt := &survey.Select{
 			Message: "Subcategory:",
 			Options: subcategories,
-			Default: manifest.Subcategory,
 		}
 		if err := survey.AskOne(subcategoryPrompt, &manifest.Subcategory); err != nil {
 			return nil, err
@@ -156,7 +143,7 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *modules.Manifest) (*modules
 		return nil, err
 	}
 	manifest.Platform = fullPlatform.Platform
-	tokens = strings.SplitN(manifest.Platform, ":", 2)
+	tokens := strings.SplitN(manifest.Platform, ":", 2)
 	if len(tokens) > 1 {
 		manifest.Platform, manifest.Subplatform = tokens[0], tokens[1]
 	}
