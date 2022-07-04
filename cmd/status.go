@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -153,7 +152,7 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, 
 	})
 }
 
-func getStatusReport(cfg api.Config, providers app.Providers, appDetails app.Details) (app.StatusReport, []ecstypes.ServiceEvent, error) {
+func getStatusReport(cfg api.Config, providers app.Providers, appDetails app.Details) (app.StatusReport, []app.ServiceEvent, error) {
 	var report app.StatusReport
 
 	if appDetails.Workspace.Status == types.WorkspaceStatusNotProvisioned {

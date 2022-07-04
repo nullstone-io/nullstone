@@ -3,7 +3,6 @@ package aws_lambda_zip
 import (
 	"context"
 	"fmt"
-	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
@@ -121,7 +120,7 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 	return fmt.Errorf("ssh is not supported for the lambda:zip provider")
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []ecstypes.ServiceEvent, error) {
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
 	return app.StatusReport{}, nil, nil
 }
 

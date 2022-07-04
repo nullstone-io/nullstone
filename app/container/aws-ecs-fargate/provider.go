@@ -133,7 +133,7 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 	return ic.ExecCommand(ctx, task, "/bin/sh", nil)
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []ecstypes.ServiceEvent, error) {
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
@@ -156,7 +156,15 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 			"Pending": fmt.Sprintf("%d", svc.PendingCount),
 		},
 	}
-	return report, svc.Events, nil
+	events := make([]app.ServiceEvent, len(svc.Events))
+	for i, event := range svc.Events {
+		events[i] = app.ServiceEvent{
+			Id:        *event.Id,
+			CreatedAt: *event.CreatedAt,
+			Message:   *event.Message,
+		}
+	}
+	return report, events, nil
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {

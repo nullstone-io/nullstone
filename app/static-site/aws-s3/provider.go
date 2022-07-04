@@ -3,7 +3,6 @@ package aws_s3
 import (
 	"context"
 	"fmt"
-	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
@@ -117,7 +116,7 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	return nil
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []ecstypes.ServiceEvent, error) {
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
 	// TODO: Implement me
 	return app.StatusReport{}, nil, nil
 }
