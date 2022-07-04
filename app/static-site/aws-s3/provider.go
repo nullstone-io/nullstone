@@ -117,9 +117,9 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	return nil
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.RolloutStatus, app.StatusReport, []ecstypes.ServiceEvent, error) {
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []ecstypes.ServiceEvent, error) {
 	// TODO: Implement me
-	return app.RolloutStatusUnknown, app.StatusReport{}, nil, nil
+	return app.StatusReport{}, nil, nil
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {

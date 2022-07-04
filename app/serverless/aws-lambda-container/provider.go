@@ -90,8 +90,8 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 	return fmt.Errorf("ssh is not supported for the lambda:container provider")
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.RolloutStatus, app.StatusReport, []ecstypes.ServiceEvent, error) {
-	return app.RolloutStatusUnknown, app.StatusReport{}, nil, nil
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []ecstypes.ServiceEvent, error) {
+	return app.StatusReport{}, nil, nil
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {

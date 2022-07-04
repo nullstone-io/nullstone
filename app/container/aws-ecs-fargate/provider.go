@@ -133,28 +133,30 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 	return ic.ExecCommand(ctx, task, "/bin/sh", nil)
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.RolloutStatus, app.StatusReport, []ecstypes.ServiceEvent, error) {
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []ecstypes.ServiceEvent, error) {
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
-		return app.RolloutStatusUnknown, app.StatusReport{}, nil, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+		return app.StatusReport{}, nil, fmt.Errorf("Unable to identify app infrastructure: %w", err)
 	}
 
 	svc, err := ic.GetService()
 	if err != nil {
-		return app.RolloutStatusUnknown, app.StatusReport{}, nil, fmt.Errorf("error retrieving fargate service: %w", err)
+		return app.StatusReport{}, nil, fmt.Errorf("error retrieving fargate service: %w", err)
 	}
 
-	rolloutStatus := p.getRolloutStatus(svc)
+	rolloutStatus, message := p.getRolloutStatus(svc)
 	report := app.StatusReport{
-		Fields: []string{"Running", "Desired", "Pending"},
+		Status:  rolloutStatus,
+		Message: message,
+		Fields:  []string{"Id", "Running", "Desired", "Pending"},
 		Data: map[string]interface{}{
 			"Running": fmt.Sprintf("%d", svc.RunningCount),
 			"Desired": fmt.Sprintf("%d", svc.DesiredCount),
 			"Pending": fmt.Sprintf("%d", svc.PendingCount),
 		},
 	}
-	return rolloutStatus, report, svc.Events, nil
+	return report, svc.Events, nil
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
@@ -232,12 +234,12 @@ func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.St
 	return reports, nil
 }
 
-func (p Provider) getRolloutStatus(svc *ecstypes.Service) app.RolloutStatus {
+func (p Provider) getRolloutStatus(svc *ecstypes.Service) (app.RolloutStatus, string) {
 	if svc.RunningCount == svc.DesiredCount {
-		return app.RolloutStatusComplete
+		return app.RolloutStatusComplete, fmt.Sprintf("All %d services are running", svc.RunningCount)
 	} else if svc.PendingCount > 0 {
-		return app.RolloutStatusInProgress
+		return app.RolloutStatusInProgress, fmt.Sprintf("%d out of %d services are running", svc.RunningCount, svc.DesiredCount)
 	} else {
-		return app.RolloutStatusFailed
+		return app.RolloutStatusFailed, fmt.Sprintf("Not attempting to start any services")
 	}
 }
