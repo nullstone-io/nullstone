@@ -60,7 +60,10 @@ type Provider interface {
 	Ssh(ctx context.Context, nsConfig api.Config, details Details, userConfig map[string]any) error
 
 	// Status returns a high-level status report on the specified app env
-	Status(nsConfig api.Config, details Details) (StatusReport, []ServiceEvent, error)
+	Status(nsConfig api.Config, details Details) (StatusReport, error)
+
+	// DeploymentStatus returns the status of a specific deployment, the other status methods are summaries
+	DeploymentStatus(deploymentId string, nsConfig api.Config, details Details) (StatusReport, []ServiceEvent, error)
 
 	// StatusDetail returns a detailed status report on the specified app env
 	StatusDetail(nsConfig api.Config, details Details) (StatusDetailReports, error)

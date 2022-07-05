@@ -83,7 +83,7 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 				"Version": awi.Version,
 			}
 
-			report, _, err := getStatusReport(cfg, providers, awi.AppDetails)
+			report, err := getStatusReport(cfg, providers, awi.AppDetails)
 			if err != nil {
 				return fmt.Errorf("error retrieving app status: %w", err)
 			} else {
@@ -152,16 +152,16 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, 
 	})
 }
 
-func getStatusReport(cfg api.Config, providers app.Providers, appDetails app.Details) (app.StatusReport, []app.ServiceEvent, error) {
+func getStatusReport(cfg api.Config, providers app.Providers, appDetails app.Details) (app.StatusReport, error) {
 	var report app.StatusReport
 
 	if appDetails.Workspace.Status == types.WorkspaceStatusNotProvisioned {
-		return report, nil, nil
+		return report, nil
 	}
 
 	provider := providers.Find(*appDetails.Module)
 	if provider == nil {
-		return report, nil, nil
+		return report, nil
 	}
 
 	return provider.Status(cfg, appDetails)

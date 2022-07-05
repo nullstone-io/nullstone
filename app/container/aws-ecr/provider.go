@@ -114,8 +114,12 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 	return fmt.Errorf("ssh is not supported for the ecr provider")
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
-	return app.StatusReport{}, nil, fmt.Errorf("status is not supported for the ecr provider")
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
+	return app.StatusReport{}, fmt.Errorf("status is not supported for the ecr provider")
+}
+
+func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
+	return app.StatusReport{}, nil, fmt.Errorf("deployment status is not supported for the ecr provider")
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {

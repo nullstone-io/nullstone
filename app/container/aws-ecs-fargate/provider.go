@@ -133,7 +133,33 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 	return ic.ExecCommand(ctx, task, "/bin/sh", nil)
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
+	ic := &InfraConfig{}
+	retriever := outputs.Retriever{NsConfig: nsConfig}
+	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
+		return app.StatusReport{}, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+	}
+
+	svc, err := ic.GetService()
+	if err != nil {
+		return app.StatusReport{}, fmt.Errorf("error retrieving fargate service: %w", err)
+	}
+
+	rolloutStatus, message := p.getRolloutStatus(svc.RunningCount, svc.PendingCount, svc.DesiredCount)
+	report := app.StatusReport{
+		Status:  rolloutStatus,
+		Message: message,
+		Fields:  []string{"Id", "Running", "Desired", "Pending"},
+		Data: map[string]interface{}{
+			"Running": fmt.Sprintf("%d", svc.RunningCount),
+			"Desired": fmt.Sprintf("%d", svc.DesiredCount),
+			"Pending": fmt.Sprintf("%d", svc.PendingCount),
+		},
+	}
+	return report, nil
+}
+
+func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
@@ -145,15 +171,16 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 		return app.StatusReport{}, nil, fmt.Errorf("error retrieving fargate service: %w", err)
 	}
 
-	rolloutStatus, message := p.getRolloutStatus(svc)
+	deployment := p.getDeployment(svc, deploymentId)
+	rolloutStatus, message := p.getRolloutStatus(deployment.RunningCount, deployment.PendingCount, deployment.DesiredCount)
 	report := app.StatusReport{
 		Status:  rolloutStatus,
 		Message: message,
 		Fields:  []string{"Id", "Running", "Desired", "Pending"},
 		Data: map[string]interface{}{
-			"Running": fmt.Sprintf("%d", svc.RunningCount),
-			"Desired": fmt.Sprintf("%d", svc.DesiredCount),
-			"Pending": fmt.Sprintf("%d", svc.PendingCount),
+			"Running": fmt.Sprintf("%d", deployment.RunningCount),
+			"Desired": fmt.Sprintf("%d", deployment.DesiredCount),
+			"Pending": fmt.Sprintf("%d", deployment.PendingCount),
 		},
 	}
 	events := make([]app.ServiceEvent, len(svc.Events))
@@ -242,12 +269,21 @@ func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.St
 	return reports, nil
 }
 
-func (p Provider) getRolloutStatus(svc *ecstypes.Service) (app.RolloutStatus, string) {
-	if svc.RunningCount == svc.DesiredCount {
-		return app.RolloutStatusComplete, fmt.Sprintf("All %d services are running", svc.RunningCount)
-	} else if svc.PendingCount > 0 {
-		return app.RolloutStatusInProgress, fmt.Sprintf("%d out of %d services are running", svc.RunningCount, svc.DesiredCount)
+func (p Provider) getRolloutStatus(running, pending, desired int32) (app.RolloutStatus, string) {
+	if running == desired {
+		return app.RolloutStatusComplete, fmt.Sprintf("All %d services are running", running)
+	} else if pending > 0 {
+		return app.RolloutStatusInProgress, fmt.Sprintf("%d out of %d services are running", running, desired)
 	} else {
 		return app.RolloutStatusFailed, fmt.Sprintf("Not attempting to start any services")
 	}
+}
+
+func (p Provider) getDeployment(svc *ecstypes.Service, deploymentId string) *ecstypes.Deployment {
+	for _, deployment := range svc.Deployments {
+		if *deployment.Id == deploymentId {
+			return &deployment
+		}
+	}
+	return nil
 }
