@@ -9,12 +9,13 @@ import (
 type Outputs struct {
 	Region            string          `ns:"region"`
 	ServiceName       string          `ns:"service_name"`
+	TaskArn           string          `ns:"task_arn"`
 	ImageRepoUrl      docker.ImageUrl `ns:"image_repo_url,optional"`
 	ImagePusher       aws.User        `ns:"image_pusher,optional"`
 	MainContainerName string          `ns:"main_container_name,optional"`
 	Deployer          aws.User        `ns:"deployer,optional"`
 
-	Cluster aws_ecs.Outputs `ns:",connectionType:cluster/aws-fargate"`
+	Cluster aws_ecs.Outputs `ns:",connectionType:cluster/aws-ecs"`
 }
 
 func (o Outputs) GetDeployer() aws.User {
