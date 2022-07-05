@@ -118,10 +118,10 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
 	// TODO: Implement me
-	return app.StatusReport{}, nil, nil
+	return app.StatusReport{}, nil, fmt.Errorf("status is not supported for the s3 provider")
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
 	// TODO: Implement me
-	return app.StatusDetailReports{}, nil
+	return app.StatusDetailReports{}, fmt.Errorf("status detail is not supported for the s3 provider")
 }

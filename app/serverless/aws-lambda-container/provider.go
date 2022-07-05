@@ -90,9 +90,9 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
-	return app.StatusReport{}, nil, nil
+	return app.StatusReport{}, nil, fmt.Errorf("status is not supported for the lambda:container provider")
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
-	return app.StatusDetailReports{}, nil
+	return app.StatusDetailReports{}, fmt.Errorf("status detail is not supported for the lambda:container provider")
 }
