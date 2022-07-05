@@ -68,7 +68,7 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	}
 
 	logger.Printf("Updating app version to %q\n", version)
-	if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version); err != nil {
+	if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version, ""); err != nil {
 		return fmt.Errorf("error updating app version in nullstone: %w", err)
 	}
 
@@ -93,7 +93,7 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 	return app.StatusReport{}, fmt.Errorf("status is not supported for the lambda:container provider")
 }
 
-func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
+func (p Provider) DeploymentStatus(deployReference string, nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
 	return app.StatusReport{}, nil, fmt.Errorf("deployment status is not supported for the lambda:container provider")
 }
 

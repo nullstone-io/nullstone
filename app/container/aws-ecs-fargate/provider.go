@@ -74,10 +74,6 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	}
 	taskDefArn := *taskDef.TaskDefinitionArn
 	logger.Printf("Updating app version to %q\n", version)
-	if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version); err != nil {
-		return fmt.Errorf("error updating app version in nullstone: %w", err)
-	}
-
 	logger.Printf("Updating image tag to %q\n", version)
 	newTaskDef, err := ic.UpdateTaskImageTag(taskDef, version)
 	if err != nil {
@@ -87,6 +83,9 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 
 	if err := ic.UpdateServiceTask(taskDefArn); err != nil {
 		return fmt.Errorf("error deploying service: %w", err)
+	}
+	if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version, taskDefArn); err != nil {
+		return fmt.Errorf("error updating app version in nullstone: %w", err)
 	}
 
 	logger.Printf("Deployed app %q\n", details.App.Name)
@@ -159,7 +158,7 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 	return report, nil
 }
 
-func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
+func (p Provider) DeploymentStatus(deployReference string, nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
@@ -171,7 +170,7 @@ func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, det
 		return app.StatusReport{}, nil, fmt.Errorf("error retrieving fargate service: %w", err)
 	}
 
-	deployment := p.getDeployment(svc, deploymentId)
+	deployment := p.getDeployment(svc, deployReference)
 	rolloutStatus, message := p.getRolloutStatus(deployment.RunningCount, deployment.PendingCount, deployment.DesiredCount)
 	report := app.StatusReport{
 		Status:  rolloutStatus,
@@ -279,9 +278,9 @@ func (p Provider) getRolloutStatus(running, pending, desired int32) (app.Rollout
 	}
 }
 
-func (p Provider) getDeployment(svc *ecstypes.Service, deploymentId string) *ecstypes.Deployment {
+func (p Provider) getDeployment(svc *ecstypes.Service, taskDefinition string) *ecstypes.Deployment {
 	for _, deployment := range svc.Deployments {
-		if *deployment.Id == deploymentId {
+		if *deployment.TaskDefinition == taskDefinition {
 			return &deployment
 		}
 	}

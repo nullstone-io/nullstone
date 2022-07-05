@@ -82,7 +82,7 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 	return app.StatusReport{}, fmt.Errorf("status is not supported for the ec2 provider")
 }
 
-func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
+func (p Provider) DeploymentStatus(deployReference string, nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
 	return app.StatusReport{}, nil, fmt.Errorf("deployment status is not supported for the ec2 provider")
 }
 

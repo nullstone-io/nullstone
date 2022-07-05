@@ -5,9 +5,9 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 )
 
-func CreateDeploy(nsConfig api.Config, stackId, appId, envId int64, version string) error {
+func CreateDeploy(nsConfig api.Config, stackId, appId, envId int64, version, reference string) error {
 	client := api.Client{Config: nsConfig}
-	result, err := client.Deploys().Create(stackId, appId, envId, version)
+	result, err := client.Deploys().Create(stackId, appId, envId, version, reference)
 	if err != nil {
 		return fmt.Errorf("error updating app version: %w", err)
 	} else if result == nil {

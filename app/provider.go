@@ -63,7 +63,7 @@ type Provider interface {
 	Status(nsConfig api.Config, details Details) (StatusReport, error)
 
 	// DeploymentStatus returns the status of a specific deployment, the other status methods are summaries
-	DeploymentStatus(deploymentId string, nsConfig api.Config, details Details) (StatusReport, []ServiceEvent, error)
+	DeploymentStatus(deployReference string, nsConfig api.Config, details Details) (StatusReport, []ServiceEvent, error)
 
 	// StatusDetail returns a detailed status report on the specified app env
 	StatusDetail(nsConfig api.Config, details Details) (StatusDetailReports, error)
