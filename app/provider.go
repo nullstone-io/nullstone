@@ -49,8 +49,8 @@ type StatusRecord struct {
 //   - Each Provider is specific to Category+Type (Example: category=app/container, type=service/aws-fargate)
 type Provider interface {
 	DefaultLogProvider() string
-	Push(nsConfig api.Config, details Details, userConfig map[string]string) error
-	Deploy(nsConfig api.Config, details Details, userConfig map[string]string) error
+	Push(nsConfig api.Config, details Details, source, version string) error
+	Deploy(nsConfig api.Config, details Details, version string) error
 
 	// Exec allows a user to execute a command (usually tunneling) into a running service
 	// This only makes sense for container-based providers

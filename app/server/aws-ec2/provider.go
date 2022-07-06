@@ -45,11 +45,11 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 	return ic, nil
 }
 
-func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+func (p Provider) Push(nsConfig api.Config, details app.Details, source, version string) error {
 	return fmt.Errorf("push is not supported for the aws-ec2 provider")
 }
 
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) error {
 	return fmt.Errorf("deploy is not supported for the aws-ec2 provider")
 }
 

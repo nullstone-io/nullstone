@@ -46,8 +46,8 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 	return ic, nil
 }
 
-func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return (aws_ecr.Provider{}).Push(nsConfig, details, userConfig)
+func (p Provider) Push(nsConfig api.Config, details app.Details, source, version string) error {
+	return (aws_ecr.Provider{}).Push(nsConfig, details, source, version)
 }
 
 // Deploy takes the following steps to deploy an AWS ECS service
@@ -56,7 +56,7 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 //   Register new task definition
 //   Deregister old task definition
 //   Update ECS Service (This always causes deployment)
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) error {
 	ic, err := p.identify(nsConfig, details)
 	if err != nil {
 		return err
@@ -68,7 +68,6 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	}
 
 	logger.Printf("Deploying app %q\n", details.App.Name)
-	version := userConfig["version"]
 	if version == "" {
 		return fmt.Errorf("no version specified, version is required to deploy")
 	}
@@ -84,9 +83,8 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	if err := ic.UpdateServiceTask(taskDefArn); err != nil {
 		return fmt.Errorf("error deploying service: %w", err)
 	}
-	if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version, taskDefArn); err != nil {
-		return fmt.Errorf("error updating app version in nullstone: %w", err)
-	}
+
+	// TODO: update the deploy reference
 
 	logger.Printf("Deployed app %q\n", details.App.Name)
 	return nil

@@ -20,10 +20,8 @@ var Deploy = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
-				userConfig := map[string]string{
-					"version": DetectAppVersion(c),
-				}
-				return provider.Deploy(cfg, details, userConfig)
+				version := DetectAppVersion(c)
+				return app.CreateDeploy(cfg, details.App.StackId, details.App.Id, details.Env.Id, version)
 			})
 		},
 	}

@@ -45,17 +45,17 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 	return ic, nil
 }
 
-func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+func (p Provider) Push(nsConfig api.Config, details app.Details, source, version string) error {
 	ic, err := p.identify(nsConfig, details)
 	if err != nil {
 		return err
 	}
 
-	sourceUrl := docker.ParseImageUrl(userConfig["source"])
+	sourceUrl := docker.ParseImageUrl(source)
 
 	targetUrl := ic.Outputs.ImageRepoUrl
 	// NOTE: We expect --version from the user which is used as the image tag for the pushed image
-	if imageTag := userConfig["version"]; imageTag == "" {
+	if imageTag := version; imageTag == "" {
 		return fmt.Errorf("no version was specified, version is required to push image")
 	} else {
 		targetUrl.Tag = imageTag
@@ -95,14 +95,7 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 }
 
 // Deploy updates the app version
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	version := userConfig["version"]
-	if version != "" {
-		logger.Printf("Updating app version to %q\n", version)
-		if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version, ""); err != nil {
-			return fmt.Errorf("error updating app version in nullstone: %w", err)
-		}
-	}
+func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) error {
 	return nil
 }
 

@@ -44,7 +44,7 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 }
 
 // Push will upload the versioned artifact to the source artifact bucket for the lambda
-func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+func (p Provider) Push(nsConfig api.Config, details app.Details, source, version string) error {
 	ic, err := p.identify(nsConfig, details)
 	if err != nil {
 		return err
@@ -53,11 +53,9 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 	// TODO: Add cancellation support so users can press Control+C to kill push
 	ctx := context.TODO()
 
-	source := userConfig["source"]
 	if source == "" {
 		return fmt.Errorf("--source is required to upload artifact")
 	}
-	version := userConfig["version"]
 	if version == "" {
 		return fmt.Errorf("--version is required to upload artifact")
 	}
@@ -83,7 +81,7 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 // Deploy takes the following steps to deploy an AWS Lambda service
 //   Update app version in nullstone
 //   Update function code to use just-uploaded archive
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) error {
 	ic, err := p.identify(nsConfig, details)
 	if err != nil {
 		return err
@@ -93,14 +91,8 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig ma
 	ctx := context.TODO()
 
 	logger.Printf("Deploying app %q\n", details.App.Name)
-	version := userConfig["version"]
 	if version == "" {
 		return fmt.Errorf("--version is required to deploy app")
-	}
-
-	logger.Printf("Updating app version to %q\n", version)
-	if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version, ""); err != nil {
-		return fmt.Errorf("error updating app version in nullstone: %w", err)
 	}
 
 	logger.Printf("Updating lambda to %q\n", version)
