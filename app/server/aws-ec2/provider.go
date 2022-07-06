@@ -49,8 +49,8 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, source, version
 	return fmt.Errorf("push is not supported for the aws-ec2 provider")
 }
 
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) error {
-	return fmt.Errorf("deploy is not supported for the aws-ec2 provider")
+func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) (*string, error) {
+	return nil, fmt.Errorf("deploy is not supported for the aws-ec2 provider")
 }
 
 func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {

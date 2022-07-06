@@ -56,38 +56,38 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, source, version
 //   Register new task definition
 //   Deregister old task definition
 //   Update ECS Service (This always causes deployment)
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) error {
+func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) (*string, error) {
 	ic, err := p.identify(nsConfig, details)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	taskDef, err := ic.GetTaskDefinition()
 	if err != nil {
-		return fmt.Errorf("error retrieving current service information: %w", err)
+		return nil, fmt.Errorf("error retrieving current service information: %w", err)
 	}
 
 	logger.Printf("Deploying app %q\n", details.App.Name)
 	if version == "" {
-		return fmt.Errorf("no version specified, version is required to deploy")
+		return nil, fmt.Errorf("no version specified, version is required to deploy")
 	}
 	taskDefArn := *taskDef.TaskDefinitionArn
 	logger.Printf("Updating app version to %q\n", version)
 	logger.Printf("Updating image tag to %q\n", version)
 	newTaskDef, err := ic.UpdateTaskImageTag(taskDef, version)
 	if err != nil {
-		return fmt.Errorf("error updating task with new image tag: %w", err)
+		return nil, fmt.Errorf("error updating task with new image tag: %w", err)
 	}
 	taskDefArn = *newTaskDef.TaskDefinitionArn
 
 	if err := ic.UpdateServiceTask(taskDefArn); err != nil {
-		return fmt.Errorf("error deploying service: %w", err)
+		return nil, fmt.Errorf("error deploying service: %w", err)
 	}
 
 	// TODO: update the deploy reference
 
 	logger.Printf("Deployed app %q\n", details.App.Name)
-	return nil
+	return newTaskDef.TaskDefinitionArn, nil
 }
 
 func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
@@ -169,6 +169,9 @@ func (p Provider) DeploymentStatus(deployReference string, nsConfig api.Config, 
 	}
 
 	deployment := p.getDeployment(svc, deployReference)
+	if deployment == nil {
+		return app.StatusReport{}, nil, fmt.Errorf("unable to find a deployment using the lookup key of: %s", deployReference)
+	}
 	rolloutStatus, message := p.getRolloutStatus(deployment.RunningCount, deployment.PendingCount, deployment.DesiredCount)
 	report := app.StatusReport{
 		Status:  rolloutStatus,

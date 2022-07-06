@@ -50,7 +50,7 @@ type StatusRecord struct {
 type Provider interface {
 	DefaultLogProvider() string
 	Push(nsConfig api.Config, details Details, source, version string) error
-	Deploy(nsConfig api.Config, details Details, version string) error
+	Deploy(nsConfig api.Config, details Details, version string) (*string, error)
 
 	// Exec allows a user to execute a command (usually tunneling) into a running service
 	// This only makes sense for container-based providers

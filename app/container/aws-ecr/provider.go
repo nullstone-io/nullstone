@@ -95,8 +95,8 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, source, version
 }
 
 // Deploy updates the app version
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) error {
-	return nil
+func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) (*string, error) {
+	return nil, nil
 }
 
 func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {

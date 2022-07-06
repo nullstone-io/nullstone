@@ -80,10 +80,10 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 	return fmt.Errorf("ssh is not supported for the s3 provider")
 }
 
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) error {
+func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) (*string, error) {
 	ic, err := p.identify(nsConfig, details)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// TODO: Add cancellation support so users can press Control+C to kill deploy
@@ -91,21 +91,21 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, version strin
 
 	logger.Printf("Deploying app %q\n", details.App.Name)
 	if version == "" {
-		return fmt.Errorf("no version specified, version is required to deploy")
+		return nil, fmt.Errorf("no version specified, version is required to deploy")
 	}
 
 	logger.Printf("Updating CDN version to %q\n", version)
 	if err := ic.UpdateCdnVersion(ctx, version); err != nil {
-		return fmt.Errorf("error updating CDN version: %w", err)
+		return nil, fmt.Errorf("error updating CDN version: %w", err)
 	}
 
 	logger.Println("Invalidating cache in CDNs")
 	if err := ic.InvalidateCdnPaths(ctx, []string{"/*"}); err != nil {
-		return fmt.Errorf("error invalidating /*: %w", err)
+		return nil, fmt.Errorf("error invalidating /*: %w", err)
 	}
 
 	logger.Printf("Deployed app %q\n", details.App.Name)
-	return nil
+	return nil, nil
 }
 
 func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {

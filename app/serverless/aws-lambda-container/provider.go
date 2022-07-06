@@ -52,10 +52,10 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, source, version
 // Deploy takes the following steps to deploy an AWS Lambda service
 //   Update app version in nullstone
 //   Update function code to use just-uploaded image
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) error {
+func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) (*string, error) {
 	ic, err := p.identify(nsConfig, details)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// TODO: Add cancellation support so users can press Control+C to kill deploy
@@ -63,16 +63,16 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, version strin
 
 	logger.Printf("Deploying app %q\n", details.App.Name)
 	if version == "" {
-		return fmt.Errorf("--version is required to deploy app")
+		return nil, fmt.Errorf("--version is required to deploy app")
 	}
 
 	logger.Printf("Updating lambda to %q\n", version)
 	if err := ic.UpdateLambdaVersion(ctx, version); err != nil {
-		return fmt.Errorf("error updating lambda version: %w", err)
+		return nil, fmt.Errorf("error updating lambda version: %w", err)
 	}
 
 	logger.Printf("Deployed app %q\n", details.App.Name)
-	return nil
+	return nil, nil
 }
 
 func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {

@@ -40,7 +40,7 @@ var Launch = func(providers app.Providers, logProviders app_logs.Providers) *cli
 				logger.Println()
 
 				logger.Println("Deploying application...")
-				if err := provider.Deploy(cfg, details, version); err != nil {
+				if _, err := provider.Deploy(cfg, details, version); err != nil {
 					return fmt.Errorf("error deploying app: %w", err)
 				}
 				logger.Println()
