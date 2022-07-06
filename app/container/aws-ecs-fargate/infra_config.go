@@ -161,16 +161,10 @@ func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) (*ecstypes.Depl
 	}
 
 	deployments := output.Service.Deployments
-	log.Println(fmt.Sprintf("deployments: %v", deployments))
 	sort.SliceStable(deployments, func(i, j int) bool {
 		return deployments[i].CreatedAt.After(*deployments[j].CreatedAt)
 	})
-	log.Println(fmt.Sprintf("sorted deployments: %v", deployments))
-	log.Println(fmt.Sprintf("finding deployment with task definition: %s", taskDefinitionArn))
 	for _, deployment := range deployments {
-		log.Println(fmt.Sprintf("Id: %s", *deployment.Id))
-		log.Println(fmt.Sprintf("Task Definition: %s", *deployment.TaskDefinition))
-		log.Println(fmt.Printf("deployment: %v", deployment))
 		if *deployment.TaskDefinition == taskDefinitionArn {
 			return &deployment, nil
 		}
