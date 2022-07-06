@@ -111,7 +111,7 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 	return app.StatusReport{}, fmt.Errorf("status is not supported for the ecr provider")
 }
 
-func (p Provider) DeploymentStatus(deployReference string, nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
+func (p Provider) DeploymentStatus(deployReference string, nsConfig api.Config, details app.Details) (app.StatusReport, []string, error) {
 	return app.StatusReport{}, nil, fmt.Errorf("deployment status is not supported for the ecr provider")
 }
 

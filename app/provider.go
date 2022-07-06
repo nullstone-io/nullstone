@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"time"
 )
 
 type RolloutStatus string
@@ -14,12 +13,6 @@ const (
 	RolloutStatusFailed                   = "failed"
 	RolloutStatusUnknown                  = "unknown"
 )
-
-type ServiceEvent struct {
-	Id        string
-	CreatedAt time.Time
-	Message   string
-}
 
 type StatusReport struct {
 	Status  RolloutStatus
@@ -63,7 +56,7 @@ type Provider interface {
 	Status(nsConfig api.Config, details Details) (StatusReport, error)
 
 	// DeploymentStatus returns the status of a specific deployment, the other status methods are summaries
-	DeploymentStatus(deployReference string, nsConfig api.Config, details Details) (StatusReport, []ServiceEvent, error)
+	DeploymentStatus(deployReference string, nsConfig api.Config, details Details) (StatusReport, []string, error)
 
 	// StatusDetail returns a detailed status report on the specified app env
 	StatusDetail(nsConfig api.Config, details Details) (StatusDetailReports, error)

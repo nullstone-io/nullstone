@@ -3,7 +3,6 @@ package aws_ecs_fargate
 import (
 	"context"
 	"fmt"
-	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
@@ -80,14 +79,13 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, version strin
 	}
 	taskDefArn = *newTaskDef.TaskDefinitionArn
 
-	if err := ic.UpdateServiceTask(taskDefArn); err != nil {
+	deployment, err := ic.UpdateServiceTask(taskDefArn)
+	if err != nil {
 		return nil, fmt.Errorf("error deploying service: %w", err)
 	}
 
-	// TODO: update the deploy reference
-
 	logger.Printf("Deployed app %q\n", details.App.Name)
-	return newTaskDef.TaskDefinitionArn, nil
+	return deployment.Id, nil
 }
 
 func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
@@ -156,21 +154,16 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 	return report, nil
 }
 
-func (p Provider) DeploymentStatus(deployReference string, nsConfig api.Config, details app.Details) (app.StatusReport, []app.ServiceEvent, error) {
+func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, details app.Details) (app.StatusReport, []string, error) {
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
 		return app.StatusReport{}, nil, fmt.Errorf("Unable to identify app infrastructure: %w", err)
 	}
 
-	svc, err := ic.GetService()
+	deployment, err := ic.GetDeployment(deploymentId)
 	if err != nil {
-		return app.StatusReport{}, nil, fmt.Errorf("error retrieving fargate service: %w", err)
-	}
-
-	deployment := p.getDeployment(svc, deployReference)
-	if deployment == nil {
-		return app.StatusReport{}, nil, fmt.Errorf("unable to find a deployment using the lookup key of: %s", deployReference)
+		return app.StatusReport{}, nil, err
 	}
 	rolloutStatus, message := p.getRolloutStatus(deployment.RunningCount, deployment.PendingCount, deployment.DesiredCount)
 	report := app.StatusReport{
@@ -183,15 +176,16 @@ func (p Provider) DeploymentStatus(deployReference string, nsConfig api.Config, 
 			"Pending": fmt.Sprintf("%d", deployment.PendingCount),
 		},
 	}
-	events := make([]app.ServiceEvent, len(svc.Events))
-	for i, event := range svc.Events {
-		events[i] = app.ServiceEvent{
-			Id:        *event.Id,
-			CreatedAt: *event.CreatedAt,
-			Message:   *event.Message,
-		}
+	tasks, err := ic.GetDeploymentTasks(deploymentId)
+	if err != nil {
+		return report, nil, err
 	}
-	return report, events, nil
+	taskMessages := make([]string, len(tasks))
+	for i, task := range tasks {
+		taskMessages[i] = fmt.Sprintf("%s - %s - %s - %s - %s - %s - %s - %s", task.HealthStatus, *task.DesiredStatus, *task.LastStatus, task.PullStartedAt, task.PullStoppedAt, task.StoppingAt, task.StoppedAt, *task.StoppedReason)
+	}
+
+	return report, taskMessages, nil
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
@@ -277,13 +271,4 @@ func (p Provider) getRolloutStatus(running, pending, desired int32) (app.Rollout
 	} else {
 		return app.RolloutStatusFailed, fmt.Sprintf("Not attempting to start any services")
 	}
-}
-
-func (p Provider) getDeployment(svc *ecstypes.Service, taskDefinition string) *ecstypes.Deployment {
-	for _, deployment := range svc.Deployments {
-		if *deployment.TaskDefinition == taskDefinition {
-			return &deployment
-		}
-	}
-	return nil
 }
