@@ -161,6 +161,7 @@ func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) (*ecstypes.Depl
 	}
 
 	deployments := output.Service.Deployments
+	log.Println(fmt.Sprintf("number of deployments: %d", len(deployments)))
 	sort.SliceStable(deployments, func(i, j int) bool {
 		return deployments[i].CreatedAt.After(*deployments[j].CreatedAt)
 	})
