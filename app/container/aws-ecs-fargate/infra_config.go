@@ -166,7 +166,7 @@ func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) (*ecstypes.Depl
 		return deployments[i].CreatedAt.After(*deployments[j].CreatedAt)
 	})
 	for _, deployment := range deployments {
-		log.Println(fmt.Printf("deploymentId: %s, taskDefArn: %s", *deployment.Id, *deployment.TaskDefinition))
+		log.Println(fmt.Printf("deployment: %v", deployment))
 		if deployment.TaskDefinition == aws.String(taskDefinitionArn) {
 			return &deployment, nil
 		}
