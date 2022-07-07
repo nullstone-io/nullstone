@@ -168,6 +168,7 @@ func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, det
 		return app.StatusReport{}, nil, err
 	}
 	rolloutStatus, message := p.getRolloutStatus(deployment.RunningCount, deployment.PendingCount, deployment.DesiredCount)
+	logger.Printf("%s - %s - %s - %s\n", deployment.Status, deployment.RolloutState, deployment.RolloutStateReason, deployment.FailedTasks)
 	report := app.StatusReport{
 		Status:  rolloutStatus,
 		Message: message,
@@ -273,6 +274,6 @@ func (p Provider) getRolloutStatus(running, pending, desired int32) (app.Rollout
 	} else if pending > 0 {
 		return app.RolloutStatusInProgress, fmt.Sprintf("%d out of %d services are running", running, desired)
 	} else {
-		return app.RolloutStatusFailed, fmt.Sprintf("Not attempting to start any services")
+		return app.RolloutStatusInProgress, fmt.Sprintf("Not attempting to start any services")
 	}
 }
