@@ -162,7 +162,6 @@ func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, det
 		return app.StatusReport{}, nil, fmt.Errorf("Unable to identify app infrastructure: %w", err)
 	}
 
-	log.Println(fmt.Sprintf("Finding deployment with id: %s", deploymentId))
 	deployment, err := ic.GetDeployment(deploymentId)
 	if err != nil {
 		return app.StatusReport{}, nil, err
