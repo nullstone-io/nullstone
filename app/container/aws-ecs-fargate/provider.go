@@ -2,6 +2,7 @@ package aws_ecs_fargate
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -183,7 +184,9 @@ func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, det
 	}
 	taskMessages := make([]string, len(tasks))
 	for i, task := range tasks {
-		taskMessages[i] = fmt.Sprintf("%s - %v - %v - %s - %s - %s - %s - %v", task.HealthStatus, task.DesiredStatus, task.LastStatus, task.PullStartedAt, task.PullStoppedAt, task.StoppingAt, task.StoppedAt, task.StoppedReason)
+		encoder := json.NewEncoder(os.Stdout)
+		encoder.Encode(task)
+		taskMessages[i] = fmt.Sprintf("%s - %s - %s - %s - %s - %s - %s - %s", task.HealthStatus, task.DesiredStatus, task.LastStatus, task.PullStartedAt, task.PullStoppedAt, task.StoppingAt, task.StoppedAt, task.StoppedReason)
 	}
 
 	return report, taskMessages, nil
