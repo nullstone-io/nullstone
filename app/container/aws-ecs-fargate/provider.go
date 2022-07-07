@@ -13,6 +13,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"os"
+	"time"
 )
 
 var (
@@ -282,10 +283,10 @@ func formatTaskStatus(task ecstypes.Task) string {
 		task.HealthStatus,
 		derefString(task.DesiredStatus),
 		derefString(task.LastStatus),
-		task.PullStartedAt.Format("2006-01-02 15:04:05"),
-		task.PullStoppedAt.Format("2006-01-02 15:04:05"),
-		task.StoppingAt.Format("2006-01-02 15:04:05"),
-		task.StoppedAt.Format("2006-01-02 15:04:05"),
+		formatTime(task.PullStartedAt),
+		formatTime(task.PullStoppedAt),
+		formatTime(task.StoppingAt),
+		formatTime(task.StoppedAt),
 		derefString(task.StoppedReason),
 	)
 }
@@ -293,6 +294,13 @@ func formatTaskStatus(task ecstypes.Task) string {
 func derefString(s *string) string {
 	if s != nil {
 		return *s
+	}
+	return ""
+}
+
+func formatTime(t *time.Time) string {
+	if t != nil {
+		return t.Format("2006-01-02 15:04:05")
 	}
 	return ""
 }
