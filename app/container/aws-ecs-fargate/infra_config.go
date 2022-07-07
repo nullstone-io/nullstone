@@ -202,8 +202,9 @@ func (c InfraConfig) GetDeployment(deploymentId string) (*ecstypes.Deployment, e
 func (c InfraConfig) GetDeploymentTasks(deploymentId string) ([]ecstypes.Task, error) {
 	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
 	tasks, err := ecsClient.ListTasks(context.Background(), &ecs.ListTasksInput{
-		Cluster:   aws.String(c.Outputs.Cluster.ClusterArn),
-		StartedBy: aws.String(deploymentId),
+		Cluster:     aws.String(c.Outputs.Cluster.ClusterArn),
+		ServiceName: aws.String(c.Outputs.ServiceName),
+		// StartedBy: aws.String(deploymentId),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("unable to get tasks associated with deployment (%s): %w", deploymentId, err)
