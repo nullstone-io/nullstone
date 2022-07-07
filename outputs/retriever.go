@@ -50,17 +50,18 @@ func (r *Retriever) Retrieve(workspace *types.Workspace, obj interface{}) error 
 			}
 			target := field.InitializeConnectionValue(obj)
 
-			connWorkspace, err := r.GetConnectionWorkspace(workspace, field.ConnectionName, field.ConnectionType)
+			connWorkspace, err := r.GetConnectionWorkspace(workspace, field.ConnectionName, field.ConnectionType, field.ConnectionContract)
 			if err != nil {
-				return fmt.Errorf("error finding connection workspace (name=%s, type=%s): %w", field.ConnectionName, field.ConnectionType, err)
+				return fmt.Errorf("error finding connection workspace (name=%s, type=%s, contract=%s): %w", field.ConnectionName, field.ConnectionType, field.ConnectionContract, err)
 			}
 			if connWorkspace == nil {
 				if field.Optional {
 					continue
 				}
 				return ErrMissingRequiredConnection{
-					ConnectionName: field.ConnectionName,
-					ConnectionType: field.ConnectionType,
+					ConnectionName:     field.ConnectionName,
+					ConnectionType:     field.ConnectionType,
+					ConnectionContract: field.ConnectionContract,
 				}
 			}
 			if err := r.Retrieve(connWorkspace, target); err != nil {
@@ -84,8 +85,8 @@ func (r *Retriever) Retrieve(workspace *types.Workspace, obj interface{}) error 
 // This will search through connections matching on connectionName and connectionType
 // Specify "" to ignore filtering for that field
 // One of either connectionName or connectionType must be specified
-func (r *Retriever) GetConnectionWorkspace(source *types.Workspace, connectionName, connectionType string) (*types.Workspace, error) {
-	conn, err := findConnection(source, connectionName, connectionType)
+func (r *Retriever) GetConnectionWorkspace(source *types.Workspace, connectionName, connectionType, connectionContract string) (*types.Workspace, error) {
+	conn, err := findConnection(source, connectionName, connectionType, connectionContract)
 	if err != nil {
 		return nil, err
 	} else if conn == nil || conn.Reference == nil {
@@ -103,15 +104,33 @@ func (r *Retriever) GetConnectionWorkspace(source *types.Workspace, connectionNa
 	return nsClient.Workspaces().Get(destTarget.StackId, destTarget.BlockId, destTarget.EnvId)
 }
 
-func findConnection(source *types.Workspace, connectionName, connectionType string) (*types.Connection, error) {
+func findConnection(source *types.Workspace, connectionName, connectionType, connectionContract string) (*types.Connection, error) {
 	if source.LastFinishedRun == nil || source.LastFinishedRun.Config == nil {
 		return nil, fmt.Errorf("cannot find connections for app")
 	}
-	if connectionName == "" && connectionType == "" {
-		return nil, fmt.Errorf("cannot find connection if name or type is not specified")
+	hasType := connectionType != ""
+	hasContract := connectionContract != ""
+	if connectionName == "" || (!hasType && !hasContract) {
+		return nil, fmt.Errorf("cannot find connection if name or type/contract is not specified")
 	}
+	var desiredContract types.ModuleContractName
+	if hasContract {
+		var err error
+		if desiredContract, err = types.ParseModuleContractName(connectionContract); err != nil {
+			return nil, fmt.Errorf("invalid connection contract %q: %w", connectionContract, err)
+		}
+	}
+
 	for name, connection := range source.LastFinishedRun.Config.Connections {
-		if connectionType != "" && connectionType != connection.Type {
+		curConnContract, err := types.ParseModuleContractName(connection.Contract)
+		if err != nil {
+			// We are skipping connections with bad contracts in the current run config
+			continue
+		}
+		if hasContract && !desiredContract.Match(curConnContract) {
+			continue
+		}
+		if hasType && connectionType != connection.Type {
 			continue
 		}
 		if connectionName != "" && connectionName != name {

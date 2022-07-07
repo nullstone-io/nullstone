@@ -16,12 +16,13 @@ func (e ErrInvalidContractField) Error() string {
 }
 
 type ErrMissingRequiredConnection struct {
-	ConnectionName string
-	ConnectionType string
+	ConnectionName     string
+	ConnectionType     string
+	ConnectionContract string
 }
 
 func (e ErrMissingRequiredConnection) Error() string {
-	return fmt.Sprintf("required connection missing (name=%s, type=%s)", e.ConnectionName, e.ConnectionType)
+	return fmt.Sprintf("required connection missing (name=%s, type=%s, contract=%s)", e.ConnectionName, e.ConnectionType, e.ConnectionContract)
 }
 
 type ErrMissingRequiredOutput struct {

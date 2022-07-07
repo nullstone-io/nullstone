@@ -12,6 +12,7 @@ var (
 	StructTag               = "ns"
 	StructTagConnectionName = "connectionName"
 	StructTagConnectionType = "connectionType"
+	StructTagConnectionContract = "connectionContract"
 	StructTagOptional       = "optional"
 )
 
@@ -38,12 +39,13 @@ Notes:
   If you want to make a field/connection optional, add `ns:"output,optional"`
 */
 type Field struct {
-	Field          reflect.StructField
-	Tag            string
-	Name           string
-	ConnectionType string
-	ConnectionName string
-	Optional       bool
+	Field              reflect.StructField
+	Tag                string
+	Name               string
+	ConnectionType     string
+	ConnectionName     string
+	ConnectionContract string
+	Optional           bool
 }
 
 func (f Field) SafeSet(sourceObj interface{}, outputs types.Outputs) error {
@@ -113,6 +115,7 @@ func GetFields(typ reflect.Type) []Field {
 		field.Name = structured.Name
 		field.ConnectionName = structured.Options[StructTagConnectionName]
 		field.ConnectionType = structured.Options[StructTagConnectionType]
+		field.ConnectionContract = structured.Options[StructTagConnectionContract]
 		field.Optional = structured.HasOption(StructTagOptional)
 
 		fields = append(fields, field)

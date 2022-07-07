@@ -15,6 +15,7 @@ func TestGetFields(t *testing.T) {
 		OptionalOutput string `ns:"optional_output,optional"`
 
 		Dependency DependencyOutputs `ns:",connectionType:some-dependency"`
+		Another    DependencyOutputs `ns:",connectionContract:cluster/aws/ecs:ec2"`
 	}
 	outputsType := reflect.TypeOf(Outputs{})
 
@@ -42,6 +43,15 @@ func TestGetFields(t *testing.T) {
 			ConnectionType: "some-dependency",
 			ConnectionName: "",
 			Optional:       false,
+		},
+		{
+			Field:              outputsType.Field(3),
+			Tag:                ",connectionContract:cluster/aws/ecs:ec2",
+			Name:               "",
+			ConnectionName:     "",
+			ConnectionType:     "",
+			ConnectionContract: "cluster/aws/ecs:ec2",
+			Optional:           false,
 		},
 	}
 
