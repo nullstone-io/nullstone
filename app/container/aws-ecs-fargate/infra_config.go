@@ -209,6 +209,11 @@ func (c InfraConfig) GetDeploymentTasks(deploymentId string) ([]ecstypes.Task, e
 		return nil, fmt.Errorf("unable to get tasks associated with deployment (%s): %w", deploymentId, err)
 	}
 
+	// if there aren't any tasks returned, we can't fetch any task descriptions
+	if len(tasks.TaskArns) == 0 {
+		return nil, nil
+	}
+
 	out, err := ecsClient.DescribeTasks(context.Background(), &ecs.DescribeTasksInput{
 		Cluster: aws.String(c.Outputs.Cluster.ClusterArn),
 		Tasks:   tasks.TaskArns,
