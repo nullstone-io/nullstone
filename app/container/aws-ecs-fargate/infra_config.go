@@ -176,8 +176,7 @@ func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) (*ecstypes.Depl
 func (c InfraConfig) GetTasks() ([]string, error) {
 	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
 	out, err := ecsClient.ListTasks(context.Background(), &ecs.ListTasksInput{
-		Cluster:     aws.String(c.Outputs.Cluster.ClusterArn),
-		ServiceName: aws.String(c.Outputs.ServiceName),
+		Cluster: aws.String(c.Outputs.Cluster.ClusterArn),
 	})
 	if err != nil {
 		return nil, err
