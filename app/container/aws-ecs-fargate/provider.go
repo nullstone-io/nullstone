@@ -168,7 +168,9 @@ func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, det
 		return app.StatusReport{}, nil, err
 	}
 	rolloutStatus, message := p.getRolloutStatus(deployment.RunningCount, deployment.PendingCount, deployment.DesiredCount)
-	logger.Printf("%s - %s - %s - %s\n", deployment.Status, deployment.RolloutState, deployment.RolloutStateReason, deployment.FailedTasks)
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.Encode(deployment)
+	// logger.Printf("%s - %s - %s - %s\n", deployment.Status, deployment.RolloutState, deployment.RolloutStateReason, deployment.FailedTasks)
 	report := app.StatusReport{
 		Status:  rolloutStatus,
 		Message: message,
@@ -185,7 +187,6 @@ func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, det
 	}
 	taskMessages := make([]string, len(tasks))
 	for i, task := range tasks {
-		encoder := json.NewEncoder(os.Stdout)
 		encoder.Encode(task)
 		taskMessages[i] = fmt.Sprintf("%s - %s - %s - %s - %s - %s - %s - %s", task.HealthStatus, task.DesiredStatus, task.LastStatus, task.PullStartedAt, task.PullStoppedAt, task.StoppingAt, task.StoppedAt, task.StoppedReason)
 	}
