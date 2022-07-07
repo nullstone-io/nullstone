@@ -165,7 +165,7 @@ func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, det
 	if err != nil {
 		return app.RolloutStatusUnknown, "", nil, err
 	}
-	rolloutStatus, message := p.getRolloutStatus(deployment)
+	rolloutStatus, message := getRolloutStatus(deployment)
 	encoder := json.NewEncoder(os.Stdout)
 	encoder.Encode(deployment)
 
@@ -176,7 +176,7 @@ func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, det
 	taskMessages := make([]string, len(tasks))
 	for i, task := range tasks {
 		encoder.Encode(task)
-		taskMessages[i] = fmt.Sprintf("%s - %s - %s - %s - %s - %s - %s - %s", task.HealthStatus, task.DesiredStatus, task.LastStatus, task.PullStartedAt, task.PullStoppedAt, task.StoppingAt, task.StoppedAt, task.StoppedReason)
+		taskMessages[i] = formatTaskStatus(task)
 	}
 
 	return rolloutStatus, message, taskMessages, nil
@@ -257,7 +257,7 @@ func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.St
 	return reports, nil
 }
 
-func (p Provider) getRolloutStatus(deployment *ecstypes.Deployment) (app.RolloutStatus, string) {
+func getRolloutStatus(deployment *ecstypes.Deployment) (app.RolloutStatus, string) {
 	status := app.RolloutStatusUnknown
 	if deployment.RolloutState == "IN_PROGRESS" {
 		status = app.RolloutStatusInProgress
@@ -272,7 +272,27 @@ func (p Provider) getRolloutStatus(deployment *ecstypes.Deployment) (app.Rollout
 	} else if deployment.DesiredCount > 0 {
 		message = fmt.Sprintf("%s %d running out of %d services are running.", message, deployment.RunningCount, deployment.DesiredCount)
 	} else {
-		message = fmt.Sprintf("%s Not attempting to start any services.")
+		message = fmt.Sprintf("%s Not attempting to start any services.", message)
 	}
 	return status, message
+}
+
+func formatTaskStatus(task ecstypes.Task) string {
+	return fmt.Sprintf("%s - %s - %s - %s - %s - %s - %s - %s",
+		task.HealthStatus,
+		derefString(task.DesiredStatus),
+		derefString(task.LastStatus),
+		task.PullStartedAt.Format("2006-01-02 15:04:05"),
+		task.PullStoppedAt.Format("2006-01-02 15:04:05"),
+		task.StoppingAt.Format("2006-01-02 15:04:05"),
+		task.StoppedAt.Format("2006-01-02 15:04:05"),
+		derefString(task.StoppedReason),
+	)
+}
+
+func derefString(s *string) string {
+	if s != nil {
+		return *s
+	}
+	return ""
 }
