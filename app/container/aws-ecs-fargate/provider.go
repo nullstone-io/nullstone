@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
@@ -142,11 +143,8 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 		return app.StatusReport{}, fmt.Errorf("error retrieving fargate service: %w", err)
 	}
 
-	rolloutStatus, message := p.getRolloutStatus(svc.RunningCount, svc.PendingCount, svc.DesiredCount)
 	report := app.StatusReport{
-		Status:  rolloutStatus,
-		Message: message,
-		Fields:  []string{"Id", "Running", "Desired", "Pending"},
+		Fields: []string{"Id", "Running", "Desired", "Pending"},
 		Data: map[string]interface{}{
 			"Running": fmt.Sprintf("%d", svc.RunningCount),
 			"Desired": fmt.Sprintf("%d", svc.DesiredCount),
@@ -156,34 +154,24 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 	return report, nil
 }
 
-func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, details app.Details) (app.StatusReport, []string, error) {
+func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, details app.Details) (app.RolloutStatus, string, []string, error) {
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
-		return app.StatusReport{}, nil, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+		return app.RolloutStatusUnknown, "", nil, fmt.Errorf("Unable to identify app infrastructure: %w", err)
 	}
 
 	deployment, err := ic.GetDeployment(deploymentId)
 	if err != nil {
-		return app.StatusReport{}, nil, err
+		return app.RolloutStatusUnknown, "", nil, err
 	}
-	rolloutStatus, message := p.getRolloutStatus(deployment.RunningCount, deployment.PendingCount, deployment.DesiredCount)
+	rolloutStatus, message := p.getRolloutStatus(deployment)
 	encoder := json.NewEncoder(os.Stdout)
 	encoder.Encode(deployment)
-	// logger.Printf("%s - %s - %s - %s\n", deployment.Status, deployment.RolloutState, deployment.RolloutStateReason, deployment.FailedTasks)
-	report := app.StatusReport{
-		Status:  rolloutStatus,
-		Message: message,
-		Fields:  []string{"Id", "Running", "Desired", "Pending"},
-		Data: map[string]interface{}{
-			"Running": fmt.Sprintf("%d", deployment.RunningCount),
-			"Desired": fmt.Sprintf("%d", deployment.DesiredCount),
-			"Pending": fmt.Sprintf("%d", deployment.PendingCount),
-		},
-	}
+
 	tasks, err := ic.GetDeploymentTasks(deploymentId)
 	if err != nil {
-		return report, nil, err
+		return app.RolloutStatusUnknown, "", nil, err
 	}
 	taskMessages := make([]string, len(tasks))
 	for i, task := range tasks {
@@ -191,7 +179,7 @@ func (p Provider) DeploymentStatus(deploymentId string, nsConfig api.Config, det
 		taskMessages[i] = fmt.Sprintf("%s - %s - %s - %s - %s - %s - %s - %s", task.HealthStatus, task.DesiredStatus, task.LastStatus, task.PullStartedAt, task.PullStoppedAt, task.StoppingAt, task.StoppedAt, task.StoppedReason)
 	}
 
-	return report, taskMessages, nil
+	return rolloutStatus, message, taskMessages, nil
 }
 
 func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
@@ -269,12 +257,22 @@ func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.St
 	return reports, nil
 }
 
-func (p Provider) getRolloutStatus(running, pending, desired int32) (app.RolloutStatus, string) {
-	if running == desired {
-		return app.RolloutStatusComplete, fmt.Sprintf("All %d services are running", running)
-	} else if pending > 0 {
-		return app.RolloutStatusInProgress, fmt.Sprintf("%d out of %d services are running", running, desired)
-	} else {
-		return app.RolloutStatusInProgress, fmt.Sprintf("Not attempting to start any services")
+func (p Provider) getRolloutStatus(deployment *ecstypes.Deployment) (app.RolloutStatus, string) {
+	status := app.RolloutStatusUnknown
+	if deployment.RolloutState == "IN_PROGRESS" {
+		status = app.RolloutStatusInProgress
+	} else if deployment.RolloutState == "COMPLETED" {
+		status = app.RolloutStatusComplete
+	} else if deployment.RolloutState == "FAILED" {
+		status = app.RolloutStatusFailed
 	}
+	message := *deployment.RolloutStateReason
+	if deployment.RunningCount == deployment.DesiredCount {
+		message = fmt.Sprintf("%s All %d services are running.", message, deployment.RunningCount)
+	} else if deployment.DesiredCount > 0 {
+		message = fmt.Sprintf("%s %d running out of %d services are running.", message, deployment.RunningCount, deployment.DesiredCount)
+	} else {
+		message = fmt.Sprintf("%s Not attempting to start any services.")
+	}
+	return status, message
 }

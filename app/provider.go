@@ -9,16 +9,14 @@ type RolloutStatus string
 
 const (
 	RolloutStatusComplete   RolloutStatus = "complete"
-	RolloutStatusInProgress               = "in-progress"
-	RolloutStatusFailed                   = "failed"
-	RolloutStatusUnknown                  = "unknown"
+	RolloutStatusInProgress RolloutStatus = "in-progress"
+	RolloutStatusFailed     RolloutStatus = "failed"
+	RolloutStatusUnknown    RolloutStatus = "unknown"
 )
 
 type StatusReport struct {
-	Status  RolloutStatus
-	Message string
-	Fields  []string
-	Data    map[string]interface{}
+	Fields []string
+	Data   map[string]interface{}
 }
 
 type StatusDetailReports []StatusDetailReport
@@ -56,7 +54,7 @@ type Provider interface {
 	Status(nsConfig api.Config, details Details) (StatusReport, error)
 
 	// DeploymentStatus returns the status of a specific deployment, the other status methods are summaries
-	DeploymentStatus(deployReference string, nsConfig api.Config, details Details) (StatusReport, []string, error)
+	DeploymentStatus(deployReference string, nsConfig api.Config, details Details) (RolloutStatus, string, []string, error)
 
 	// StatusDetail returns a detailed status report on the specified app env
 	StatusDetail(nsConfig api.Config, details Details) (StatusDetailReports, error)
