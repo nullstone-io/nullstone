@@ -110,7 +110,7 @@ func findConnection(source *types.Workspace, connectionName, connectionType, con
 	}
 	hasType := connectionType != ""
 	hasContract := connectionContract != ""
-	if connectionName == "" || (!hasType && !hasContract) {
+	if connectionName == "" && (!hasType && !hasContract) {
 		return nil, fmt.Errorf("cannot find connection if name or type/contract is not specified")
 	}
 	var desiredContract types.ModuleContractName
