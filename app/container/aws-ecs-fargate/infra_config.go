@@ -176,7 +176,8 @@ func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) (*ecstypes.Depl
 func (c InfraConfig) GetTasks() ([]string, error) {
 	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
 	out, err := ecsClient.ListTasks(context.Background(), &ecs.ListTasksInput{
-		Cluster: aws.String(c.Outputs.Cluster.ClusterArn),
+		Cluster:     aws.String(c.Outputs.Cluster.ClusterArn),
+		ServiceName: aws.String(c.Outputs.ServiceName),
 	})
 	if err != nil {
 		return nil, err
@@ -201,6 +202,7 @@ func (c InfraConfig) GetDeployment(deploymentId string) (*ecstypes.Deployment, e
 func (c InfraConfig) GetDeploymentTasks(deploymentId string) ([]ecstypes.Task, error) {
 	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
 	tasks, err := ecsClient.ListTasks(context.Background(), &ecs.ListTasksInput{
+		Cluster:   aws.String(c.Outputs.Cluster.ClusterArn),
 		StartedBy: aws.String(deploymentId),
 	})
 	if err != nil {
@@ -208,7 +210,8 @@ func (c InfraConfig) GetDeploymentTasks(deploymentId string) ([]ecstypes.Task, e
 	}
 
 	out, err := ecsClient.DescribeTasks(context.Background(), &ecs.DescribeTasksInput{
-		Tasks: tasks.TaskArns,
+		Cluster: aws.String(c.Outputs.Cluster.ClusterArn),
+		Tasks:   tasks.TaskArns,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("unable to get task details: %w", err)
