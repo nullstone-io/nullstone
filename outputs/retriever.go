@@ -7,6 +7,15 @@ import (
 	"reflect"
 )
 
+func Retrieve[T any](nsConfig api.Config, workspace *types.Workspace) (T, error) {
+	var t T
+	r := Retriever{NsConfig: nsConfig}
+	if err := r.Retrieve(workspace, &t); err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 type Retriever struct {
 	NsConfig api.Config
 }

@@ -112,7 +112,7 @@ func TestRetriever_Retrieve(t *testing.T) {
 						Reference: &types.ConnectionTarget{
 							StackId: 1,
 							BlockId: 7,
-							EnvId: nil,
+							EnvId:   nil,
 						},
 						Unused: false,
 					},
@@ -145,7 +145,6 @@ func TestRetriever_Retrieve(t *testing.T) {
 				"key3": "value3",
 			},
 		}
-
 
 		retriever := Retriever{NsConfig: nsConfig}
 		var got MockFlatOutputs
