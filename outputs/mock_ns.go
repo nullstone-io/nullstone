@@ -13,10 +13,17 @@ import (
 func mockNs(workspaces []types.Workspace) (*httptest.Server, api.Config) {
 	mux := http.NewServeMux()
 	for _, workspace := range workspaces {
+		cur := workspace
 		endpoint := fmt.Sprintf("/orgs/%s/stacks/%d/blocks/%d/envs/%d",
-			workspace.OrgName, workspace.StackId, workspace.BlockId, workspace.EnvId)
+			cur.OrgName, cur.StackId, cur.BlockId, cur.EnvId)
 		mux.Handle(endpoint, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			raw, _ := json.Marshal(workspace)
+			raw, _ := json.Marshal(cur)
+			w.Write(raw)
+		}))
+		outputsEndpoint := fmt.Sprintf("/orgs/%s/stacks/%d/blocks/%d/envs/%d/outputs/latest",
+			cur.OrgName, cur.StackId, cur.BlockId, cur.EnvId)
+		mux.Handle(outputsEndpoint, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			raw, _ := json.Marshal(cur.LastFinishedRun.Apply.Outputs)
 			w.Write(raw)
 		}))
 	}

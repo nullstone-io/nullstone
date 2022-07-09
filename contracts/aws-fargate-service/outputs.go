@@ -14,7 +14,7 @@ type Outputs struct {
 	MainContainerName string          `ns:"main_container_name,optional"`
 	Deployer          aws.User        `ns:"deployer,optional"`
 
-	Cluster aws_fargate.Outputs `ns:",connectionType:cluster/aws-fargate"`
+	Cluster aws_fargate.Outputs `ns:",connectionType:cluster/aws-fargate,connectionContract=cluster/aws/ecs:fargate"`
 }
 
 func (o Outputs) GetDeployer() aws.User {
