@@ -24,7 +24,7 @@ var Push = func(providers app.Providers) *cli.Command {
 			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
 				source := c.String("source")
 				version := DetectAppVersion(c)
-				return provider.Push(cfg, details, source, version)
+				return provider.Push(logger, cfg, details, source, version)
 			})
 		},
 	}

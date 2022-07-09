@@ -11,10 +11,6 @@ import (
 	"os"
 )
 
-var (
-	logger = log.New(os.Stderr, "", 0)
-)
-
 var _ app.Provider = Provider{}
 
 var ModuleContractName = types.ModuleContractName{
@@ -32,7 +28,7 @@ func (p Provider) DefaultLogProvider() string {
 	return "cloudwatch"
 }
 
-func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConfig, error) {
+func (p Provider) identify(logger *log.Logger, nsConfig api.Config, details app.Details) (*InfraConfig, error) {
 	logger.Printf("Identifying infrastructure for app %q\n", details.App.Name)
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
@@ -44,8 +40,8 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 }
 
 // Push will upload the versioned artifact to the source artifact bucket for the lambda
-func (p Provider) Push(nsConfig api.Config, details app.Details, source, version string) error {
-	ic, err := p.identify(nsConfig, details)
+func (p Provider) Push(logger *log.Logger, nsConfig api.Config, details app.Details, source, version string) error {
+	ic, err := p.identify(logger, nsConfig, details)
 	if err != nil {
 		return err
 	}
@@ -81,8 +77,8 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, source, version
 // Deploy takes the following steps to deploy an AWS Lambda service
 //   Update app version in nullstone
 //   Update function code to use just-uploaded archive
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, version string) (*string, error) {
-	ic, err := p.identify(nsConfig, details)
+func (p Provider) Deploy(logger *log.Logger, nsConfig api.Config, details app.Details, version string) (*string, error) {
+	ic, err := p.identify(logger, nsConfig, details)
 	if err != nil {
 		return nil, err
 	}
@@ -104,22 +100,22 @@ func (p Provider) Deploy(nsConfig api.Config, details app.Details, version strin
 	return nil, nil
 }
 
-func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+func (p Provider) Exec(ctx context.Context, logger *log.Logger, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
 	return fmt.Errorf("exec is not implemented for the lambda:zip provider yet")
 }
 
-func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
+func (p Provider) Ssh(ctx context.Context, logger *log.Logger, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
 	return fmt.Errorf("ssh is not supported for the lambda:zip provider")
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
+func (p Provider) Status(logger *log.Logger, nsConfig api.Config, details app.Details) (app.StatusReport, error) {
 	return app.StatusReport{}, fmt.Errorf("status is not supported for the lambda:zip provider")
 }
 
-func (p Provider) DeploymentStatus(deployReference string, nsConfig api.Config, details app.Details) (app.RolloutStatus, string, []string, error) {
-	return app.RolloutStatusUnknown, "", nil, fmt.Errorf("deployment status is not supported for the lambda:zip provider")
+func (p Provider) DeploymentStatus(logger *log.Logger, nsConfig api.Config, deployReference string, details app.Details) (app.RolloutStatus, error) {
+	return app.RolloutStatusUnknown, fmt.Errorf("deployment status is not supported for the lambda:zip provider")
 }
 
-func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
+func (p Provider) StatusDetail(logger *log.Logger, nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
 	return app.StatusDetailReports{}, fmt.Errorf("status detail is not supported for the lambda:zip provider")
 }

@@ -164,7 +164,7 @@ func getStatusReport(cfg api.Config, providers app.Providers, appDetails app.Det
 		return report, nil
 	}
 
-	return provider.Status(cfg, appDetails)
+	return provider.Status(logger, cfg, appDetails)
 }
 
 func getStatusDetailReports(cfg api.Config, providers app.Providers, appDetails app.Details) (app.StatusDetailReports, error) {
@@ -179,5 +179,5 @@ func getStatusDetailReports(cfg api.Config, providers app.Providers, appDetails 
 		return report, nil
 	}
 
-	return provider.StatusDetail(cfg, appDetails)
+	return provider.StatusDetail(logger, cfg, appDetails)
 }

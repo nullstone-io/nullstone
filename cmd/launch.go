@@ -34,13 +34,13 @@ var Launch = func(providers app.Providers, logProviders app_logs.Providers) *cli
 				version := DetectAppVersion(c)
 
 				logger.Println("Pushing app artifact...")
-				if err := provider.Push(cfg, details, source, version); err != nil {
+				if err := provider.Push(logger, cfg, details, source, version); err != nil {
 					return fmt.Errorf("error pushing artifact: %w", err)
 				}
 				logger.Println()
 
 				logger.Println("Deploying application...")
-				if _, err := provider.Deploy(cfg, details, version); err != nil {
+				if _, err := provider.Deploy(logger, cfg, details, version); err != nil {
 					return fmt.Errorf("error deploying app: %w", err)
 				}
 				logger.Println()
