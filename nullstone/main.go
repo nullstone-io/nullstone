@@ -28,8 +28,8 @@ var (
 func main() {
 	appProviders := app.Providers{
 		aws_ecr.ModuleContractName:              aws_ecr.Provider{},
-		aws_ecs_fargate.ModuleContractName:      aws_ecs_fargate.Provider{},
-		aws_ecs_ec2.ModuleContractName:          aws_ecs_ec2.Provider{},
+		aws_ecs_fargate.ModuleContractName:      aws_ecs_fargate.NewProvider,
+		aws_ecs_ec2.ModuleContractName:          aws_ecs_ec2.NewProvider,
 		aws_s3.ModuleContractName:               aws_s3.Provider{},
 		aws_lambda_zip.ModuleContractName:       aws_lambda_zip.Provider{},
 		aws_lambda_container.ModuleContractName: aws_lambda_container.Provider{},

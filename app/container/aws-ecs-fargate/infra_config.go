@@ -27,29 +27,6 @@ func (c InfraConfig) Print(logger *log.Logger) {
 	logger.Printf("repository image url: %q\n", c.Outputs.ImageRepoUrl)
 }
 
-func (c InfraConfig) GetTaskDefinition() (*ecstypes.TaskDefinition, error) {
-	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
-
-	out1, err := ecsClient.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
-		Services: []string{c.Outputs.ServiceName},
-		Cluster:  aws.String(c.Outputs.Cluster.ClusterArn),
-	})
-	if err != nil {
-		return nil, err
-	}
-	if len(out1.Services) < 1 {
-		return nil, fmt.Errorf("could not find service %q in cluster %q", c.Outputs.ServiceName, c.Outputs.Cluster.ClusterArn)
-	}
-
-	out2, err := ecsClient.DescribeTaskDefinition(context.Background(), &ecs.DescribeTaskDefinitionInput{
-		TaskDefinition: out1.Services[0].TaskDefinition,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return out2.TaskDefinition, nil
-}
-
 func (c InfraConfig) UpdateTaskImageTag(taskDefinition *ecstypes.TaskDefinition, imageTag string) (*ecstypes.TaskDefinition, error) {
 	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
 

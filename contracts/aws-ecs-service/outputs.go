@@ -15,9 +15,5 @@ type Outputs struct {
 	MainContainerName string          `ns:"main_container_name,optional"`
 	Deployer          aws.User        `ns:"deployer,optional"`
 
-	Cluster aws_ecs.Outputs `ns:",connectionType:cluster/aws-ecs"`
-}
-
-func (o Outputs) GetDeployer() aws.User {
-	return o.Deployer
+	Cluster aws_ecs.Outputs `ns:",connectionContract=cluster/aws/ecs:*"`
 }

@@ -6,15 +6,11 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
-	aws_ecr "gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/ecr"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
-	"os"
-)
-
-var (
-	logger = log.New(os.Stderr, "", 0)
 )
 
 var ModuleContractName = types.ModuleContractName{
@@ -25,71 +21,35 @@ var ModuleContractName = types.ModuleContractName{
 	Subplatform: "fargate",
 }
 
-var _ app.Provider = Provider{}
+func NewProvider(logger *log.Logger, nsConfig api.Config, appDetails app.Details) app.Provider {
+	return Provider{
+		Logger:     logger,
+		NsConfig:   nsConfig,
+		AppDetails: appDetails,
+	}
+}
 
 type Provider struct {
+	Logger     *log.Logger
+	NsConfig   api.Config
+	AppDetails app.Details
+}
+
+func (p Provider) NewPusher() (app.Pusher, error) {
+	return ecr.NewPusher(p.Logger, p.NsConfig, p.AppDetails)
+}
+
+func (p Provider) NewDeployer() (app.Deployer, error) {
+	return ecs.NewDeployer(p.Logger, p.NsConfig, p.AppDetails)
+}
+
+func (p Provider) NewDeployStatusGetter() (app.DeployStatusGetter, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (p Provider) DefaultLogProvider() string {
 	return "cloudwatch"
-}
-
-func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConfig, error) {
-	logger.Printf("Identifying infrastructure for app %q\n", details.App.Name)
-	ic := &InfraConfig{}
-	retriever := outputs.Retriever{NsConfig: nsConfig}
-	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
-		return nil, fmt.Errorf("Unable to identify app infrastructure: %w", err)
-	}
-	ic.Print(logger)
-	return ic, nil
-}
-
-func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return (aws_ecr.Provider{}).Push(nsConfig, details, userConfig)
-}
-
-// Deploy takes the following steps to deploy an AWS ECS service
-//   Get task definition
-//   Change image tag in task definition
-//   Register new task definition
-//   Deregister old task definition
-//   Update ECS Service (This always causes deployment)
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	ic, err := p.identify(nsConfig, details)
-	if err != nil {
-		return err
-	}
-
-	taskDef, err := ic.GetTaskDefinition()
-	if err != nil {
-		return fmt.Errorf("error retrieving current service information: %w", err)
-	}
-
-	logger.Printf("Deploying app %q\n", details.App.Name)
-	version := userConfig["version"]
-	if version == "" {
-		return fmt.Errorf("no version specified, version is required to deploy")
-	}
-	taskDefArn := *taskDef.TaskDefinitionArn
-	logger.Printf("Updating app version to %q\n", version)
-	if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version); err != nil {
-		return fmt.Errorf("error updating app version in nullstone: %w", err)
-	}
-
-	logger.Printf("Updating image tag to %q\n", version)
-	newTaskDef, err := ic.UpdateTaskImageTag(taskDef, version)
-	if err != nil {
-		return fmt.Errorf("error updating task with new image tag: %w", err)
-	}
-	taskDefArn = *newTaskDef.TaskDefinitionArn
-
-	if err := ic.UpdateServiceTask(taskDefArn); err != nil {
-		return fmt.Errorf("error deploying service: %w", err)
-	}
-
-	logger.Printf("Deployed app %q\n", details.App.Name)
-	return nil
 }
 
 func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
