@@ -27,7 +27,7 @@ var Exec = func(providers app.Providers) *cli.Command {
 				userConfig["cmd"] = c.Args().Get(c.Args().Len() - 1)
 			}
 
-			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
+			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.ProviderOld, details app.Details) error {
 				return provider.Exec(ctx, cfg, details, userConfig)
 			})
 		},

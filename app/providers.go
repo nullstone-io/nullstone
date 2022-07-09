@@ -1,10 +1,24 @@
 package app
 
-import "gopkg.in/nullstone-io/go-api-client.v0/types"
+import (
+	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"log"
+)
 
-type Providers map[types.ModuleContractName]Provider
+type ProviderFactory func(logger *log.Logger, nsConfig api.Config, appDetails Details) Provider
 
-func (p Providers) Find(curModule types.Module) Provider {
+type Providers map[types.ModuleContractName]ProviderFactory
+
+func (s Providers) Find(logger *log.Logger, nsConfig api.Config, appDetails Details) Provider {
+	factory := s.FindFactory(*appDetails.Module)
+	if factory == nil {
+		return nil
+	}
+	return factory(logger, nsConfig, appDetails)
+}
+
+func (s Providers) FindFactory(curModule types.Module) ProviderFactory {
 	if len(curModule.ProviderTypes) <= 0 {
 		return nil
 	}
@@ -19,7 +33,7 @@ func (p Providers) Find(curModule types.Module) Provider {
 		Platform:    curModule.Platform,
 		Subplatform: curModule.Subplatform,
 	}
-	for k, v := range p {
+	for k, v := range s {
 		if k.Match(curContract) {
 			return v
 		}

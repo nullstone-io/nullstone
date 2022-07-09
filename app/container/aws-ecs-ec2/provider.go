@@ -25,7 +25,7 @@ var ModuleContractName = types.ModuleContractName{
 	Subplatform: "ec2",
 }
 
-var _ app.Provider = Provider{}
+var _ app.ProviderOld = Provider{}
 
 type Provider struct {
 }

@@ -74,7 +74,7 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
 				}
 			}
 
-			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
+			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.ProviderOld, details app.Details) error {
 				logProvider, err := logProviders.Identify(provider.DefaultLogProvider(), cfg, details)
 				if err != nil {
 					return err

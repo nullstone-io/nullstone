@@ -16,7 +16,7 @@ var (
 	logger = log.New(os.Stderr, "", 0)
 )
 
-var _ app.Provider = Provider{}
+var _ app.ProviderOld = Provider{}
 
 var ModuleContractName = types.ModuleContractName{
 	Category:    string(types.CategoryApp),

@@ -27,7 +27,7 @@ var Launch = func(providers app.Providers, logProviders app_logs.Providers) *cli
 			AppVersionFlag,
 		},
 		Action: func(c *cli.Context) error {
-			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
+			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.ProviderOld, details app.Details) error {
 				logger := log.New(os.Stderr, "", 0)
 
 				userConfig := map[string]string{
