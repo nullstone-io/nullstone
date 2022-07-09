@@ -1,0 +1,223 @@
+package aws_ecs_ec2
+
+import (
+	"context"
+	"fmt"
+	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
+	"gopkg.in/nullstone-io/nullstone.v0/config"
+	"gopkg.in/nullstone-io/nullstone.v0/outputs"
+	"log"
+	"os"
+)
+
+var (
+	logger = log.New(os.Stderr, "", 0)
+)
+
+var ModuleContractName = types.ModuleContractName{
+	Category:    string(types.CategoryApp),
+	Subcategory: string(types.SubcategoryAppContainer),
+	Provider:    "aws",
+	Platform:    "ecs",
+	Subplatform: "ec2",
+}
+
+var _ app.Provider = Provider{}
+
+type Provider struct {
+}
+
+func (p Provider) DefaultLogProvider() string {
+	return "cloudwatch"
+}
+
+func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConfig, error) {
+	logger.Printf("Identifying infrastructure for app %q\n", details.App.Name)
+	ic := &InfraConfig{}
+	retriever := outputs.Retriever{NsConfig: nsConfig}
+	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
+		return nil, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+	}
+	ic.Print(logger)
+	return ic, nil
+}
+
+func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+	return (aws_ecr.Provider{}).Push(nsConfig, details, userConfig)
+}
+
+// Deploy takes the following steps to deploy an AWS ECS service
+//   Get task definition
+//   Change image tag in task definition
+//   Register new task definition
+//   Deregister old task definition
+//   Update ECS Service (This always causes deployment)
+func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+	ic, err := p.identify(nsConfig, details)
+	if err != nil {
+		return err
+	}
+
+	logger.Printf("Deploying app %q\n", details.App.Name)
+	version := userConfig["version"]
+	if version == "" {
+		return fmt.Errorf("no version specified, version is required to deploy")
+	}
+
+	logger.Printf("Updating app version to %q\n", version)
+	if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version); err != nil {
+		return fmt.Errorf("error updating app version in nullstone: %w", err)
+	}
+
+	taskDef, err := ic.GetTaskDefinition()
+	if err != nil {
+		return fmt.Errorf("error retrieving current service information: %w", err)
+	} else if taskDef == nil {
+		logger.Printf("No task")
+	}
+	taskDefArn := *taskDef.TaskDefinitionArn
+
+	logger.Printf("Updating image tag to %q\n", version)
+	newTaskDef, err := ic.UpdateTaskImageTag(taskDef, version)
+	if err != nil {
+		return fmt.Errorf("error updating task with new image tag: %w", err)
+	}
+	taskDefArn = *newTaskDef.TaskDefinitionArn
+
+	if ic.Outputs.ServiceName == "" {
+		logger.Printf("No service name in outputs. Skipping update service.")
+	} else if err := ic.UpdateServiceTask(taskDefArn); err != nil {
+		return fmt.Errorf("error deploying service: %w", err)
+	}
+
+	logger.Printf("Deployed app %q\n", details.App.Name)
+	return nil
+}
+
+func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+	ic, err := p.identify(nsConfig, details)
+	if err != nil {
+		return err
+	}
+
+	task := userConfig["task"]
+	if task == "" {
+		if task, err = ic.GetRandomTask(); err != nil {
+			return err
+		} else if task == "" {
+			return fmt.Errorf("cannot exec command with no running tasks")
+		}
+	}
+
+	return ic.ExecCommand(ctx, task, userConfig["cmd"], nil)
+}
+
+func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
+	ic, err := p.identify(nsConfig, details)
+	if err != nil {
+		return err
+	}
+
+	task, _ := userConfig["task"].(string)
+	if task == "" {
+		if task, err = ic.GetRandomTask(); err != nil {
+			return err
+		} else if task == "" {
+			return fmt.Errorf("cannot exec command with no running tasks")
+		}
+	}
+
+	if forwards, ok := userConfig["forwards"].([]config.PortForward); ok && len(forwards) > 0 {
+		return fmt.Errorf("ecs:ec2 provider does not support port forwarding")
+	}
+
+	return ic.ExecCommand(ctx, task, "/bin/sh", nil)
+}
+
+func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
+	ic := &InfraConfig{}
+	retriever := outputs.Retriever{NsConfig: nsConfig}
+	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
+		return app.StatusReport{}, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+	}
+
+	svc, err := ic.GetService()
+	if err != nil {
+		return app.StatusReport{}, fmt.Errorf("error retrieving ecs service: %w", err)
+	}
+
+	return app.StatusReport{
+		Fields: []string{"Running", "Desired", "Pending"},
+		Data: map[string]interface{}{
+			"Running": fmt.Sprintf("%d", svc.RunningCount),
+			"Desired": fmt.Sprintf("%d", svc.DesiredCount),
+			"Pending": fmt.Sprintf("%d", svc.PendingCount),
+		},
+	}, nil
+}
+
+func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
+	reports := app.StatusDetailReports{}
+
+	ic := &InfraConfig{}
+	retriever := outputs.Retriever{NsConfig: nsConfig}
+	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
+		return reports, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+	}
+
+	svc, err := ic.GetService()
+	if err != nil {
+		return reports, fmt.Errorf("error retrieving ecs service: %w", err)
+	}
+
+	deploymentReport := app.StatusDetailReport{
+		Name:    "Deployments",
+		Records: app.StatusRecords{},
+	}
+	for _, deployment := range svc.Deployments {
+		record := app.StatusRecord{
+			Fields: []string{"Created", "Status", "Running", "Desired", "Pending"},
+			Data: map[string]interface{}{
+				"Created": fmt.Sprintf("%s", *deployment.CreatedAt),
+				"Status":  *deployment.Status,
+				"Running": fmt.Sprintf("%d", deployment.RunningCount),
+				"Desired": fmt.Sprintf("%d", deployment.DesiredCount),
+				"Pending": fmt.Sprintf("%d", deployment.PendingCount),
+			},
+		}
+		deploymentReport.Records = append(deploymentReport.Records, record)
+	}
+	reports = append(reports, deploymentReport)
+
+	lbReport := app.StatusDetailReport{
+		Name:    "Load Balancers",
+		Records: app.StatusRecords{},
+	}
+	for _, lb := range svc.LoadBalancers {
+		targets, err := ic.GetTargetGroupHealth(*lb.TargetGroupArn)
+		if err != nil {
+			return reports, fmt.Errorf("error retrieving load balancer target health: %w", err)
+		}
+
+		for _, target := range targets {
+			record := app.StatusRecord{
+				Fields: []string{"Port", "Target", "Status"},
+				Data:   map[string]interface{}{"Port": fmt.Sprintf("%d", *lb.ContainerPort)},
+			}
+			record.Data["Target"] = *target.Target.Id
+			record.Data["Status"] = target.TargetHealth.State
+			if target.TargetHealth.Reason != "" {
+				record.Fields = append(record.Fields, "Reason")
+				record.Data["Reason"] = target.TargetHealth.Reason
+			}
+
+			lbReport.Records = append(lbReport.Records, record)
+		}
+	}
+	reports = append(reports, lbReport)
+
+	return reports, nil
+}
