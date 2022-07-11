@@ -12,7 +12,6 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
 	"strings"
-	"time"
 )
 
 var ModuleContractName = types.ModuleContractName{
@@ -217,18 +216,14 @@ func (p Provider) StatusDetail(logger *log.Logger, nsConfig api.Config, details 
 				"Running",
 				"Desired",
 				"Pending",
-				"Rollout Status",
-				"Rollout Status Reason",
 			},
 			Data: map[string]interface{}{
-				"Id":                    deployment.Id,
-				"Created":               fmt.Sprintf("%s", *deployment.CreatedAt),
-				"Status":                *deployment.Status,
-				"Running":               fmt.Sprintf("%d", deployment.RunningCount),
-				"Desired":               fmt.Sprintf("%d", deployment.DesiredCount),
-				"Pending":               fmt.Sprintf("%d", deployment.PendingCount),
-				"Rollout Status":        deployment.RolloutState,
-				"Rollout Status Reason": deployment.RolloutStateReason,
+				"Id":      deployment.Id,
+				"Created": fmt.Sprintf("%s", *deployment.CreatedAt),
+				"Status":  *deployment.Status,
+				"Running": fmt.Sprintf("%d", deployment.RunningCount),
+				"Desired": fmt.Sprintf("%d", deployment.DesiredCount),
+				"Pending": fmt.Sprintf("%d", deployment.PendingCount),
 			},
 		}
 		deploymentReport.Records = append(deploymentReport.Records, record)
@@ -286,30 +281,9 @@ func getRolloutStatus(logger *log.Logger, deployment *ecstypes.Deployment) app.R
 	return status
 }
 
-func formatTaskStatus(task ecstypes.Task) string {
-	return fmt.Sprintf("%s - %s - %s - %s - %s - %s - %s - %s - %s",
-		derefString(task.TaskArn),
-		task.HealthStatus,
-		derefString(task.DesiredStatus),
-		derefString(task.LastStatus),
-		formatTime(task.PullStartedAt),
-		formatTime(task.PullStoppedAt),
-		formatTime(task.StoppingAt),
-		formatTime(task.StoppedAt),
-		derefString(task.StoppedReason),
-	)
-}
-
 func derefString(s *string) string {
 	if s != nil {
 		return *s
-	}
-	return ""
-}
-
-func formatTime(t *time.Time) string {
-	if t != nil {
-		return t.Format("2006-01-02 15:04:05")
 	}
 	return ""
 }
