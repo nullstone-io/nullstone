@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"log"
 )
 
 func CreateDeploy(nsConfig api.Config, stackId, appId, envId int64, version string) error {
@@ -17,5 +18,7 @@ func CreateDeploy(nsConfig api.Config, stackId, appId, envId int64, version stri
 	} else if result == nil {
 		return fmt.Errorf("could not find application environment")
 	}
+
+	log.Println("Deployment created")
 	return nil
 }
