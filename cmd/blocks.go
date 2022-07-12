@@ -142,7 +142,7 @@ var BlocksNew = &cli.Command{
 				Connections:         connections,
 				ParentBlocks:        parentBlocks,
 			}
-			if strings.HasPrefix(string(module.Category), "app/") {
+			if strings.HasPrefix(string(module.Category), "app") {
 				app := &types.Application{
 					Block:     *block,
 					Repo:      "",

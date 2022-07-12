@@ -1,3 +1,7 @@
+# 0.0.65 (Jul 11, 2022)
+* Added application support for `app:container/aws/ecs:ec2`.
+* Fixed `blocks new` when the selected module is an application module.
+
 # 0.0.64 (Jul 01, 2022)
 * Fixed selection of category when running `modules generate`.
 
