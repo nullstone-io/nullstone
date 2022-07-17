@@ -41,7 +41,7 @@ var Ssh = func(providers app.Providers) *cli.Command {
 			userConfig["forwards"] = forwards
 
 			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
-				return provider.Ssh(ctx, cfg, details, userConfig)
+				return provider.Ssh(ctx, logger, cfg, details, userConfig)
 			})
 		},
 	}

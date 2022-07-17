@@ -13,6 +13,7 @@ import (
 	aws_fargate_service "gopkg.in/nullstone-io/nullstone.v0/contracts/aws-fargate-service"
 	"gopkg.in/nullstone-io/nullstone.v0/docker"
 	"log"
+	"sort"
 )
 
 // InfraConfig provides a minimal understanding of the infrastructure provisioned for a module type=aws-fargate
@@ -145,16 +146,31 @@ func (c InfraConfig) GetTargetGroupHealth(targetGroupArn string) ([]elbv2types.T
 	return out.TargetHealthDescriptions, nil
 }
 
-func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) error {
+func (c InfraConfig) UpdateServiceTask(taskDefinitionArn string) (*ecstypes.Deployment, error) {
 	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
 
-	_, err := ecsClient.UpdateService(context.Background(), &ecs.UpdateServiceInput{
+	output, err := ecsClient.UpdateService(context.Background(), &ecs.UpdateServiceInput{
 		Service:            aws.String(c.Outputs.ServiceName),
 		Cluster:            aws.String(c.Outputs.Cluster.ClusterArn),
 		ForceNewDeployment: true,
 		TaskDefinition:     aws.String(taskDefinitionArn),
 	})
-	return err
+
+	if err != nil {
+		return nil, fmt.Errorf("unable to update service task: %w", err)
+	}
+
+	deployments := output.Service.Deployments
+	sort.SliceStable(deployments, func(i, j int) bool {
+		return deployments[i].CreatedAt.After(*deployments[j].CreatedAt)
+	})
+	for _, deployment := range deployments {
+		if *deployment.TaskDefinition == taskDefinitionArn {
+			return &deployment, nil
+		}
+	}
+
+	return nil, fmt.Errorf("unable to find the deployment associated with the updated service task: %s", taskDefinitionArn)
 }
 
 func (c InfraConfig) GetTasks() ([]string, error) {
@@ -167,6 +183,47 @@ func (c InfraConfig) GetTasks() ([]string, error) {
 		return nil, err
 	}
 	return out.TaskArns, nil
+}
+
+func (c InfraConfig) GetDeployment(deploymentId string) (*ecstypes.Deployment, error) {
+	svc, err := c.GetService()
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving fargate service: %w", err)
+	}
+
+	for _, deployment := range svc.Deployments {
+		if *deployment.Id == deploymentId {
+			return &deployment, nil
+		}
+	}
+	return nil, fmt.Errorf("no deployments returned with an id of %s", deploymentId)
+}
+
+func (c InfraConfig) GetDeploymentTasks(deploymentId string) ([]ecstypes.Task, error) {
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(c.Outputs.GetDeployer(), c.Outputs.Region))
+	tasks, err := ecsClient.ListTasks(context.Background(), &ecs.ListTasksInput{
+		Cluster:     aws.String(c.Outputs.Cluster.ClusterArn),
+		ServiceName: aws.String(c.Outputs.ServiceName),
+		// StartedBy: aws.String(deploymentId),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("unable to get tasks associated with deployment (%s): %w", deploymentId, err)
+	}
+
+	// if there aren't any tasks returned, we can't fetch any task descriptions
+	if len(tasks.TaskArns) == 0 {
+		return nil, nil
+	}
+
+	out, err := ecsClient.DescribeTasks(context.Background(), &ecs.DescribeTasksInput{
+		Cluster: aws.String(c.Outputs.Cluster.ClusterArn),
+		Tasks:   tasks.TaskArns,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("unable to get task details: %w", err)
+	}
+
+	return out.Tasks, nil
 }
 
 func (c InfraConfig) GetRandomTask() (string, error) {

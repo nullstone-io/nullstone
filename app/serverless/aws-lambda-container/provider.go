@@ -9,11 +9,6 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/app/container/aws-ecr"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
-	"os"
-)
-
-var (
-	logger = log.New(os.Stderr, "", 0)
 )
 
 var _ app.Provider = Provider{}
@@ -33,7 +28,7 @@ func (p Provider) DefaultLogProvider() string {
 	return "cloudwatch"
 }
 
-func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConfig, error) {
+func (p Provider) identify(logger *log.Logger, nsConfig api.Config, details app.Details) (*InfraConfig, error) {
 	logger.Printf("Identifying infrastructure for app %q\n", details.App.Name)
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
@@ -45,54 +40,52 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 }
 
 // Push will upload the versioned artifact to the ECR repository for the lambda
-func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return (aws_ecr.Provider{}).Push(nsConfig, details, userConfig)
+func (p Provider) Push(logger *log.Logger, nsConfig api.Config, details app.Details, source, version string) error {
+	return (aws_ecr.Provider{}).Push(logger, nsConfig, details, source, version)
 }
 
 // Deploy takes the following steps to deploy an AWS Lambda service
 //   Update app version in nullstone
 //   Update function code to use just-uploaded image
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	ic, err := p.identify(nsConfig, details)
+func (p Provider) Deploy(logger *log.Logger, nsConfig api.Config, details app.Details, version string) (*string, error) {
+	ic, err := p.identify(logger, nsConfig, details)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// TODO: Add cancellation support so users can press Control+C to kill deploy
 	ctx := context.TODO()
 
 	logger.Printf("Deploying app %q\n", details.App.Name)
-	version := userConfig["version"]
 	if version == "" {
-		return fmt.Errorf("--version is required to deploy app")
-	}
-
-	logger.Printf("Updating app version to %q\n", version)
-	if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version); err != nil {
-		return fmt.Errorf("error updating app version in nullstone: %w", err)
+		return nil, fmt.Errorf("--version is required to deploy app")
 	}
 
 	logger.Printf("Updating lambda to %q\n", version)
 	if err := ic.UpdateLambdaVersion(ctx, version); err != nil {
-		return fmt.Errorf("error updating lambda version: %w", err)
+		return nil, fmt.Errorf("error updating lambda version: %w", err)
 	}
 
 	logger.Printf("Deployed app %q\n", details.App.Name)
-	return nil
+	return nil, nil
 }
 
-func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+func (p Provider) Exec(ctx context.Context, logger *log.Logger, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
 	return fmt.Errorf("exec is not implemented for the lambda:container provider yet")
 }
 
-func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
+func (p Provider) Ssh(ctx context.Context, logger *log.Logger, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
 	return fmt.Errorf("ssh is not supported for the lambda:container provider")
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
-	return app.StatusReport{}, nil
+func (p Provider) Status(logger *log.Logger, nsConfig api.Config, details app.Details) (app.StatusReport, error) {
+	return app.StatusReport{}, fmt.Errorf("status is not supported for the lambda:container provider")
 }
 
-func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
-	return app.StatusDetailReports{}, nil
+func (p Provider) DeploymentStatus(logger *log.Logger, nsConfig api.Config, deployReference string, details app.Details) (app.RolloutStatus, error) {
+	return app.RolloutStatusUnknown, fmt.Errorf("deployment status is not supported for the lambda:container provider")
+}
+
+func (p Provider) StatusDetail(logger *log.Logger, nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
+	return app.StatusDetailReports{}, fmt.Errorf("status detail is not supported for the lambda:container provider")
 }

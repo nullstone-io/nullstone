@@ -30,19 +30,17 @@ var Launch = func(providers app.Providers, logProviders app_logs.Providers) *cli
 			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
 				logger := log.New(os.Stderr, "", 0)
 
-				userConfig := map[string]string{
-					"source":  c.String("source"),
-					"version": DetectAppVersion(c),
-				}
+				source := c.String("source")
+				version := DetectAppVersion(c)
 
 				logger.Println("Pushing app artifact...")
-				if err := provider.Push(cfg, details, userConfig); err != nil {
+				if err := provider.Push(logger, cfg, details, source, version); err != nil {
 					return fmt.Errorf("error pushing artifact: %w", err)
 				}
 				logger.Println()
 
 				logger.Println("Deploying application...")
-				if err := provider.Deploy(cfg, details, userConfig); err != nil {
+				if _, err := provider.Deploy(logger, cfg, details, version); err != nil {
 					return fmt.Errorf("error deploying app: %w", err)
 				}
 				logger.Println()

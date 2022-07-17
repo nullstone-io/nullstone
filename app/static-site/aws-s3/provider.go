@@ -9,11 +9,6 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/artifacts"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
-	"os"
-)
-
-var (
-	logger = log.New(os.Stderr, "", 0)
 )
 
 var _ app.Provider = Provider{}
@@ -33,7 +28,7 @@ func (p Provider) DefaultLogProvider() string {
 	return "s3"
 }
 
-func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConfig, error) {
+func (p Provider) identify(logger *log.Logger, nsConfig api.Config, details app.Details) (*InfraConfig, error) {
 	logger.Printf("Identifying infrastructure for app %q\n", details.App.Name)
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
@@ -44,19 +39,17 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 	return ic, nil
 }
 
-func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	ic, err := p.identify(nsConfig, details)
+func (p Provider) Push(logger *log.Logger, nsConfig api.Config, details app.Details, source, version string) error {
+	ic, err := p.identify(logger, nsConfig, details)
 	if err != nil {
 		return err
 	}
 
 	// TODO: Add cancellation support so users can press Control+C to kill push
 	ctx := context.TODO()
-	source := userConfig["source"]
 	if source == "" {
 		return fmt.Errorf("no source specified, source artifact (directory or achive) is required to push")
 	}
-	version := userConfig["version"]
 	if version == "" {
 		return fmt.Errorf("no version specified, version is required to push")
 	}
@@ -74,54 +67,52 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 	return nil
 }
 
-func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+func (p Provider) Exec(ctx context.Context, logger *log.Logger, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
 	return fmt.Errorf("exec is not supported for the s3 provider")
 }
 
-func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
+func (p Provider) Ssh(ctx context.Context, logger *log.Logger, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
 	return fmt.Errorf("ssh is not supported for the s3 provider")
 }
 
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	ic, err := p.identify(nsConfig, details)
+func (p Provider) Deploy(logger *log.Logger, nsConfig api.Config, details app.Details, version string) (*string, error) {
+	ic, err := p.identify(logger, nsConfig, details)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// TODO: Add cancellation support so users can press Control+C to kill deploy
 	ctx := context.TODO()
 
 	logger.Printf("Deploying app %q\n", details.App.Name)
-	version := userConfig["version"]
 	if version == "" {
-		return fmt.Errorf("no version specified, version is required to deploy")
-	}
-
-	logger.Printf("Updating app version to %q\n", version)
-	if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version); err != nil {
-		return fmt.Errorf("error updating app version in nullstone: %w", err)
+		return nil, fmt.Errorf("no version specified, version is required to deploy")
 	}
 
 	logger.Printf("Updating CDN version to %q\n", version)
 	if err := ic.UpdateCdnVersion(ctx, version); err != nil {
-		return fmt.Errorf("error updating CDN version: %w", err)
+		return nil, fmt.Errorf("error updating CDN version: %w", err)
 	}
 
 	logger.Println("Invalidating cache in CDNs")
 	if err := ic.InvalidateCdnPaths(ctx, []string{"/*"}); err != nil {
-		return fmt.Errorf("error invalidating /*: %w", err)
+		return nil, fmt.Errorf("error invalidating /*: %w", err)
 	}
 
 	logger.Printf("Deployed app %q\n", details.App.Name)
-	return nil
+	return nil, nil
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
+func (p Provider) Status(logger *log.Logger, nsConfig api.Config, details app.Details) (app.StatusReport, error) {
 	// TODO: Implement me
-	return app.StatusReport{}, nil
+	return app.StatusReport{}, fmt.Errorf("status is not supported for the s3 provider")
 }
 
-func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
+func (p Provider) DeploymentStatus(logger *log.Logger, nsConfig api.Config, deployReference string, details app.Details) (app.RolloutStatus, error) {
+	return app.RolloutStatusUnknown, fmt.Errorf("deployment status is not supported for the s3 provider")
+}
+
+func (p Provider) StatusDetail(logger *log.Logger, nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
 	// TODO: Implement me
-	return app.StatusDetailReports{}, nil
+	return app.StatusDetailReports{}, fmt.Errorf("status detail is not supported for the s3 provider")
 }

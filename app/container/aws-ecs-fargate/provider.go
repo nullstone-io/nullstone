@@ -3,6 +3,7 @@ package aws_ecs_fargate
 import (
 	"context"
 	"fmt"
+	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app"
@@ -10,11 +11,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"gopkg.in/nullstone-io/nullstone.v0/outputs"
 	"log"
-	"os"
-)
-
-var (
-	logger = log.New(os.Stderr, "", 0)
+	"strings"
 )
 
 var ModuleContractName = types.ModuleContractName{
@@ -34,7 +31,7 @@ func (p Provider) DefaultLogProvider() string {
 	return "cloudwatch"
 }
 
-func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConfig, error) {
+func (p Provider) identify(logger *log.Logger, nsConfig api.Config, details app.Details) (*InfraConfig, error) {
 	logger.Printf("Identifying infrastructure for app %q\n", details.App.Name)
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
@@ -45,8 +42,8 @@ func (p Provider) identify(nsConfig api.Config, details app.Details) (*InfraConf
 	return ic, nil
 }
 
-func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	return (aws_ecr.Provider{}).Push(nsConfig, details, userConfig)
+func (p Provider) Push(logger *log.Logger, nsConfig api.Config, details app.Details, source, version string) error {
+	return (aws_ecr.Provider{}).Push(logger, nsConfig, details, source, version)
 }
 
 // Deploy takes the following steps to deploy an AWS ECS service
@@ -55,45 +52,42 @@ func (p Provider) Push(nsConfig api.Config, details app.Details, userConfig map[
 //   Register new task definition
 //   Deregister old task definition
 //   Update ECS Service (This always causes deployment)
-func (p Provider) Deploy(nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	ic, err := p.identify(nsConfig, details)
+func (p Provider) Deploy(logger *log.Logger, nsConfig api.Config, details app.Details, version string) (*string, error) {
+	ic, err := p.identify(logger, nsConfig, details)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	taskDef, err := ic.GetTaskDefinition()
 	if err != nil {
-		return fmt.Errorf("error retrieving current service information: %w", err)
+		return nil, fmt.Errorf("error retrieving current service information: %w", err)
 	}
 
 	logger.Printf("Deploying app %q\n", details.App.Name)
-	version := userConfig["version"]
 	if version == "" {
-		return fmt.Errorf("no version specified, version is required to deploy")
+		return nil, fmt.Errorf("no version specified, version is required to deploy")
 	}
 	taskDefArn := *taskDef.TaskDefinitionArn
 	logger.Printf("Updating app version to %q\n", version)
-	if err := app.CreateDeploy(nsConfig, details.App.StackId, details.App.Id, details.Env.Id, version); err != nil {
-		return fmt.Errorf("error updating app version in nullstone: %w", err)
-	}
-
 	logger.Printf("Updating image tag to %q\n", version)
 	newTaskDef, err := ic.UpdateTaskImageTag(taskDef, version)
 	if err != nil {
-		return fmt.Errorf("error updating task with new image tag: %w", err)
+		return nil, fmt.Errorf("error updating task with new image tag: %w", err)
 	}
 	taskDefArn = *newTaskDef.TaskDefinitionArn
 
-	if err := ic.UpdateServiceTask(taskDefArn); err != nil {
-		return fmt.Errorf("error deploying service: %w", err)
+	deployment, err := ic.UpdateServiceTask(taskDefArn)
+	if err != nil {
+		return nil, fmt.Errorf("error deploying service: %w", err)
 	}
 
+	log.Println(fmt.Sprintf("Associating deploy with deployment: %s", *deployment.Id))
 	logger.Printf("Deployed app %q\n", details.App.Name)
-	return nil
+	return deployment.Id, nil
 }
 
-func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
-	ic, err := p.identify(nsConfig, details)
+func (p Provider) Exec(ctx context.Context, logger *log.Logger, nsConfig api.Config, details app.Details, userConfig map[string]string) error {
+	ic, err := p.identify(logger, nsConfig, details)
 	if err != nil {
 		return err
 	}
@@ -110,8 +104,8 @@ func (p Provider) Exec(ctx context.Context, nsConfig api.Config, details app.Det
 	return ic.ExecCommand(ctx, task, userConfig["cmd"], nil)
 }
 
-func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
-	ic, err := p.identify(nsConfig, details)
+func (p Provider) Ssh(ctx context.Context, logger *log.Logger, nsConfig api.Config, details app.Details, userConfig map[string]any) error {
+	ic, err := p.identify(logger, nsConfig, details)
 	if err != nil {
 		return err
 	}
@@ -132,7 +126,7 @@ func (p Provider) Ssh(ctx context.Context, nsConfig api.Config, details app.Deta
 	return ic.ExecCommand(ctx, task, "/bin/sh", nil)
 }
 
-func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusReport, error) {
+func (p Provider) Status(logger *log.Logger, nsConfig api.Config, details app.Details) (app.StatusReport, error) {
 	ic := &InfraConfig{}
 	retriever := outputs.Retriever{NsConfig: nsConfig}
 	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
@@ -144,17 +138,58 @@ func (p Provider) Status(nsConfig api.Config, details app.Details) (app.StatusRe
 		return app.StatusReport{}, fmt.Errorf("error retrieving fargate service: %w", err)
 	}
 
-	return app.StatusReport{
-		Fields: []string{"Running", "Desired", "Pending"},
+	report := app.StatusReport{
+		Fields: []string{"Id", "Running", "Desired", "Pending"},
 		Data: map[string]interface{}{
 			"Running": fmt.Sprintf("%d", svc.RunningCount),
 			"Desired": fmt.Sprintf("%d", svc.DesiredCount),
 			"Pending": fmt.Sprintf("%d", svc.PendingCount),
 		},
-	}, nil
+	}
+	return report, nil
 }
 
-func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
+func (p Provider) DeploymentStatus(logger *log.Logger, nsConfig api.Config, deployReference string, details app.Details) (app.RolloutStatus, error) {
+	ic := &InfraConfig{}
+	retriever := outputs.Retriever{NsConfig: nsConfig}
+	if err := retriever.Retrieve(details.Workspace, &ic.Outputs); err != nil {
+		return app.RolloutStatusUnknown, fmt.Errorf("Unable to identify app infrastructure: %w", err)
+	}
+
+	deployment, err := ic.GetDeployment(deployReference)
+	if err != nil {
+		return app.RolloutStatusUnknown, err
+	}
+	rolloutStatus := getRolloutStatus(logger, deployment)
+	tasks, err := ic.GetDeploymentTasks(deployReference)
+	if err != nil {
+		return app.RolloutStatusUnknown, err
+	}
+	logTasks(logger, deployReference, tasks)
+
+	return rolloutStatus, nil
+}
+
+func logTasks(logger *log.Logger, deployReference string, tasks []ecstypes.Task) {
+	var previousTasks, currentTasks []ecstypes.Task
+	for _, task := range tasks {
+		if *task.StartedBy == deployReference {
+			currentTasks = append(currentTasks, task)
+		} else {
+			previousTasks = append(previousTasks, task)
+		}
+	}
+
+	for _, task := range currentTasks {
+		logger.Printf("\t\tTask %s %s", derefString(task.TaskArn), strings.ToLower(derefString(task.LastStatus)))
+	}
+	logger.Printf("\t%d existing tasks to shutdown.", len(previousTasks))
+	for _, task := range previousTasks {
+		logger.Printf("\t\tTask %s from deployment %s %s", derefString(task.TaskArn), derefString(task.StartedBy), strings.ToLower(derefString(task.LastStatus)))
+	}
+}
+
+func (p Provider) StatusDetail(logger *log.Logger, nsConfig api.Config, details app.Details) (app.StatusDetailReports, error) {
 	reports := app.StatusDetailReports{}
 
 	ic := &InfraConfig{}
@@ -174,8 +209,16 @@ func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.St
 	}
 	for _, deployment := range svc.Deployments {
 		record := app.StatusRecord{
-			Fields: []string{"Created", "Status", "Running", "Desired", "Pending"},
+			Fields: []string{
+				"Id",
+				"Created",
+				"Status",
+				"Running",
+				"Desired",
+				"Pending",
+			},
 			Data: map[string]interface{}{
+				"Id":      deployment.Id,
 				"Created": fmt.Sprintf("%s", *deployment.CreatedAt),
 				"Status":  *deployment.Status,
 				"Running": fmt.Sprintf("%d", deployment.RunningCount),
@@ -215,4 +258,32 @@ func (p Provider) StatusDetail(nsConfig api.Config, details app.Details) (app.St
 	reports = append(reports, lbReport)
 
 	return reports, nil
+}
+
+func getRolloutStatus(logger *log.Logger, deployment *ecstypes.Deployment) app.RolloutStatus {
+	logger.Printf("%s\n", *deployment.RolloutStateReason)
+	if deployment.RunningCount == deployment.DesiredCount {
+		logger.Printf("\tAll %d tasks are running.\n", deployment.RunningCount)
+	} else if deployment.DesiredCount > 0 {
+		logger.Printf("\t%d out of %d tasks are running.\n", deployment.RunningCount, deployment.DesiredCount)
+	} else {
+		logger.Printf("\tNot attempting to start any tasks.\n")
+	}
+
+	status := app.RolloutStatusUnknown
+	if deployment.RolloutState == "IN_PROGRESS" {
+		status = app.RolloutStatusInProgress
+	} else if deployment.RolloutState == "COMPLETED" {
+		status = app.RolloutStatusComplete
+	} else if deployment.RolloutState == "FAILED" {
+		status = app.RolloutStatusFailed
+	}
+	return status
+}
+
+func derefString(s *string) string {
+	if s != nil {
+		return *s
+	}
+	return ""
 }

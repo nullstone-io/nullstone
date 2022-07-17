@@ -3,6 +3,16 @@ package app
 import (
 	"context"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"log"
+)
+
+type RolloutStatus string
+
+const (
+	RolloutStatusComplete   RolloutStatus = "complete"
+	RolloutStatusInProgress RolloutStatus = "in-progress"
+	RolloutStatusFailed     RolloutStatus = "failed"
+	RolloutStatusUnknown    RolloutStatus = "unknown"
 )
 
 type StatusReport struct {
@@ -31,19 +41,22 @@ type StatusRecord struct {
 //   - Each Provider is specific to Category+Type (Example: category=app/container, type=service/aws-fargate)
 type Provider interface {
 	DefaultLogProvider() string
-	Push(nsConfig api.Config, details Details, userConfig map[string]string) error
-	Deploy(nsConfig api.Config, details Details, userConfig map[string]string) error
+	Push(logger *log.Logger, nsConfig api.Config, details Details, source, version string) error
+	Deploy(logger *log.Logger, nsConfig api.Config, details Details, version string) (*string, error)
 
 	// Exec allows a user to execute a command (usually tunneling) into a running service
 	// This only makes sense for container-based providers
-	Exec(ctx context.Context, nsConfig api.Config, details Details, userConfig map[string]string) error
+	Exec(ctx context.Context, logger *log.Logger, nsConfig api.Config, details Details, userConfig map[string]string) error
 
 	// Ssh allows a user to SSH into a running service
-	Ssh(ctx context.Context, nsConfig api.Config, details Details, userConfig map[string]any) error
+	Ssh(ctx context.Context, logger *log.Logger, nsConfig api.Config, details Details, userConfig map[string]any) error
 
 	// Status returns a high-level status report on the specified app env
-	Status(nsConfig api.Config, details Details) (StatusReport, error)
+	Status(logger *log.Logger, nsConfig api.Config, details Details) (StatusReport, error)
+
+	// DeploymentStatus returns the status of a specific deployment, the other status methods are summaries
+	DeploymentStatus(logger *log.Logger, nsConfig api.Config, deployReference string, details Details) (RolloutStatus, error)
 
 	// StatusDetail returns a detailed status report on the specified app env
-	StatusDetail(nsConfig api.Config, details Details) (StatusDetailReports, error)
+	StatusDetail(logger *log.Logger, nsConfig api.Config, details Details) (StatusDetailReports, error)
 }
