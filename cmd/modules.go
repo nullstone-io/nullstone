@@ -95,7 +95,7 @@ var ModulesPublish = &cli.Command{
 		&cli.StringFlag{
 			Name:     "version",
 			Aliases:  []string{"v"},
-			Usage:    "Specify a semver version for the module",
+			Usage:    "Specify a semver version for the module. Specify 'auto' to automatically bump the patch from the latest version.",
 			Required: true,
 		},
 		// TODO: We currently support *.tf, .*tf.tmpl patterns; add support for packaging additional files into the module package
@@ -103,15 +103,25 @@ var ModulesPublish = &cli.Command{
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
 			version := c.String("version")
-			version = strings.TrimPrefix(version, "v")
-			if isValid := semver.IsValid(fmt.Sprintf("v%s", version)); !isValid {
-				return fmt.Errorf("version %q is not a valid semver", version)
-			}
 
 			// Read module name from manifest
 			manifest, err := modules.ManifestFromFile(moduleManifestFilename)
 			if err != nil {
 				return err
+			}
+
+			// If user specifies --version=auto,
+			//   we are going to bump the version automatically from the latest
+			if version == "auto" {
+				version, err = modules.AutoVersion(cfg, manifest)
+				if err != nil {
+					return err
+				}
+			}
+
+			version = strings.TrimPrefix(version, "v")
+			if isValid := semver.IsValid(fmt.Sprintf("v%s", version)); !isValid {
+				return fmt.Errorf("version %q is not a valid semver", version)
 			}
 
 			// Package module files into tar.gz
@@ -142,7 +152,7 @@ var ModulesPackage = &cli.Command{
 	Name:      "package",
 	Usage:     "Package a module",
 	UsageText: "nullstone modules package",
-	Flags:     []cli.Flag{
+	Flags: []cli.Flag{
 		// TODO: We currently support *.tf, .*tf.tmpl patterns; add support for packaging additional files into the module package
 	},
 	Action: func(c *cli.Context) error {
