@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	StructTag               = "ns"
-	StructTagConnectionName = "connectionName"
-	StructTagConnectionType = "connectionType"
+	StructTag                   = "ns"
+	StructTagConnectionName     = "connectionName"
+	StructTagConnectionType     = "connectionType"
 	StructTagConnectionContract = "connectionContract"
-	StructTagOptional       = "optional"
+	StructTagOptional           = "optional"
 )
 
 /*
