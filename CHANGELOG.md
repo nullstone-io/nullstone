@@ -1,3 +1,6 @@
+# 0.0.66 (Jul 22, 2022)
+* Fixed sorting of module versions.
+
 # 0.0.65 (Jul 21, 2022)
 * Added application support for `app:container/aws/ecs:ec2`.
 * Fixed `blocks new` when the selected module is an application module.
