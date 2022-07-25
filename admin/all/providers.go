@@ -16,12 +16,19 @@ var (
 		Platform:    "ecs",
 		Subplatform: "*",
 	}
+	beanstalkContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppContainer),
+		Provider:    "aws",
+		Platform:    "ec2",
+		Subplatform: "beanstalk",
+	}
 	ec2Contract = types.ModuleContractName{
 		Category:    string(types.CategoryApp),
 		Subcategory: string(types.SubcategoryAppContainer),
 		Provider:    "aws",
 		Platform:    "ec2",
-		Subplatform: "*",
+		Subplatform: "",
 	}
 	lambdaContract = types.ModuleContractName{
 		Category:    string(types.CategoryApp),
@@ -43,6 +50,11 @@ var (
 			NewStatuser:    ecs.NewStatuser,
 			NewRemoter:     ecs.NewRemoter,
 			NewLogStreamer: cloudwatch.NewLogStreamer,
+		},
+		beanstalkContract: admin.Provider{
+			NewStatuser:    nil, // TODO: beanstalk.NewStatuser
+			NewRemoter:     ec2.NewRemoter,
+			NewLogStreamer: nil,
 		},
 		ec2Contract: admin.Provider{
 			NewStatuser:    nil,
