@@ -3,13 +3,15 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/nullstone-io/deployment-sdk/app"
+	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
-var Ssh = func(providers app.Providers) *cli.Command {
+var Ssh = func(providers admin.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "ssh",
 		Usage:     "SSH into a running service. Use to forward ports from remote service or hosts.",
@@ -26,9 +28,7 @@ var Ssh = func(providers app.Providers) *cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			userConfig := map[string]any{
-				"task": c.String("task"),
-			}
+			task := c.String("task")
 
 			forwards := make([]config.PortForward, 0)
 			for _, arg := range c.StringSlice("forward") {
@@ -38,10 +38,13 @@ var Ssh = func(providers app.Providers) *cli.Command {
 				}
 				forwards = append(forwards, pf)
 			}
-			userConfig["forwards"] = forwards
 
-			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
-				return provider.Ssh(ctx, cfg, details, userConfig)
+			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
+				remoter, err := providers.FindRemoter(logging.StandardOsWriters{}, cfg, appDetails)
+				if err != nil {
+					return err
+				}
+				return remoter.Ssh(ctx, task, forwards)
 			})
 		},
 	}

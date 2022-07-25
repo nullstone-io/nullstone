@@ -1,0 +1,63 @@
+package all
+
+import (
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/admin"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/cloudwatch"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/ec2"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
+)
+
+var (
+	ecsContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppContainer),
+		Provider:    "aws",
+		Platform:    "ecs",
+		Subplatform: "*",
+	}
+	ec2Contract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppContainer),
+		Provider:    "aws",
+		Platform:    "ec2",
+		Subplatform: "*",
+	}
+	lambdaContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppServerless),
+		Provider:    "aws",
+		Platform:    "lambda",
+		Subplatform: "*",
+	}
+	s3SiteContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppStaticSite),
+		Provider:    "aws",
+		Platform:    "s3",
+		Subplatform: "",
+	}
+
+	Providers = admin.Providers{
+		ecsContract: admin.Provider{
+			NewStatuser:    ecs.NewStatuser,
+			NewRemoter:     ecs.NewRemoter,
+			NewLogStreamer: cloudwatch.NewLogStreamer,
+		},
+		ec2Contract: admin.Provider{
+			NewStatuser:    nil,
+			NewRemoter:     ec2.NewRemoter,
+			NewLogStreamer: nil,
+		},
+		lambdaContract: admin.Provider{
+			NewStatuser:    nil,
+			NewRemoter:     nil, // TODO: lambda.NewRemoter,
+			NewLogStreamer: cloudwatch.NewLogStreamer,
+		},
+		s3SiteContract: admin.Provider{
+			NewStatuser:    nil,
+			NewRemoter:     nil,
+			NewLogStreamer: cloudwatch.NewLogStreamer,
+		},
+	}
+)

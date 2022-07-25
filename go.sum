@@ -148,8 +148,10 @@ github.com/aws/aws-sdk-go-v2/service/ecr v1.17.8 h1:wgZo/yeY0f+2RWy2q1rTtZSPMmq3
 github.com/aws/aws-sdk-go-v2/service/ecr v1.17.8/go.mod h1:ItZADKTnGxqcqXABHyNpoBljQ8ORt4h+D39RToM/3Ds=
 github.com/aws/aws-sdk-go-v2/service/ecs v1.18.11 h1:MWJBTtfIwBJJn7AMYiyvc2g62HUAxJ+RujN2rMYPzVI=
 github.com/aws/aws-sdk-go-v2/service/ecs v1.18.11/go.mod h1:3+9Tsuq6J9nezo2AO9UYzUVgZ72W21Ryh0d+DJRCzys=
-github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.9.0 h1:m+j2j5NomqfNWB2QC3RhW4V7G1JJuZIjgPdojFcNqHQ=
-github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.9.0/go.mod h1:AtEwsM+3UFLpJLIj2ys+Uc1WpaXECCv067AswxpKU+U=
+github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.14.9 h1:78ENf49ag/glp/z+6NR2lEoXWsnlHZUK1JLs5eNSm+M=
+github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.14.9/go.mod h1:BY71CNhZ9kzmpcDwKsPzyf1xt5PADO/+4Wmnopgyv6o=
+github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.18.8 h1:D6Sc+XyjK++NhkJJLvZNcf0xyzNhhC+GVn/MYDeONS4=
+github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.18.8/go.mod h1:8OyausC7+VUBNJFOEDjvSrowuefSkEoJaUzsGLNRXZQ=
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.3.0/go.mod h1:v8ygadNyATSm6elwJ/4gzJwcFhri9RqS8skgHKiwXPU=
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.9.3 h1:4n4KCtv5SUoT5Er5XV41huuzrCqepxlW3SDI9qHQebc=
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.9.3/go.mod h1:gkb2qADY+OHaGLKNTYxMaQNacfeyQpZ4csDTQMeFmcw=
@@ -726,8 +728,8 @@ github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRW
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f/go.mod h1:ZdcZmHo+o7JKHSa8/e818NopupXU1YMK5fe1lsApnBw=
 github.com/ncw/swift v1.0.47/go.mod h1:23YIA4yWVnGwv2dQlN4bB7egfYX6YLn0Yo/S6zZO/ZM=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
-github.com/nullstone-io/deployment-sdk v0.0.0-20220725202624-d41e2b4ca9b3 h1:4VqUB/dHwsUSKictjU4Bmq87ZFehZ/ezkl9bebhOsYw=
-github.com/nullstone-io/deployment-sdk v0.0.0-20220725202624-d41e2b4ca9b3/go.mod h1:fwZ16SDaZhpQJG5QxTzBlZOIJqS7QfqRX4L8hbmy9rM=
+github.com/nullstone-io/deployment-sdk v0.0.0-20220725221139-5f6af2fe7d6f h1:/ycuF5FAnPQGo05KKVxTwu7AIJTkDGbf+FDCR8zwVL8=
+github.com/nullstone-io/deployment-sdk v0.0.0-20220725221139-5f6af2fe7d6f/go.mod h1:fwZ16SDaZhpQJG5QxTzBlZOIJqS7QfqRX4L8hbmy9rM=
 github.com/nullstone-io/module v0.2.8 h1:kflO9hKq8Swfj2Ms04lMvQKTHCXDhkZLac6PYlRzk5Y=
 github.com/nullstone-io/module v0.2.8/go.mod h1:btQiO0giVWDvvaQ7CLnPmuPPakJc55lAr8OlE1LK6hg=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=

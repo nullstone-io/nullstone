@@ -3,10 +3,10 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"io"
 	"time"
 )
@@ -15,7 +15,7 @@ var (
 	defaultWatchInterval = 1 * time.Second
 )
 
-var Status = func(providers app.Providers) *cli.Command {
+var Status = func(providers admin.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "status",
 		Usage:     "Application Status",
@@ -51,7 +51,7 @@ var Status = func(providers app.Providers) *cli.Command {
 	}
 }
 
-func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, watchInterval time.Duration, stackName, appName string) error {
+func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, watchInterval time.Duration, stackName, appName string) error {
 	finder := NsFinder{Config: cfg}
 	application, _, err := finder.FindAppAndStack(appName, stackName)
 	if err != nil {
@@ -83,13 +83,15 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 				"Version": awi.Version,
 			}
 
-			report, err := getStatusReport(cfg, providers, awi.AppDetails)
-			if err != nil {
-				return fmt.Errorf("error retrieving app status: %w", err)
-			} else {
-				buffer.AddFields(report.Fields...)
-				for k, v := range report.Data {
-					cur[k] = v
+			statuser, _ := providers.FindStatuser(logging.StandardOsWriters{}, cfg, awi.AppDetails)
+			if statuser != nil {
+				if report, err := statuser.Status(ctx); err != nil {
+					return fmt.Errorf("error retrieving app status: %w", err)
+				} else {
+					buffer.AddFields(report.Fields...)
+					for k, v := range report.Data {
+						cur[k] = v
+					}
 				}
 			}
 
@@ -100,7 +102,7 @@ func appStatus(ctx context.Context, cfg api.Config, providers app.Providers, wat
 	})
 }
 
-func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, watchInterval time.Duration, stackName, appName, envName string) error {
+func appEnvStatus(ctx context.Context, cfg api.Config, providers admin.Providers, watchInterval time.Duration, stackName, appName, envName string) error {
 	finder := NsFinder{Config: cfg}
 	application, _, err := finder.FindAppAndStack(appName, stackName)
 	if err != nil {
@@ -124,9 +126,14 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, 
 		fmt.Fprintln(writer, fmt.Sprintf("Env: %s\tInfra: %s\tVersion: %s", appDetails.Env.Name, awi.Status, awi.Version))
 		fmt.Fprintln(writer)
 
-		detailReport, err := getStatusDetailReports(cfg, providers, appDetails)
-		if err != nil {
-			return fmt.Errorf("error retrieving app status detail: %w", err)
+		var detailReport admin.StatusDetailReports
+		statuser, _ := providers.FindStatuser(logging.StandardOsWriters{}, cfg, awi.AppDetails)
+		if statuser != nil {
+			var err error
+			detailReport, err = statuser.StatusDetail(ctx)
+			if err != nil {
+				return fmt.Errorf("error retrieving app status detail: %w", err)
+			}
 		}
 
 		// Emit each report starting with the report name as the header
@@ -150,34 +157,4 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers app.Providers, 
 
 		return nil
 	})
-}
-
-func getStatusReport(cfg api.Config, providers app.Providers, appDetails app.Details) (app.StatusReport, error) {
-	var report app.StatusReport
-
-	if appDetails.Workspace.Status == types.WorkspaceStatusNotProvisioned {
-		return report, nil
-	}
-
-	provider := providers.Find(*appDetails.Module)
-	if provider == nil {
-		return report, nil
-	}
-
-	return provider.Status(cfg, appDetails)
-}
-
-func getStatusDetailReports(cfg api.Config, providers app.Providers, appDetails app.Details) (app.StatusDetailReports, error) {
-	var report app.StatusDetailReports
-
-	if appDetails.Workspace.Status == types.WorkspaceStatusNotProvisioned {
-		return report, nil
-	}
-
-	provider := providers.Find(*appDetails.Module)
-	if provider == nil {
-		return report, nil
-	}
-
-	return provider.StatusDetail(cfg, appDetails)
 }

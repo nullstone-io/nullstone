@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"io"
 	"time"
 )
 
@@ -18,9 +17,6 @@ type LogStreamOptions struct {
 	// If left unspecified or 0, will use default watch interval of 1s
 	// If a negative value is specified, watching will disable, the log streamer will terminate as soon as logs are emitted
 	WatchInterval time.Duration
-
-	// Out defines a colorized output stream to stream logs
-	Out io.Writer
 }
 
 func (o LogStreamOptions) QueryTimeMessage() string {

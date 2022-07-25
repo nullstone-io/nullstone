@@ -2,16 +2,16 @@ package cmd
 
 import (
 	"context"
+	"github.com/nullstone-io/deployment-sdk/app"
+	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/nullstone.v0/app"
-	"gopkg.in/nullstone-io/nullstone.v0/app_logs"
+	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
-	"os"
 	"time"
 )
 
-var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.Command {
+var Logs = func(providers admin.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "logs",
 		Usage:     "Emit application logs",
@@ -57,7 +57,6 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
 		Action: func(c *cli.Context) error {
 			logStreamOptions := config.LogStreamOptions{
 				WatchInterval: -1 * time.Second, // Disabled by default
-				Out:           os.Stdout,
 			}
 			if c.IsSet("start-time") {
 				absoluteTime := time.Now().Add(-c.Duration("start-time"))
@@ -74,12 +73,12 @@ var Logs = func(providers app.Providers, logProviders app_logs.Providers) *cli.C
 				}
 			}
 
-			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
-				logProvider, err := logProviders.Identify(provider.DefaultLogProvider(), cfg, details)
+			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
+				logStreamer, err := providers.FindLogStreamer(logging.StandardOsWriters{}, cfg, appDetails)
 				if err != nil {
 					return err
 				}
-				return logProvider.Stream(ctx, cfg, details, logStreamOptions)
+				return logStreamer.Stream(ctx, logStreamOptions)
 			})
 		},
 	}
