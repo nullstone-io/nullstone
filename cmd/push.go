@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"context"
+	"fmt"
+	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/nullstone.v0/app"
 )
 
 // Push command performs a docker push to an authenticated image registry configured against an app/container
@@ -21,12 +22,14 @@ var Push = func(providers app.Providers) *cli.Command {
 			AppVersionFlag,
 		},
 		Action: func(c *cli.Context) error {
-			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
-				userConfig := map[string]string{
-					"source":  c.String("source"),
-					"version": DetectAppVersion(c),
+			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
+				pusher, err := providers.FindPusher(nil, cfg, appDetails)
+				if err != nil {
+					return fmt.Errorf("error creating app pusher: %w", err)
+				} else if pusher == nil {
+					return fmt.Errorf("this CLI does not support application category=%s, type=%s", appDetails.Module.Category, appDetails.Module.Type)
 				}
-				return provider.Push(cfg, details, userConfig)
+				return pusher.Push(ctx, c.String("source"), DetectAppVersion(c))
 			})
 		},
 	}
