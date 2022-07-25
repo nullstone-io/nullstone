@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
+	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 )
@@ -23,7 +24,7 @@ var Push = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				pusher, err := providers.FindPusher(nil, cfg, appDetails)
+				pusher, err := providers.FindPusher(logging.StandardOsWriters{}, cfg, appDetails)
 				if err != nil {
 					return fmt.Errorf("error creating app pusher: %w", err)
 				} else if pusher == nil {
