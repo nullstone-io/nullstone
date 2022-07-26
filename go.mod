@@ -10,7 +10,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
-	github.com/nullstone-io/deployment-sdk v0.0.0-20220725222853-9b5b6dc95625
+	github.com/nullstone-io/deployment-sdk v0.0.0-20220726124438-4dba368bc138
 	github.com/nullstone-io/module v0.2.8
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.7.0
