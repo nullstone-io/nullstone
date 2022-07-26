@@ -24,14 +24,31 @@ var Push = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				pusher, err := providers.FindPusher(logging.StandardOsWriters{}, cfg, appDetails)
-				if err != nil {
-					return fmt.Errorf("error creating app pusher: %w", err)
-				} else if pusher == nil {
-					return fmt.Errorf("this CLI does not support application category=%s, type=%s", appDetails.Module.Category, appDetails.Module.Type)
+				source, version := c.String("source"), DetectAppVersion(c)
+				osWriters := logging.StandardOsWriters{}
+				provider := providers.FindFactory(*appDetails.Module)
+				if provider == nil {
+					return fmt.Errorf("push is not supported for this app")
 				}
-				return pusher.Push(ctx, c.String("source"), DetectAppVersion(c))
+				return push(ctx, cfg, appDetails, osWriters, provider, source, version)
 			})
 		},
 	}
+}
+
+func push(ctx context.Context, cfg api.Config, appDetails app.Details, osWriters logging.OsWriters, provider *app.Provider, source, version string) error {
+	pusher, err := provider.NewPusher(osWriters, cfg, appDetails)
+	if err != nil {
+		return fmt.Errorf("error creating app pusher: %w", err)
+	} else if pusher == nil {
+		return fmt.Errorf("this CLI does not support application category=%s, type=%s", appDetails.Module.Category, appDetails.Module.Type)
+	}
+	stdout := osWriters.Stdout()
+	fmt.Fprintln(stdout, "Pushing app artifact...")
+	if err := pusher.Push(ctx, source, version); err != nil {
+		return fmt.Errorf("error pushing artifact: %w", err)
+	}
+	fmt.Fprintln(stdout, "App artifact pushed.")
+	fmt.Fprintln(stdout, "")
+	return nil
 }

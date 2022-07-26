@@ -23,23 +23,41 @@ var Deploy = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
+				version := DetectAppVersion(c)
 				osWriters := logging.StandardOsWriters{}
-				deployer, err := providers.FindDeployer(osWriters, cfg, appDetails)
-				if err != nil {
-					return fmt.Errorf("error creating app deployer: %w", err)
-				} else if deployer == nil {
-					return fmt.Errorf("this CLI does not support application category=%s, type=%s", appDetails.Module.Category, appDetails.Module.Type)
+				provider := providers.FindFactory(*appDetails.Module)
+				if provider == nil {
+					return fmt.Errorf("deploy is not supported for this app")
 				}
-				reference, err := deployer.Deploy(ctx, DetectAppVersion(c))
+				_, err := deploy(ctx, cfg, appDetails, osWriters, provider, version)
 				if err != nil {
 					return err
 				}
-
-				fmt.Fprintln(osWriters.Stdout(), reference)
 				return nil
 			})
 		},
 	}
+}
+
+func deploy(ctx context.Context, cfg api.Config, appDetails app.Details, osWriters logging.OsWriters, provider *app.Provider, version string) (string, error) {
+	stdout := osWriters.Stdout()
+	fmt.Fprintln(stdout, "Deploying app...")
+	deployer, err := provider.NewDeployer(osWriters, cfg, appDetails)
+	if err != nil {
+		return "", fmt.Errorf("error creating app deployer: %w", err)
+	} else if deployer == nil {
+		return "", fmt.Errorf("deploy is not supported for this app")
+	}
+	reference, err := deployer.Deploy(ctx, version)
+	if err != nil {
+		return "", fmt.Errorf("error deploying app: %w", err)
+	} else if reference == "" {
+		return "", nil
+	}
+	fmt.Fprintln(stdout, "App deployed.")
+	fmt.Fprintf(osWriters.Stdout(), "Deploy ID: %s\n", reference)
+	fmt.Fprintln(stdout, "")
+	return reference, nil
 }
 
 // TODO: Migrate CLI to use CreateDeploy instead of performing locally?
