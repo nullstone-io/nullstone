@@ -28,7 +28,7 @@ var Launch = func(providers app.Providers) *cli.Command {
 				osWriters := logging.StandardOsWriters{}
 				factory := providers.FindFactory(*appDetails.Module)
 				if factory == nil {
-					return fmt.Errorf("launch is not supported for this app")
+					return fmt.Errorf("this app module is not supported")
 				}
 
 				err := push(ctx, cfg, appDetails, osWriters, factory, source, version)

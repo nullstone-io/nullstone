@@ -40,6 +40,10 @@ var Deploy = func(providers app.Providers) *cli.Command {
 }
 
 func deploy(ctx context.Context, cfg api.Config, appDetails app.Details, osWriters logging.OsWriters, provider *app.Provider, version string) (string, error) {
+	if provider.NewDeployer == nil {
+		return "", fmt.Errorf("This app does not support deploy.")
+	}
+
 	stdout := osWriters.Stdout()
 	fmt.Fprintln(stdout, "Deploying app...")
 	deployer, err := provider.NewDeployer(osWriters, cfg, appDetails)

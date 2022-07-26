@@ -11,6 +11,10 @@ import (
 
 func waitHealthy(ctx context.Context, cfg api.Config, appDetails app.Details, osWriters logging.OsWriters, provider *app.Provider, reference string) error {
 	stdout := osWriters.Stdout()
+	if provider.NewDeployStatusGetter == nil {
+		fmt.Fprintln(stdout, "This app does not support verifying healthy. Skipping.")
+		return nil
+	}
 	fmt.Fprintln(stdout, "Waiting for app to become healthy...")
 	deployStatusGetter, err := provider.NewDeployStatusGetter(osWriters, cfg, appDetails)
 	if err != nil {
