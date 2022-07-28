@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/nullstone-io/deployment-sdk/app"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"gopkg.in/nullstone-io/nullstone.v0/app"
 )
 
 type AppWorkspaceInfo struct {
@@ -49,8 +49,9 @@ func (s NsStatus) GetAppWorkspaceInfo(application *types.Application, env *types
 	appEnv, err := client.AppEnvs().Get(application.StackId, application.Id, env.Name)
 	if err != nil {
 		return awi, err
+	} else if appEnv != nil {
+		awi.Version = appEnv.Version
 	}
-	awi.Version = appEnv.Version
 	if awi.Version == "" || awi.Status == types.WorkspaceStatusNotProvisioned || awi.Status == "creating" {
 		awi.Version = "not-deployed"
 	}

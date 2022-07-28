@@ -3,21 +3,17 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/nullstone-io/deployment-sdk/app"
+	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/nullstone.v0/app"
-	"gopkg.in/nullstone-io/nullstone.v0/app_logs"
-	"gopkg.in/nullstone-io/nullstone.v0/config"
-	"log"
-	"os"
-	"time"
 )
 
 // Launch command performs push, deploy, and logs
-var Launch = func(providers app.Providers, logProviders app_logs.Providers) *cli.Command {
+var Launch = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "launch",
-		Usage:     "Launch application (push + deploy + log)",
+		Usage:     "Launch application (push + deploy + wait-healthy)",
 		UsageText: "nullstone launch [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
@@ -27,33 +23,29 @@ var Launch = func(providers app.Providers, logProviders app_logs.Providers) *cli
 			AppVersionFlag,
 		},
 		Action: func(c *cli.Context) error {
-			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
-				logger := log.New(os.Stderr, "", 0)
-
-				userConfig := map[string]string{
-					"source":  c.String("source"),
-					"version": DetectAppVersion(c),
+			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
+				source, version := c.String("source"), DetectAppVersion(c)
+				osWriters := logging.StandardOsWriters{}
+				factory := providers.FindFactory(*appDetails.Module)
+				if factory == nil {
+					return fmt.Errorf("this app module is not supported")
 				}
 
-				logger.Println("Pushing app artifact...")
-				if err := provider.Push(cfg, details, userConfig); err != nil {
-					return fmt.Errorf("error pushing artifact: %w", err)
-				}
-				logger.Println()
-
-				logger.Println("Deploying application...")
-				if err := provider.Deploy(cfg, details, userConfig); err != nil {
-					return fmt.Errorf("error deploying app: %w", err)
-				}
-				logger.Println()
-
-				logger.Println("Tailing application logs...")
-				logProvider, err := logProviders.Identify(provider.DefaultLogProvider(), cfg, details)
+				err := push(ctx, cfg, appDetails, osWriters, factory, source, version)
 				if err != nil {
 					return err
 				}
-				now := time.Now()
-				return logProvider.Stream(ctx, cfg, details, config.LogStreamOptions{StartTime: &now, Out: os.Stdout})
+				if err := CreateDeploy(cfg, appDetails, version); err != nil {
+					return err
+				}
+				reference, err := deploy(ctx, cfg, appDetails, osWriters, factory, version)
+				if err != nil {
+					return err
+				}
+				if err := waitHealthy(ctx, cfg, appDetails, osWriters, factory, reference); err != nil {
+					return err
+				}
+				return nil
 			})
 		},
 	}

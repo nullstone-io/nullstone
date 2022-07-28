@@ -2,12 +2,14 @@ package cmd
 
 import (
 	"context"
+	"github.com/nullstone-io/deployment-sdk/app"
+	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/nullstone.v0/app"
+	"gopkg.in/nullstone-io/nullstone.v0/admin"
 )
 
-var Exec = func(providers app.Providers) *cli.Command {
+var Exec = func(providers admin.Providers) *cli.Command {
 	return &cli.Command{
 		Name:      "exec",
 		Usage:     "Execute command on running service. Defaults command to '/bin/sh' which acts as opening a shell to the running container.",
@@ -19,16 +21,18 @@ var Exec = func(providers app.Providers) *cli.Command {
 			TaskFlag,
 		},
 		Action: func(c *cli.Context) error {
-			userConfig := map[string]string{
-				"task": c.String("task"),
-				"cmd":  "/bin/sh",
-			}
+			task := c.String("task")
+			cmd := "/bin/sh"
 			if c.Args().Len() >= 1 {
-				userConfig["cmd"] = c.Args().Get(c.Args().Len() - 1)
+				cmd = c.Args().Get(c.Args().Len() - 1)
 			}
 
-			return AppEnvAction(c, providers, func(ctx context.Context, cfg api.Config, provider app.Provider, details app.Details) error {
-				return provider.Exec(ctx, cfg, details, userConfig)
+			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
+				remoter, err := providers.FindRemoter(logging.StandardOsWriters{}, cfg, appDetails)
+				if err != nil {
+					return err
+				}
+				return remoter.Exec(ctx, task, cmd)
 			})
 		},
 	}
