@@ -83,8 +83,10 @@ func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, w
 				"Version": awi.Version,
 			}
 
-			statuser, _ := providers.FindStatuser(logging.StandardOsWriters{}, cfg, awi.AppDetails)
-			if statuser != nil {
+			statuser, err := providers.FindStatuser(logging.StandardOsWriters{}, cfg, awi.AppDetails)
+			if err != nil {
+				fmt.Fprintf(writer, "Status failed to initialize: %s\n", err)
+			} else if statuser != nil {
 				if report, err := statuser.Status(ctx); err != nil {
 					return fmt.Errorf("error retrieving app status: %w", err)
 				} else {
@@ -119,13 +121,17 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers admin.Providers
 		fmt.Fprintln(writer)
 
 		var detailReport admin.StatusDetailReports
-		statuser, _ := providers.FindStatuser(logging.StandardOsWriters{}, cfg, awi.AppDetails)
-		if statuser != nil {
+		statuser, err := providers.FindStatuser(logging.StandardOsWriters{}, cfg, awi.AppDetails)
+		if err != nil {
+			fmt.Fprintf(writer, "Detailed status failed to initialize: %s\n", err)
+		} else if statuser != nil {
 			var err error
 			detailReport, err = statuser.StatusDetail(ctx)
 			if err != nil {
 				return fmt.Errorf("error retrieving app status detail: %w", err)
 			}
+		} else {
+			fmt.Fprintln(writer, "Detailed status is not supported for this application.")
 		}
 
 		// Emit each report starting with the report name as the header
