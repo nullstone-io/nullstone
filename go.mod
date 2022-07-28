@@ -10,13 +10,13 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
-	github.com/nullstone-io/deployment-sdk v0.0.0-20220726211540-99bddec398a9
+	github.com/nullstone-io/deployment-sdk v0.0.0-20220728195859-d60a87d3aa61
 	github.com/nullstone-io/module v0.2.8
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20220714215358-6fad5f9c7c8c
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20220728172129-2e9018140059
 )
 
 require (

@@ -1,3 +1,9 @@
+# 0.0.67 (Jul 29, 2022)
+* Added `--wait` flag to `deploy` command that waits for the app to become healthy.
+* `launch` command now performs `push`+`deploy`+`wait-healthy` instead of `push`+`deploy`+`logs`.
+* Added support for elastic beanstalk apps.
+* Rebuilt app providers using [nullstone-io/deployment-sdk](https://github.com/nullstone-io/deployment-sdk).
+
 # 0.0.66 (Jul 22, 2022)
 * Fixed sorting of module versions.
 
