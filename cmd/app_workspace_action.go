@@ -22,8 +22,7 @@ func AppWorkspaceAction(c *cli.Context, fn AppWorkspaceFn) error {
 		logger.Printf("Performing application command (Org=%s, App=%s, Stack=%s, Env=%s)", cfg.OrgName, appName, stackName, envName)
 		logger.Println()
 
-		finder := NsFinder{Config: cfg}
-		appDetails, err := finder.FindAppDetails(appName, stackName, envName)
+		appDetails, err := FindAppDetails(cfg, appName, stackName, envName)
 		if err != nil {
 			return err
 		}

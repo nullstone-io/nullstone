@@ -5,6 +5,7 @@ import (
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"sort"
 )
@@ -39,8 +40,7 @@ var EnvsList = &cli.Command{
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
 			stackName := c.String(StackRequiredFlag.Name)
-			finder := NsFinder{Config: cfg}
-			stack, err := finder.FindStack(stackName)
+			stack, err := find.Stack(cfg, stackName)
 			if err != nil {
 				return fmt.Errorf("error retrieving stack: %w", err)
 			} else if stack == nil {

@@ -6,6 +6,7 @@ import (
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"io"
 	"time"
@@ -52,8 +53,7 @@ var Status = func(providers admin.Providers) *cli.Command {
 }
 
 func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, watchInterval time.Duration, stackName, appName string) error {
-	finder := NsFinder{Config: cfg}
-	application, _, err := finder.FindAppAndStack(appName, stackName)
+	application, err := find.App(cfg, appName, stackName)
 	if err != nil {
 		return err
 	}
@@ -103,17 +103,9 @@ func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, w
 }
 
 func appEnvStatus(ctx context.Context, cfg api.Config, providers admin.Providers, watchInterval time.Duration, stackName, appName, envName string) error {
-	finder := NsFinder{Config: cfg}
-	application, _, err := finder.FindAppAndStack(appName, stackName)
+	_, application, env, err := find.StackAppEnv(cfg, stackName, appName, envName)
 	if err != nil {
 		return err
-	}
-	env, err := finder.GetEnv(application.StackId, envName)
-	if err != nil {
-		return err
-	}
-	if env == nil {
-		return fmt.Errorf("environment %q does not exist", envName)
 	}
 
 	return WatchAction(ctx, watchInterval, func(writer io.Writer) error {
