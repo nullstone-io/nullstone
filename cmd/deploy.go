@@ -20,18 +20,27 @@ var Deploy = func(providers app.Providers) *cli.Command {
 			AppFlag,
 			OldEnvFlag,
 			AppVersionFlag,
+			&cli.BoolFlag{
+				Name:    "wait",
+				Aliases: []string{"w"},
+			},
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				version := DetectAppVersion(c)
+				version, wait := DetectAppVersion(c), c.IsSet("wait")
 				osWriters := logging.StandardOsWriters{}
 				provider := providers.FindFactory(*appDetails.Module)
 				if provider == nil {
 					return fmt.Errorf("deploy is not supported for this app")
 				}
-				_, err := deploy(ctx, cfg, appDetails, osWriters, provider, version)
+				reference, err := deploy(ctx, cfg, appDetails, osWriters, provider, version)
 				if err != nil {
 					return err
+				}
+				if wait {
+					if err := waitHealthy(ctx, cfg, appDetails, osWriters, provider, reference); err != nil {
+						return err
+					}
 				}
 				return nil
 			})
