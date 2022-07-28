@@ -35,6 +35,9 @@ var Launch = func(providers app.Providers) *cli.Command {
 				if err != nil {
 					return err
 				}
+				if err := CreateDeploy(cfg, appDetails, version); err != nil {
+					return err
+				}
 				reference, err := deploy(ctx, cfg, appDetails, osWriters, factory, version)
 				if err != nil {
 					return err

@@ -7,7 +7,6 @@ import (
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"log"
 )
 
 var Deploy = func(providers app.Providers) *cli.Command {
@@ -28,10 +27,16 @@ var Deploy = func(providers app.Providers) *cli.Command {
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
 				version, wait := DetectAppVersion(c), c.IsSet("wait")
+				if version == "" {
+					return fmt.Errorf("no version specified, version is required to create a deploy")
+				}
 				osWriters := logging.StandardOsWriters{}
 				provider := providers.FindFactory(*appDetails.Module)
 				if provider == nil {
 					return fmt.Errorf("deploy is not supported for this app")
+				}
+				if err := CreateDeploy(cfg, appDetails, version); err != nil {
+					return err
 				}
 				reference, err := deploy(ctx, cfg, appDetails, osWriters, provider, version)
 				if err != nil {
@@ -71,22 +76,4 @@ func deploy(ctx context.Context, cfg api.Config, appDetails app.Details, osWrite
 	fmt.Fprintf(osWriters.Stdout(), "Deploy ID: %s\n", reference)
 	fmt.Fprintln(stdout, "")
 	return reference, nil
-}
-
-// TODO: Migrate CLI to use CreateDeploy instead of performing locally?
-func CreateDeploy(nsConfig api.Config, stackId, appId, envId int64, version string) error {
-	if version == "" {
-		return fmt.Errorf("no version specified, version is required to create a deploy")
-	}
-
-	client := api.Client{Config: nsConfig}
-	result, err := client.Deploys().Create(stackId, appId, envId, version)
-	if err != nil {
-		return fmt.Errorf("error updating app version: %w", err)
-	} else if result == nil {
-		return fmt.Errorf("could not find application environment")
-	}
-
-	log.Println("Deployment created")
-	return nil
 }
