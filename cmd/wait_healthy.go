@@ -37,14 +37,13 @@ func pollWaitHealthy(ctx context.Context, deployStatusGetter app.DeployStatusGet
 			return fmt.Errorf("error querying app deployment status: %w", err)
 		}
 		switch status {
-		case app.RolloutStatusComplete:
-			return nil
-		case app.RolloutStatusInProgress:
-			return nil
 		case app.RolloutStatusFailed:
 			return fmt.Errorf("deployment failed")
 		case app.RolloutStatusUnknown:
 			return fmt.Errorf("unknown app deployment status")
+		case app.RolloutStatusComplete:
+			return nil
+		case app.RolloutStatusInProgress:
 		}
 
 		select {
