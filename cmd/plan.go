@@ -6,6 +6,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/runs"
 	"strings"
 )
 
@@ -21,7 +22,7 @@ var Plan = func() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "wait",
 				Aliases: []string{"w"},
-				Usage:   "Wait for Nullstone to fully provision the workspace.",
+				Usage:   "Stream the Terraform logs while waiting for Nullstone to run the plan.",
 			},
 			&cli.StringSliceFlag{
 				Name:  "var",
@@ -29,16 +30,10 @@ var Plan = func() *cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			return BlockEnvAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment) error {
+			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				varFlags := c.StringSlice("var")
 
-				client := api.Client{Config: cfg}
-				workspace, err := client.Workspaces().Get(stack.Id, block.Id, env.Id)
-				if err != nil {
-					return fmt.Errorf("error looking for workspace: %w", err)
-				} else if workspace == nil {
-					return fmt.Errorf("workspace not found")
-				}
+
 
 				newRunConfig, err := client.PromotionConfigs().Get(workspace.StackId, workspace.BlockId, workspace.EnvId)
 				if err != nil {
@@ -78,7 +73,7 @@ var Plan = func() *cli.Command {
 				fmt.Printf("created run %q\n", newRun.Uid)
 
 				if c.IsSet("wait") {
-					return streamLiveLogs(ctx, cfg, workspace, newRun)
+					return runs.StreamLogs(ctx, cfg, workspace, newRun)
 				}
 
 				return nil

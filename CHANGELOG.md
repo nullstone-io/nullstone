@@ -1,3 +1,6 @@
+# 0.0.68 (Unreleased)
+* Added `plan` command to run plans using the Nullstone engine.
+
 # 0.0.67 (Jul 29, 2022)
 * Added `--wait` flag to `deploy` command that waits for the app to become healthy.
 * `launch` command now performs `push`+`deploy`+`wait-healthy` instead of `push`+`deploy`+`logs`.

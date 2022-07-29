@@ -21,7 +21,7 @@ var Outputs = func() *cli.Command {
 			EnvFlag,
 		},
 		Action: func(c *cli.Context) error {
-			return BlockEnvAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment) error {
+			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				client := api.Client{Config: cfg}
 				outputs, err := client.WorkspaceOutputs().GetLatest(stack.Id, block.Id, env.Id)
 				if err != nil {
