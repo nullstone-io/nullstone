@@ -31,8 +31,10 @@ func PackageModule(dir, filename string, patterns []string, excludeFn func(entry
 		}
 		if excludeFn != nil && excludeFn(entry) {
 			// Skip files that match exclude function
-			fmt.Printf("excluding %s\n", entry.Path)
+			fmt.Fprintf(os.Stderr, "excluding %q\n", entry.Path)
 			return nil
+		} else {
+			fmt.Fprintf(os.Stderr, "packaging %q\n", entry.Path)
 		}
 		relPath, err := filepath.Rel(dir, entry.Path)
 		if err != nil {

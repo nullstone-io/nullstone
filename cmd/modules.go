@@ -129,7 +129,7 @@ var ModulesPublish = &cli.Command{
 			if err != nil {
 				return err
 			}
-			fmt.Printf("created module package %q\n", tarballFilename)
+			fmt.Fprintf(os.Stderr, "Created module package %q\n", tarballFilename)
 
 			// Open tarball to publish
 			tarball, err := os.Open(tarballFilename)
@@ -142,7 +142,8 @@ var ModulesPublish = &cli.Command{
 			if err := client.Org(manifest.OrgName).ModuleVersions().Create(manifest.Name, version, tarball); err != nil {
 				return err
 			}
-			fmt.Printf("published %s/%s@%s\n", manifest.OrgName, manifest.Name, version)
+			fmt.Fprintf(os.Stderr, "Published %s/%s@%s\n", manifest.OrgName, manifest.Name, version)
+			fmt.Fprintln(os.Stdout, version)
 			return nil
 		})
 	},
@@ -152,7 +153,7 @@ var ModulesPackage = &cli.Command{
 	Name:      "package",
 	Usage:     "Package a module",
 	UsageText: "nullstone modules package",
-	Flags:     []cli.Flag{
+	Flags: []cli.Flag{
 		// TODO: We currently support *.tf, .*tf.tmpl patterns; add support for packaging additional files into the module package
 	},
 	Action: func(c *cli.Context) error {
