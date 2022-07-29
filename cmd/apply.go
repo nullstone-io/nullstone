@@ -11,10 +11,10 @@ import (
 	"strings"
 )
 
-var Plan = func() *cli.Command {
+var Apply = func() *cli.Command {
 	return &cli.Command{
-		Name:      "plan",
-		Usage:     "Runs a plan with a disapproval",
+		Name:      "Apply",
+		Usage:     "Runs an apply with optional auto-approval",
 		UsageText: "nullstone plan [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
@@ -24,6 +24,10 @@ var Plan = func() *cli.Command {
 				Name:    "wait",
 				Aliases: []string{"w"},
 				Usage:   "Stream the Terraform logs while waiting for Nullstone to run the plan.",
+			},
+			&cli.BoolFlag{
+				Name:  "auto-approve",
+				Usage: "Auto-approve any changes made in Terraform",
 			},
 			&cli.StringSliceFlag{
 				Name:  "var",
@@ -37,6 +41,11 @@ var Plan = func() *cli.Command {
 		Action: func(c *cli.Context) error {
 			varFlags := c.StringSlice("var")
 			moduleVersion := c.String("module-version")
+			var autoApprove *bool
+			if c.IsSet("auto-approve") {
+				val := c.Bool("auto-approve")
+				autoApprove = &val
+			}
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				moduleSourceOverride := ""
@@ -56,14 +65,13 @@ var Plan = func() *cli.Command {
 					return err
 				}
 
-				f := false
-				newRun, err := runs.Create(cfg, workspace, newRunConfig, &f, false)
+				newRun, err := runs.Create(cfg, workspace, newRunConfig, autoApprove, false)
 				if err != nil {
 					return fmt.Errorf("error creating run: %w", err)
 				} else if newRun == nil {
 					return fmt.Errorf("unable to create run")
 				}
-				fmt.Fprintf(os.Stdout, "created plan run %q\n", newRun.Uid)
+				fmt.Fprintf(os.Stdout, "created apply run %q\n", newRun.Uid)
 
 				if c.IsSet("wait") {
 					return runs.StreamLogs(ctx, cfg, workspace, newRun)

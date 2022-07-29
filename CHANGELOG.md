@@ -1,5 +1,6 @@
 # 0.0.68 (Unreleased)
 * Added `plan` command to run plans using the Nullstone engine.
+* Added `apply` command to run applies (with optional `--auto-approve`) using the Nullstone engine.
 
 # 0.0.67 (Jul 29, 2022)
 * Added `--wait` flag to `deploy` command that waits for the app to become healthy.
