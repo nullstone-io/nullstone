@@ -93,9 +93,11 @@ var ModulesPublish = &cli.Command{
 	UsageText: "nullstone modules publish --version=<version>",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:     "version",
-			Aliases:  []string{"v"},
-			Usage:    "Specify a semver version for the module. Specify 'auto' to automatically bump the patch from the latest version.",
+			Name:    "version",
+			Aliases: []string{"v"},
+			Usage: `Specify a semver version for the module.
+'next-patch': Uses a version that bumps the patch component of the latest module version.
+'next-build': Uses the latest version and appends +<build> using the short Git commit SHA. (Fails if not in a Git repository)`,
 			Required: true,
 		},
 		// TODO: We currently support *.tf, .*tf.tmpl patterns; add support for packaging additional files into the module package
@@ -110,13 +112,28 @@ var ModulesPublish = &cli.Command{
 				return err
 			}
 
-			// If user specifies --version=auto,
-			//   we are going to bump the version automatically from the latest
-			if version == "auto" {
-				version, err = modules.AutoVersion(cfg, manifest)
+			// If user specifies --version=next-patch,
+			//   we are going to bump the patch automatically from the latest
+			if version == "next-patch" {
+				version, err = modules.NextPatch(cfg, manifest)
 				if err != nil {
 					return err
 				}
+			}
+			// If user specifies --version=next-build,
+			//   we are going to bump the patch and use the short git commit sha as +build in the semver
+			if version == "next-build" {
+				version, err = modules.NextPatch(cfg, manifest)
+				if err != nil {
+					return err
+				}
+				var commitSha string
+				if hash, err := getCurrentCommitSha(); err == nil && len(hash) >= 8 {
+					commitSha = hash[0:8]
+				} else {
+					return fmt.Errorf("Using --version=next-build requires a git repository with a commit. Cannot find commit SHA: %w", err)
+				}
+				version = fmt.Sprintf("%s+%s", version, commitSha)
 			}
 
 			version = strings.TrimPrefix(version, "v")

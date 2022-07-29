@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-// AutoVersion bumps the patch in major.minor.patch from the latest module version
-func AutoVersion(cfg api.Config, manifest *Manifest) (string, error) {
+// NextPatch bumps the patch in major.minor.patch from the latest module version
+func NextPatch(cfg api.Config, manifest *Manifest) (string, error) {
 	latestVersion, err := find.ModuleVersion(cfg, fmt.Sprintf("%s/%s", manifest.OrgName, manifest.Name), "latest")
 	if err != nil {
 		return "", fmt.Errorf("error retrieving latest version: %w", err)
