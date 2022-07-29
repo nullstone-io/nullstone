@@ -6,9 +6,10 @@ import (
 )
 
 // GetPromotion retrieves a run configuration from the previous environment or block configuration
-func GetPromotion(cfg api.Config, workspace types.Workspace) (*types.RunConfig, error) {
+// moduleSourceOverride allows overriding of the returned run config based on <module-source>@<module-source-version>
+func GetPromotion(cfg api.Config, workspace types.Workspace, moduleSourceOverride string) (*types.RunConfig, error) {
 	client := api.Client{Config: cfg}
-	newRunConfig, err := client.PromotionConfigs().Get(workspace.StackId, workspace.BlockId, workspace.EnvId)
+	newRunConfig, err := client.PromotionConfigs().Get(workspace.StackId, workspace.BlockId, workspace.EnvId, moduleSourceOverride)
 	if err != nil {
 		return nil, err
 	}

@@ -7,6 +7,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
+	"os"
 	"strings"
 )
 
@@ -28,21 +29,26 @@ var Plan = func() *cli.Command {
 				Name:  "var",
 				Usage: "Set variable values when issuing `plan`",
 			},
+			&cli.StringFlag{
+				Name:  "module-version",
+				Usage: "Use a specific module version to run the plan.",
+			},
 		},
 		Action: func(c *cli.Context) error {
+			varFlags := c.StringSlice("var")
+			moduleVersion := c.String("module-version")
+
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
-				varFlags := c.StringSlice("var")
-
-
-
-				newRunConfig, err := client.PromotionConfigs().Get(workspace.StackId, workspace.BlockId, workspace.EnvId)
+				moduleSourceOverride := ""
+				if moduleVersion != "" {
+					moduleSourceOverride = fmt.Sprintf("%s@%s", block.ModuleSource, moduleVersion)
+				}
+				newRunConfig, err := runs.GetPromotion(cfg, workspace, moduleSourceOverride)
 				if err != nil {
-					return err
+					return fmt.Errorf("error getting run configuration for plan: %w", err)
 				}
 
-				fillRunConfigVariables(newRunConfig)
-
-				skipped, err := setRunConfigVars(newRunConfig, varFlags)
+				skipped, err := runs.SetRunConfigVars(newRunConfig, varFlags)
 				if len(skipped) > 0 {
 					fmt.Printf("[Warning] The following variables were skipped because they don't exist in the module: %s\n\n", strings.Join(skipped, ", "))
 				}
@@ -50,32 +56,18 @@ var Plan = func() *cli.Command {
 					return err
 				}
 
-				isApproved := false
-				input := types.CreateRunInput{
-					IsDestroy:         false,
-					IsApproved:        &isApproved,
-					Source:            newRunConfig.Source,
-					SourceVersion:     newRunConfig.SourceVersion,
-					Variables:         newRunConfig.Variables,
-					EnvVariables:      newRunConfig.EnvVariables,
-					Connections:       newRunConfig.Connections,
-					Capabilities:      newRunConfig.Capabilities,
-					Providers:         newRunConfig.Providers,
-					DependencyConfigs: newRunConfig.DependencyConfigs,
-				}
-
-				newRun, err := client.Runs().Create(workspace.StackId, workspace.Uid, input)
+				f := false
+				newRun, err := runs.Create(cfg, workspace, newRunConfig, &f, false)
 				if err != nil {
 					return fmt.Errorf("error creating run: %w", err)
 				} else if newRun == nil {
 					return fmt.Errorf("unable to create run")
 				}
-				fmt.Printf("created run %q\n", newRun.Uid)
+				fmt.Fprintf(os.Stdout, "created run %q\n", newRun.Uid)
 
 				if c.IsSet("wait") {
 					return runs.StreamLogs(ctx, cfg, workspace, newRun)
 				}
-
 				return nil
 			})
 		},

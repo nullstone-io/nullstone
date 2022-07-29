@@ -38,7 +38,7 @@ var Up = func() *cli.Command {
 					return nil
 				}
 
-				newRunConfig, err := runs.GetPromotion(cfg, workspace)
+				newRunConfig, err := runs.GetPromotion(cfg, workspace, "")
 				if err != nil {
 					return err
 				}
@@ -50,7 +50,8 @@ var Up = func() *cli.Command {
 					return err
 				}
 
-				newRun, err := runs.CreateRun(cfg, workspace, newRunConfig, true, false)
+				t := true
+				newRun, err := runs.Create(cfg, workspace, newRunConfig, &t, false)
 				if err != nil {
 					return fmt.Errorf("error creating run: %w", err)
 				} else if newRun == nil {
@@ -66,6 +67,3 @@ var Up = func() *cli.Command {
 		},
 	}
 }
-
-
-
