@@ -1,6 +1,7 @@
 # 0.0.69 (Unreleased)
 * Fixed `nullstone Apply` => `nullstone apply`.
-* Printing Run URLs to stdout for `plan`, `apply`, and `up`.
+* Printed Run URLs to stdout for `plan`, `apply`, and `up`.
+* When running `apply`, printed message when run needs approval to proceed.
 
 # 0.0.68 (Aug 01, 2022)
 * Added `plan` command to run plans using the Nullstone engine.

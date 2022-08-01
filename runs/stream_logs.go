@@ -7,6 +7,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -27,6 +28,7 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 	// NOTE: pollRun is needed to know when the live logs are complete
 	// TODO: Replace pollRun with an EOF message received through the live logs
 	runCh := pollRun(innerCtx, cfg, workspace.StackId, newRun.Uid, time.Second)
+	var printApprovalMsg sync.Once
 	for {
 		select {
 		case msg := <-msgs:
@@ -38,6 +40,16 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 				cancelFn()
 				return nil
 			}
+			if run.Status == types.RunStatusNeedsApproval {
+				printApprovalMsg.Do(func() {
+					fmt.Fprintln(os.Stdout, "Nullstone requires approval before applying infrastructure changes.")
+					fmt.Fprintln(os.Stdout, "Visit the infrastructure logs in a browser to approve/reject.")
+					fmt.Fprintln(os.Stdout, GetBrowserUrl(cfg, workspace, run))
+				})
+			}
+		case <-ctx.Done():
+			cancelFn()
+			return nil
 		}
 	}
 }
