@@ -15,7 +15,7 @@ var Apply = func() *cli.Command {
 	return &cli.Command{
 		Name:      "Apply",
 		Usage:     "Runs an apply with optional auto-approval",
-		UsageText: "nullstone plan [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
+		UsageText: "nullstone apply [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
 			BlockFlag,
@@ -23,7 +23,7 @@ var Apply = func() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "wait",
 				Aliases: []string{"w"},
-				Usage:   "Stream the Terraform logs while waiting for Nullstone to run the plan.",
+				Usage:   "Stream the Terraform logs while waiting for Nullstone to run the apply.",
 			},
 			&cli.BoolFlag{
 				Name:  "auto-approve",
@@ -31,11 +31,11 @@ var Apply = func() *cli.Command {
 			},
 			&cli.StringSliceFlag{
 				Name:  "var",
-				Usage: "Set variable values when issuing `plan`",
+				Usage: "Set variable values when issuing `apply`",
 			},
 			&cli.StringFlag{
 				Name:  "module-version",
-				Usage: "Use a specific module version to run the plan.",
+				Usage: "Use a specific module version to run the apply.",
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -54,7 +54,7 @@ var Apply = func() *cli.Command {
 				}
 				newRunConfig, err := runs.GetPromotion(cfg, workspace, moduleSourceOverride)
 				if err != nil {
-					return fmt.Errorf("error getting run configuration for plan: %w", err)
+					return fmt.Errorf("error getting run configuration for apply: %w", err)
 				}
 
 				skipped, err := runs.SetRunConfigVars(newRunConfig, varFlags)
