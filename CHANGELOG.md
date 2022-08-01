@@ -1,3 +1,10 @@
+# 0.0.68 (Unreleased)
+* Added `plan` command to run plans using the Nullstone engine.
+* Added `apply` command to run applies (with optional `--auto-approve`) using the Nullstone engine.
+* `modules publish` now emits info to stderr and emits only the new module version to stdout (if publish succeeds).
+* Replaced `--version=auto` with `--version=next-patch`.
+* Added `--version=next-build` that will bump the patch and append the short git commit sha as `+build`.
+
 # 0.0.67 (Jul 29, 2022)
 * Added `--wait` flag to `deploy` command that waits for the app to become healthy.
 * `launch` command now performs `push`+`deploy`+`wait-healthy` instead of `push`+`deploy`+`logs`.
