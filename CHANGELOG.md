@@ -1,4 +1,4 @@
-# 0.0.68 (Unreleased)
+# 0.0.68 (Aug 01, 2022)
 * Added `plan` command to run plans using the Nullstone engine.
 * Added `apply` command to run applies (with optional `--auto-approve`) using the Nullstone engine.
 * `modules publish` now emits info to stderr and emits only the new module version to stdout (if publish succeeds).
