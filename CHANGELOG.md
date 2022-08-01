@@ -1,3 +1,6 @@
+# 0.0.69 (Unreleased)
+* Fixed `nullstone Apply` => `nullstone apply`.
+
 # 0.0.68 (Aug 01, 2022)
 * Added `plan` command to run plans using the Nullstone engine.
 * Added `apply` command to run applies (with optional `--auto-approve`) using the Nullstone engine.

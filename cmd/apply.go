@@ -13,7 +13,7 @@ import (
 
 var Apply = func() *cli.Command {
 	return &cli.Command{
-		Name:      "Apply",
+		Name:      "apply",
 		Usage:     "Runs an apply with optional auto-approval",
 		UsageText: "nullstone apply [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
