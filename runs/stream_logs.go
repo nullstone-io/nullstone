@@ -24,6 +24,8 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 	if err != nil {
 		return err
 	}
+	// NOTE: pollRun is needed to know when the live logs are complete
+	// TODO: Replace pollRun with an EOF message received through the live logs
 	runCh := pollRun(innerCtx, cfg, workspace.StackId, newRun.Uid, time.Second)
 	for {
 		select {
