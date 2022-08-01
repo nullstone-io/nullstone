@@ -1,5 +1,6 @@
 # 0.0.69 (Unreleased)
 * Fixed `nullstone Apply` => `nullstone apply`.
+* Printing Run URLs to stdout for `plan`, `apply`, and `up`.
 
 # 0.0.68 (Aug 01, 2022)
 * Added `plan` command to run plans using the Nullstone engine.

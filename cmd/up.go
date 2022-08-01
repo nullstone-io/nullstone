@@ -7,6 +7,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
+	"os"
 	"strings"
 )
 
@@ -58,6 +59,7 @@ var Up = func() *cli.Command {
 					return fmt.Errorf("unable to create run")
 				}
 				fmt.Printf("created run %q\n", newRun.Uid)
+				fmt.Fprintln(os.Stdout, runs.GetBrowserUrl(cfg, workspace, *newRun))
 
 				if c.IsSet("wait") {
 					return runs.StreamLogs(ctx, cfg, workspace, newRun)

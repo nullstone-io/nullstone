@@ -64,6 +64,7 @@ var Plan = func() *cli.Command {
 					return fmt.Errorf("unable to create run")
 				}
 				fmt.Fprintf(os.Stdout, "created plan run %q\n", newRun.Uid)
+				fmt.Fprintln(os.Stdout, runs.GetBrowserUrl(cfg, workspace, *newRun))
 
 				if c.IsSet("wait") {
 					return runs.StreamLogs(ctx, cfg, workspace, newRun)
