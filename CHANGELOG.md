@@ -1,4 +1,4 @@
-# 0.0.69 (Unreleased)
+# 0.0.69 (Aug 01, 2022)
 * Fixed `nullstone Apply` => `nullstone apply`.
 * Printed Run URLs to stdout for `plan`, `apply`, and `up`.
 * When running `apply`, printed message when run needs approval to proceed.
