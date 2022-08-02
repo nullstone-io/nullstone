@@ -1,5 +1,6 @@
 # 0.0.73 (Aug 02, 2022)
 * Fixed lack of error handling during `plan`/`apply`/`up` when retrieving a promotion plan.
+* Switched to `gopkg.in/nullstone/go-api-client.v0` when resolving module versions by version constraint.
 
 # 0.0.72 (Aug 02, 2022)
 * When running a `plan`/`apply` with `--wait`:
