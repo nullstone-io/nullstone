@@ -1,3 +1,6 @@
+# 0.0.73 (Aug 02, 2022)
+* Fixed lack of error handling during `plan`/`apply`/`up` when retrieving a promotion plan.
+
 # 0.0.72 (Aug 02, 2022)
 * When running a `plan`/`apply` with `--wait`:
   * A failed plan causes the CLI to exit with non-zero code.
