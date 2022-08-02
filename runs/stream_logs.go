@@ -37,7 +37,11 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 			}
 		case run := <-runCh:
 			if types.IsTerminalRunStatus(run.Status) {
-				cancelFn()
+				// A completed run finishes successfully
+				// Any other terminal status returns an error (causing a non-zero exit code for failed runs)
+				if run.Status != types.RunStatusCompleted {
+					return fmt.Errorf("Run failed to complete (%s): %s", run.Status, run.StatusMessage)
+				}
 				return nil
 			}
 			if run.Status == types.RunStatusNeedsApproval {
@@ -48,7 +52,6 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 				})
 			}
 		case <-ctx.Done():
-			cancelFn()
 			return nil
 		}
 	}
