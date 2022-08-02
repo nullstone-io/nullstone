@@ -1,3 +1,6 @@
+# 0.0.71 (Aug 02, 2022)
+* Fixed comparison of module versions when using `next-build` and `next-patch`.
+
 # 0.0.70 (Aug 02, 2022)
 * `modules publish --version=next-build|next-patch` does not consider existing versions that have build components in the version.
 

@@ -16,7 +16,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20220802135346-e9bb640288cf
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20220802142205-1e7939c65a49
 )
 
 require (
