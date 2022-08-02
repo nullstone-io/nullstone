@@ -1,3 +1,6 @@
+# 0.0.70 (Aug 02, 2022)
+* `modules publish --version=next-build|next-patch` does not consider existing versions that have build components in the version.
+
 # 0.0.69 (Aug 01, 2022)
 * Fixed `nullstone Apply` => `nullstone apply`.
 * Printed Run URLs to stdout for `plan`, `apply`, and `up`.
