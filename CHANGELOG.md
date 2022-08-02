@@ -1,3 +1,8 @@
+# 0.0.72 (Aug 02, 2022)
+* When running a `plan`/`apply` with `--wait`:
+  * A failed plan causes the CLI to exit with non-zero code.
+  * A failed plan causes the CLI to print the error message.
+
 # 0.0.71 (Aug 02, 2022)
 * Fixed comparison of module versions when using `next-build` and `next-patch`.
 
