@@ -2,6 +2,7 @@ package runs
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -9,6 +10,10 @@ import (
 	"os"
 	"sync"
 	"time"
+)
+
+var (
+	ErrRunDisapproved = errors.New("run was disapproved")
 )
 
 // StreamLogs streams the logs from the server over a websocket
@@ -39,6 +44,9 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 			if types.IsTerminalRunStatus(run.Status) {
 				// A completed run finishes successfully
 				// Any other terminal status returns an error (causing a non-zero exit code for failed runs)
+				if run.Status == types.RunStatusDisapproved {
+					return ErrRunDisapproved
+				}
 				if run.Status != types.RunStatusCompleted {
 					return fmt.Errorf("Run failed to complete (%s): %s", run.Status, run.StatusMessage)
 				}

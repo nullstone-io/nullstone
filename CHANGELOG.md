@@ -1,3 +1,6 @@
+# 0.0.74 (Aug 02, 2022)
+* Fixed `plan` from exiting with non-zero exit code since the plan is always "disapproved". 
+
 # 0.0.73 (Aug 02, 2022)
 * Fixed lack of error handling during `plan`/`apply`/`up` when retrieving a promotion plan.
 * Switched to `gopkg.in/nullstone/go-api-client.v0` when resolving module versions by version constraint.

@@ -67,7 +67,12 @@ var Plan = func() *cli.Command {
 				fmt.Fprintln(os.Stdout, runs.GetBrowserUrl(cfg, workspace, *newRun))
 
 				if c.IsSet("wait") {
-					return runs.StreamLogs(ctx, cfg, workspace, newRun)
+					err := runs.StreamLogs(ctx, cfg, workspace, newRun)
+					if err == runs.ErrRunDisapproved {
+						// Disapproved plans are expected, return no error
+						return nil
+					}
+					return err
 				}
 				return nil
 			})
