@@ -1,3 +1,6 @@
+# 0.0.75 (Aug 04, 2022)
+* Fixed nil panic when a `plan`/`apply` received an HTTP 404 when retrieving a run configuration.
+
 # 0.0.74 (Aug 02, 2022)
 * Fixed `plan` from exiting with non-zero exit code since the plan is always "disapproved". 
 

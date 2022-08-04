@@ -4,6 +4,9 @@ import "gopkg.in/nullstone-io/go-api-client.v0/types"
 
 // fillRunConfig ensures that values are configured with their defaults
 func fillRunConfig(rc *types.RunConfig) {
+	if rc == nil {
+		return
+	}
 	rc.Variables = fillRunConfigVariables(rc.Variables)
 	for i, c := range rc.Capabilities {
 		c.Variables = fillRunConfigVariables(c.Variables)

@@ -1,6 +1,7 @@
 package runs
 
 import (
+	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
@@ -12,6 +13,8 @@ func GetPromotion(cfg api.Config, workspace types.Workspace, moduleSourceOverrid
 	newRunConfig, err := client.PromotionConfigs().Get(workspace.StackId, workspace.BlockId, workspace.EnvId, moduleSourceOverride)
 	if err != nil {
 		return nil, err
+	} else if newRunConfig == nil {
+		return nil, fmt.Errorf("run config could not be found")
 	}
 
 	fillRunConfig(newRunConfig)
