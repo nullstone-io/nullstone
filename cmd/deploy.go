@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
-	"gopkg.in/nullstone-io/nullstone.v0/deploys"
+	"github.com/urfave/cli/v2"
+	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"os"
 )
 
 var Deploy = func(providers app.Providers) *cli.Command {
@@ -36,10 +39,37 @@ var Deploy = func(providers app.Providers) *cli.Command {
 
 				if wait {
 					// TODO: We should always stream logs, but if --wait is not specified, we would skip "wait-healthy" phase
-					return deploys.StreamLogs(ctx, cfg, deploy)
+					return streamDeployLogs(ctx, cfg, *deploy)
 				}
 				return nil
 			})
 		},
 	}
+}
+
+func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy) error {
+	fmt.Fprintln(os.Stdout, "Waiting for logs...")
+	client := api.Client{Config: cfg}
+	msgs, err := client.DeployLiveLogs().Watch(ctx, deploy.StackId, deploy.Id)
+	if err != nil {
+		return err
+	}
+	for msg := range msgs {
+		if msg.Source == "error" {
+			return fmt.Errorf(msg.Content)
+		}
+		fmt.Fprint(os.Stdout, msg.Content)
+	}
+
+	updated, err := client.Deploys().Get(deploy.StackId, deploy.AppId, deploy.EnvId, deploy.Id)
+	if err != nil {
+		return fmt.Errorf("error retrieving deploy status: %w", err)
+	}
+	switch updated.Status {
+	case types.DeployStatusCancelled:
+		return fmt.Errorf("Deploy was cancelled.")
+	case types.DeployStatusFailed:
+		return fmt.Errorf("Deploy failed to complete: %s", updated.StatusMessage)
+	}
+	return nil
 }
