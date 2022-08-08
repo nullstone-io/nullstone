@@ -26,7 +26,7 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 
 	fmt.Fprintln(os.Stdout, "Waiting for logs...")
 	client := api.Client{Config: cfg}
-	msgs, err := client.LiveLogs().Watch(innerCtx, workspace.StackId, newRun.Uid)
+	msgs, err := client.RunLiveLogs().Watch(innerCtx, workspace.StackId, newRun.Uid)
 	if err != nil {
 		return err
 	}
