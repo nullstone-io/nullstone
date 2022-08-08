@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
-	"github.com/urfave/cli/v2"
-	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/nullstone.v0/deploys"
 )
 
 // Launch command performs push, deploy, and logs
@@ -35,17 +34,12 @@ var Launch = func(providers app.Providers) *cli.Command {
 				if err != nil {
 					return err
 				}
-				if err := CreateDeploy(cfg, appDetails, version); err != nil {
-					return err
-				}
-				reference, err := deploy(ctx, cfg, appDetails, osWriters, factory, version)
+
+				deploy, err := CreateDeploy(cfg, appDetails, version)
 				if err != nil {
 					return err
 				}
-				if err := waitHealthy(ctx, cfg, appDetails, osWriters, factory, reference); err != nil {
-					return err
-				}
-				return nil
+				return deploys.StreamLogs(ctx, cfg, deploy)
 			})
 		},
 	}
