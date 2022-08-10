@@ -27,7 +27,7 @@ var Deploy = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				version, wait := DetectAppVersion(c), c.IsSet("wait")
+				version, _ := DetectAppVersion(c), c.IsSet("wait")
 				if version == "" {
 					return fmt.Errorf("no version specified, version is required to create a deploy")
 				}
@@ -37,11 +37,8 @@ var Deploy = func(providers app.Providers) *cli.Command {
 					return err
 				}
 
-				if wait {
-					// TODO: We should always stream logs, but if --wait is not specified, we would skip "wait-healthy" phase
-					return streamDeployLogs(ctx, cfg, *deploy)
-				}
-				return nil
+				// If --wait is not specified, we would skip "wait-healthy" phase
+				return streamDeployLogs(ctx, cfg, *deploy)
 			})
 		},
 	}
@@ -52,7 +49,7 @@ func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy) 
 	client := api.Client{Config: cfg}
 	msgs, err := client.DeployLiveLogs().Watch(ctx, deploy.StackId, deploy.Id)
 	if err != nil {
-		return err
+		return fmt.Errorf("error connecting to deploy logs: %w", err)
 	}
 	for msg := range msgs {
 		if msg.Source == "error" {
