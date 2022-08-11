@@ -7,7 +7,9 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/go-api-client.v0/ws"
 	"os"
+	"time"
 )
 
 var Deploy = func(providers app.Providers) *cli.Command {
@@ -47,7 +49,7 @@ var Deploy = func(providers app.Providers) *cli.Command {
 func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy) error {
 	fmt.Fprintln(os.Stdout, "Waiting for logs...")
 	client := api.Client{Config: cfg}
-	msgs, err := client.DeployLiveLogs().Watch(ctx, deploy.StackId, deploy.Id)
+	msgs, err := client.DeployLiveLogs().Watch(ctx, deploy.StackId, deploy.Id, ws.RetryInfinite(time.Second))
 	if err != nil {
 		return fmt.Errorf("error connecting to deploy logs: %w", err)
 	}

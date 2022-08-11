@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/go-api-client.v0/ws"
 	"os"
 	"sync"
 	"time"
@@ -26,7 +27,7 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 
 	fmt.Fprintln(os.Stdout, "Waiting for logs...")
 	client := api.Client{Config: cfg}
-	msgs, err := client.RunLiveLogs().Watch(innerCtx, workspace.StackId, newRun.Uid)
+	msgs, err := client.RunLiveLogs().Watch(innerCtx, workspace.StackId, newRun.Uid, ws.RetryInfinite(time.Second))
 	if err != nil {
 		return err
 	}
