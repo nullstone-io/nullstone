@@ -40,7 +40,7 @@ var Launch = func(providers app.Providers) *cli.Command {
 				if err != nil {
 					return err
 				}
-				return streamDeployLogs(ctx, cfg, *deploy)
+				return streamDeployLogs(ctx, cfg, *deploy, true)
 			})
 		},
 	}

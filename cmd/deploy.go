@@ -29,7 +29,7 @@ var Deploy = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				version, _ := DetectAppVersion(c), c.IsSet("wait")
+				version, wait := DetectAppVersion(c), c.IsSet("wait")
 				if version == "" {
 					return fmt.Errorf("no version specified, version is required to create a deploy")
 				}
@@ -40,14 +40,14 @@ var Deploy = func(providers app.Providers) *cli.Command {
 				}
 
 				// If --wait is not specified, we would skip "wait-healthy" phase
-				return streamDeployLogs(ctx, cfg, *deploy)
+				return streamDeployLogs(ctx, cfg, *deploy, wait)
 			})
 		},
 	}
 }
 
-func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy) error {
-	fmt.Fprintln(os.Stdout, "Waiting for logs...")
+func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy, wait bool) error {
+	fmt.Fprintln(os.Stderr, "Waiting for logs...")
 	client := api.Client{Config: cfg}
 	msgs, err := client.DeployLiveLogs().Watch(ctx, deploy.StackId, deploy.Id, ws.RetryInfinite(time.Second))
 	if err != nil {
@@ -57,13 +57,18 @@ func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy) 
 		if msg.Source == "error" {
 			return fmt.Errorf(msg.Content)
 		}
-		fmt.Fprint(os.Stdout, msg.Content)
+		if !wait && msg.Context == types.DeployPhaseWaitHealthy {
+			// Stop streaming logs if we receive a log message from wait-healthy and no --wait
+			break
+		}
+		fmt.Fprint(os.Stderr, msg.Content)
 	}
 
 	updated, err := client.Deploys().Get(deploy.StackId, deploy.AppId, deploy.EnvId, deploy.Id)
 	if err != nil {
 		return fmt.Errorf("error retrieving deploy status: %w", err)
 	}
+	fmt.Fprintln(os.Stdout, updated.Reference)
 	switch updated.Status {
 	case types.DeployStatusCancelled:
 		return fmt.Errorf("Deploy was cancelled.")
