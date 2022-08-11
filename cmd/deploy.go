@@ -38,8 +38,6 @@ var Deploy = func(providers app.Providers) *cli.Command {
 				if err != nil {
 					return err
 				}
-
-				// If --wait is not specified, we would skip "wait-healthy" phase
 				return streamDeployLogs(ctx, cfg, *deploy, wait)
 			})
 		},
