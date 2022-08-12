@@ -19,6 +19,9 @@ var Outputs = func() *cli.Command {
 			StackFlag,
 			BlockFlag,
 			EnvFlag,
+			&cli.BoolFlag{
+				Name: "plain",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
@@ -30,14 +33,18 @@ var Outputs = func() *cli.Command {
 					outputs = &types.Outputs{}
 				}
 
-				stripped := map[string]interface{}{}
-				for key, output := range *outputs {
-					stripped[key] = output.Value
-				}
-
 				encoder := json.NewEncoder(os.Stdout)
 				encoder.SetIndent("", "  ")
-				encoder.Encode(stripped)
+				if c.IsSet("plain") {
+					stripped := map[string]any{}
+					for key, output := range *outputs {
+						stripped[key] = output.Value
+					}
+					encoder.Encode(stripped)
+				} else {
+					encoder.Encode(*outputs)
+				}
+
 				return nil
 			})
 		},

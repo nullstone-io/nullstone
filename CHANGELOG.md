@@ -1,3 +1,7 @@
+# 0.0.76 (Aug 12, 2022)
+* Changed `nullstone outputs` to emit like `terraform output`.
+* Added `--plain` to `nullstone outputs` to emit a map of output name and output value.
+
 # 0.0.75 (Aug 04, 2022)
 * Fixed nil panic when a `plan`/`apply` received an HTTP 404 when retrieving a run configuration.
 
