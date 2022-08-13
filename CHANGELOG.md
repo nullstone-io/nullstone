@@ -1,3 +1,6 @@
+# 0.0.77 (Aug 13, 2022)
+* Changed deployments to run on the Nullstone servers and stream the logs through the CLI. 
+
 # 0.0.76 (Aug 12, 2022)
 * Changed `nullstone outputs` to emit like `terraform output`.
 * Added `--plain` to `nullstone outputs` to emit a map of output name and output value.
