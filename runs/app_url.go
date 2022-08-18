@@ -15,7 +15,7 @@ func GetBrowserUrl(cfg api.Config, workspace types.Workspace, run types.Run) str
 	}
 	u.Host = strings.Replace(u.Host, "api", "app", 1)
 
-	u.Path = fmt.Sprintf("orgs/%s/stacks/%d/apps/%d/logs", workspace.OrgName, workspace.StackId, workspace.BlockId)
+	u.Path = fmt.Sprintf("orgs/%s/stacks/%d/blocks/%d/activity", workspace.OrgName, workspace.StackId, workspace.BlockId)
 	q := url.Values{}
 	q.Set("runUid", run.Uid.String())
 	q.Set("env", fmt.Sprintf("%d", workspace.EnvId))

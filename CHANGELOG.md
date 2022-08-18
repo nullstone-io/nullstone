@@ -1,3 +1,6 @@
+# 0.0.78 (Unreleased)
+* Fixed emitted browser URL when a plan needs approval.
+
 # 0.0.77 (Aug 13, 2022)
 * Changed deployments to run on the Nullstone servers and stream the logs through the CLI. 
 
