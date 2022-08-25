@@ -27,7 +27,7 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 
 	fmt.Fprintln(os.Stdout, "Waiting for logs...")
 	client := api.Client{Config: cfg}
-	msgs, err := client.RunLiveLogs().Watch(innerCtx, workspace.StackId, newRun.Uid, ws.RetryInfinite(time.Second))
+	msgs, err := client.RunLogs().Watch(innerCtx, workspace.StackId, newRun.Uid, ws.RetryInfinite(time.Second))
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 	for {
 		select {
 		case msg := <-msgs:
-			if msg.Source != "error" {
+			if msg.Type != "error" {
 				fmt.Fprint(os.Stdout, msg.Content)
 			}
 		case run := <-runCh:

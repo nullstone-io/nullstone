@@ -52,7 +52,7 @@ func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy, 
 		return fmt.Errorf("error connecting to deploy logs: %w", err)
 	}
 	for msg := range msgs {
-		if msg.Source == "error" {
+		if msg.Type == "error" {
 			return fmt.Errorf(msg.Content)
 		}
 		if !wait && msg.Context == types.DeployPhaseWaitHealthy {
