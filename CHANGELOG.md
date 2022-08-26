@@ -1,5 +1,7 @@
 # 0.0.78 (Unreleased)
 * Fixed emitted browser URL when a plan needs approval.
+* Changed `nullstone modules publish` to include `README.md` in the package.
+* Changed `nullstone workspaces select` to print specific error message if unable to initialize Terraform.
 
 # 0.0.77 (Aug 13, 2022)
 * Changed deployments to run on the Nullstone servers and stream the logs through the CLI. 

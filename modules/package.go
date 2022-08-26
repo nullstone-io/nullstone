@@ -9,6 +9,7 @@ var (
 	moduleFilePatterns = []string{
 		"*.tf",
 		"*.tf.tmpl",
+		"README.md",
 	}
 	excludes = map[string]struct{}{
 		"__backend__.tf": struct{}{},
