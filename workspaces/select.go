@@ -6,6 +6,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/git"
+	"log"
 	"path"
 	"strings"
 )
@@ -60,6 +61,7 @@ func Select(ctx context.Context, cfg api.Config, workspace Manifest, runConfig t
 		fallbackMessage := `Unable to initialize terraform.
 Reset .terraform/ directory and run 'terraform init'.`
 		fmt.Println(fallbackMessage)
+		log.Println(err)
 	}
 	return nil
 }
