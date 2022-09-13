@@ -12,11 +12,11 @@ var (
 		"README.md",
 	}
 	excludes = map[string]struct{}{
-		"__backend__.tf": struct{}{},
+		"__backend__.tf": {},
 	}
 )
 
-func Package(manifest *Manifest, version string) (string, error) {
+func Package(manifest *Manifest, version string, addlFiles []string) (string, error) {
 	excludeFn := func(entry artifacts.GlobEntry) bool {
 		_, ok := excludes[entry.Path]
 		return ok
@@ -26,5 +26,6 @@ func Package(manifest *Manifest, version string) (string, error) {
 	if version != "" {
 		tarballFilename = fmt.Sprintf("%s-%s.tar.gz", manifest.Name, version)
 	}
-	return tarballFilename, artifacts.PackageModule(".", tarballFilename, moduleFilePatterns, excludeFn)
+	allPatterns := append(moduleFilePatterns, addlFiles...)
+	return tarballFilename, artifacts.PackageModule(".", tarballFilename, allPatterns, excludeFn)
 }

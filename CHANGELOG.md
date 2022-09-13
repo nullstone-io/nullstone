@@ -1,5 +1,6 @@
 # 0.0.79 (Unreleased)
 * Fixed panic when running `nullstone status` on apps that do not have status support in the CLI.
+* Added `--include` flag to package additional files when running `nullstone modules publish` or `nullstone modules package`.
 
 # 0.0.78 (Aug 31, 2022)
 * Fixed emitted browser URL when a plan needs approval.
