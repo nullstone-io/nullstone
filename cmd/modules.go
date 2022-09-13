@@ -13,6 +13,13 @@ import (
 
 var (
 	moduleManifestFilename = path.Join(".nullstone", "module.yml")
+	includeFlag            = &cli.StringSliceFlag{
+		Name: "include",
+		Usage: `Specify additional file patterns to package.
+By default, this command includes *.tf, *.tf.tmpl, and README.md.
+Use this flag to package additional modules and files needed for applies.
+This supports file globbing detailed at https://pkg.go.dev/path/filepath#Glob`,
+	}
 )
 
 var Modules = &cli.Command{
@@ -100,11 +107,12 @@ var ModulesPublish = &cli.Command{
 'next-build': Uses the latest version and appends +<build> using the short Git commit SHA. (Fails if not in a Git repository)`,
 			Required: true,
 		},
-		// TODO: We currently support *.tf, .*tf.tmpl patterns; add support for packaging additional files into the module package
+		includeFlag,
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
 			version := c.String("version")
+			includes := c.StringSlice("include")
 
 			// Read module name from manifest
 			manifest, err := modules.ManifestFromFile(moduleManifestFilename)
@@ -142,7 +150,7 @@ var ModulesPublish = &cli.Command{
 			}
 
 			// Package module files into tar.gz
-			tarballFilename, err := modules.Package(manifest, version)
+			tarballFilename, err := modules.Package(manifest, version, includes)
 			if err != nil {
 				return err
 			}
@@ -170,17 +178,19 @@ var ModulesPackage = &cli.Command{
 	Name:      "package",
 	Usage:     "Package a module",
 	UsageText: "nullstone modules package",
-	Flags:     []cli.Flag{
-		// TODO: We currently support *.tf, .*tf.tmpl patterns; add support for packaging additional files into the module package
+	Flags: []cli.Flag{
+		includeFlag,
 	},
 	Action: func(c *cli.Context) error {
+		includes := c.StringSlice("include")
+
 		// Read module name from manifest
 		manifest, err := modules.ManifestFromFile(moduleManifestFilename)
 		if err != nil {
 			return err
 		}
 
-		tarballFilename, err := modules.Package(manifest, "")
+		tarballFilename, err := modules.Package(manifest, "", includes)
 		if err == nil {
 			fmt.Printf("created module package %q\n", tarballFilename)
 		}
