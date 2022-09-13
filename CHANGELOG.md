@@ -1,4 +1,4 @@
-# 0.0.79 (Unreleased)
+# 0.0.79 (Sep 13, 2022)
 * Fixed panic when running `nullstone status` on apps that do not have status support in the CLI.
 * Added `--include` flag to package additional files when running `nullstone modules publish` or `nullstone modules package`.
 
