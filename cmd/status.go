@@ -56,6 +56,8 @@ func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, w
 	application, err := find.App(cfg, appName, stackName)
 	if err != nil {
 		return err
+	} else if application == nil {
+		return fmt.Errorf("Application (%s) does not exist.", appName)
 	}
 
 	client := api.Client{Config: cfg}
@@ -65,8 +67,7 @@ func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, w
 	}
 
 	if len(envs) < 1 {
-		fmt.Println("No environments exist")
-		return nil
+		return fmt.Errorf("No environments exist in the application's stack.")
 	}
 
 	return WatchAction(ctx, watchInterval, func(writer io.Writer) error {
@@ -95,6 +96,8 @@ func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, w
 						cur[k] = v
 					}
 				}
+			} else {
+				return fmt.Errorf("Status is not supported for this application.")
 			}
 
 			buffer.AddRow(cur)
@@ -131,7 +134,7 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers admin.Providers
 				return fmt.Errorf("error retrieving app status detail: %w", err)
 			}
 		} else {
-			fmt.Fprintln(writer, "Detailed status is not supported for this application.")
+			return fmt.Errorf("Detailed status is not supported for this application.")
 		}
 
 		// Emit each report starting with the report name as the header

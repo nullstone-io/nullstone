@@ -1,4 +1,7 @@
-# 0.0.78 (Unreleased)
+# 0.0.79 (Unreleased)
+* Fixed panic when running `nullstone status` on apps that do not have status support in the CLI.
+
+# 0.0.78 (Aug 31, 2022)
 * Fixed emitted browser URL when a plan needs approval.
 * Changed `nullstone modules publish` to include `README.md` in the package.
 * Changed `nullstone workspaces select` to print specific error message if unable to initialize Terraform.

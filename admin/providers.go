@@ -11,7 +11,7 @@ type Providers map[types.ModuleContractName]Provider
 
 func (s Providers) FindStatuser(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (Statuser, error) {
 	factory := s.FindFactory(*appDetails.Module)
-	if factory == nil {
+	if factory == nil || factory.NewStatuser == nil {
 		return nil, nil
 	}
 	return factory.NewStatuser(osWriters, nsConfig, appDetails)
@@ -19,7 +19,7 @@ func (s Providers) FindStatuser(osWriters logging.OsWriters, nsConfig api.Config
 
 func (s Providers) FindRemoter(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (Remoter, error) {
 	factory := s.FindFactory(*appDetails.Module)
-	if factory == nil {
+	if factory == nil || factory.NewRemoter == nil {
 		return nil, nil
 	}
 	return factory.NewRemoter(osWriters, nsConfig, appDetails)
@@ -27,7 +27,7 @@ func (s Providers) FindRemoter(osWriters logging.OsWriters, nsConfig api.Config,
 
 func (s Providers) FindLogStreamer(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (LogStreamer, error) {
 	factory := s.FindFactory(*appDetails.Module)
-	if factory == nil {
+	if factory == nil || factory.NewLogStreamer == nil {
 		return nil, nil
 	}
 	return factory.NewLogStreamer(osWriters, nsConfig, appDetails)
