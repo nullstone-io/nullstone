@@ -20,29 +20,38 @@ var Outputs = func() *cli.Command {
 			BlockFlag,
 			EnvFlag,
 			&cli.BoolFlag{
+				Name: "sensitive",
+			},
+			&cli.BoolFlag{
 				Name: "plain",
 			},
 		},
 		Action: func(c *cli.Context) error {
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				client := api.Client{Config: cfg}
-				outputs, err := client.WorkspaceOutputs().GetLatest(stack.Id, block.Id, env.Id)
+				showSensitive := c.IsSet("sensitive")
+				outputs, err := client.WorkspaceOutputs().GetCurrent(stack.Id, workspace.Uid, showSensitive)
 				if err != nil {
 					return err
-				} else if outputs == nil {
-					outputs = &types.Outputs{}
+				}
+
+				for key, output := range outputs {
+					if output.Redacted {
+						output.Value = "(hidden)"
+						outputs[key] = output
+					}
 				}
 
 				encoder := json.NewEncoder(os.Stdout)
 				encoder.SetIndent("", "  ")
 				if c.IsSet("plain") {
 					stripped := map[string]any{}
-					for key, output := range *outputs {
+					for key, output := range outputs {
 						stripped[key] = output.Value
 					}
 					encoder.Encode(stripped)
 				} else {
-					encoder.Encode(*outputs)
+					encoder.Encode(outputs)
 				}
 
 				return nil
