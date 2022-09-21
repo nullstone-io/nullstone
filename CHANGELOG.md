@@ -1,3 +1,6 @@
+# 0.0.80 (Sep 21, 2022)
+* Updated `outputs` command and deployments to use a new endpoint that references outputs from the state backend. 
+
 # 0.0.79 (Sep 13, 2022)
 * Fixed panic when running `nullstone status` on apps that do not have status support in the CLI.
 * Added `--include` flag to package additional files when running `nullstone modules publish` or `nullstone modules package`.
