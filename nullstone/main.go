@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	allApp "github.com/nullstone-io/deployment-sdk/app/all"
 	"github.com/urfave/cli/v2"
@@ -67,6 +69,9 @@ func main() {
 
 	err := cliApp.Run(os.Args)
 	if err != nil {
+		if errors.Is(err, context.Canceled) {
+			os.Exit(0)
+		}
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	} else {
