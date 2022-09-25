@@ -1,3 +1,6 @@
+# 0.0.81 (Unreleased)
+* CLI no longer prints `context canceled` when a user cancels a command. 
+
 # 0.0.80 (Sep 21, 2022)
 * Updated `outputs` command and deployments to use a new endpoint that references outputs from the state backend. 
 
