@@ -9,7 +9,7 @@ import (
 
 func CreateDeploy(nsConfig api.Config, appDetails app.Details, version string) (*types.Deploy, error) {
 	client := api.Client{Config: nsConfig}
-	newDeploy, err := client.Deploys().Create(appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id, version)
+	newDeploy, err := client.Deploys().Create(appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id, version, false)
 	if err != nil {
 		return nil, fmt.Errorf("error creating deploy: %w", err)
 	} else if newDeploy == nil {

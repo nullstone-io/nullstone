@@ -78,7 +78,9 @@ provider "ns" {
 
 module "{{ .TfModuleName }}" {
   source  = "{{ .Source }}/any"
-  {{ if (ne .SourceVersion "latest") }}version = "{{ .SourceVersion }}"{{ end }}
+  {{- if (ne .SourceVersion "latest") }}
+  version = "{{ .SourceVersion }}"
+  {{- end }}
 
   app_metadata = local.app_metadata
 
@@ -98,12 +100,37 @@ module "caps" {
 }
 
 locals {
-  modules       = [
+  modules      = [
 {{- range $index, $element := .ExceptNeedsDestroyed.TfModuleAddrs -}}
 {{ if $index }}, {{ end }}{{ $element }}
 {{- end -}}
 ]
-  capabilities  = module.caps.outputs
+  capabilities = module.caps.outputs
+
+  cap_modules = [
+{{- range $index, $element := .ExceptNeedsDestroyed }}
+    {{ if $index }}, {{ end }}{
+      id         = {{ $element.Id }}
+      namespace  = "{{ $element.Namespace }}"
+      env_prefix = "{{ $element.EnvPrefix }}"
+      outputs    = {{ $element.TfModuleAddr }}
+    }
+{{- end }}
+  ]
+}
+
+locals {
+  cap_env_vars = merge([
+    for mod in local.cap_modules : {
+      for item in lookup(mod.outputs, "env", []) : "${mod.env_prefix}${item.name}" => item.value
+    }
+  ]...)
+
+  cap_secrets = merge([
+    for mod in local.cap_modules : {
+      for item in lookup(mod.outputs, "secrets", []) : "${mod.env_prefix}${item.name}" => item.value
+    }
+  ]...)
 }
 `
 )
