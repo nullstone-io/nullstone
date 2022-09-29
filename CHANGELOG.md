@@ -1,4 +1,4 @@
-# 0.0.81 (Unreleased)
+# 0.0.81 (Sep 29, 2022)
 * CLI no longer prints `context canceled` when a user cancels a command.
 * Updated generation of `capabilities.tf.tmpl` in application modules to generate `local.cap_modules`, `local.cap_env_vars`, & `local.cap_secrets`.
 * Updated go-api-client to utilize `Namespace` and `EnvPrefix` in generation of `capabilities.tf`.
