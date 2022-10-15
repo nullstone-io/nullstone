@@ -59,7 +59,7 @@ var BlocksList = &cli.Command{
 						blockCategory = blockModule.Category
 						blockType = blockModule.Type
 					}
-					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s|%s|%s|%s", block.Id, block.Type, block.Name, block.Reference, blockCategory, blockType, block.ModuleSource, block.StackName)
+					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s|%s|%s|%s", block.Id, block.Type, block.Name, block.Reference, blockCategory, blockType, block.ModuleSource, stackName)
 				}
 				fmt.Println(columnize.Format(appDetails, columnize.DefaultConfig()))
 			} else {
@@ -124,7 +124,7 @@ var BlocksNew = &cli.Command{
 				latestModuleVersion = &module.Versions[0]
 			}
 
-			connections, parentBlocks, err := mapConnectionsToTargets(cfg, stack, connectionSlice)
+			connections, err := mapConnectionsToTargets(cfg, stack, connectionSlice)
 			if err != nil {
 				return err
 			}
@@ -140,7 +140,6 @@ var BlocksNew = &cli.Command{
 				ModuleSource:        moduleSource,
 				ModuleSourceVersion: "latest",
 				Connections:         connections,
-				ParentBlocks:        parentBlocks,
 			}
 			if strings.HasPrefix(string(module.Category), "app") {
 				app := &types.Application{
@@ -180,22 +179,20 @@ func blockTypeFromModuleCategory(categoryName types.CategoryName) string {
 	return strings.Title(category)
 }
 
-func mapConnectionsToTargets(cfg api.Config, stack *types.Stack, mappings []string) (map[string]types.ConnectionTarget, map[string]string, error) {
+func mapConnectionsToTargets(cfg api.Config, stack *types.Stack, mappings []string) (map[string]types.ConnectionTarget, error) {
 	connections := map[string]types.ConnectionTarget{}
-	parentBlocks := map[string]string{}
 	for _, connMapping := range mappings {
 		tokens := strings.SplitN(connMapping, "=", 2)
 		if len(tokens) < 2 {
-			return nil, nil, fmt.Errorf("invalid connection mapping %q: must specify <connection-name>=<block-name>", connMapping)
+			return nil, fmt.Errorf("invalid connection mapping %q: must specify <connection-name>=<block-name>", connMapping)
 		}
 		ct, err := find.ConnectionTarget(cfg, stack.Name, tokens[1])
 		if err != nil {
-			return nil, nil, fmt.Errorf("error finding %q: %w", tokens[1], err)
+			return nil, fmt.Errorf("error finding %q: %w", tokens[1], err)
 		}
 		connections[tokens[0]] = *ct
-		parentBlocks[tokens[0]] = tokens[1]
 	}
-	return connections, parentBlocks, nil
+	return connections, nil
 }
 
 func validateConnections(moduleVersion *types.ModuleVersion, connections map[string]types.ConnectionTarget) error {

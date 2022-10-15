@@ -46,7 +46,11 @@ var AppsList = &cli.Command{
 						appCategory = appModule.Category
 						appType = appModule.Type
 					}
-					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s|%s|%s|%s", app.Id, app.Name, app.Reference, appCategory, appType, app.ModuleSource, app.StackName, app.Framework)
+					stack, err := client.Stacks().Get(app.StackId)
+					if err != nil {
+						return fmt.Errorf("error looking for stack %q: %w", app.StackId, err)
+					}
+					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s|%s|%s|%s", app.Id, app.Name, app.Reference, appCategory, appType, app.ModuleSource, stack.Name, app.Framework)
 				}
 				fmt.Println(columnize.Format(appDetails, columnize.DefaultConfig()))
 			} else {
