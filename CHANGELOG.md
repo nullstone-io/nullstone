@@ -1,3 +1,15 @@
+# 0.0.84 (Oct 19, 2022)
+* Fixed `ssh` command for ec2 apps.
+* Added helpful error message when the CLI does not support SSH for an application.
+
+# 0.0.83 (Oct 15, 2022)
+* Fixed issue when `StackName` is blank when finding an application.
+
+# 0.0.82 (Oct 15, 2022)
+* Updated `go-api-client` to adjust for changes to the Nullstone APIs.
+  * Deprecated `ParentBlocks` in favor of `Connections` on Blocks/Capabilities.
+  * Removed `StackName` from Blocks.
+
 # 0.0.81 (Sep 29, 2022)
 * CLI no longer prints `context canceled` when a user cancels a command.
 * Updated generation of `capabilities.tf.tmpl` in application modules to generate `local.cap_modules`, `local.cap_env_vars`, & `local.cap_secrets`.

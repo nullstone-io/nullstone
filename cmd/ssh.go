@@ -9,6 +9,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
+	"strings"
 )
 
 var Ssh = func(providers admin.Providers) *cli.Command {
@@ -43,6 +44,11 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 				remoter, err := providers.FindRemoter(logging.StandardOsWriters{}, cfg, appDetails)
 				if err != nil {
 					return err
+				} else if remoter == nil {
+					module := appDetails.Module
+					platform := strings.TrimSuffix(fmt.Sprintf("%s:%s", module.Platform, module.Subplatform), ":")
+					return fmt.Errorf("The Nullstone CLI does not currently support the ssh command for the %q application. (Module = %s, App Category = app/%s, Platform = %s)",
+						appDetails.App.Name, module.OrgName, module.Name, module.Subcategory, platform)
 				}
 				return remoter.Ssh(ctx, task, forwards)
 			})
