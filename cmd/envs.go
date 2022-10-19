@@ -7,6 +7,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"math"
 	"sort"
 )
 
@@ -53,7 +54,19 @@ var EnvsList = &cli.Command{
 				return fmt.Errorf("error listing environments: %w", err)
 			}
 			sort.SliceStable(envs, func(i, j int) bool {
-				return envs[i].PipelineOrder < envs[i].PipelineOrder
+				var first int
+				if envs[i].PipelineOrder == nil {
+					first = math.MaxInt
+				} else {
+					first = *envs[i].PipelineOrder
+				}
+				var second int
+				if envs[j].PipelineOrder == nil {
+					second = math.MaxInt
+				} else {
+					second = *envs[j].PipelineOrder
+				}
+				return first < second
 			})
 
 			if c.IsSet("detail") {
