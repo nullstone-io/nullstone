@@ -1,3 +1,6 @@
+# 0.0.85 (Oct 20, 2022)
+* Updated to account for changes in environment ordering and preview environments.
+
 # 0.0.84 (Oct 19, 2022)
 * Fixed `ssh` command for ec2 apps.
 * Added helpful error message when the CLI does not support SSH for an application.
