@@ -50,7 +50,7 @@ var Deploy = func(providers app.Providers) *cli.Command {
 func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy, wait bool) error {
 	fmt.Fprintln(os.Stderr, "Waiting for deploy logs...")
 	client := api.Client{Config: cfg}
-	msgs, err := client.DeployLogs().Watch(ctx, deploy.StackId, deploy.Id, ws.RetryInfinite(time.Second))
+	msgs, err := client.DeployLogs().Watch(ctx, deploy.StackId, deploy.Id, ws.RetryInfinite(2*time.Second))
 	if err != nil {
 		return fmt.Errorf("error connecting to deploy logs: %w", err)
 	}
