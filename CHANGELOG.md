@@ -1,5 +1,9 @@
-# 0.0.85 (Oct 20, 2022)
+# 0.0.85 (Oct 21, 2022)
 * Updated to account for changes in environment ordering and preview environments.
+* Improved logging for runs (`up` command) and deploys (`launch` and `deploy` commands).
+* Increased retry delay to 2 seconds (from 1 second) if log streaming connection fails.
+* Added tracing for log streaming (use `NULLSTONE_TRACE=1`).
+* Fixed nil panic when cancelling log stream that was never able to connect.
 
 # 0.0.84 (Oct 19, 2022)
 * Fixed `ssh` command for ec2 apps.
