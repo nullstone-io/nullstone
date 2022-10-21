@@ -34,10 +34,13 @@ var Deploy = func(providers app.Providers) *cli.Command {
 					return fmt.Errorf("no version specified, version is required to create a deploy")
 				}
 
+				fmt.Fprintln(os.Stderr, "Creating deploy...")
 				deploy, err := CreateDeploy(cfg, appDetails, version)
 				if err != nil {
 					return err
 				}
+
+				fmt.Fprintln(os.Stderr)
 				return streamDeployLogs(ctx, cfg, *deploy, wait)
 			})
 		},
@@ -45,7 +48,7 @@ var Deploy = func(providers app.Providers) *cli.Command {
 }
 
 func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy, wait bool) error {
-	fmt.Fprintln(os.Stderr, "Waiting for logs...")
+	fmt.Fprintln(os.Stderr, "Waiting for deploy logs...")
 	client := api.Client{Config: cfg}
 	msgs, err := client.DeployLogs().Watch(ctx, deploy.StackId, deploy.Id, ws.RetryInfinite(time.Second))
 	if err != nil {
