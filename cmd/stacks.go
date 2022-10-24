@@ -19,13 +19,15 @@ var Stacks = &cli.Command{
 }
 
 var StacksList = &cli.Command{
-	Name:      "list",
-	Usage:     "List stacks",
-	UsageText: "nullstone stacks list",
+	Name:        "list",
+	Description: "Shows a list of the stacks that you have access to. Set the `--detail` flag to show more details about each stack.",
+	Usage:       "List stacks",
+	UsageText:   "nullstone stacks list",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "detail",
 			Aliases: []string{"d"},
+			Usage:   "Use this flag to show more details about each stack",
 		},
 	},
 	Action: func(c *cli.Context) error {
@@ -55,12 +57,21 @@ var StacksList = &cli.Command{
 }
 
 var StacksNew = &cli.Command{
-	Name:      "new",
-	Usage:     "Create new stack",
-	UsageText: "nullstone stacks new --name=<name> --description=<description>",
+	Name:        "new",
+	Description: "Creates a new stack with the given name and in the organization configured for the CLI.",
+	Usage:       "Create new stack",
+	UsageText:   "nullstone stacks new --name=<name> --description=<description>",
 	Flags: []cli.Flag{
-		&cli.StringFlag{Name: "name", Required: true},
-		&cli.StringFlag{Name: "description", Required: true},
+		&cli.StringFlag{
+			Name:     "name",
+			Usage:    "The name of the stack to create. This name must be unique within the organization.",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:     "description",
+			Usage:    "The description of the stack to create.",
+			Required: true,
+		},
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {

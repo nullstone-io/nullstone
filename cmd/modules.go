@@ -15,9 +15,9 @@ var (
 	moduleManifestFilename = path.Join(".nullstone", "module.yml")
 	includeFlag            = &cli.StringSliceFlag{
 		Name: "include",
-		Usage: `Specify additional file patterns to package.
-By default, this command includes *.tf, *.tf.tmpl, and README.md.
-Use this flag to package additional modules and files needed for applies.
+		Usage: `Specify additional file patterns to package. 
+By default, this command includes *.tf, *.tf.tmpl, and 'README.md'. 
+Use this flag to package additional modules and files needed for applies. 
 This supports file globbing detailed at https://pkg.go.dev/path/filepath#Glob`,
 	}
 )
@@ -35,11 +35,17 @@ var Modules = &cli.Command{
 }
 
 var ModulesGenerate = &cli.Command{
-	Name:      "generate",
+	Name: "generate",
+	Description: "Generates a nullstone manifest file for your module in the current directory. " +
+		"You will be asked a series of questions in order to collect the information needed to describe a Nullstone module. " +
+		"Optionally, you can also register the module in the Nullstone registry by passing the `--register` flag.",
 	Usage:     "Generate new module manifest (and optionally register)",
 	UsageText: "nullstone modules generate [--register]",
 	Flags: []cli.Flag{
-		&cli.BoolFlag{Name: "register"},
+		&cli.BoolFlag{
+			Name:  "register",
+			Usage: "Register the module in the Nullstone registry after generating the manifest file.",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
@@ -72,11 +78,12 @@ var ModulesGenerate = &cli.Command{
 }
 
 var ModulesRegister = &cli.Command{
-	Name:      "register",
-	Usage:     "Register module from .nullstone/module.yml",
-	UsageText: "nullstone modules register",
-	Flags:     []cli.Flag{},
-	Aliases:   []string{"new"},
+	Name:        "register",
+	Description: "Registers a module in the Nullstone registry. The information in .nullstone/module.yml will be used as the details for the new module.",
+	Usage:       "Register module from .nullstone/module.yml",
+	UsageText:   "nullstone modules register",
+	Flags:       []cli.Flag{},
+	Aliases:     []string{"new"},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
 			manifest, err := modules.ManifestFromFile(moduleManifestFilename)
@@ -95,9 +102,10 @@ var ModulesRegister = &cli.Command{
 }
 
 var ModulesPublish = &cli.Command{
-	Name:      "publish",
-	Usage:     "Package and publish new version of a module",
-	UsageText: "nullstone modules publish --version=<version>",
+	Name:        "publish",
+	Description: "Publishes a new version for a module in the Nullstone registry. Provide a specific semver version using the `--version` parameter.",
+	Usage:       "Package and publish new version of a module",
+	UsageText:   "nullstone modules publish --version=<version>",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "version",
@@ -175,9 +183,10 @@ var ModulesPublish = &cli.Command{
 }
 
 var ModulesPackage = &cli.Command{
-	Name:      "package",
-	Usage:     "Package a module",
-	UsageText: "nullstone modules package",
+	Name:        "package",
+	Description: "Package all the module contents for a Nullstone module into a tarball but do not publish to the registry.",
+	Usage:       "Package a module",
+	UsageText:   "nullstone modules package",
 	Flags: []cli.Flag{
 		includeFlag,
 	},

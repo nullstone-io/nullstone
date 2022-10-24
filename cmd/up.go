@@ -13,9 +13,10 @@ import (
 
 var Up = func() *cli.Command {
 	return &cli.Command{
-		Name:      "up",
-		Usage:     "Provisions the block and all of its dependencies",
-		UsageText: "nullstone up [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
+		Name:        "up",
+		Description: "Launches the infrastructure for the given block/environment and it's dependencies.",
+		Usage:       "Provisions the block and all of its dependencies",
+		UsageText:   "nullstone up [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
 			BlockFlag,
@@ -23,11 +24,11 @@ var Up = func() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "wait",
 				Aliases: []string{"w"},
-				Usage:   "Wait for Nullstone to fully provision the workspace.",
+				Usage:   "Wait for the launch to complete and stream the Terraform logs to the console.",
 			},
 			&cli.StringSliceFlag{
 				Name:  "var",
-				Usage: "Set variable values when issuing `up`",
+				Usage: "Set variables values for the plan. This can be used to override variables defined in the module.",
 			},
 		},
 		Action: func(c *cli.Context) error {

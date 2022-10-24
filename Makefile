@@ -1,6 +1,6 @@
 NAME := nullstone
 
-.PHONY: setup test
+.PHONY: setup test docs
 
 .DEFAULT_GOAL: default
 
@@ -16,3 +16,6 @@ build:
 test:
 	go fmt ./...
 	gotestsum ./...
+
+docs:
+	go run ./docs/main.go

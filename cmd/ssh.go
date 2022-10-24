@@ -14,9 +14,10 @@ import (
 
 var Ssh = func(providers admin.Providers) *cli.Command {
 	return &cli.Command{
-		Name:      "ssh",
-		Usage:     "SSH into a running service. Use to forward ports from remote service or hosts.",
-		UsageText: "nullstone ssh [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
+		Name:        "ssh",
+		Description: "SSH into a running app container or virtual machine. Use the `--forward, L` option to forward ports from remote service or hosts.",
+		Usage:       "SSH into a running application.",
+		UsageText:   "nullstone ssh [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
 			AppFlag,
@@ -47,7 +48,7 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 				} else if remoter == nil {
 					module := appDetails.Module
 					platform := strings.TrimSuffix(fmt.Sprintf("%s:%s", module.Platform, module.Subplatform), ":")
-					return fmt.Errorf("The Nullstone CLI does not currently support the ssh command for the %q application. (Module = %s, App Category = app/%s, Platform = %s)",
+					return fmt.Errorf("The Nullstone CLI does not currently support the ssh command for the %q application. (Module = %s/%s, App Category = app/%s, Platform = %s)",
 						appDetails.App.Name, module.OrgName, module.Name, module.Subcategory, platform)
 				}
 				return remoter.Ssh(ctx, task, forwards)

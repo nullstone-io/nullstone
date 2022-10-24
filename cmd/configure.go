@@ -14,17 +14,20 @@ var (
 	AddressFlag = &cli.StringFlag{
 		Name:  "address",
 		Value: api.DefaultAddress,
-		Usage: "Nullstone API Address",
+		Usage: "Specify the url for the Nullstone API.",
 	}
 	ApiKeyFlag = &cli.StringFlag{
 		Name:  "api-key",
 		Value: "",
-		Usage: "Nullstone API Key",
+		Usage: "Configure your personal API key that will be used to authenticate with the Nullstone API. You can generate an API key from your profile page.",
 	}
 )
 
 var Configure = &cli.Command{
-	Name: "configure",
+	Name:        "configure",
+	Description: "Establishes a profile and configures authentication for the CLI to use.",
+	Usage:       "Configure the nullstone CLI",
+	UsageText:   "nullstone configure --api-key=<api-key>",
 	Flags: []cli.Flag{
 		AddressFlag,
 		ApiKeyFlag,

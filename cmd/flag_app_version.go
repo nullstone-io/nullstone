@@ -4,10 +4,8 @@ import "github.com/urfave/cli/v2"
 
 var AppVersionFlag = &cli.StringFlag{
 	Name: "version",
-	Usage: `Push/Deploy the artifact with this version.
-       If not specified, will retrieve short sha from your latest commit.
-       app/container: If specified, will push the docker image with version as the image tag. Otherwise, uses source tag.
-       app/serverless: This is required to upload the artifact.`,
+	Usage: `Provide a label for your deployment.
+		If not provided, it will default to the commit sha of the repo for the current directory.`,
 }
 
 func DetectAppVersion(c *cli.Context) string {

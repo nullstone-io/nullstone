@@ -22,14 +22,16 @@ var Blocks = &cli.Command{
 }
 
 var BlocksList = &cli.Command{
-	Name:      "list",
-	Usage:     "List blocks",
-	UsageText: "nullstone blocks list --stack=<stack>",
+	Name:        "list",
+	Description: "Shows a list of the blocks for the given stack. Set the `--detail` flag to show more details about each block.",
+	Usage:       "List blocks",
+	UsageText:   "nullstone blocks list --stack=<stack>",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		&cli.BoolFlag{
 			Name:    "detail",
 			Aliases: []string{"d"},
+			Usage:   "Use this flag to show more details about each block",
 		},
 	},
 	Action: func(c *cli.Context) error {
@@ -74,14 +76,16 @@ var BlocksList = &cli.Command{
 }
 
 var BlocksNew = &cli.Command{
-	Name:      "new",
-	Usage:     "Create block",
-	UsageText: "nullstone blocks new --name=<name> --stack=<stack> --module=<module> [--connection=<connection>...]",
+	Name:        "new",
+	Description: "Creates a new block with the given name and module. If the module has any connections, you can specify them using the `--connection` parameter.",
+	Usage:       "Create block",
+	UsageText:   "nullstone blocks new --name=<name> --stack=<stack> --module=<module> [--connection=<connection>...]",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		&cli.StringFlag{
 			Name:     "name",
 			Required: true,
+			Usage:    "Provide a name for this new block",
 		},
 		&cli.StringFlag{
 			Name:     "module",
@@ -90,7 +94,7 @@ var BlocksNew = &cli.Command{
 		},
 		&cli.StringSliceFlag{
 			Name:  "connection",
-			Usage: "Map the connection name on the module to the block name in the stack. Example: --connection network=network0",
+			Usage: "Specify any connections that this block will have to other blocks. Use the connection name as the key, and the connected block name as the value. Example: --connection network=network0",
 		},
 	},
 	Action: func(c *cli.Context) error {

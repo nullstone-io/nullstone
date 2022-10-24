@@ -19,13 +19,15 @@ var Apps = &cli.Command{
 }
 
 var AppsList = &cli.Command{
-	Name:      "list",
-	Usage:     "List applications",
-	UsageText: "nullstone apps list",
+	Name:        "list",
+	Description: "Shows a list of the applications that you have access to. Set the `--detail` flag to show more details about each application.",
+	Usage:       "List applications",
+	UsageText:   "nullstone apps list",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "detail",
 			Aliases: []string{"d"},
+			Usage:   "Use this flag to show the details for each application",
 		},
 	},
 	Action: func(c *cli.Context) error {

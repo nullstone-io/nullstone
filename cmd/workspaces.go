@@ -23,17 +23,20 @@ var Workspaces = &cli.Command{
 }
 
 var WorkspacesSelect = &cli.Command{
-	Name:      "select",
-	Usage:     "Select workspace",
-	UsageText: "nullstone workspaces select [--stack=<stack>] --block=<block> --env=<env>",
+	Name:        "select",
+	Description: "Sync a given workspace's state with the current directory. Running this command will allow you to run terraform plans/applies locally against the selected workspace.",
+	Usage:       "Select workspace",
+	UsageText:   "nullstone workspaces select [--stack=<stack>] --block=<block> --env=<env>",
 	Flags: []cli.Flag{
 		StackFlag,
 		&cli.StringFlag{
 			Name:     "block",
+			Usage:    "Name of the block to use for this operation",
 			Required: true,
 		},
 		&cli.StringFlag{
 			Name:     "env",
+			Usage:    `Name of the environment to use for this operation`,
 			Required: true,
 		},
 	},

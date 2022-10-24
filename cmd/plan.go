@@ -13,9 +13,10 @@ import (
 
 var Plan = func() *cli.Command {
 	return &cli.Command{
-		Name:      "plan",
-		Usage:     "Runs a plan with a disapproval",
-		UsageText: "nullstone plan [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
+		Name:        "plan",
+		Description: "Run a plan for a given block and environment. This will automatically disapprove the plan and is useful for testing what a plan will do.",
+		Usage:       "Runs a plan with a disapproval",
+		UsageText:   "nullstone plan [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
 			BlockFlag,
@@ -23,15 +24,15 @@ var Plan = func() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "wait",
 				Aliases: []string{"w"},
-				Usage:   "Stream the Terraform logs while waiting for Nullstone to run the plan.",
+				Usage:   "Wait for the plan to complete and stream the Terraform logs to the console.",
 			},
 			&cli.StringSliceFlag{
 				Name:  "var",
-				Usage: "Set variable values when issuing `plan`",
+				Usage: "Set variables values for the plan. This can be used to override variables defined in the module.",
 			},
 			&cli.StringFlag{
 				Name:  "module-version",
-				Usage: "Use a specific module version to run the plan.",
+				Usage: "Run a plan with a specific version of the module.",
 			},
 		},
 		Action: func(c *cli.Context) error {

@@ -6,7 +6,7 @@ var ProfileFlag = &cli.StringFlag{
 	Name:    "profile",
 	EnvVars: []string{"NULLSTONE_PROFILE"},
 	Value:   "default",
-	Usage:   "Name of profile",
+	Usage:   "Name of the profile to use for the operation",
 }
 
 func GetProfile(c *cli.Context) string {

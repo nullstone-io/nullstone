@@ -28,14 +28,16 @@ var Envs = &cli.Command{
 }
 
 var EnvsList = &cli.Command{
-	Name:      "list",
-	Usage:     "List environments",
-	UsageText: "nullstone envs list --stack=<stack-name>",
+	Name:        "list",
+	Description: "Shows a list of the environments for the given stack. Set the `--detail` flag to show more details about each environment.",
+	Usage:       "List environments",
+	UsageText:   "nullstone envs list --stack=<stack-name>",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		&cli.BoolFlag{
 			Name:    "detail",
 			Aliases: []string{"d"},
+			Usage:   "Use this flag to show more details about each environment",
 		},
 	},
 	Action: func(c *cli.Context) error {
@@ -88,15 +90,30 @@ var EnvsList = &cli.Command{
 }
 
 var EnvsNew = &cli.Command{
-	Name:      "new",
-	Usage:     "Create new environment",
-	UsageText: "nullstone envs new --name=<name> --stack=<stack> --provider=<provider>",
+	Name:        "new",
+	Description: "Creates a new environment in the given stack. The environment will be created as the last environment in the pipeline. Specify the provider, region, and zone to determine where infrastructure will be provisioned for this environment.",
+	Usage:       "Create new environment",
+	UsageText:   "nullstone envs new --name=<name> --stack=<stack> --provider=<provider>",
 	Flags: []cli.Flag{
-		&cli.StringFlag{Name: "name", Required: true},
+		&cli.StringFlag{
+			Name:     "name",
+			Usage:    "Provide a name for this new environment",
+			Required: true,
+		},
 		StackFlag,
-		&cli.StringFlag{Name: "provider", Required: true},
-		&cli.StringFlag{Name: "region"},
-		&cli.StringFlag{Name: "zone"},
+		&cli.StringFlag{
+			Name:     "provider",
+			Usage:    "Select the name of the provider to use for this environment",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:  "region",
+			Usage: fmt.Sprintf("Select which region to launch infrastructure for this environment. Defaults to %s for AWS and %s for GCP.", awsDefaultRegion, gcpDefaultRegion),
+		},
+		&cli.StringFlag{
+			Name:  "zone",
+			Usage: fmt.Sprintf("For GCP, select the zone to launch infrastructure for this environment. Defaults to %s", gcpDefaultZone),
+		},
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {

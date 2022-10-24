@@ -4,7 +4,7 @@ import "github.com/urfave/cli/v2"
 
 var AppFlag = &cli.StringFlag{
 	Name:    "app",
-	Usage:   "Set the application name.",
+	Usage:   "Name of the app to use for this operation",
 	EnvVars: []string{"NULLSTONE_APP"},
 	// TODO: Set to required once we fully deprecate parsing app as first command arg
 	// Required: true,

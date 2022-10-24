@@ -14,9 +14,10 @@ import (
 
 var Deploy = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
-		Name:      "deploy",
-		Usage:     "Deploy application",
-		UsageText: "nullstone deploy [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
+		Name:        "deploy",
+		Description: "Deploy a new version of your code for this application. This command works in tandem with the `nullstone push` command. This command deploys the artifacts that were uploaded during the `push` command.",
+		Usage:       "Deploy application",
+		UsageText:   "nullstone deploy [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
 			AppFlag,
@@ -25,6 +26,7 @@ var Deploy = func(providers app.Providers) *cli.Command {
 			&cli.BoolFlag{
 				Name:    "wait",
 				Aliases: []string{"w"},
+				Usage:   "Wait for the deploy to complete and stream the logs to the console.",
 			},
 		},
 		Action: func(c *cli.Context) error {

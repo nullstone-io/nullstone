@@ -13,9 +13,10 @@ import (
 
 var Logs = func(providers admin.Providers) *cli.Command {
 	return &cli.Command{
-		Name:      "logs",
-		Usage:     "Emit application logs",
-		UsageText: "nullstone logs [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
+		Name:        "logs",
+		Description: "Streams an application's logs to the console for the given environment. Use the start-time `-s` and end-time `-e` flags to only show logs for a given time period. Use the tail flag `-t` to stream the logs in real time.",
+		Usage:       "Emit application logs",
+		UsageText:   "nullstone logs [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
 			AppFlag,
@@ -43,7 +44,7 @@ var Logs = func(providers admin.Providers) *cli.Command {
 				Name:        "interval",
 				DefaultText: "1s",
 				Usage: `Set --interval to a golang duration to control how often to pull new log events.
-       This will do nothing unless --tail is set.
+       This will do nothing unless --tail is set. The default is '1s' (1 second).
       `,
 			},
 			&cli.BoolFlag{
@@ -51,7 +52,7 @@ var Logs = func(providers admin.Providers) *cli.Command {
 				Aliases: []string{"t"},
 				Usage: `Set tail to watch log events and emit as they are reported.
        Use --interval to control how often to query log events.
-       This is off by default, command will exit as soon as current log events are emitted.`,
+       This is off by default. Unless this option is provided, this command will exit as soon as current log events are emitted.`,
 			},
 		},
 		Action: func(c *cli.Context) error {

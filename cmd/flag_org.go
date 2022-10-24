@@ -19,7 +19,7 @@ var (
 var OrgFlag = &cli.StringFlag{
 	Name:    "org",
 	EnvVars: []string{"NULLSTONE_ORG"},
-	Usage:   `Nullstone organization name used to contextualize API calls. If this flag is not specified, the nullstone CLI will use ~/.nullstone/<profile>/org file.`,
+	Usage:   `Nullstone organization name to use for this operation. If this flag is not specified, the nullstone CLI will use ~/.nullstone/<profile>/org file.`,
 }
 
 func GetOrg(c *cli.Context, profile config.Profile) string {
