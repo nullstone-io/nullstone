@@ -18,9 +18,10 @@ var (
 
 var Status = func(providers admin.Providers) *cli.Command {
 	return &cli.Command{
-		Name:      "status",
-		Usage:     "Application Status",
-		UsageText: "nullstone status [--stack=<stack-name>] --app=<app-name> [--env=<env-name>] [options]",
+		Name:        "status",
+		Description: "View the status of your application and whether it is starting up, running, stopped, etc. This command shows the status of an application's tasks as well as the health of the load balancer.",
+		Usage:       "Application Status",
+		UsageText:   "nullstone status [--stack=<stack-name>] --app=<app-name> [--env=<env-name>] [options]",
 		Flags: []cli.Flag{
 			StackFlag,
 			AppFlag,
@@ -29,6 +30,7 @@ var Status = func(providers admin.Providers) *cli.Command {
 			&cli.BoolFlag{
 				Name:    "watch",
 				Aliases: []string{"w"},
+				Usage:   "Pass this flag in order to watch status updates in real time. Changes will be automatically displayed as they occur.",
 			},
 		},
 		Action: func(c *cli.Context) error {

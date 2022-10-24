@@ -13,9 +13,10 @@ import (
 
 var Apply = func() *cli.Command {
 	return &cli.Command{
-		Name:      "apply",
-		Usage:     "Runs an apply with optional auto-approval",
-		UsageText: "nullstone apply [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
+		Name:        "apply",
+		Description: "Runs a Terraform apply on the given block and environment. This is useful for making ad-hoc changes to your infrastructure.\nBe sure to run `nullstone plan` first to see what changes will be made.",
+		Usage:       "Runs an apply with optional auto-approval",
+		UsageText:   "nullstone apply [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
 			BlockFlag,
@@ -23,19 +24,19 @@ var Apply = func() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "wait",
 				Aliases: []string{"w"},
-				Usage:   "Stream the Terraform logs while waiting for Nullstone to run the apply.",
+				Usage:   "Wait for the apply to complete and stream the Terraform logs to the console.",
 			},
 			&cli.BoolFlag{
 				Name:  "auto-approve",
-				Usage: "Auto-approve any changes made in Terraform",
+				Usage: "Skip any approvals and apply the changes immediately. This requires proper permissions in the stack.",
 			},
 			&cli.StringSliceFlag{
 				Name:  "var",
-				Usage: "Set variable values when issuing `apply`",
+				Usage: "Set variables values for the apply. This can be used to override variables defined in the module.",
 			},
 			&cli.StringFlag{
 				Name:  "module-version",
-				Usage: "Use a specific module version to run the apply.",
+				Usage: "The version of the module to apply.",
 			},
 		},
 		Action: func(c *cli.Context) error {

@@ -12,18 +12,21 @@ import (
 // Outputs command retrieves outputs from a workspace (block+env)
 var Outputs = func() *cli.Command {
 	return &cli.Command{
-		Name:      "outputs",
-		Usage:     "Retrieve outputs",
-		UsageText: "nullstone outputs [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
+		Name:        "outputs",
+		Description: "Print all the module outputs for a given block and environment. Provide the `--sensitive` flag to include sensitive outputs in the results. For less information in an easier to read format, use the `--plain` flag.",
+		Usage:       "Retrieve outputs",
+		UsageText:   "nullstone outputs [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
 			BlockFlag,
 			EnvFlag,
 			&cli.BoolFlag{
-				Name: "sensitive",
+				Name:  "sensitive",
+				Usage: "Include sensitive outputs in the results",
 			},
 			&cli.BoolFlag{
-				Name: "plain",
+				Name:  "plain",
+				Usage: "Print less information about the outputs in a more readable format",
 			},
 		},
 		Action: func(c *cli.Context) error {
