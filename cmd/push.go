@@ -13,7 +13,7 @@ import (
 var Push = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:        "push",
-		Description: "Upload (push) an artifact containing the source for your application. Specify a version semver to associate with the artifact. The version specified can be used in the deploy command to select this artifact.",
+		Description: "Upload (push) an artifact containing the source for your application. Specify a semver version to associate with the artifact. The version specified can be used in the deploy command to select this artifact.",
 		Usage:       "Push artifact",
 		UsageText:   "nullstone push [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{

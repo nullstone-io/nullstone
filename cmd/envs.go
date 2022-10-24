@@ -103,7 +103,7 @@ var EnvsNew = &cli.Command{
 		StackFlag,
 		&cli.StringFlag{
 			Name:     "provider",
-			Usage:    "Provide the name of the provider to use for this environment",
+			Usage:    "Select the name of the provider to use for this environment",
 			Required: true,
 		},
 		&cli.StringFlag{

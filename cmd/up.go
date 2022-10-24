@@ -14,7 +14,7 @@ import (
 var Up = func() *cli.Command {
 	return &cli.Command{
 		Name:        "up",
-		Description: "Launches the infrastructure for the given block and environment as well as all it's dependencies.",
+		Description: "Launches the infrastructure for the given block/environment and it's dependencies.",
 		Usage:       "Provisions the block and all of its dependencies",
 		UsageText:   "nullstone up [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{

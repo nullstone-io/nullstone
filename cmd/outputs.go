@@ -13,7 +13,7 @@ import (
 var Outputs = func() *cli.Command {
 	return &cli.Command{
 		Name:        "outputs",
-		Description: "Print all the module outputs for a given block and environment. Provide the `--sensitive` flag to include sensitive outputs in the results. For less information in an easier to read format, use the `--plain` flag.",
+		Description: "Print all the module outputs for a given block and environment. Provide the `--sensitive` flag to include sensitive outputs in the results. You must have proper permissions in order to use the `--sensitive` flag. For less information in an easier to read format, use the `--plain` flag.",
 		Usage:       "Retrieve outputs",
 		UsageText:   "nullstone outputs [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{

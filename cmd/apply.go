@@ -13,10 +13,12 @@ import (
 
 var Apply = func() *cli.Command {
 	return &cli.Command{
-		Name:        "apply",
-		Description: "Runs a Terraform apply on the given block and environment. This is useful for making ad-hoc changes to your infrastructure.\nBe sure to run `nullstone plan` first to see what changes will be made.",
-		Usage:       "Runs an apply with optional auto-approval",
-		UsageText:   "nullstone apply [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
+		Name: "apply",
+		Description: "Runs a Terraform apply on the given block and environment. This is useful for making ad-hoc changes to your infrastructure.\n" +
+			"This plan will be executed by the Nullstone system. In order to run a plan locally, check out the `nullstone workspaces select` command.\n" +
+			"Be sure to run `nullstone plan` first to see what changes will be made.",
+		Usage:     "Runs an apply with optional auto-approval",
+		UsageText: "nullstone apply [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
 			StackFlag,
 			BlockFlag,

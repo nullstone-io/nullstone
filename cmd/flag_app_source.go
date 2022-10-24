@@ -6,6 +6,7 @@ var AppSourceFlag = &cli.StringFlag{
 	Name: "source",
 	Usage: `The source artifact to push that contains your application's build.
 		For a container, specify the name of the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.
-		For a serverless zip application, specify the .zip archive to push.`,
+		For a serverless zip application, specify the .zip archive to push.
+		For a static site, specify the directory to push.`,
 	Required: true,
 }

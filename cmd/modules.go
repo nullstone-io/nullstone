@@ -103,7 +103,7 @@ var ModulesRegister = &cli.Command{
 
 var ModulesPublish = &cli.Command{
 	Name:        "publish",
-	Description: "Publishes a new version for a module in the Nullstone registry. Provide a specific version semver using the `--version` parameter.",
+	Description: "Publishes a new version for a module in the Nullstone registry. Provide a specific semver version using the `--version` parameter.",
 	Usage:       "Package and publish new version of a module",
 	UsageText:   "nullstone modules publish --version=<version>",
 	Flags: []cli.Flag{

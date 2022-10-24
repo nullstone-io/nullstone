@@ -24,7 +24,7 @@ var Plan = func() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "wait",
 				Aliases: []string{"w"},
-				Usage:   "Wait for the apply to complete and stream the Terraform logs to the console.",
+				Usage:   "Wait for the plan to complete and stream the Terraform logs to the console.",
 			},
 			&cli.StringSliceFlag{
 				Name:  "var",

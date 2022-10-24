@@ -10,7 +10,7 @@ var StackFlag = &cli.StringFlag{
 
 var StackRequiredFlag = &cli.StringFlag{
 	Name:     "stack",
-	Usage:    "Set the stack to use for this operation",
+	Usage:    "Name of the stack to use for this operation",
 	EnvVars:  []string{"NULLSTONE_STACK"},
 	Required: true,
 }

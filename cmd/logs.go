@@ -44,7 +44,7 @@ var Logs = func(providers admin.Providers) *cli.Command {
 				Name:        "interval",
 				DefaultText: "1s",
 				Usage: `Set --interval to a golang duration to control how often to pull new log events.
-       This will do nothing unless --tail is set. The default is 1 second.
+       This will do nothing unless --tail is set. The default is '1s' (1 second).
       `,
 			},
 			&cli.BoolFlag{
