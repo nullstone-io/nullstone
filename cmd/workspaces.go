@@ -24,7 +24,7 @@ var Workspaces = &cli.Command{
 
 var WorkspacesSelect = &cli.Command{
 	Name:        "select",
-	Description: "Sync a given workspace's state with the current directory. Running this command will allow you to run terraform plans locally against the selected workspace.",
+	Description: "Sync a given workspace's state with the current directory. Running this command will allow you to run terraform plans/applies locally against the selected workspace.",
 	Usage:       "Select workspace",
 	UsageText:   "nullstone workspaces select [--stack=<stack>] --block=<block> --env=<env>",
 	Flags: []cli.Flag{
