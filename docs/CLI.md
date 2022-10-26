@@ -135,7 +135,7 @@ $ nullstone envs new --name=<name> --stack=<stack> [--provider=<provider>] [--pr
 | Option | Description | |
 | --- | --- | --- |
 | `--name` | Provide a name for this new environment | required |
-| `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
+| `--stack` | Name of the stack to use for this operation | required |
 | `--preview` | Use this flag to create a preview environment. If not set, a standard environment will be created. |  |
 | `--provider` | Select the name of the provider to use for this environment. When creating a preview environment, this parameter will not be used. |  |
 | `--region` | Select which region to launch infrastructure for this environment. Defaults to us-east-1 for AWS and us-east1 for GCP. |  |
