@@ -9,6 +9,7 @@ This document contains a list of all the commands available in the Nullstone CLI
 
 ## apply
 Runs a Terraform apply on the given block and environment. This is useful for making ad-hoc changes to your infrastructure.
+This plan will be executed by the Nullstone system. In order to run a plan locally, check out the `nullstone workspaces select` command.
 Be sure to run `nullstone plan` first to see what changes will be made.
 
 #### Usage
@@ -53,7 +54,7 @@ $ nullstone blocks list --stack=<stack>
 #### Options
 | Option | Description | |
 | --- | --- | --- |
-| `--stack` | Set the stack to use for this operation | required |
+| `--stack` | Name of the stack to use for this operation | required |
 | `--detail, -d` | Use this flag to show more details about each block |  |
 
 
@@ -68,7 +69,7 @@ $ nullstone blocks new --name=<name> --stack=<stack> --module=<module> [--connec
 #### Options
 | Option | Description | |
 | --- | --- | --- |
-| `--stack` | Set the stack to use for this operation | required |
+| `--stack` | Name of the stack to use for this operation | required |
 | `--name` | Provide a name for this new block | required |
 | `--module` | Specify the unique name of the module to use for this block. Example: nullstone/aws-network | required |
 | `--connection` | Specify any connections that this block will have to other blocks. Use the connection name as the key, and the connected block name as the value. Example: --connection network=network0 |  |
@@ -118,16 +119,16 @@ $ nullstone envs list --stack=<stack-name>
 #### Options
 | Option | Description | |
 | --- | --- | --- |
-| `--stack` | Set the stack to use for this operation | required |
+| `--stack` | Name of the stack to use for this operation | required |
 | `--detail, -d` | Use this flag to show more details about each environment |  |
 
 
 ## envs new
-Creates a new environment in the given stack. The environment will be created as the last environment in the pipeline. Specify the provider, region, and zone to determine where infrastructure will be provisioned for this environment.
+Creates a new environment in the given stack. If the `--preview` parameter is set, a preview environment will be created and the `--provider` parameter will not be used. Otherwise, a standard environment will be created as the last environment in the pipeline. Specify the provider, region, and zone to determine where infrastructure will be provisioned for this environment.
 
 #### Usage
 ```shell
-$ nullstone envs new --name=<name> --stack=<stack> --provider=<provider>
+$ nullstone envs new --name=<name> --stack=<stack> [--provider=<provider>] [--preview]
 ```
 
 #### Options
@@ -135,9 +136,40 @@ $ nullstone envs new --name=<name> --stack=<stack> --provider=<provider>
 | --- | --- | --- |
 | `--name` | Provide a name for this new environment | required |
 | `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
-| `--provider` | Provide the name of the provider to use for this environment | required |
+| `--preview` | Use this flag to create a preview environment. If not set, a standard environment will be created. |  |
+| `--provider` | Select the name of the provider to use for this environment. When creating a preview environment, this parameter will not be used. |  |
 | `--region` | Select which region to launch infrastructure for this environment. Defaults to us-east-1 for AWS and us-east1 for GCP. |  |
 | `--zone` | For GCP, select the zone to launch infrastructure for this environment. Defaults to us-east1b |  |
+
+
+## envs up
+Launches an entire environment including all of its apps. This command can be used to stand up an entire preview environment.
+
+#### Usage
+```shell
+$ nullstone envs up --stack=<stack> --env=<env>
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+
+
+## envs down
+Destroys all the apps in an environment and all their dependent infrastructure. This command is useful for tearing down preview environments once you are finished with them.
+
+#### Usage
+```shell
+$ nullstone envs down --stack=<stack> --env=<env>
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
 
 
 ## exec
@@ -171,7 +203,7 @@ $ nullstone launch [--stack=<stack-name>] --app=<app-name> --env=<env-name> [opt
 | `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
 | `--app` | Name of the app to use for this operation |  |
 | `--env` | Name of the environment to use for this operation |  |
-| `--source` | The source artifact to push that contains your application's build.		For a container, specify the name of the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.		For a serverless zip application, specify the .zip archive to push. | required |
+| `--source` | The source artifact to push that contains your application's build.		For a container, specify the name of the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.		For a serverless zip application, specify the .zip archive to push.		For a static site, specify the directory to push. | required |
 | `--version` | Provide a label for your deployment.		If not provided, it will default to the commit sha of the repo for the current directory. |  |
 
 
@@ -191,7 +223,7 @@ $ nullstone logs [--stack=<stack-name>] --app=<app-name> --env=<env-name> [optio
 | `--env` | Name of the environment to use for this operation |  |
 | `--start-time, -s` |        Emit log events that occur after the specified start-time.        This is a golang duration relative to the time the command is issued.       Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)       |  |
 | `--end-time, -e` |        Emit log events that occur before the specified end-time.        This is a golang duration relative to the time the command is issued.       Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)       |  |
-| `--interval` | Set --interval to a golang duration to control how often to pull new log events.       This will do nothing unless --tail is set. The default is 1 second.       |  |
+| `--interval` | Set --interval to a golang duration to control how often to pull new log events.       This will do nothing unless --tail is set. The default is '1s' (1 second).       |  |
 | `--tail, -t` | Set tail to watch log events and emit as they are reported.       Use --interval to control how often to query log events.       This is off by default. Unless this option is provided, this command will exit as soon as current log events are emitted. |  |
 
 
@@ -218,7 +250,7 @@ $ nullstone modules register
 ```
 
 ## modules publish
-Publishes a new version for a module in the Nullstone registry. Provide a specific version semver using the `--version` parameter.
+Publishes a new version for a module in the Nullstone registry. Provide a specific semver version using the `--version` parameter.
 
 #### Usage
 ```shell
@@ -247,7 +279,7 @@ $ nullstone modules package
 
 
 ## outputs
-Print all the module outputs for a given block and environment. Provide the `--sensitive` flag to include sensitive outputs in the results. For less information in an easier to read format, use the `--plain` flag.
+Print all the module outputs for a given block and environment. Provide the `--sensitive` flag to include sensitive outputs in the results. You must have proper permissions in order to use the `--sensitive` flag. For less information in an easier to read format, use the `--plain` flag.
 
 #### Usage
 ```shell
@@ -278,13 +310,21 @@ $ nullstone plan [--stack=<stack-name>] --block=<block-name> --env=<env-name> [o
 | `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
 | `--block` | Name of the block to use for this operation | required |
 | `--env` | Name of the environment to use for this operation | required |
-| `--wait, -w` | Wait for the apply to complete and stream the Terraform logs to the console. |  |
+| `--wait, -w` | Wait for the plan to complete and stream the Terraform logs to the console. |  |
 | `--var` | Set variables values for the plan. This can be used to override variables defined in the module. |  |
 | `--module-version` | Run a plan with a specific version of the module. |  |
 
 
+## profile
+
+
+#### Usage
+```shell
+$ nullstone profile
+```
+
 ## push
-Upload (push) an artifact containing the source for your application. Specify a version semver to associate with the artifact. The version specified can be used in the deploy command to select this artifact.
+Upload (push) an artifact containing the source for your application. Specify a semver version to associate with the artifact. The version specified can be used in the deploy command to select this artifact.
 
 #### Usage
 ```shell
@@ -297,7 +337,7 @@ $ nullstone push [--stack=<stack-name>] --app=<app-name> --env=<env-name> [optio
 | `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
 | `--app` | Name of the app to use for this operation |  |
 | `--env` | Name of the environment to use for this operation |  |
-| `--source` | The source artifact to push that contains your application's build.		For a container, specify the name of the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.		For a serverless zip application, specify the .zip archive to push. | required |
+| `--source` | The source artifact to push that contains your application's build.		For a container, specify the name of the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.		For a serverless zip application, specify the .zip archive to push.		For a static site, specify the directory to push. | required |
 | `--version` | Provide a label for your deployment.		If not provided, it will default to the commit sha of the repo for the current directory. |  |
 
 
@@ -375,7 +415,7 @@ $ nullstone status [--stack=<stack-name>] --app=<app-name> [--env=<env-name>] [o
 
 
 ## up
-Launches the infrastructure for the given block and environment as well as all it's dependencies.
+Launches the infrastructure for the given block/environment and it's dependencies.
 
 #### Usage
 ```shell
@@ -401,7 +441,7 @@ nullstone -v
 ```
 
 ## workspaces select
-Sync a given workspace's state with the current directory. Running this command will allow you to run terraform plans locally against the selected workspace.
+Sync a given workspace's state with the current directory. Running this command will allow you to run terraform plans/applies locally against the selected workspace.
 
 #### Usage
 ```shell

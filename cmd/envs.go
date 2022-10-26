@@ -204,7 +204,7 @@ var EnvsUp = &cli.Command{
 	Usage:       "Launch an entire environment",
 	UsageText:   "nullstone envs up --stack=<stack> --env=<env>",
 	Flags: []cli.Flag{
-		StackFlag,
+		StackRequiredFlag,
 		EnvFlag,
 	},
 	Action: func(c *cli.Context) error {
@@ -220,7 +220,7 @@ var EnvsDown = &cli.Command{
 	Usage:       "Destroy an entire environment",
 	UsageText:   "nullstone envs down --stack=<stack> --env=<env>",
 	Flags: []cli.Flag{
-		StackFlag,
+		StackRequiredFlag,
 		EnvFlag,
 	},
 	Action: func(c *cli.Context) error {
