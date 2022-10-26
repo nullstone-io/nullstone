@@ -91,9 +91,9 @@ var EnvsList = &cli.Command{
 
 var EnvsNew = &cli.Command{
 	Name:        "new",
-	Description: "Creates a new environment in the given stack. The environment will be created as the last environment in the pipeline. Specify the provider, region, and zone to determine where infrastructure will be provisioned for this environment.",
+	Description: "Creates a new environment in the given stack. If the `--preview` parameter is set, a preview environment will be created and the `--provider` parameter will not be used. Otherwise, a standard environment will be created as the last environment in the pipeline. Specify the provider, region, and zone to determine where infrastructure will be provisioned for this environment.",
 	Usage:       "Create new environment",
-	UsageText:   "nullstone envs new --name=<name> --stack=<stack> --provider=<provider>",
+	UsageText:   "nullstone envs new --name=<name> --stack=<stack> [--provider=<provider>] [--preview]",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     "name",
@@ -101,10 +101,13 @@ var EnvsNew = &cli.Command{
 			Required: true,
 		},
 		StackFlag,
+		&cli.BoolFlag{
+			Name:  "preview",
+			Usage: "Use this flag to create a preview environment. If not set, a standard environment will be created.",
+		},
 		&cli.StringFlag{
-			Name:     "provider",
-			Usage:    "Select the name of the provider to use for this environment",
-			Required: true,
+			Name:  "provider",
+			Usage: "Select the name of the provider to use for this environment. When creating a preview environment, this parameter will not be used.",
 		},
 		&cli.StringFlag{
 			Name:  "region",
@@ -121,6 +124,9 @@ var EnvsNew = &cli.Command{
 			name := c.String("name")
 			stackName := c.String("stack")
 			providerName := c.String("provider")
+			region := c.String("region")
+			zone := c.String("zone")
+			preview := c.Bool("preview")
 
 			stack, err := client.StacksByName().Get(stackName)
 			if err != nil {
@@ -129,46 +135,63 @@ var EnvsNew = &cli.Command{
 				return fmt.Errorf("stack %q does not exist", stackName)
 			}
 
-			provider, err := client.Providers().Get(providerName)
-			if err != nil {
-				return fmt.Errorf("error looking for provider %q: %w", providerName, err)
-			} else if provider == nil {
-				return fmt.Errorf("provider %q does not exist", providerName)
+			if preview {
+				return CreatePreviewEnv(client, stack.Id, name)
+			} else {
+				return CreatePipelineEnv(client, stack.Id, name, providerName, region, zone)
 			}
-
-			pc := types.ProviderConfig{}
-			switch provider.ProviderType {
-			case "aws":
-				pc.Aws = &types.AwsProviderConfig{
-					ProviderName: provider.Name,
-					Region:       c.String("region"),
-				}
-				if pc.Aws.Region == "" {
-					pc.Aws.Region = awsDefaultRegion
-				}
-			case "gcp":
-				pc.Gcp = &types.GcpProviderConfig{
-					ProviderName: provider.Name,
-					Region:       c.String("region"),
-					Zone:         c.String("zone"),
-				}
-				if pc.Gcp.Region == "" || pc.Gcp.Zone == "" {
-					pc.Gcp.Region = gcpDefaultRegion
-					pc.Gcp.Zone = gcpDefaultZone
-				}
-			default:
-				return fmt.Errorf("CLI does not support provider type %q yet", provider.ProviderType)
-			}
-
-			env, err := client.Environments().Create(stack.Id, &types.Environment{
-				Name:           name,
-				ProviderConfig: pc,
-			})
-			if err != nil {
-				return fmt.Errorf("error creating stack: %w", err)
-			}
-			fmt.Printf("created %q environment\n", env.Name)
-			return nil
 		})
 	},
+}
+
+func CreatePipelineEnv(client api.Client, stackId int64, name, providerName, region, zone string) error {
+	provider, err := client.Providers().Get(providerName)
+	if err != nil {
+		return fmt.Errorf("error looking for provider %q: %w", providerName, err)
+	} else if provider == nil {
+		return fmt.Errorf("provider %q does not exist", providerName)
+	}
+
+	pc := types.ProviderConfig{}
+	switch provider.ProviderType {
+	case "aws":
+		pc.Aws = &types.AwsProviderConfig{
+			ProviderName: provider.Name,
+			Region:       region,
+		}
+		if pc.Aws.Region == "" {
+			pc.Aws.Region = awsDefaultRegion
+		}
+	case "gcp":
+		pc.Gcp = &types.GcpProviderConfig{
+			ProviderName: provider.Name,
+			Region:       region,
+			Zone:         zone,
+		}
+		if pc.Gcp.Region == "" || pc.Gcp.Zone == "" {
+			pc.Gcp.Region = gcpDefaultRegion
+			pc.Gcp.Zone = gcpDefaultZone
+		}
+	default:
+		return fmt.Errorf("CLI does not support provider type %q yet", provider.ProviderType)
+	}
+
+	env, err := client.Environments().Create(stackId, &types.Environment{
+		Name:           name,
+		ProviderConfig: pc,
+	})
+	if err != nil {
+		return fmt.Errorf("error creating environment: %w", err)
+	}
+	fmt.Printf("created %q environment\n", env.Name)
+	return nil
+}
+
+func CreatePreviewEnv(client api.Client, stackId int64, name string) error {
+	env, err := client.PreviewEnvs().Create(stackId, &api.CreatePreviewEnvInput{Name: name})
+	if err != nil {
+		return fmt.Errorf("error creating preview environment: %w", err)
+	}
+	fmt.Printf("created %q preview environment\n", env.Name)
+	return nil
 }
