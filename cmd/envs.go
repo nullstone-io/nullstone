@@ -9,6 +9,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"math"
 	"sort"
+	"strings"
 )
 
 var (
@@ -75,9 +76,9 @@ var EnvsList = &cli.Command{
 
 			if c.IsSet("detail") {
 				envDetails := make([]string, len(envs)+1)
-				envDetails[0] = "ID|Name"
+				envDetails[0] = "ID|Name|Type"
 				for i, env := range envs {
-					envDetails[i+1] = fmt.Sprintf("%d|%s", env.Id, env.Name)
+					envDetails[i+1] = fmt.Sprintf("%d|%s|%s", env.Id, env.Name, strings.TrimSuffix(string(env.Type), "Env"))
 				}
 				fmt.Println(columnize.Format(envDetails, columnize.DefaultConfig()))
 			} else {
@@ -102,7 +103,7 @@ var EnvsNew = &cli.Command{
 			Usage:    "Provide a name for this new environment",
 			Required: true,
 		},
-		StackFlag,
+		StackRequiredFlag,
 		&cli.BoolFlag{
 			Name:  "preview",
 			Usage: "Use this flag to create a preview environment. If not set, a standard environment will be created.",
