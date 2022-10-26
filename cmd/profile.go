@@ -14,7 +14,11 @@ var Profile = &cli.Command{
 		return ProfileAction(c, func(cfg api.Config) error {
 			fmt.Printf("Profile: %s\n", GetProfile(c))
 			fmt.Printf("API Address: %s\n", cfg.BaseAddress)
-			fmt.Printf("API Key: %s\n", cfg.ApiKey)
+			if cfg.ApiKey != "" {
+				fmt.Printf("API Key: *** redacted ***\n")
+			} else {
+				fmt.Printf("API Key: (not set)\n")
+			}
 			fmt.Printf("Is Trace Enabled: %t\n", cfg.IsTraceEnabled)
 			fmt.Printf("Org Name: %s\n", cfg.OrgName)
 			fmt.Println()
