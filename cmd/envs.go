@@ -129,7 +129,7 @@ var EnvsNew = &cli.Command{
 			providerName := c.String("provider")
 			region := c.String("region")
 			zone := c.String("zone")
-			preview := c.Bool("preview")
+			preview := c.IsSet("preview")
 
 			stack, err := client.StacksByName().Get(stackName)
 			if err != nil {
@@ -148,6 +148,9 @@ var EnvsNew = &cli.Command{
 }
 
 func createPipelineEnv(client api.Client, stackId int64, name, providerName, region, zone string) error {
+	if providerName == "" {
+		return fmt.Errorf("provider is required")
+	}
 	provider, err := client.Providers().Get(providerName)
 	if err != nil {
 		return fmt.Errorf("error looking for provider %q: %w", providerName, err)
