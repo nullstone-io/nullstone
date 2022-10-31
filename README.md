@@ -28,9 +28,10 @@ scoop install nullstone
 
 ## Documentation
 
-For full documentation, visit [docs.nullstone.io](https://docs.nullstone.io).
+For a complete set of Nullstone documentation, visit [docs.nullstone.io](https://docs.nullstone.io). Check out the links below for specific topics within the docs.
 
-Visit [nullstone/README.md](nullstone/README.md) for CLI instructions.
+- [CLI Docs](https://docs.nullstone.io/getting-started/cli-docs/overview.html) - 
+Learn more about the Nullstone CLI; including how to install and use it.
 
 ## Community & Support
 
