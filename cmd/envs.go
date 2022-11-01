@@ -247,6 +247,11 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 	stackName := c.String("stack")
 	envName := c.String("env")
 
+	action := "launch"
+	if isDestroy {
+		action = "destroy"
+	}
+
 	stack, err := client.StacksByName().Get(stackName)
 	if err != nil {
 		return fmt.Errorf("error looking for stack %q: %w", stackName, err)
@@ -266,6 +271,12 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 	if err != nil {
 		return fmt.Errorf("error creating run: %w", err)
 	}
+
+	if len(newRuns) <= 0 {
+		fmt.Fprintf(os.Stdout, "no runs created to %s the %q environment\n", action, envName)
+		return nil
+	}
+
 	workspaces, err := client.Workspaces().List(stack.Id)
 	if err != nil {
 		return fmt.Errorf("error retrieving list of workspaces: %w", err)
@@ -294,15 +305,6 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 		}
 		return nil
 	}
-
-	action := "launch"
-	if isDestroy {
-		action = "destroy"
-	}
-	if len(newRuns) <= 0 {
-		fmt.Fprintf(os.Stdout, "no runs created to %s the %q environment\n", action, envName)
-		return nil
-	}
 	for _, run := range newRuns {
 		blockName := "(unknown)"
 		workspace := findWorkspace(run)
@@ -311,9 +313,9 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 		}
 		browserUrl := ""
 		if workspace != nil {
-			browserUrl = fmt.Sprintf(" (%s)", runs.GetBrowserUrl(cfg, *workspace, run))
+			browserUrl = fmt.Sprintf(" Logs: %s", runs.GetBrowserUrl(cfg, *workspace, run))
 		}
-		fmt.Fprintf(os.Stdout, "created run to %s %s and dependencies in %q environment%s\n", action, blockName, envName, browserUrl)
+		fmt.Fprintf(os.Stdout, "created run to %s %s and dependencies in %q environment.%s\n", action, blockName, envName, browserUrl)
 	}
 	return nil
 }
