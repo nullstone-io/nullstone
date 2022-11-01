@@ -7,7 +7,9 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/runs"
 	"math"
+	"os"
 	"sort"
 	"strings"
 )
@@ -213,7 +215,10 @@ var EnvsUp = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
-			return createEnvRun(c, cfg, false)
+			if err := createEnvRun(c, cfg, false); err != nil {
+				return fmt.Errorf("error when trying to launch environment: %w", err)
+			}
+			return nil
 		})
 	},
 }
@@ -229,7 +234,10 @@ var EnvsDown = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
-			return createEnvRun(c, cfg, true)
+			if err := createEnvRun(c, cfg, true); err != nil {
+				return fmt.Errorf("error when trying to destroy environment: %w", err)
+			}
+			return nil
 		})
 	},
 }
@@ -254,18 +262,58 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 	}
 
 	body := types.CreateEnvRunInput{IsDestroy: isDestroy}
-	runs, err := client.EnvRuns().Create(stack.Id, env.Id, body)
+	newRuns, err := client.EnvRuns().Create(stack.Id, env.Id, body)
 	if err != nil {
-		if isDestroy {
-			return fmt.Errorf("error creating run to destroy environment: %w", err)
-		} else {
-			return fmt.Errorf("error creating run to launch environment: %w", err)
-		}
+		return fmt.Errorf("error creating run: %w", err)
 	}
+	workspaces, err := client.Workspaces().List(stack.Id)
+	if err != nil {
+		return fmt.Errorf("error retrieving list of workspaces: %w", err)
+	}
+	blocks, err := client.Blocks().List(stack.Id)
+	if err != nil {
+		return fmt.Errorf("error retrieving list of blocks: %w", err)
+	}
+
+	findWorkspace := func(run types.Run) *types.Workspace {
+		for _, workspace := range workspaces {
+			if workspace.Uid == run.WorkspaceUid {
+				return &workspace
+			}
+		}
+		return nil
+	}
+	findBlock := func(workspace *types.Workspace) *types.Block {
+		if workspace == nil {
+			return nil
+		}
+		for _, block := range blocks {
+			if workspace.BlockId == block.Id {
+				return &block
+			}
+		}
+		return nil
+	}
+
+	action := "launch"
 	if isDestroy {
-		fmt.Printf("created run to destroy %d apps in the %q environment\n", len(runs), envName)
-	} else {
-		fmt.Printf("created run to launch %d apps in the %q environment\n", len(runs), envName)
+		action = "destroy"
+	}
+	if len(newRuns) <= 0 {
+		fmt.Fprintf(os.Stdout, "no runs created to %s the %q environment\n", action, envName)
+		return nil
+	}
+	for _, run := range newRuns {
+		blockName := "(unknown)"
+		workspace := findWorkspace(run)
+		if block := findBlock(workspace); block != nil {
+			blockName = block.Name
+		}
+		browserUrl := ""
+		if workspace != nil {
+			browserUrl = fmt.Sprintf(" (%s)", runs.GetBrowserUrl(cfg, *workspace, run))
+		}
+		fmt.Fprintf(os.Stdout, "created run to %s %s and dependencies in %q environment%s\n", action, blockName, envName, browserUrl)
 	}
 	return nil
 }
