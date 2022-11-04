@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -27,6 +28,7 @@ var Envs = &cli.Command{
 	Subcommands: []*cli.Command{
 		EnvsList,
 		EnvsNew,
+		EnvsDelete,
 		EnvsUp,
 		EnvsDown,
 	},
@@ -145,6 +147,73 @@ var EnvsNew = &cli.Command{
 			} else {
 				return createPipelineEnv(client, stack.Id, name, providerName, region, zone)
 			}
+		})
+	},
+}
+
+var EnvsDelete = &cli.Command{
+	Name:        "delete",
+	Description: "Deletes the given environment. Before issuing this command, make sure you have destroyed all infrastructure in the environment. If you are deleting a preview environment, you can use the `--force` flag to skip the confirmation prompt.",
+	Usage:       "Create new environment",
+	UsageText: "nullstone envs delete --stack=<stack> --env=<env>	[--force]",
+	Flags: []cli.Flag{
+		StackRequiredFlag,
+		EnvFlag,
+		&cli.BoolFlag{
+			Name:  "force",
+			Usage: "Use this flag to skip the confirmation prompt when deleting an environment.",
+		},
+	},
+	Action: func(c *cli.Context) error {
+		return ProfileAction(c, func(cfg api.Config) error {
+			client := api.Client{Config: cfg}
+			stackName := c.String("stack")
+			envName := c.String("env")
+			force := c.IsSet("force")
+
+			stack, err := client.StacksByName().Get(stackName)
+			if err != nil {
+				return fmt.Errorf("error looking for stack %q: %w", stackName, err)
+			} else if stack == nil {
+				return fmt.Errorf("stack %q does not exist", stackName)
+			}
+
+			env, err := find.Env(cfg, stack.Id, envName)
+			if err != nil {
+				return fmt.Errorf("error looking for environment in stack %q - %q: %w", stack.Name, envName, err)
+			} else if env == nil {
+				return fmt.Errorf("environment %q does not exist in stack %q", envName, stack.Name)
+			}
+
+			if !force {
+				fmt.Printf("You are about to delete an environment. Make sure you have destroyed all infrastructure in the environment before continuing.\n")
+				confirm := []*survey.Question{
+					{
+						Name:     "Confirm",
+						Validate: survey.Required,
+						Prompt: &survey.Input{
+							Message: "To confirm all infrastructure has been destroyed and you wish to continue, type 'delete':",
+						},
+					},
+				}
+				var confirmResponse string
+				err := survey.Ask(confirm, &confirmResponse)
+				if err != nil {
+					return err
+				}
+				if confirmResponse != "delete" {
+					fmt.Println("Deletion of the environment has been cancelled")
+					return nil
+				}
+			}
+
+			_, err = client.Environments().Destroy(stack.Id, env.Id)
+			if err != nil {
+				return fmt.Errorf("error deleting environment: %w", err)
+			}
+
+			fmt.Printf("Environment %s has been deleted\n", env.Name)
+			return nil
 		})
 	},
 }
