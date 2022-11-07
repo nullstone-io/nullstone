@@ -3,6 +3,7 @@
 * Updated the `envs new` command to accept a new `--preview` parameter. If `--preview` is passed, the default provider and region configured for the stack will be used to configure the new preview environment.
 * Added a new command `envs up` that is used to launch and deploy an entire environment.
 * Added a new command `envs down` that is used to destroy an entire environment.
+* Added a new command `envs delete` that is used to delete an environment once the infrastructure has been destroyed.
 
 # 0.0.85 (Oct 21, 2022)
 * Updated to account for changes in environment ordering and preview environments.
