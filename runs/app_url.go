@@ -14,6 +14,10 @@ func GetBrowserUrl(cfg api.Config, workspace types.Workspace, run types.Run) str
 		u = &url.URL{Scheme: "https", Host: "app.nullstone.io"}
 	}
 	u.Host = strings.Replace(u.Host, "api", "app", 1)
+	if u.Host == "localhost:8443" {
+		u.Scheme = "http"
+		u.Host = "localhost:8090"
+	}
 
 	u.Path = fmt.Sprintf("orgs/%s/stacks/%d/blocks/%d/activity", workspace.OrgName, workspace.StackId, workspace.BlockId)
 	q := url.Values{}
