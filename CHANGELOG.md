@@ -1,4 +1,4 @@
-# 0.0.86 (Oct 31, 2022)
+# 0.0.86 (Nov 07, 2022)
 * Added a new `profile` command to output the current profile configuration for the CLI. Use this to help debug any unexpected results from CLI commands.
 * Updated the `envs new` command to accept a new `--preview` parameter. If `--preview` is passed, the default provider and region configured for the stack will be used to configure the new preview environment.
 * Added a new command `envs up` that is used to launch and deploy an entire environment.

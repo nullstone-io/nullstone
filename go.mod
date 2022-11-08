@@ -11,12 +11,12 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
 	github.com/nullstone-io/deployment-sdk v0.0.0-20220921150858-7fc4261dbf03
-	github.com/nullstone-io/module v0.2.8
+	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli/v2 v2.3.0
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20221107162350-08fda088f1f2
+	golang.org/x/crypto v0.1.0
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20221108020350-a12722c4ee44
 )
 
 require (
@@ -24,8 +24,7 @@ require (
 	github.com/Microsoft/go-winio v0.4.17 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20210428141323-04723f9f07d7 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
-	github.com/agext/levenshtein v1.2.1 // indirect
-	github.com/apparentlymart/go-textseg/v12 v12.0.0 // indirect
+	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.29.0
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.9.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.8 // indirect
@@ -36,8 +35,8 @@ require (
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
-	github.com/google/uuid v1.2.0
-	github.com/hashicorp/hcl/v2 v2.6.0 // indirect
+	github.com/google/uuid v1.3.0
+	github.com/hashicorp/hcl/v2 v2.14.1 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
@@ -45,20 +44,20 @@ require (
 	github.com/mattn/go-colorable v0.1.9 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
+	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
-	github.com/spf13/afero v1.6.0 // indirect
-	github.com/tmccombs/hcl2json v0.3.2-0.20201111174327-c96737926b76 // indirect
+	github.com/spf13/afero v1.9.2 // indirect
+	github.com/tmccombs/hcl2json v0.3.4 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
-	github.com/zclconf/go-cty v1.6.1 // indirect
-	golang.org/x/mod v0.5.1
-	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
-	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
-	golang.org/x/term v0.0.0-20210503060354-a79de5458b56 // indirect
-	golang.org/x/text v0.3.6 // indirect
+	github.com/zclconf/go-cty v1.12.0 // indirect
+	golang.org/x/mod v0.6.0
+	golang.org/x/net v0.1.0 // indirect
+	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/term v0.1.0 // indirect
+	golang.org/x/text v0.4.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
@@ -66,6 +65,7 @@ require (
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Microsoft/hcsshim v0.9.0 // indirect
+	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.3 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.4.3 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.5.4 // indirect
