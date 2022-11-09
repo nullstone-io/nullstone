@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/ryanuber/columnize"
@@ -8,11 +9,13 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/go-api-client.v0/ws"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
 	"math"
 	"os"
 	"sort"
 	"strings"
+	"time"
 )
 
 var (
@@ -155,7 +158,7 @@ var EnvsDelete = &cli.Command{
 	Name:        "delete",
 	Description: "Deletes the given environment. Before issuing this command, make sure you have destroyed all infrastructure in the environment. If you are deleting a preview environment, you can use the `--force` flag to skip the confirmation prompt.",
 	Usage:       "Create new environment",
-	UsageText: "nullstone envs delete --stack=<stack> --env=<env>	[--force]",
+	UsageText:   "nullstone envs delete --stack=<stack> --env=<env>	[--force]",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		EnvFlag,
@@ -281,13 +284,21 @@ var EnvsUp = &cli.Command{
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		EnvFlag,
+		&cli.BoolFlag{
+			Name:    "wait",
+			Aliases: []string{"w"},
+			Usage:   "Pass this flag in order to wait until the environment is provisioned. Progress will be logged in real time.",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
-			if err := createEnvRun(c, cfg, false); err != nil {
-				return fmt.Errorf("error when trying to launch environment: %w", err)
-			}
-			return nil
+			wait := c.IsSet("wait")
+			return CancellableAction(func(ctx context.Context) error {
+				if err := createEnvRun(ctx, c, cfg, false, wait); err != nil {
+					return fmt.Errorf("error when trying to launch environment: %w", err)
+				}
+				return nil
+			})
 		})
 	},
 }
@@ -300,18 +311,26 @@ var EnvsDown = &cli.Command{
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		EnvFlag,
+		&cli.BoolFlag{
+			Name:    "wait",
+			Aliases: []string{"w"},
+			Usage:   "Pass this flag in order to wait until the environment is destroyed. Progress will be logged in real time.",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
-			if err := createEnvRun(c, cfg, true); err != nil {
-				return fmt.Errorf("error when trying to destroy environment: %w", err)
-			}
-			return nil
+			wait := c.IsSet("wait")
+			return CancellableAction(func(ctx context.Context) error {
+				if err := createEnvRun(ctx, c, cfg, true, wait); err != nil {
+					return fmt.Errorf("error when trying to destroy environment: %w", err)
+				}
+				return nil
+			})
 		})
 	},
 }
 
-func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
+func createEnvRun(ctx context.Context, c *cli.Context, cfg api.Config, isDestroy, wait bool) error {
 	client := api.Client{Config: cfg}
 	stackName := c.String("stack")
 	envName := c.String("env")
@@ -335,16 +354,17 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 		return fmt.Errorf("environment %q does not exist in stack %d", envName, stack.Id)
 	}
 
-	body := types.CreateEnvRunInput{IsDestroy: isDestroy}
-	newRuns, err := client.EnvRuns().Create(stack.Id, env.Id, body)
-	if err != nil {
-		return fmt.Errorf("error creating run: %w", err)
-	}
+	// body := types.CreateEnvRunInput{IsDestroy: isDestroy}
+	// newRuns, err := client.EnvRuns().Create(stack.Id, env.Id, body)
+	// if err != nil {
+	// 	return fmt.Errorf("error creating run: %w", err)
+	// }
 
-	if len(newRuns) <= 0 {
-		fmt.Fprintf(os.Stdout, "no runs created to %s the %q environment\n", action, envName)
-		return nil
-	}
+	// if len(newRuns) <= 0 {
+	// 	fmt.Fprintf(os.Stdout, "no runs created to %s the %q environment\n", action, envName)
+	// 	return nil
+	// }
+	var newRuns []types.Run
 
 	workspaces, err := client.Workspaces().List(stack.Id)
 	if err != nil {
@@ -355,29 +375,10 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 		return fmt.Errorf("error retrieving list of blocks: %w", err)
 	}
 
-	findWorkspace := func(run types.Run) *types.Workspace {
-		for _, workspace := range workspaces {
-			if workspace.Uid == run.WorkspaceUid {
-				return &workspace
-			}
-		}
-		return nil
-	}
-	findBlock := func(workspace *types.Workspace) *types.Block {
-		if workspace == nil {
-			return nil
-		}
-		for _, block := range blocks {
-			if workspace.BlockId == block.Id {
-				return &block
-			}
-		}
-		return nil
-	}
 	for _, run := range newRuns {
 		blockName := "(unknown)"
-		workspace := findWorkspace(run)
-		if block := findBlock(workspace); block != nil {
+		workspace := findWorkspace(workspaces, run)
+		if block := findBlock(blocks, workspace); block != nil {
 			blockName = block.Name
 		}
 		browserUrl := ""
@@ -385,6 +386,49 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 			browserUrl = fmt.Sprintf(" Logs: %s", runs.GetBrowserUrl(cfg, *workspace, run))
 		}
 		fmt.Fprintf(os.Stdout, "created run to %s %s and dependencies in %q environment.%s\n", action, blockName, envName, browserUrl)
+	}
+
+	return envStatus(ctx, cfg, stack, env, blocks, workspaces, wait)
+}
+
+func envStatus(ctx context.Context, cfg api.Config, stack *types.Stack, env *types.Environment, blocks []types.Block, workspaces []types.Workspace, wait bool) error {
+	fmt.Fprintf(os.Stdout, "waiting for %q environment to be provisioned...\n", env.Name)
+
+	client := api.Client{Config: cfg}
+	msgs, err := client.Workspaces().Watch(ctx, stack.Id, ws.RetryInfinite(2*time.Second))
+	if err != nil {
+		return fmt.Errorf("error connecting to workspace updates stream: %w", err)
+	}
+	for msg := range msgs {
+		if msg.Type == "error" {
+			return fmt.Errorf(msg.Content)
+		}
+		if !wait && msg.Context == types.DeployPhaseWaitHealthy {
+			// Stop streaming logs if we receive a log message from wait-healthy and no --wait
+			break
+		}
+		fmt.Fprint(os.Stderr, msg.Content)
+	}
+
+	return nil
+}
+
+func findWorkspace(workspaces []types.Workspace, run types.Run) *types.Workspace {
+	for _, workspace := range workspaces {
+		if workspace.Uid == run.WorkspaceUid {
+			return &workspace
+		}
+	}
+	return nil
+}
+func findBlock(blocks []types.Block, workspace *types.Workspace) *types.Block {
+	if workspace == nil {
+		return nil
+	}
+	for _, block := range blocks {
+		if workspace.BlockId == block.Id {
+			return &block
+		}
 	}
 	return nil
 }
