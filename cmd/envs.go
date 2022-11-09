@@ -11,7 +11,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/go-api-client.v0/ws"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
-	"math"
 	"os"
 	"sort"
 	"strings"
@@ -65,21 +64,7 @@ var EnvsList = &cli.Command{
 			if err != nil {
 				return fmt.Errorf("error listing environments: %w", err)
 			}
-			sort.SliceStable(envs, func(i, j int) bool {
-				var first int
-				if envs[i].PipelineOrder == nil {
-					first = math.MaxInt
-				} else {
-					first = *envs[i].PipelineOrder
-				}
-				var second int
-				if envs[j].PipelineOrder == nil {
-					second = math.MaxInt
-				} else {
-					second = *envs[j].PipelineOrder
-				}
-				return first < second
-			})
+			sort.Stable(types.EnvsByPipelineOrder(envs))
 
 			if c.IsSet("detail") {
 				envDetails := make([]string, len(envs)+1)
@@ -158,7 +143,7 @@ var EnvsDelete = &cli.Command{
 	Name:        "delete",
 	Description: "Deletes the given environment. Before issuing this command, make sure you have destroyed all infrastructure in the environment. If you are deleting a preview environment, you can use the `--force` flag to skip the confirmation prompt.",
 	Usage:       "Create new environment",
-	UsageText:   "nullstone envs delete --stack=<stack> --env=<env>	[--force]",
+	UsageText: "nullstone envs delete --stack=<stack> --env=<env>	[--force]",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		EnvFlag,
