@@ -1,3 +1,8 @@
+# 0.0.88 (Dec 01, 2022)
+* Fixed retrieval of the latest version of a module. This affected:
+  * `modules publish --version=next-patch|next-build`
+  * `blocks new`
+
 # 0.0.87 (Dec 01, 2022)
 * Fixed nil panic when `modules publish --version=next-patch|next-build` happens on a module with no published versions.
 

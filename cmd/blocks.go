@@ -7,7 +7,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"sort"
 	"strings"
 )
 
@@ -122,17 +121,12 @@ var BlocksNew = &cli.Command{
 			if err != nil {
 				return err
 			}
-			sort.Sort(sort.Reverse(module.Versions)) // "latest" will be at the beginning now
-			var latestModuleVersion *types.ModuleVersion
-			if len(module.Versions) > 0 {
-				latestModuleVersion = &module.Versions[0]
-			}
 
 			connections, err := mapConnectionsToTargets(cfg, stack, connectionSlice)
 			if err != nil {
 				return err
 			}
-			if err := validateConnections(latestModuleVersion, connections); err != nil {
+			if err := validateConnections(module.LatestVersion, connections); err != nil {
 				return err
 			}
 
