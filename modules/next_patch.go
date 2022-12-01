@@ -14,6 +14,8 @@ func NextPatch(cfg api.Config, manifest *Manifest) (string, error) {
 	latestVersion, err := find.ModuleVersion(cfg, fmt.Sprintf("%s/%s", manifest.OrgName, manifest.Name), "latest")
 	if err != nil {
 		return "", fmt.Errorf("error retrieving latest version: %w", err)
+	} else if latestVersion == nil {
+		return BumpPatch("v0.0.0"), nil
 	}
 	return BumpPatch(latestVersion.Version), nil
 }

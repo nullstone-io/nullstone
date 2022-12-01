@@ -1,3 +1,6 @@
+# 0.0.87 (Dec 01, 2022)
+* Fixed nil panic when `modules publish --version=next-patch|next-build` happens on a module with no published versions.
+
 # 0.0.86 (Nov 07, 2022)
 * Added a new `profile` command to output the current profile configuration for the CLI. Use this to help debug any unexpected results from CLI commands.
 * Updated the `envs new` command to accept a new `--preview` parameter. If `--preview` is passed, the default provider and region configured for the stack will be used to configure the new preview environment.
