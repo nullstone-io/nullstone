@@ -1,3 +1,6 @@
+# 0.0.89 (Dec 01, 2022)
+* Fixed retrieval of module versions if none exist for a module.
+
 # 0.0.88 (Dec 01, 2022)
 * Fixed retrieval of the latest version of a module. This affected:
   * `modules publish --version=next-patch|next-build`
