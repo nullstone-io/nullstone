@@ -1,3 +1,6 @@
+# 0.0.90 (Jan 06, 2022)
+* Improved `nullstone ssh` to forward OS signals (e.g. `Ctrl+C`) so it does not terminate SSH tunnel.
+
 # 0.0.89 (Dec 01, 2022)
 * Fixed retrieval of module versions if none exist for a module.
 
