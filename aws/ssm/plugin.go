@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"os"
 	"os/exec"
+	"os/signal"
 )
 
 const (
@@ -30,11 +31,33 @@ func StartSession(ctx context.Context, session interface{}, target ssm.StartSess
 		string(targetRaw),
 		endpointUrl,
 	}
+	ctx = context.Background() // Ignore signal cancellations on the context
+
 	cmd := exec.CommandContext(ctx, process, args...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
-	return cmd.Run()
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	done := make(chan any)
+	defer close(done)
+	forwardSignals(done, cmd.Process)
+	return cmd.Wait()
+}
+
+func forwardSignals(done chan any, process *os.Process) {
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch)
+	go func() {
+		select {
+		case <-done:
+			return
+		case sig := <-ch:
+			process.Signal(sig)
+		}
+	}()
 }
 
 // getSessionManagerPluginPath attempts to find "session-manager-plugin"
