@@ -1,3 +1,6 @@
+# 0.0.91 (Jan 11, 2022)
+* Added support for unversioned assets in static sites. If unversioned, assets are uploaded to the root directory.  
+
 # 0.0.90 (Jan 06, 2022)
 * Improved `nullstone ssh` to forward OS signals (e.g. `Ctrl+C`) so it does not terminate SSH tunnel.
 
