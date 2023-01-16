@@ -8,7 +8,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
 	"os"
-	"strings"
 )
 
 var Up = func() *cli.Command {
@@ -40,20 +39,20 @@ var Up = func() *cli.Command {
 					return nil
 				}
 
-				newRunConfig, err := runs.GetPromotion(cfg, workspace, "")
-				if err != nil {
-					return err
-				}
-				skipped, err := runs.SetRunConfigVars(newRunConfig, varFlags)
-				if len(skipped) > 0 {
-					fmt.Printf("[Warning] The following variables were skipped because they don't exist in the module: %s\n\n", strings.Join(skipped, ", "))
-				}
+				// TODO: should we do something with the returned changes? what about skipped vars?
+				_, err := runs.SetConfigVars(cfg, workspace, varFlags)
+				/*
+					skipped, err := runs.SetRunConfigVars(newRunConfig, varFlags)
+					if len(skipped) > 0 {
+						fmt.Printf("[Warning] The following variables were skipped because they don't exist in the module: %s\n\n", strings.Join(skipped, ", "))
+					}
+				*/
 				if err != nil {
 					return err
 				}
 
 				t := true
-				newRun, err := runs.Create(cfg, workspace, newRunConfig, &t, false)
+				newRun, err := runs.Create(cfg, workspace, &t, false)
 				if err != nil {
 					return fmt.Errorf("error creating run: %w", err)
 				} else if newRun == nil {

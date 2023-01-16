@@ -8,7 +8,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
 	"os"
-	"strings"
 )
 
 var Plan = func() *cli.Command {
@@ -37,28 +36,31 @@ var Plan = func() *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			varFlags := c.StringSlice("var")
-			moduleVersion := c.String("module-version")
+			// moduleVersion := c.String("module-version")
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
-				moduleSourceOverride := ""
-				if moduleVersion != "" {
-					moduleSourceOverride = fmt.Sprintf("%s@%s", block.ModuleSource, moduleVersion)
-				}
-				newRunConfig, err := runs.GetPromotion(cfg, workspace, moduleSourceOverride)
-				if err != nil {
-					return fmt.Errorf("error getting run configuration for plan: %w", err)
-				}
+				// TODO: store the moduleSourceOverride as a workspace_change
+				/*
+					moduleSourceOverride := ""
+					if moduleVersion != "" {
+						moduleSourceOverride = fmt.Sprintf("%s@%s", block.ModuleSource, moduleVersion)
+					}
+				*/
 
-				skipped, err := runs.SetRunConfigVars(newRunConfig, varFlags)
-				if len(skipped) > 0 {
-					fmt.Printf("[Warning] The following variables were skipped because they don't exist in the module: %s\n\n", strings.Join(skipped, ", "))
-				}
+				// TODO: should we do something with the returned changes? what about skipped vars?
+				_, err := runs.SetConfigVars(cfg, workspace, varFlags)
+				/*
+					skipped, err := runs.SetRunConfigVars(newRunConfig, varFlags)
+					if len(skipped) > 0 {
+						fmt.Printf("[Warning] The following variables were skipped because they don't exist in the module: %s\n\n", strings.Join(skipped, ", "))
+					}
+				*/
 				if err != nil {
 					return err
 				}
 
 				f := false
-				newRun, err := runs.Create(cfg, workspace, newRunConfig, &f, false)
+				newRun, err := runs.Create(cfg, workspace, &f, false)
 				if err != nil {
 					return fmt.Errorf("error creating run: %w", err)
 				} else if newRun == nil {
