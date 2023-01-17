@@ -10,7 +10,7 @@ import (
 // SetConfigVars takes the input vars and stores them as workspace_changes via the API
 // TODO: once the api supports it, return any flags that aren't valid for the module version and were skipped
 func SetConfigVars(cfg api.Config, workspace types.Workspace, varFlags []string) ([]types.WorkspaceChange, error) {
-	variables := []types.VariableValue{}
+	var variables []types.VariableInput
 	for _, varFlag := range varFlags {
 		tokens := strings.SplitN(varFlag, "=", 2)
 		if len(tokens) < 2 {
@@ -18,19 +18,7 @@ func SetConfigVars(cfg api.Config, workspace types.Workspace, varFlags []string)
 			continue
 		}
 		name, value := tokens[0], tokens[1]
-		variables = append(variables, types.VariableValue{Key: name, Value: value})
-		/*
-			if v, ok := rc.Variables[name]; ok {
-				if out, err := parseVarFlag(v, name, value); err != nil {
-					errs = append(errs, err.Error())
-				} else {
-					v.Value = out
-					rc.Variables[name] = v
-				}
-			} else {
-				skipped = append(skipped, name)
-			}
-		*/
+		variables = append(variables, types.VariableInput{Key: name, Value: value})
 	}
 
 	client := api.Client{Config: cfg}
@@ -40,13 +28,4 @@ func SetConfigVars(cfg api.Config, workspace types.Workspace, varFlags []string)
 	}
 
 	return changes, nil
-
-	/*
-			if len(errs) > 0 {
-				return skipped, fmt.Errorf(`"--var" flags contain invalid values: * %s
-		`, strings.Join(errs, `
-		    * `))
-			}
-			return skipped, nil
-	*/
 }

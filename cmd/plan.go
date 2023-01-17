@@ -47,14 +47,7 @@ var Plan = func() *cli.Command {
 					}
 				*/
 
-				// TODO: should we do something with the returned changes? what about skipped vars?
 				_, err := runs.SetConfigVars(cfg, workspace, varFlags)
-				/*
-					skipped, err := runs.SetRunConfigVars(newRunConfig, varFlags)
-					if len(skipped) > 0 {
-						fmt.Printf("[Warning] The following variables were skipped because they don't exist in the module: %s\n\n", strings.Join(skipped, ", "))
-					}
-				*/
 				if err != nil {
 					return err
 				}
