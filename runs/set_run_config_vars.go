@@ -9,7 +9,7 @@ import (
 
 // SetConfigVars takes the input vars and stores them as workspace_changes via the API
 // TODO: once the api supports it, return any flags that aren't valid for the module version and were skipped
-func SetConfigVars(cfg api.Config, workspace types.Workspace, varFlags []string) ([]types.WorkspaceChange, error) {
+func SetConfigVars(cfg api.Config, workspace types.Workspace, varFlags []string) (*types.WorkspaceChangeset, error) {
 	var variables []types.VariableInput
 	for _, varFlag := range varFlags {
 		tokens := strings.SplitN(varFlag, "=", 2)
@@ -22,7 +22,7 @@ func SetConfigVars(cfg api.Config, workspace types.Workspace, varFlags []string)
 	}
 
 	client := api.Client{Config: cfg}
-	changes, err := client.WorkspaceVariables().Update(workspace.StackId, workspace.Uid, variables)
+	changes, err := client.WorkspaceVariables().Update(workspace.StackId, workspace.BlockId, workspace.EnvId, variables)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update workspace variables: %w", err)
 	}

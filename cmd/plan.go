@@ -36,16 +36,16 @@ var Plan = func() *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			varFlags := c.StringSlice("var")
-			// moduleVersion := c.String("module-version")
+			moduleVersion := c.String("module-version")
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
-				// TODO: store the moduleSourceOverride as a workspace_change
-				/*
-					moduleSourceOverride := ""
-					if moduleVersion != "" {
-						moduleSourceOverride = fmt.Sprintf("%s@%s", block.ModuleSource, moduleVersion)
+				if moduleVersion != "" {
+					moduleSourceOverride := fmt.Sprintf("%s@%s", block.ModuleSource, moduleVersion)
+					_, err := runs.SetModuleVersion(cfg, workspace, moduleSourceOverride)
+					if err != nil {
+						return err
 					}
-				*/
+				}
 
 				_, err := runs.SetConfigVars(cfg, workspace, varFlags)
 				if err != nil {
