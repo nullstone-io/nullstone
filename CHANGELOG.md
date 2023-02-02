@@ -1,7 +1,11 @@
-# 0.0.91 (Jan 11, 2022)
+# 0.0.92 (Feb 02, 2023)
+* Nullstone now supports the ability to queue up changes and review them before applying.
+* Updated the `apply`, `plan`, and `up` commands to support pending changes.
+
+# 0.0.91 (Jan 11, 2023)
 * Added support for unversioned assets in static sites. If unversioned, assets are uploaded to the root directory.  
 
-# 0.0.90 (Jan 06, 2022)
+# 0.0.90 (Jan 06, 2023)
 * Improved `nullstone ssh` to forward OS signals (e.g. `Ctrl+C`) so it does not terminate SSH tunnel.
 
 # 0.0.89 (Dec 01, 2022)
