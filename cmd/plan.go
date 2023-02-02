@@ -40,14 +40,17 @@ var Plan = func() *cli.Command {
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				if moduleVersion != "" {
-					moduleSourceOverride := fmt.Sprintf("%s@%s", block.ModuleSource, moduleVersion)
-					_, err := runs.SetModuleVersion(cfg, workspace, moduleSourceOverride)
+					module := types.WorkspaceModuleInput{
+						Module:        block.ModuleSource,
+						ModuleVersion: moduleVersion,
+					}
+					err := runs.SetModuleVersion(cfg, workspace, module)
 					if err != nil {
 						return err
 					}
 				}
 
-				_, err := runs.SetConfigVars(cfg, workspace, varFlags)
+				err := runs.SetConfigVars(cfg, workspace, varFlags)
 				if err != nil {
 					return err
 				}

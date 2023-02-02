@@ -6,12 +6,12 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
-func SetModuleVersion(cfg api.Config, workspace types.Workspace, version string) (*types.WorkspaceChangeset, error) {
+func SetModuleVersion(cfg api.Config, workspace types.Workspace, input types.WorkspaceModuleInput) error {
 	client := api.Client{Config: cfg}
-	changes, err := client.WorkspaceModuleVersion().Update(workspace.StackId, workspace.BlockId, workspace.EnvId, version)
+	err := client.WorkspaceModule().Update(workspace.StackId, workspace.BlockId, workspace.EnvId, input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update workspace variables: %w", err)
+		return fmt.Errorf("failed to update workspace variables: %w", err)
 	}
 
-	return changes, nil
+	return nil
 }

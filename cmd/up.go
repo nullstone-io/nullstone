@@ -39,7 +39,7 @@ var Up = func() *cli.Command {
 					return nil
 				}
 
-				_, err := runs.SetConfigVars(cfg, workspace, varFlags)
+				err := runs.SetConfigVars(cfg, workspace, varFlags)
 				if err != nil {
 					return err
 				}
