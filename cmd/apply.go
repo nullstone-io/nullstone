@@ -8,7 +8,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
 	"os"
-	"strings"
 )
 
 var Apply = func() *cli.Command {
@@ -51,24 +50,23 @@ var Apply = func() *cli.Command {
 			}
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
-				moduleSourceOverride := ""
 				if moduleVersion != "" {
-					moduleSourceOverride = fmt.Sprintf("%s@%s", block.ModuleSource, moduleVersion)
-				}
-				newRunConfig, err := runs.GetPromotion(cfg, workspace, moduleSourceOverride)
-				if err != nil {
-					return fmt.Errorf("error getting run configuration for apply: %w", err)
+					module := types.WorkspaceModuleInput{
+						Module:        block.ModuleSource,
+						ModuleVersion: moduleVersion,
+					}
+					err := runs.SetModuleVersion(cfg, workspace, module)
+					if err != nil {
+						return err
+					}
 				}
 
-				skipped, err := runs.SetRunConfigVars(newRunConfig, varFlags)
-				if len(skipped) > 0 {
-					fmt.Printf("[Warning] The following variables were skipped because they don't exist in the module: %s\n\n", strings.Join(skipped, ", "))
-				}
+				err := runs.SetConfigVars(cfg, workspace, varFlags)
 				if err != nil {
 					return err
 				}
 
-				newRun, err := runs.Create(cfg, workspace, newRunConfig, autoApprove, false)
+				newRun, err := runs.Create(cfg, workspace, autoApprove, false)
 				if err != nil {
 					return fmt.Errorf("error creating run: %w", err)
 				} else if newRun == nil {
