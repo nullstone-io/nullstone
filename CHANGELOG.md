@@ -1,3 +1,6 @@
+# 0.0.93 (Feb 08, 2023)
+* Nullstone modules are packaged with `.terraform.lock.hcl` and `CHANGELOG.md`. 
+
 # 0.0.92 (Feb 02, 2023)
 * Nullstone now supports the ability to queue up changes and review them before applying.
 * Updated the `apply`, `plan`, and `up` commands to support pending changes.

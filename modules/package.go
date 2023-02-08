@@ -9,7 +9,9 @@ var (
 	moduleFilePatterns = []string{
 		"*.tf",
 		"*.tf.tmpl",
+		".terraform.lock.hcl",
 		"README.md",
+		"CHANGELOG.md",
 	}
 	excludes = map[string]struct{}{
 		"__backend__.tf": {},
