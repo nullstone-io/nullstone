@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/mod/semver"
@@ -158,7 +159,8 @@ var ModulesPublish = &cli.Command{
 			}
 
 			// Package module files into tar.gz
-			tarballFilename, err := modules.Package(manifest, version, includes)
+			ctx := context.TODO()
+			tarballFilename, err := modules.Package(ctx, manifest, version, includes)
 			if err != nil {
 				return err
 			}
@@ -199,7 +201,8 @@ var ModulesPackage = &cli.Command{
 			return err
 		}
 
-		tarballFilename, err := modules.Package(manifest, "", includes)
+		ctx := context.TODO()
+		tarballFilename, err := modules.Package(ctx, manifest, "", includes)
 		if err == nil {
 			fmt.Printf("created module package %q\n", tarballFilename)
 		}
