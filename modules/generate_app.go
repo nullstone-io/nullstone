@@ -56,29 +56,19 @@ locals {
   })
 
   input_env_vars = merge(local.standard_env_vars, local.cap_env_vars, var.service_env_vars)
-  input_secrets = merge(local.cap_secrets, var.service_secrets)
+  input_secrets  = merge(local.cap_secrets, var.service_secrets)
 }
 
-data "ns_env_variables" this {
+data "ns_env_variables" "this" {
   input_env_variables = local.input_env_vars
   input_secrets       = local.input_secrets
 }
 
-/*
-EXAMPLE USAGE:
 locals {
-  // We use "secret_keys" to create secret resources
-  // If we used "length(local.capabilities.secrets)",
-  //   terraform would complain about not knowing count of the resource until after apply
-  // This is because the name of secrets isn't computed in the modules; only the secret value
-  secret_keys = data.ns_env_variables.this.secret_keys
-  // secret_refs is prepared in the form [{ name = "", valueFrom = "<arn>" }, ...] for injection into ECS services
-  secret_refs = [for key in local.secret_keys : { name = key, valueFrom = aws_secretsmanager_secret.app_secret[key].arn }]
-
-  secrets = data.ns_env_variables.this.secrets
-  env_vars = [for k, v in data.ns_env_variables.this.env_variables :{ name = k, value = v }]
+  secret_keys  = data.ns_env_variables.this.secret_keys
+  all_secrets  = data.ns_env_variables.this.secrets
+  all_env_vars = data.ns_env_variables.this.env_variables
 }
-*/
 `
 
 	appUrlsTfFilename = "urls.tf"
