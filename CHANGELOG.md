@@ -1,3 +1,7 @@
+# 0.0.94 (Feb 14, 2023)
+* Updated the `nullstone modules generate` command to produce an updated module template.
+* Support for environment variables has been updated and includes interpolation by adding the `ns_env_variables` data source.
+
 # 0.0.93 (Feb 08, 2023)
 * Nullstone modules are packaged with `.terraform.lock.hcl` and `CHANGELOG.md`. 
 
