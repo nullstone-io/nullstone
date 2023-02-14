@@ -23,22 +23,100 @@ locals {
 }
 `
 
-	appOutputsTfFilename = "outputs.tf"
-	appOutputsTf         = `locals {
-  // Private and public URLs are shown in the Nullstone UI
-  // Typically, they are created through capabilities attached to the application
-  // If this module has URLs, add them here as list(string) 
-  additional_private_urls = []
-  additional_public_urls  = []
+	appEnvVarsTfFilename = "env_vars.tf"
+	appEnvVarsTf         = `variable "service_env_vars" {
+  type        = map(string)
+  default     = {}
+  description = <<EOF
+The environment variables to inject into the service.
+These are typically used to configure a service per environment.
+It is dangerous to put sensitive information in this variable because they are not protected and could be unintentionally exposed.
+EOF
 }
 
-output "private_urls" {
-  value       = concat([for url in try(local.capabilities.private_urls, []) : url["url"]], local.additional_private_urls)
+variable "service_secrets" {
+  type        = map(string)
+  default     = {}
+  sensitive   = true
+  description = <<EOF
+The sensitive environment variables to inject into the service.
+These are typically used to configure a service per environment.
+EOF
+}
+
+locals {
+  standard_env_vars = tomap({
+    NULLSTONE_STACK         = data.ns_workspace.this.stack_name
+    NULLSTONE_APP           = data.ns_workspace.this.block_name
+    NULLSTONE_ENV           = data.ns_workspace.this.env_name
+    NULLSTONE_VERSION       = data.ns_app_env.this.version
+    NULLSTONE_COMMIT_SHA    = data.ns_app_env.this.commit_sha
+    NULLSTONE_PUBLIC_HOSTS  = join(",", local.public_hosts)
+    NULLSTONE_PRIVATE_HOSTS = join(",", local.private_hosts)
+  })
+
+  input_env_vars = merge(local.standard_env_vars, local.cap_env_vars, var.service_env_vars)
+  input_secrets  = merge(local.cap_secrets, var.service_secrets)
+}
+
+data "ns_env_variables" "this" {
+  input_env_variables = local.input_env_vars
+  input_secrets       = local.input_secrets
+}
+
+locals {
+  secret_keys  = data.ns_env_variables.this.secret_keys
+  all_secrets  = data.ns_env_variables.this.secrets
+  all_env_vars = data.ns_env_variables.this.env_variables
+}
+`
+
+	appUrlsTfFilename = "urls.tf"
+	appUrlsTf         = `locals {
+  // Private and public URLs are shown in the Nullstone UI
+  // Typically, they are created through capabilities attached to the application
+  // If this module has URLs, add them here as list(string)
+  additional_private_urls = []
+  additional_public_urls = []
+
+  private_urls = concat([for url in try(local.capabilities.private_urls, []) : url["url"]], local.additional_private_urls)
+  public_urls  = concat([for url in try(local.capabilities.public_urls, []) : url["url"]], local.additional_public_urls)
+}
+
+locals {
+  uri_matcher = "^(?:(?P<scheme>[^:/?#]+):)?(?://(?P<authority>[^/?#]*))?"
+}
+
+locals {
+  authority_matcher = "^(?:(?P<user>[^@]*)@)?(?:(?P<host>[^:]*))(?:[:](?P<port>[\\d]*))?"
+  // These tests are here to verify the authority_matcher regex above
+  // To verify, uncomment the following lines and issue "echo 'local.tests' | terraform console"
+  /*
+  tests = tomap({
+    "nullstone.io" : regex(local.authority_matcher, "nullstone.io"),
+    "brad@nullstone.io" : regex(local.authority_matcher, "brad@nullstone.io"),
+    "brad:password@nullstone.io" : regex(local.authority_matcher, "brad:password@nullstone.io"),
+    "nullstone.io:9000" : regex(local.authority_matcher, "nullstone.io:9000"),
+    "brad@nullstone.io:9000" : regex(local.authority_matcher, "brad@nullstone.io:9000"),
+    "brad:password@nullstone.io:9000" : regex(local.authority_matcher, "brad:password@nullstone.io:9000"),
+  })
+  */
+}
+
+locals {
+  private_hosts = [for url in local.private_urls : lookup(regex(local.authority_matcher, lookup(regex(local.uri_matcher, url), "authority")), "host")]
+  public_hosts  = [for url in local.public_urls : lookup(regex(local.authority_matcher, lookup(regex(local.uri_matcher, url), "authority")), "host")]
+}
+`
+
+	appOutputsTfFilename = "outputs.tf"
+	appOutputsTf         = `output "private_urls" {
+  value       = local.private_urls
   description = "list(string) ||| A list of URLs only accessible inside the network"
 }
 
 output "public_urls" {
-  value       = concat([for url in try(local.capabilities.public_urls, []) : url["url"]], local.additional_public_urls)
+  value       = local.public_urls
   description = "list(string) ||| A list of URLs accessible to the public"
 }
 `
@@ -66,6 +144,9 @@ locals {
       }
     ]
   }
+
+  cap_env_vars = {}
+  cap_secrets  = {}
 }
 `
 
@@ -142,6 +223,12 @@ func generateApp(manifest *Manifest) error {
 	}
 
 	if err := generateFile(appScaffoldTfFilename, appScaffoldTf); err != nil {
+		return err
+	}
+	if err := generateFile(appEnvVarsTfFilename, appEnvVarsTf); err != nil {
+		return err
+	}
+	if err := generateFile(appUrlsTfFilename, appUrlsTf); err != nil {
 		return err
 	}
 	if err := generateFile(capabilitiesTfFilename, capabilitiesTf); err != nil {
