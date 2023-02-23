@@ -1,3 +1,6 @@
+# 0.0.95 (Feb 23, 2023)
+* Provide better error messages when a user is not authorized to perform an action.
+
 # 0.0.94 (Feb 14, 2023)
 * Updated the `nullstone modules generate` command to produce an updated module template.
 * Support for environment variables has been updated and includes interpolation by adding the `ns_env_variables` data source.
