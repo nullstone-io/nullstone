@@ -1,3 +1,6 @@
+# 0.0.96 (Feb 24, 2023)
+* Added `Variable.HasValue` helper function when running capability generation (`nullstone workspaces select`).
+
 # 0.0.95 (Feb 23, 2023)
 * Provide better error messages when a user is not authorized to perform an action.
 
