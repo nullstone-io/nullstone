@@ -5,21 +5,21 @@
 class Nullstone < Formula
   desc "Launch apps on your cloud in minutes"
   homepage "https://nullstone.io"
-  version "0.0.95"
+  version "0.0.96"
   license "MIT"
 
   on_macos do
-    if Hardware::CPU.arm?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.95/nullstone_0.0.95_darwin_arm64.tar.gz"
-      sha256 "00a40874b8c3a8c20844b46feaafcaff5dd2c443de3dd1f5c8cd5605e25e3ab0"
+    if Hardware::CPU.intel?
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.96/nullstone_0.0.96_darwin_amd64.tar.gz"
+      sha256 "bc4d512581878e0741a60c45589fcfeb88500394c45bcaba2b547a968fb7aa31"
 
       def install
         bin.install "nullstone"
       end
     end
-    if Hardware::CPU.intel?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.95/nullstone_0.0.95_darwin_amd64.tar.gz"
-      sha256 "6238e961c58adb7bd146cb75df65383e4e4a0fffc7daa812a3de00664277af96"
+    if Hardware::CPU.arm?
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.96/nullstone_0.0.96_darwin_arm64.tar.gz"
+      sha256 "ba392d8b8d49305d9507e9ea02f6b862dad207b4f790fe8fa703fde7e6671b4e"
 
       def install
         bin.install "nullstone"
@@ -28,17 +28,17 @@ class Nullstone < Formula
   end
 
   on_linux do
-    if Hardware::CPU.intel?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.95/nullstone_0.0.95_linux_amd64.tar.gz"
-      sha256 "c401fdf1b10499b043529bf7fb45a57d0f89e81e8b24c68221d459282c1b8ffa"
+    if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.96/nullstone_0.0.96_linux_arm64.tar.gz"
+      sha256 "780c2fe8159a32a22b7d4aaa64515a80665d68b5552c9f416ca9166e12113ae9"
 
       def install
         bin.install "nullstone"
       end
     end
-    if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.95/nullstone_0.0.95_linux_arm64.tar.gz"
-      sha256 "68ac4f16835ef92ffee40c1515dd323a8d889ad38ffc7cbbfa631775cb8b3f18"
+    if Hardware::CPU.intel?
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.96/nullstone_0.0.96_linux_amd64.tar.gz"
+      sha256 "5cbeb482ca955f563a339ec2349351d68a0feec29f997032a40def7415ad8961"
 
       def install
         bin.install "nullstone"
