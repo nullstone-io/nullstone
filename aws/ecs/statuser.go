@@ -8,6 +8,7 @@ import (
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
+	"gopkg.in/nullstone-io/nullstone.v0/display"
 )
 
 func NewStatuser(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (admin.Statuser, error) {
@@ -61,7 +62,7 @@ func (s Statuser) StatusDetail(ctx context.Context) (admin.StatusDetailReports, 
 		record := admin.StatusRecord{
 			Fields: []string{"Created", "Status", "Running", "Desired", "Pending"},
 			Data: map[string]interface{}{
-				"Created": fmt.Sprintf("%s", *deployment.CreatedAt),
+				"Created": display.FormatTimePtr(deployment.CreatedAt),
 				"Status":  *deployment.Status,
 				"Running": fmt.Sprintf("%d", deployment.RunningCount),
 				"Desired": fmt.Sprintf("%d", deployment.DesiredCount),

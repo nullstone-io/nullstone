@@ -11,6 +11,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
+	"gopkg.in/nullstone-io/nullstone.v0/display"
 	"log"
 	"os"
 	"time"
@@ -50,7 +51,7 @@ func (l LogStreamer) Stream(ctx context.Context, options config.LogStreamOptions
 
 	emitter := func(event cwltypes.FilteredLogEvent) {
 		timestamp := time.Unix(*event.Timestamp/1000, 0)
-		normal.Fprintf(stdout, "%s ", timestamp.Format(time.RFC822Z))
+		normal.Fprintf(stdout, "%s ", display.FormatTime(timestamp))
 		bold.Fprintf(stdout, "[%s]", *event.LogStreamName)
 		normal.Fprintf(stdout, " %s", *event.Message)
 		normal.Fprintln(stdout)

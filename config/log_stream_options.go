@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"gopkg.in/nullstone-io/nullstone.v0/display"
 	"time"
 )
 
@@ -22,11 +23,11 @@ type LogStreamOptions struct {
 func (o LogStreamOptions) QueryTimeMessage() string {
 	if o.StartTime != nil {
 		if o.EndTime != nil {
-			return fmt.Sprintf("Querying logs between %s and %s", o.StartTime.Format(time.RFC822), o.EndTime.Format(time.RFC822))
+			return fmt.Sprintf("Querying logs between %s and %s", display.FormatTimePtr(o.StartTime), display.FormatTimePtr(o.EndTime))
 		}
-		return fmt.Sprintf("Querying logs starting %s", o.StartTime.Format(time.RFC822))
+		return fmt.Sprintf("Querying logs starting %s", display.FormatTimePtr(o.StartTime))
 	} else if o.EndTime != nil {
-		return fmt.Sprintf("Querying logs until %s", o.EndTime.Format(time.RFC822))
+		return fmt.Sprintf("Querying logs until %s", display.FormatTimePtr(o.EndTime))
 	}
 	return fmt.Sprintf("Querying all logs")
 }
