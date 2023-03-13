@@ -1,4 +1,4 @@
-# 0.0.97 (Mar 11, 2023)
+# 0.0.97 (Mar 13, 2023)
 * Changed `nullstone status` display format for times to emit local times using "Mon Jan _2 15:04:05 MST". 
 * Changed `nullstone logs` display format for times to emit local times using "Mon Jan _2 15:04:05 MST". 
 
