@@ -1,5 +1,8 @@
+# 0.0.99 (Mar 30, 2023)
+* Upgraded `deployment-sdk` library to fix GCP GKE deployment support.
+
 # 0.0.98 (Mar 29, 2023)
-* Add support for `cluster-namespace` modules to module generation/creation.
+* Added support for `cluster-namespace` modules to module generation/creation.
 
 # 0.0.97 (Mar 13, 2023)
 * Changed `nullstone status` display format for times to emit local times using "Mon Jan _2 15:04:05 MST". 
