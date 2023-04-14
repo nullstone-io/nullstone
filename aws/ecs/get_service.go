@@ -12,7 +12,7 @@ func GetService(ctx context.Context, infra Outputs) (*ecstypes.Service, error) {
 	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(infra.Deployer, infra.Region))
 	out, err := ecsClient.DescribeServices(ctx, &ecs.DescribeServicesInput{
 		Services: []string{infra.ServiceName},
-		Cluster:  aws.String(infra.Cluster.ClusterArn),
+		Cluster:  aws.String(infra.ClusterArn()),
 	})
 	if err != nil {
 		return nil, err
