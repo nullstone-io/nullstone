@@ -29,7 +29,7 @@ type Remoter struct {
 	Infra     Outputs
 }
 
-func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd string) error {
+func (r Remoter) Exec(ctx context.Context, task string, cmd []string) error {
 	return ExecCommand(ctx, r.Infra, cmd, nil)
 }
 
@@ -39,5 +39,5 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 		return err
 	}
 
-	return ExecCommand(ctx, r.Infra, "/bin/sh", parameters)
+	return ExecCommand(ctx, r.Infra, []string{"/bin/sh"}, parameters)
 }

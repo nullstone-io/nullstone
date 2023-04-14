@@ -24,9 +24,10 @@ var Exec = func(providers admin.Providers) *cli.Command {
 			ContainerFlag,
 		},
 		Action: func(c *cli.Context) error {
-			cmd := "/bin/sh"
-			if c.Args().Len() >= 1 {
-				cmd = c.Args().Get(c.Args().Len() - 1)
+			task := c.String("task")
+			cmd := []string{"/bin/sh"}
+			if c.Args().Present() {
+				cmd = c.Args().Slice()
 			}
 
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {

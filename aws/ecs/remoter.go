@@ -29,8 +29,7 @@ type Remoter struct {
 	Infra     Outputs
 }
 
-func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd string) error {
-	task := options.Task
+func (r Remoter) Exec(ctx context.Context, task string, cmd []string) error {
 	if task == "" {
 		var err error
 		if task, err = GetRandomTask(ctx, r.Infra); err != nil {
@@ -58,5 +57,5 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 		return fmt.Errorf("ecs provider does not support port forwarding")
 	}
 
-	return ExecCommand(ctx, r.Infra, task, options.Container, "/bin/sh", nil)
+	return ExecCommand(ctx, r.Infra, task, []string{"/bin/sh"}, nil)
 }
