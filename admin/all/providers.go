@@ -6,6 +6,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/aws/cloudwatch"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ec2"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
+	"gopkg.in/nullstone-io/nullstone.v0/gcp/gke"
 )
 
 var (
@@ -44,6 +45,13 @@ var (
 		Platform:    "s3",
 		Subplatform: "",
 	}
+	gkeContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppContainer),
+		Provider:    "gcp",
+		Platform:    "k8s",
+		Subplatform: "gke",
+	}
 
 	Providers = admin.Providers{
 		ecsContract: admin.Provider{
@@ -70,6 +78,11 @@ var (
 			NewStatuser:    nil,
 			NewRemoter:     nil,
 			NewLogStreamer: cloudwatch.NewLogStreamer,
+		},
+		gkeContract: admin.Provider{
+			NewStatuser:    nil,
+			NewRemoter:     gke.NewRemoter,
+			NewLogStreamer: nil,
 		},
 	}
 )
