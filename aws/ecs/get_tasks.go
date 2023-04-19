@@ -10,7 +10,7 @@ import (
 func GetTasks(ctx context.Context, infra Outputs) ([]string, error) {
 	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(infra.Deployer, infra.Region))
 	out, err := ecsClient.ListTasks(ctx, &ecs.ListTasksInput{
-		Cluster:     aws.String(infra.Cluster.ClusterArn),
+		Cluster:     aws.String(infra.ClusterArn()),
 		ServiceName: aws.String(infra.ServiceName),
 	})
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 
 func ExecCommand(ctx context.Context, infra Outputs, taskId string, cmd string, parameters map[string][]string) error {
 	region := infra.Region
-	cluster := infra.Cluster.ClusterArn
+	cluster := infra.ClusterArn()
 	containerName := infra.MainContainerName
 	awsConfig := nsaws.NewConfig(infra.Deployer, region)
 
