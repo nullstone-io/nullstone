@@ -1,3 +1,7 @@
+# 0.0.100 (Apr 17, 2023)
+* Added support for `cluster-namespace` on container apps.
+* Dropped `service_` prefix from variables generated from `nullstone modules generate`.
+
 # 0.0.99 (Mar 30, 2023)
 * Upgraded `deployment-sdk` library to fix GCP GKE deployment support.
 
