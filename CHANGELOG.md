@@ -1,3 +1,7 @@
+# 0.0.101 (Unreleased)
+* Added `domain_fqdn` local when generating a domain module.
+* Renamed `domain_name` local to `domain_dns_name` when generating a domain module.
+
 # 0.0.100 (Apr 17, 2023)
 * Added support for `cluster-namespace` on container apps.
 * Dropped `service_` prefix from variables generated from `nullstone modules generate`.

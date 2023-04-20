@@ -12,7 +12,8 @@ var (
 }
 
 locals {
-  domain_name = data.ns_domain.this.dns_name
+  domain_dns_name = data.ns_domain.this.dns_name
+  domain_fqdn     = "${local.domain_dns_name}."
 }
 `
 )
