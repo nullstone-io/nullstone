@@ -11,11 +11,14 @@ var (
 )
 
 // OrgFlag defines a flag that the CLI uses
-//   to contextualize API calls by that organization within Nullstone
+//
+//	to contextualize API calls by that organization within Nullstone
+//
 // The organization takes the following precedence:
-//   `--org` flag
-//   `NULLSTONE_ORG` env var
-//   `~/.nullstone/<profile>/org` file
+//
+//	`--org` flag
+//	`NULLSTONE_ORG` env var
+//	`~/.nullstone/<profile>/org` file
 var OrgFlag = &cli.StringFlag{
 	Name:    "org",
 	EnvVars: []string{"NULLSTONE_ORG"},
