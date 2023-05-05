@@ -40,7 +40,7 @@ func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd stri
 		}
 	}
 
-	return ExecCommand(ctx, r.Infra, task, cmd, nil)
+	return ExecCommand(ctx, r.Infra, task, options.Container, cmd, nil)
 }
 
 func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
@@ -58,5 +58,5 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 		return fmt.Errorf("ecs provider does not support port forwarding")
 	}
 
-	return ExecCommand(ctx, r.Infra, task, "/bin/sh", nil)
+	return ExecCommand(ctx, r.Infra, task, options.Container, "/bin/sh", nil)
 }
