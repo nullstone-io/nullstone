@@ -8,7 +8,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ssm"
-	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
 func NewRemoter(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (admin.Remoter, error) {
@@ -30,12 +29,12 @@ type Remoter struct {
 	Infra     Outputs
 }
 
-func (r Remoter) Exec(ctx context.Context, task string, cmd string) error {
+func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd string) error {
 	return ExecCommand(ctx, r.Infra, cmd, nil)
 }
 
-func (r Remoter) Ssh(ctx context.Context, task string, forwards []config.PortForward) error {
-	parameters, err := ssm.SessionParametersFromPortForwards(forwards)
+func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
+	parameters, err := ssm.SessionParametersFromPortForwards(options.PortForwards)
 	if err != nil {
 		return err
 	}

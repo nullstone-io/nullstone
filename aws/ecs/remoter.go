@@ -8,7 +8,6 @@ import (
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
-	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
 func NewRemoter(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (admin.Remoter, error) {
@@ -30,7 +29,8 @@ type Remoter struct {
 	Infra     Outputs
 }
 
-func (r Remoter) Exec(ctx context.Context, task string, cmd string) error {
+func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd string) error {
+	task := options.Task
 	if task == "" {
 		var err error
 		if task, err = GetRandomTask(ctx, r.Infra); err != nil {
@@ -43,7 +43,8 @@ func (r Remoter) Exec(ctx context.Context, task string, cmd string) error {
 	return ExecCommand(ctx, r.Infra, task, cmd, nil)
 }
 
-func (r Remoter) Ssh(ctx context.Context, task string, forwards []config.PortForward) error {
+func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
+	task := options.Task
 	if task == "" {
 		var err error
 		if task, err = GetRandomTask(ctx, r.Infra); err != nil {
@@ -53,7 +54,7 @@ func (r Remoter) Ssh(ctx context.Context, task string, forwards []config.PortFor
 		}
 	}
 
-	if len(forwards) > 0 {
+	if len(options.PortForwards) > 0 {
 		return fmt.Errorf("ecs provider does not support port forwarding")
 	}
 

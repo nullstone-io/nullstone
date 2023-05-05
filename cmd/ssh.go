@@ -23,6 +23,8 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 			AppFlag,
 			EnvFlag,
 			TaskFlag,
+			ReplicaFlag,
+			ContainerFlag,
 			&cli.StringSliceFlag{
 				Name:    "forward",
 				Aliases: []string{"L"},
@@ -30,8 +32,6 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			task := c.String("task")
-
 			forwards := make([]config.PortForward, 0)
 			for _, arg := range c.StringSlice("forward") {
 				pf, err := config.ParsePortForward(arg)
@@ -51,7 +51,13 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 					return fmt.Errorf("The Nullstone CLI does not currently support the ssh command for the %q application. (Module = %s/%s, App Category = app/%s, Platform = %s)",
 						appDetails.App.Name, module.OrgName, module.Name, module.Subcategory, platform)
 				}
-				return remoter.Ssh(ctx, task, forwards)
+				options := admin.RemoteOptions{
+					Task:         c.String("task"),
+					Replica:      c.String("replica"),
+					Container:    c.String("container"),
+					PortForwards: forwards,
+				}
+				return remoter.Ssh(ctx, options)
 			})
 		},
 	}
