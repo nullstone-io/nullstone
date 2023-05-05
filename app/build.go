@@ -8,24 +8,11 @@ import (
 	"sort"
 )
 
-var (
-	version = "dev"
-	commit  = "none"
-	date    = "unknown"
-	builtBy = "unknown"
-)
-
 func Build() *cli.App {
 	appProviders := allApp.Providers
 	adminProviders := allAdmin.Providers
 
 	cliApp := cli.NewApp()
-	cliApp.Version = version
-	cliApp.Metadata = map[string]interface{}{
-		"commit":  commit,
-		"date":    date,
-		"builtBy": builtBy,
-	}
 	cliApp.EnableBashCompletion = true
 	cliApp.Flags = []cli.Flag{
 		cmd.ProfileFlag,

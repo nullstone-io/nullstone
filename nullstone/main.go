@@ -8,8 +8,21 @@ import (
 	"os"
 )
 
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	builtBy = "unknown"
+)
+
 func main() {
 	cliApp := app.Build()
+	cliApp.Version = version
+	cliApp.Metadata = map[string]interface{}{
+		"commit":  commit,
+		"date":    date,
+		"builtBy": builtBy,
+	}
 
 	err := cliApp.Run(os.Args)
 	if err != nil {
