@@ -9,7 +9,8 @@ import (
 // TableBuffer builds a table of data to display on the terminal
 // The TableBuffer guarantees safe merging of rows with potentially different field names
 // Example: If a user is migrating an app from container to serverless,
-//   it's possible that the infrastructure has not fully propagated
+//
+//	it's possible that the infrastructure has not fully propagated
 type TableBuffer struct {
 	Fields   []string
 	HasField map[string]bool

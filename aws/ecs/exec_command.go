@@ -6,10 +6,12 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ssm"
 )
 
-func ExecCommand(ctx context.Context, infra Outputs, taskId string, cmd string, parameters map[string][]string) error {
+func ExecCommand(ctx context.Context, infra Outputs, taskId string, containerName string, cmd string, parameters map[string][]string) error {
 	region := infra.Region
 	cluster := infra.ClusterArn()
-	containerName := infra.MainContainerName
+	if containerName == "" {
+		containerName = infra.MainContainerName
+	}
 	awsConfig := nsaws.NewConfig(infra.Deployer, region)
 
 	return ssm.StartEcsSession(ctx, awsConfig, region, cluster, taskId, containerName, cmd, parameters)

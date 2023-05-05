@@ -9,8 +9,8 @@ import (
 
 // GetRunConfig loads the effective run config for a workspace
 // This does the following:
-//   1. Pull the latest run config for the workspace
-//   2. Scan module in local file system for `ns_connection` that have not been added to run config
+//  1. Pull the latest run config for the workspace
+//  2. Scan module in local file system for `ns_connection` that have not been added to run config
 func GetRunConfig(cfg api.Config, workspace Manifest) (types.RunConfig, error) {
 	client := api.Client{Config: cfg}
 	uid, _ := uuid.Parse(workspace.WorkspaceUid)

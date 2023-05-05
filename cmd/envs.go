@@ -155,7 +155,7 @@ var EnvsDelete = &cli.Command{
 	Name:        "delete",
 	Description: "Deletes the given environment. Before issuing this command, make sure you have destroyed all infrastructure in the environment. If you are deleting a preview environment, you can use the `--force` flag to skip the confirmation prompt.",
 	Usage:       "Create new environment",
-	UsageText: "nullstone envs delete --stack=<stack> --env=<env>	[--force]",
+	UsageText:   "nullstone envs delete --stack=<stack> --env=<env>	[--force]",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		EnvFlag,
