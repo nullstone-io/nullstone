@@ -9,6 +9,8 @@ builds:
       - windows
       - darwin
     main: ./nullstone
+    ldflags:
+      - -X "app.version={{.Env.CLI_VERSION}}"
 archives:
   - files:
       - README.md

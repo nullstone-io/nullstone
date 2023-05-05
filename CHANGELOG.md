@@ -1,4 +1,5 @@
 # 0.0.102 (Unreleased)
+* Fixed `nullstone --version` reporting the correct version instead of `dev`.
 * Added support for `--container` when using `nullstone ssh|exec` commands for an ECS/Fargate app.
 
 # 0.0.101 (Apr 28, 2023)
