@@ -1,4 +1,7 @@
-# 0.0.101 (Unreleased)
+# 0.0.102 (Unreleased)
+* Added support for `--container` when using `nullstone ssh|exec` commands for an ECS/Fargate app.
+
+# 0.0.101 (Apr 28, 2023)
 * Added `domain_fqdn` local when generating a domain module.
 * Renamed `domain_name` local to `domain_dns_name` when generating a domain module.
 
