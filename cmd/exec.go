@@ -20,11 +20,10 @@ var Exec = func(providers admin.Providers) *cli.Command {
 			AppFlag,
 			EnvFlag,
 			TaskFlag,
-			ReplicaFlag,
+			PodFlag,
 			ContainerFlag,
 		},
 		Action: func(c *cli.Context) error {
-			task := c.String("task")
 			cmd := []string{"/bin/sh"}
 			if c.Args().Present() {
 				cmd = c.Args().Slice()
@@ -37,7 +36,7 @@ var Exec = func(providers admin.Providers) *cli.Command {
 				}
 				options := admin.RemoteOptions{
 					Task:      c.String("task"),
-					Replica:   c.String("replica"),
+					Pod:       c.String("pod"),
 					Container: c.String("container"),
 				}
 				return remoter.Exec(ctx, options, cmd)

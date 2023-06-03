@@ -6,8 +6,11 @@ import (
 )
 
 type RemoteOptions struct {
-	Task         string
-	Replica      string
+	// Task refers to the ECS task id for remote access if using ECS
+	Task string
+	// Pod refers to the k8s pod for remote access if using k8s
+	Pod string
+	// Container represents the specific container name for remote access in the k8s pod or ecs task
 	Container    string
 	PortForwards []config.PortForward
 }
