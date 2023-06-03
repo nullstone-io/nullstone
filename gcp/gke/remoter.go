@@ -8,7 +8,6 @@ import (
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
-	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"gopkg.in/nullstone-io/nullstone.v0/k8s"
 	"os"
 )
@@ -32,7 +31,7 @@ type Remoter struct {
 	Infra     Outputs
 }
 
-func (r Remoter) Exec(ctx context.Context, task string, cmd []string) error {
+func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
 	opts := &k8s.ExecOptions{
 		In:     nil,
 		Out:    r.OsWriters.Stdout(),
@@ -40,19 +39,19 @@ func (r Remoter) Exec(ctx context.Context, task string, cmd []string) error {
 		TTY:    false,
 	}
 
-	return ExecCommand(ctx, r.Infra, task, cmd, opts)
+	return ExecCommand(ctx, r.Infra, options.Pod, options.Container, cmd, opts)
 }
 
-func (r Remoter) Ssh(ctx context.Context, task string, forwards []config.PortForward) error {
+func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 	opts := &k8s.ExecOptions{
 		In:     os.Stdin,
 		Out:    r.OsWriters.Stdout(),
 		ErrOut: r.OsWriters.Stderr(),
 		TTY:    true,
 	}
-	if len(forwards) > 0 {
+	if len(options.PortForwards) > 0 {
 		return fmt.Errorf("gke provider does not support port forwarding yet")
 	}
 
-	return ExecCommand(ctx, r.Infra, task, []string{"/bin/sh"}, opts)
+	return ExecCommand(ctx, r.Infra, options.Pod, options.Container, []string{"/bin/sh"}, opts)
 }
