@@ -8,7 +8,6 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
 	"net/http"
-	"os"
 )
 
 func ExecCommand(ctx context.Context, cfg *rest.Config, podNamespace, podName, containerName string, cmd []string, opts *ExecOptions) error {
@@ -43,9 +42,9 @@ func ExecCommand(ctx context.Context, cfg *rest.Config, podNamespace, podName, c
 		}
 
 		return executor.StreamWithContext(ctx, remotecommand.StreamOptions{
-			Stdin:             os.Stdin,
-			Stdout:            os.Stdout,
-			Stderr:            os.Stderr,
+			Stdin:             opts.In,
+			Stdout:            opts.Out,
+			Stderr:            opts.ErrOut,
 			Tty:               opts.TTY,
 			TerminalSizeQueue: sizeQueue,
 		})
