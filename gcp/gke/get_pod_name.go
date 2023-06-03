@@ -32,7 +32,7 @@ func GetPodName(ctx context.Context, cfg *rest.Config, infra Outputs, pod string
 
 	// If replicas>1, the pods have unique names, but the replicaset has name=<service-name>
 	// Let's look for pods by replicaset first
-	listOptions := meta_v1.ListOptions{FieldSelector: fmt.Sprintf("replicaset=%s", name)}
+	listOptions := meta_v1.ListOptions{LabelSelector: fmt.Sprintf("replicaset=%s", name)}
 	podsOutput, err := kubeClient.CoreV1().Pods(infra.ServiceNamespace).List(ctx, listOptions)
 	if err != nil {
 		return "", err
