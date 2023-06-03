@@ -18,7 +18,7 @@ type RemoteOptions struct {
 type Remoter interface {
 	// Exec allows a user to execute a command (usually tunneling) into a running service
 	// This only makes sense for container-based providers
-	Exec(ctx context.Context, task string, cmd []string) error
+	Exec(ctx context.Context, options RemoteOptions, cmd []string) error
 
 	// Ssh allows a user to SSH into a running service
 	Ssh(ctx context.Context, options RemoteOptions) error

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ExecCommand(ctx context.Context, infra Outputs, taskId string, cmd []string, parameters map[string][]string) error {
+func ExecCommand(ctx context.Context, infra Outputs, taskId string, containerName string, cmd []string, parameters map[string][]string) error {
 	region := infra.Region
 	cluster := infra.ClusterArn()
 	if containerName == "" {

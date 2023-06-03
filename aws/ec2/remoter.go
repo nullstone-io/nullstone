@@ -29,7 +29,7 @@ type Remoter struct {
 	Infra     Outputs
 }
 
-func (r Remoter) Exec(ctx context.Context, task string, cmd []string) error {
+func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
 	return ExecCommand(ctx, r.Infra, cmd, nil)
 }
 
