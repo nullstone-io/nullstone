@@ -3,7 +3,8 @@ package gke
 import (
 	"github.com/nullstone-io/deployment-sdk/docker"
 	"github.com/nullstone-io/deployment-sdk/gcp"
-	"github.com/nullstone-io/deployment-sdk/k8s"
+	"github.com/nullstone-io/deployment-sdk/gcp/gke"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 type Outputs struct {
@@ -21,11 +22,8 @@ type ClusterNamespaceOutputs struct {
 	ClusterCACertificate string `ns:"cluster_ca_certificate"`
 }
 
-func (o ClusterNamespaceOutputs) ClusterInfo() k8s.ClusterInfo {
-	return k8s.ClusterInfo{
-		Endpoint:      o.ClusterEndpoint,
-		CACertificate: o.ClusterCACertificate,
-	}
+func (o ClusterNamespaceOutputs) ClusterInfo() (clientcmdapi.Cluster, error) {
+	return gke.GetClusterInfo(o.ClusterEndpoint, o.ClusterCACertificate)
 }
 
 type ClusterOutputs struct {
@@ -33,9 +31,6 @@ type ClusterOutputs struct {
 	ClusterCACertificate string `ns:"cluster_ca_certificate"`
 }
 
-func (o ClusterOutputs) ClusterInfo() k8s.ClusterInfo {
-	return k8s.ClusterInfo{
-		Endpoint:      o.ClusterEndpoint,
-		CACertificate: o.ClusterCACertificate,
-	}
+func (o ClusterOutputs) ClusterInfo() (clientcmdapi.Cluster, error) {
+	return gke.GetClusterInfo(o.ClusterEndpoint, o.ClusterCACertificate)
 }
