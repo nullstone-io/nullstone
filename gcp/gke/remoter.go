@@ -33,7 +33,7 @@ type Remoter struct {
 
 func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
 	opts := &k8s.ExecOptions{
-		In:     nil,
+		In:     os.Stdin,
 		Out:    r.OsWriters.Stdout(),
 		ErrOut: r.OsWriters.Stderr(),
 		TTY:    false,
