@@ -1,3 +1,8 @@
+# 0.0.103 (Jun 07, 2023)
+* Added support for `nullstone ssh` for GKE apps.
+* Added support for `nullstone logs` for GKE apps.
+* Fixed colorization of logs output on Windows.
+
 # 0.0.102 (May 04, 2023)
 * Fixed `nullstone --version` reporting the correct version instead of `dev`.
 * Added support for `--container` when using `nullstone ssh|exec` commands for an ECS/Fargate app.

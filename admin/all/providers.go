@@ -82,7 +82,7 @@ var (
 		gkeContract: admin.Provider{
 			NewStatuser:    nil,
 			NewRemoter:     gke.NewRemoter,
-			NewLogStreamer: nil,
+			NewLogStreamer: gke.NewLogStreamer,
 		},
 	}
 )
