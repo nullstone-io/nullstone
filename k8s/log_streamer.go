@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
@@ -14,29 +13,27 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/kubectl/pkg/polymorphichelpers"
-	"log"
-	"os"
 	"regexp"
 	"sync"
 	"time"
 )
 
 var (
-	logger                         = log.New(os.Stderr, "", 0)
-	infoLogger                     = log.New(logger.Writer(), "    ", 0)
-	bold                           = color.New(color.Bold)
-	normal                         = color.New()
 	getPodTimeout                  = 20 * time.Second
 	maxFollowConcurrency           = 10
 	containerNameFromRefSpecRegexp = regexp.MustCompile(`spec\.(?:initContainers|containers|ephemeralContainers){(.+)}`)
 )
+
+type NewConfiger func(ctx context.Context) (*rest.Config, error)
+type MessageEmitter func(w io.Writer, podName, containerName, line string) error
 
 type LogStreamer struct {
 	OsWriters    logging.OsWriters
 	Details      app.Details
 	AppNamespace string
 	AppName      string
-	NewConfigFn  func(ctx context.Context) (*rest.Config, error)
+	NewConfigFn  NewConfiger
+	Emitter      MessageEmitter
 }
 
 func (l LogStreamer) Stream(ctx context.Context, options config.LogStreamOptions) error {
@@ -95,7 +92,7 @@ func (l LogStreamer) emitParallel(ctx context.Context, requests map[corev1.Objec
 	for ref, request := range requests {
 		go func(ref corev1.ObjectReference, request rest.ResponseWrapper) {
 			defer wg.Done()
-			if err := l.writeRequest(ctx, ref, request, stdout); err != nil {
+			if err := l.writeRequest(ctx, ref, request); err != nil {
 				fmt.Fprintf(stderr, "unable to write logs: %s\n", err)
 			}
 		}(ref, request)
@@ -111,47 +108,42 @@ func (l LogStreamer) emitParallel(ctx context.Context, requests map[corev1.Objec
 }
 
 func (l LogStreamer) emitSequential(ctx context.Context, requests map[corev1.ObjectReference]rest.ResponseWrapper) error {
-	stdout := l.OsWriters.Stdout()
 	for ref, request := range requests {
-		if err := l.writeRequest(ctx, ref, request, stdout); err != nil {
+		if err := l.writeRequest(ctx, ref, request); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (l LogStreamer) writeRequest(ctx context.Context, ref corev1.ObjectReference, request rest.ResponseWrapper, out io.Writer) error {
+func (l LogStreamer) writeRequest(ctx context.Context, ref corev1.ObjectReference, request rest.ResponseWrapper) error {
+	stdout := l.OsWriters.Stdout()
 	readCloser, err := request.Stream(ctx)
 	if err != nil {
 		return err
 	}
 	defer readCloser.Close()
 
-	prefix := l.streamPrefix(ref)
+	podName, containerName := l.parseRef(ref)
 
 	r := bufio.NewReader(readCloser)
 	for {
-		bytes, err := r.ReadBytes('\n')
-		if prefix != "" {
-			if _, err := bold.Fprint(out, prefix); err != nil {
-				return err
-			}
-		}
-		if _, err := normal.Fprint(out, string(bytes)); err != nil {
+		str, readErr := r.ReadString('\n')
+		if err := l.Emitter(stdout, podName, containerName, str); err != nil {
 			return err
 		}
-		if err != nil {
-			if err != io.EOF {
-				return err
+		if readErr != nil {
+			if readErr == io.EOF {
+				return nil
 			}
-			return nil
+			return readErr
 		}
 	}
 }
 
-func (l LogStreamer) streamPrefix(ref corev1.ObjectReference) string {
+func (l LogStreamer) parseRef(ref corev1.ObjectReference) (string, string) {
 	if ref.FieldPath == "" || ref.Name == "" {
-		return ""
+		return ref.Name, ""
 	}
 
 	// We rely on ref.FieldPath to contain a reference to a container
@@ -163,5 +155,5 @@ func (l LogStreamer) streamPrefix(ref corev1.ObjectReference) string {
 		containerName = containerNameMatches[1]
 	}
 
-	return fmt.Sprintf("[%s/%s] ", ref.Name, containerName)
+	return ref.Name, containerName
 }
