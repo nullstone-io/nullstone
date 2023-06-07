@@ -1,4 +1,4 @@
-# 0.0.103 (Unreleased)
+# 0.0.103 (Jun 07, 2023)
 * Added support for `nullstone ssh` for GKE apps.
 * Added support for `nullstone logs` for GKE apps.
 * Fixed colorization of logs output on Windows.
