@@ -1,6 +1,3 @@
-before:
-  hooks:
-    - go mod tidy
 builds:
   - env:
       - CGO_ENABLED=0
@@ -29,7 +26,7 @@ brews:
       name: nullstone
     folder: Formula
     homepage: https://nullstone.io
-    description: Launch apps on your cloud in minutes
+    description: An internal developer platform running on your cloud
     license: MIT
     install: |-
       bin.install "nullstone"
@@ -38,7 +35,7 @@ scoop:
     owner: nullstone-io
     name: nullstone
   homepage: https://nullstone.io
-  description: Launch apps on your cloud in minutes
+  description: An internal developer platform running on your cloud
   license: MIT
 snapcrafts:
   - id: nullstone
