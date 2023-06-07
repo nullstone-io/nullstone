@@ -2,8 +2,6 @@ module gopkg.in/nullstone-io/nullstone.v0
 
 go 1.19
 
-replace github.com/nullstone-io/deployment-sdk => ../deployment-sdk
-
 require (
 	github.com/aws/aws-sdk-go-v2 v1.17.3
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.7.2
@@ -12,7 +10,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
-	github.com/nullstone-io/deployment-sdk v0.0.0-20230606180510-64f0cd271361
+	github.com/nullstone-io/deployment-sdk v0.0.0-20230607131224-81f3266ed83c
 	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.8.1
