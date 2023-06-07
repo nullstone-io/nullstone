@@ -58,7 +58,7 @@ func NewLogStreamer(osWriters logging.OsWriters, nsConfig api.Config, appDetails
 }
 
 func cutTimestampPrefix(line string) (*time.Time, string) {
-	if before, after, found := strings.Cut(line, ""); found {
+	if before, after, found := strings.Cut(line, " "); found {
 		if ts, parseErr := time.Parse(time.RFC3339, before); parseErr == nil {
 			return &ts, after
 		}
