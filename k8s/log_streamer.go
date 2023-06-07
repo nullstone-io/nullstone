@@ -129,8 +129,10 @@ func (l LogStreamer) writeRequest(ctx context.Context, ref corev1.ObjectReferenc
 	r := bufio.NewReader(readCloser)
 	for {
 		str, readErr := r.ReadString('\n')
-		if err := l.Emitter(stdout, podName, containerName, str); err != nil {
-			return err
+		if str != "" {
+			if err := l.Emitter(stdout, podName, containerName, str); err != nil {
+				return err
+			}
 		}
 		if readErr != nil {
 			if readErr == io.EOF {
