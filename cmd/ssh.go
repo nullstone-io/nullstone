@@ -23,7 +23,7 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 			AppFlag,
 			EnvFlag,
 			TaskFlag,
-			ReplicaFlag,
+			PodFlag,
 			ContainerFlag,
 			&cli.StringSliceFlag{
 				Name:    "forward",
@@ -53,7 +53,7 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 				}
 				options := admin.RemoteOptions{
 					Task:         c.String("task"),
-					Replica:      c.String("replica"),
+					Pod:          c.String("pod"),
 					Container:    c.String("container"),
 					PortForwards: forwards,
 				}

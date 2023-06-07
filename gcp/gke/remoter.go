@@ -1,4 +1,4 @@
-package ecs
+package gke
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
+	"gopkg.in/nullstone-io/nullstone.v0/k8s"
+	"os"
 )
 
 func NewRemoter(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (admin.Remoter, error) {
@@ -30,33 +32,26 @@ type Remoter struct {
 }
 
 func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
-	taskId, err := r.getTaskId(ctx, options)
-	if err != nil {
-		return err
+	opts := &k8s.ExecOptions{
+		In:     os.Stdin,
+		Out:    r.OsWriters.Stdout(),
+		ErrOut: r.OsWriters.Stderr(),
+		TTY:    false,
 	}
-	return ExecCommand(ctx, r.Infra, taskId, options.Container, cmd, nil)
+
+	return ExecCommand(ctx, r.Infra, options.Pod, options.Container, cmd, opts)
 }
 
 func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
-	taskId, err := r.getTaskId(ctx, options)
-	if err != nil {
-		return err
+	opts := &k8s.ExecOptions{
+		In:     os.Stdin,
+		Out:    r.OsWriters.Stdout(),
+		ErrOut: r.OsWriters.Stderr(),
+		TTY:    true,
 	}
 	if len(options.PortForwards) > 0 {
-		return fmt.Errorf("ecs provider does not support port forwarding")
+		return fmt.Errorf("gke provider does not support port forwarding yet")
 	}
-	return ExecCommand(ctx, r.Infra, taskId, options.Container, []string{"/bin/sh"}, nil)
-}
 
-func (r Remoter) getTaskId(ctx context.Context, options admin.RemoteOptions) (string, error) {
-	if options.Task == "" {
-		if taskId, err := GetRandomTask(ctx, r.Infra); err != nil {
-			return "", err
-		} else if taskId == "" {
-			return "", fmt.Errorf("cannot exec command with no running tasks")
-		} else {
-			return taskId, nil
-		}
-	}
-	return options.Task, nil
+	return ExecCommand(ctx, r.Infra, options.Pod, options.Container, []string{"/bin/sh"}, opts)
 }

@@ -8,11 +8,12 @@ var TaskFlag = &cli.StringFlag{
 		This is optional and by default will connect to a random task.
         This is only used by ECS and determines which task to connect.`,
 }
-var ReplicaFlag = &cli.StringFlag{
-	Name: "replica",
-	Usage: `Select a specific replica to execute the command against.
-		This is optional and by default will connect to a random replica.
-        This is only used by Kubernetes clusters and determines which replica of the pod to connect.`,
+var PodFlag = &cli.StringFlag{
+	Name: "pod",
+	Usage: `Select a pod to execute the command against.
+        When specified, allows you to connect to a specific pod within a replica set.
+        This is optional and will connect to a random pod by default.
+        This is only used by Kubernetes clusters and determines which pod in the replica to connect.`,
 }
 
 var ContainerFlag = &cli.StringFlag{
