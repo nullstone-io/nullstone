@@ -9,7 +9,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/k8s"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 func NewLogStreamer(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (admin.LogStreamer, error) {
@@ -23,8 +23,8 @@ func NewLogStreamer(osWriters logging.OsWriters, nsConfig api.Config, appDetails
 		Details:      appDetails,
 		AppNamespace: outs.ServiceNamespace,
 		AppName:      outs.ServiceName,
-		NewClientFn: func(ctx context.Context) (*kubernetes.Clientset, error) {
-			return gke.CreateKubeClient(ctx, outs.ClusterNamespace, outs.Deployer)
+		NewConfigFn: func(ctx context.Context) (*rest.Config, error) {
+			return gke.CreateKubeConfig(ctx, outs.ClusterNamespace, outs.Deployer)
 		},
 	}, nil
 }

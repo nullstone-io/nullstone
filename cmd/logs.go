@@ -62,6 +62,9 @@ var Logs = func(providers admin.Providers) *cli.Command {
 			if c.IsSet("start-time") {
 				absoluteTime := time.Now().Add(-c.Duration("start-time"))
 				logStreamOptions.StartTime = &absoluteTime
+			} else {
+				absoluteTime := time.Now()
+				logStreamOptions.StartTime = &absoluteTime
 			}
 			if c.IsSet("end-time") {
 				absoluteTime := time.Now().Add(-c.Duration("end-time"))

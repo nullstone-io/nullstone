@@ -36,13 +36,17 @@ type LogStreamer struct {
 	Details      app.Details
 	AppNamespace string
 	AppName      string
-	NewClientFn  func(ctx context.Context) (*kubernetes.Clientset, error)
+	NewConfigFn  func(ctx context.Context) (*rest.Config, error)
 }
 
 func (l LogStreamer) Stream(ctx context.Context, options config.LogStreamOptions) error {
 	appLabel := fmt.Sprintf("nullstone.io/app=%s", l.AppName)
 
-	client, err := l.NewClientFn(ctx)
+	cfg, err := l.NewConfigFn(ctx)
+	if err != nil {
+		return fmt.Errorf("error configuring kubernetes client: %w", err)
+	}
+	client, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
 		return fmt.Errorf("error creating kubernetes client: %w", err)
 	}
@@ -54,9 +58,8 @@ func (l LogStreamer) Stream(ctx context.Context, options config.LogStreamOptions
 		return fmt.Errorf("no pods found for app %q in namespace %q", l.AppName, l.AppNamespace)
 	}
 
-	// TODO: restClientGetter
 	logOptions := NewPodLogOptions(options)
-	requests, err := polymorphichelpers.LogsForObjectFn(nil, pods, logOptions, getPodTimeout, true)
+	requests, err := polymorphichelpers.LogsForObjectFn(RestClientGetter{Config: cfg}, pods, logOptions, getPodTimeout, true)
 	if err != nil {
 		return err
 	}
