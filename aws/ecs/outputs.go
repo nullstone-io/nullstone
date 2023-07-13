@@ -5,11 +5,15 @@ import (
 )
 
 type Outputs struct {
-	Region            string     `ns:"region"`
-	ServiceName       string     `ns:"service_name"`
-	TaskArn           string     `ns:"task_arn"`
-	MainContainerName string     `ns:"main_container_name,optional"`
-	Deployer          nsaws.User `ns:"deployer,optional"`
+	Region string `ns:"region"`
+	// ServiceName is "" when the app is a task
+	ServiceName        string     `ns:"service_name"`
+	TaskArn            string     `ns:"task_arn"`
+	MainContainerName  string     `ns:"main_container_name,optional"`
+	Deployer           nsaws.User `ns:"deployer,optional"`
+	AppSecurityGroupId string     `ns:"app_security_group_id,optional"`
+	// TaskSubnetIds is only specified when the app is a task
+	TaskSubnetIds []string `ns:"task_subnet_ids,optional"`
 
 	Cluster          ClusterOutputs          `ns:",connectionContract:cluster/aws/ecs:*,optional"`
 	ClusterNamespace ClusterNamespaceOutputs `ns:",connectionContract:cluster-namespace/aws/ecs:*,optional"`

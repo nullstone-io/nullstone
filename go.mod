@@ -10,6 +10,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
+	github.com/hashicorp/go-multierror v1.0.0
 	github.com/nullstone-io/deployment-sdk v0.0.0-20230607131224-81f3266ed83c
 	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible
@@ -115,6 +116,7 @@ require (
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7 // indirect
+	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

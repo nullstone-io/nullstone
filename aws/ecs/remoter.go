@@ -30,6 +30,10 @@ type Remoter struct {
 }
 
 func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
+	if r.Infra.ServiceName == "" {
+		// If there is no ServiceName, this is a task that is invokable
+		return RunTask(ctx, r.Infra, options, cmd)
+	}
 	taskId, err := r.getTaskId(ctx, options)
 	if err != nil {
 		return err
