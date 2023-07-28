@@ -172,7 +172,7 @@ var ModulesPublish = &cli.Command{
 			defer tarball.Close()
 
 			client := api.Client{Config: cfg}
-			if err := client.Org(manifest.OrgName).ModuleVersions().Create(manifest.Name, version, tarball); err != nil {
+			if err := client.ModuleVersions().Create(manifest.OrgName, manifest.Name, version, tarball); err != nil {
 				return err
 			}
 			fmt.Fprintf(os.Stderr, "Published %s/%s@%s\n", manifest.OrgName, manifest.Name, version)
