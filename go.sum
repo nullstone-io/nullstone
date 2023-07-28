@@ -1501,8 +1501,8 @@ gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2/go.mod h1:Xk6kEKp8OKb+X14hQBKW
 gopkg.in/inf.v0 v0.9.1 h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
 gopkg.in/inf.v0 v0.9.1/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=
 gopkg.in/natefinch/lumberjack.v2 v2.0.0/go.mod h1:l0ndWWf7gzL7RNwBG7wST/UCcT4T24xpD6X8LsfU/+k=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20230418131255-5f3761a283b3 h1:HR09PNDqA4mM5r5TwOzgFVqQvAIRI/6X7q2eX93pS3I=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20230418131255-5f3761a283b3/go.mod h1:2zMwhz2lArnK8cPNYLStJoAtOPQMq01GPguwwpqH7I8=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20230728151954-1fc220abf16c h1:GuMCwAN1HqLDhe8zYSvoy2eZ/SfDtDAQhH9HRpucO3Y=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20230728151954-1fc220abf16c/go.mod h1:2zMwhz2lArnK8cPNYLStJoAtOPQMq01GPguwwpqH7I8=
 gopkg.in/resty.v1 v1.12.0/go.mod h1:mDo4pnntr5jdWRML875a/NmxYqAlA73dVijT2AXvQQo=
 gopkg.in/rethinkdb/rethinkdb-go.v6 v6.2.1 h1:d4KQkxAaAiRY2h5Zqis161Pv91A37uZyJOx73duwUwM=
 gopkg.in/rethinkdb/rethinkdb-go.v6 v6.2.1/go.mod h1:WbjuEoo1oadwzQ4apSDU+JTvmllEHtsNHS6y7vFc7iw=
