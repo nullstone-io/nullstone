@@ -23,8 +23,8 @@ func Register(cfg api.Config, manifest *Manifest) (*types.Module, error) {
 	}
 
 	client := api.Client{Config: cfg}
-	if err := client.Org(module.OrgName).Modules().Create(module); err != nil {
+	if err := client.Modules().Create(module.OrgName, module); err != nil {
 		return nil, err
 	}
-	return client.Org(module.OrgName).Modules().Get(module.Name)
+	return client.Modules().Get(module.OrgName, module.Name)
 }

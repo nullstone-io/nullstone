@@ -265,10 +265,18 @@ func createPipelineEnv(client api.Client, stackId int64, name, providerName, reg
 }
 
 func createPreviewEnv(client api.Client, stackId int64, name string) error {
-	env, err := client.PreviewEnvs().Create(stackId, &api.CreatePreviewEnvInput{Name: name})
+	env, err := client.Environments().Create(stackId, &types.Environment{
+		OrgName: client.Config.OrgName,
+		StackId: stackId,
+		Name:    name,
+		Type:    types.EnvTypePreview,
+	})
 	if err != nil {
 		return fmt.Errorf("error creating preview environment: %w", err)
+	} else if env == nil {
+		return fmt.Errorf("unable to create preview environment")
 	}
+
 	fmt.Printf("created %q preview environment\n", env.Name)
 	return nil
 }

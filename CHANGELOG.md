@@ -1,3 +1,6 @@
+# 0.0.104 (Jul 28, 2023)
+* Fixed nil panic when specifying `--stack` that does not exist.
+
 # 0.0.103 (Jun 07, 2023)
 * Added support for `nullstone ssh` for GKE apps.
 * Added support for `nullstone logs` for GKE apps.
