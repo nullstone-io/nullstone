@@ -5,6 +5,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ec2"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/eks"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/gke"
 )
 
@@ -15,6 +16,13 @@ var (
 		Provider:    "aws",
 		Platform:    "ecs",
 		Subplatform: "*",
+	}
+	eksContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppContainer),
+		Provider:    "aws",
+		Platform:    "k8s",
+		Subplatform: "eks",
 	}
 	beanstalkContract = types.ModuleContractName{
 		Category:    string(types.CategoryApp),
@@ -64,6 +72,10 @@ var (
 		ec2Contract: admin.Provider{
 			NewStatuser: nil,
 			NewRemoter:  ec2.NewRemoter,
+		},
+		eksContract: admin.Provider{
+			NewStatuser: nil, // TODO: eks.NewStatuser
+			NewRemoter:  eks.NewRemoter,
 		},
 		lambdaContract: admin.Provider{
 			NewStatuser: nil,
