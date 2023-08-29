@@ -1,11 +1,15 @@
 package all
 
 import (
+	aws_lambda_container "github.com/nullstone-io/deployment-sdk/app/serverless/aws-lambda-container"
+	aws_lambda_zip "github.com/nullstone-io/deployment-sdk/app/serverless/aws-lambda-zip"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/cloudwatch"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ec2"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/lambda_container"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/lambda_zip"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/gke"
 )
 
@@ -30,13 +34,6 @@ var (
 		Provider:    "aws",
 		Platform:    "ec2",
 		Subplatform: "",
-	}
-	lambdaContract = types.ModuleContractName{
-		Category:    string(types.CategoryApp),
-		Subcategory: string(types.SubcategoryAppServerless),
-		Provider:    "aws",
-		Platform:    "lambda",
-		Subplatform: "*",
 	}
 	s3SiteContract = types.ModuleContractName{
 		Category:    string(types.CategoryApp),
@@ -69,9 +66,14 @@ var (
 			NewRemoter:     ec2.NewRemoter,
 			NewLogStreamer: nil,
 		},
-		lambdaContract: admin.Provider{
+		aws_lambda_container.ModuleContractName: admin.Provider{
 			NewStatuser:    nil,
-			NewRemoter:     nil, // TODO: lambda.NewRemoter,
+			NewRemoter:     lambda_container.NewRemoter,
+			NewLogStreamer: cloudwatch.NewLogStreamer,
+		},
+		aws_lambda_zip.ModuleContractName: admin.Provider{
+			NewStatuser:    nil,
+			NewRemoter:     lambda_zip.NewRemoter,
 			NewLogStreamer: cloudwatch.NewLogStreamer,
 		},
 		s3SiteContract: admin.Provider{

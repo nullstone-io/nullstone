@@ -13,6 +13,10 @@ type RemoteOptions struct {
 	// Container represents the specific container name for remote access in the k8s pod or ecs task
 	Container    string
 	PortForwards []config.PortForward
+
+	// Async determines whether to wait for completion of the task.
+	// If enabled, command will immediately complete after initializing
+	Async bool
 }
 
 type Remoter interface {

@@ -53,7 +53,9 @@ func RunTask(ctx context.Context, infra Outputs, options admin.RemoteOptions, cm
 		return errs
 	}
 
-	// TODO: Should we wait for the task to finish or rely on the user to track it?
+	if !options.Async {
+		// TODO: Emit log output for *just* the newly-created tasks; wait for completion
+	}
 
 	return nil
 }
