@@ -22,5 +22,9 @@ func ExecCommand(ctx context.Context, infra Outputs, pod, container string, cmd 
 		container = infra.MainContainerName
 	}
 
+	if len(cmd) == 0 {
+		cmd = []string{"/bin/sh"}
+	}
+
 	return k8s.ExecCommand(ctx, cfg, infra.ServiceNamespace, podName, container, cmd, opts)
 }

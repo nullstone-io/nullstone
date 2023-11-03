@@ -29,7 +29,19 @@ type Remoter struct {
 	Infra     Outputs
 }
 
-func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
+func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string, username string) error {
+	if len(options.PortForwards) > 0 {
+		return fmt.Errorf("ecs provider does not support port forwarding")
+	}
+	if len(options.Task) > 0 {
+		return fmt.Errorf("ecs provider does not support selecting a task, this exec command will create a new task")
+	}
+	if r.Infra.ServiceName == "" {
+		if len(options.Task) > 0 {
+			return fmt.Errorf("ecs provider does not support selecting a task, this exec command will create a new task")
+		}
+		return RunTask(ctx, r.Infra, options.Container, cmd, username)
+	}
 	taskId, err := r.getTaskId(ctx, options)
 	if err != nil {
 		return err
@@ -38,12 +50,15 @@ func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []st
 }
 
 func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
-	taskId, err := r.getTaskId(ctx, options)
-	if err != nil {
-		return err
+	if r.Infra.ServiceName == "" {
+		return fmt.Errorf("fargate and ecs tasks do not support ssh")
 	}
 	if len(options.PortForwards) > 0 {
 		return fmt.Errorf("ecs provider does not support port forwarding")
+	}
+	taskId, err := r.getTaskId(ctx, options)
+	if err != nil {
+		return err
 	}
 	return ExecCommand(ctx, r.Infra, taskId, options.Container, []string{"/bin/sh"}, nil)
 }

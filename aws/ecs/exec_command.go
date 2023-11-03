@@ -13,6 +13,9 @@ func ExecCommand(ctx context.Context, infra Outputs, taskId string, containerNam
 	if containerName == "" {
 		containerName = infra.MainContainerName
 	}
+	if len(cmd) == 0 {
+		cmd = []string{"/bin/sh"}
+	}
 	awsConfig := nsaws.NewConfig(infra.Deployer, region)
 
 	return ssm.StartEcsSession(ctx, awsConfig, region, cluster, taskId, containerName, strings.Join(cmd, " "), parameters)
