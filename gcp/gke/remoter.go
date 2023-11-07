@@ -31,7 +31,7 @@ type Remoter struct {
 	Infra     Outputs
 }
 
-func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string, username string) error {
+func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
 	opts := &k8s.ExecOptions{
 		In:     os.Stdin,
 		Out:    r.OsWriters.Stdout(),

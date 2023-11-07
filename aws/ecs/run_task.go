@@ -10,7 +10,7 @@ import (
 	"log"
 )
 
-func RunTask(ctx context.Context, infra Outputs, containerName string, cmd []string, username string) error {
+func RunTask(ctx context.Context, infra Outputs, containerName, username string, cmd []string) error {
 	log.Printf("Infra outputs: %#v\n", infra)
 	log.Printf("Command: %s\n", cmd)
 

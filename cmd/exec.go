@@ -45,9 +45,10 @@ var Exec = func(providers admin.Providers) *cli.Command {
 					Task:      c.String("task"),
 					Pod:       c.String("pod"),
 					Container: c.String("container"),
+					Username:  "ssickles",
 				}
 				// return remoter.Exec(ctx, options, cmd, claims.Username)
-				return remoter.Exec(ctx, options, cmd, "ssickles")
+				return remoter.Exec(ctx, options, cmd)
 			})
 		},
 	}

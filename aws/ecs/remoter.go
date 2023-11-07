@@ -29,18 +29,15 @@ type Remoter struct {
 	Infra     Outputs
 }
 
-func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string, username string) error {
+func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
 	if len(options.PortForwards) > 0 {
 		return fmt.Errorf("ecs provider does not support port forwarding")
 	}
-	if len(options.Task) > 0 {
-		return fmt.Errorf("ecs provider does not support selecting a task, this exec command will create a new task")
-	}
 	if r.Infra.ServiceName == "" {
-		if len(options.Task) > 0 {
+		if options.Task != "" {
 			return fmt.Errorf("ecs provider does not support selecting a task, this exec command will create a new task")
 		}
-		return RunTask(ctx, r.Infra, options.Container, cmd, username)
+		return RunTask(ctx, r.Infra, options.Container, options.Username, cmd)
 	}
 	taskId, err := r.getTaskId(ctx, options)
 	if err != nil {
