@@ -14,6 +14,7 @@ type RemoteOptions struct {
 	Container    string
 	PortForwards []config.PortForward
 	Username     string
+	LogStreamer  LogStreamer
 }
 
 type Remoter interface {

@@ -37,15 +37,21 @@ var Exec = func(providers admin.Providers) *cli.Command {
 				// 	return err
 				// }
 
+				logStreamer, err := providers.FindLogStreamer(logging.StandardOsWriters{}, cfg, appDetails)
+				if err != nil {
+					return err
+				}
+
 				remoter, err := providers.FindRemoter(logging.StandardOsWriters{}, cfg, appDetails)
 				if err != nil {
 					return err
 				}
 				options := admin.RemoteOptions{
-					Task:      c.String("task"),
-					Pod:       c.String("pod"),
-					Container: c.String("container"),
-					Username:  "ssickles",
+					Task:        c.String("task"),
+					Pod:         c.String("pod"),
+					Container:   c.String("container"),
+					Username:    "ssickles",
+					LogStreamer: logStreamer,
 				}
 				// return remoter.Exec(ctx, options, cmd, claims.Username)
 				return remoter.Exec(ctx, options, cmd)
