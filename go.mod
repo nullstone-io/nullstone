@@ -3,15 +3,15 @@ module gopkg.in/nullstone-io/nullstone.v0
 go 1.20
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.17.3
+	github.com/aws/aws-sdk-go-v2 v1.19.0
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.7.2
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.18.11
-	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.18.8
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.19.14
 	github.com/cristalhq/jwt/v3 v3.1.0
 	github.com/fatih/color v1.13.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
-	github.com/nullstone-io/deployment-sdk v0.0.0-20230607131224-81f3266ed83c
+	github.com/nullstone-io/deployment-sdk v0.0.0-20231109213511-3a90e6b4c06e
 	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.8.1
@@ -76,8 +76,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.3 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.4.3 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.5.4 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.27 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.21 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.35 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.29 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.0.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.18.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.17.8 // indirect

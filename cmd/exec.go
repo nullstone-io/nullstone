@@ -38,6 +38,9 @@ var Exec = func(providers admin.Providers) *cli.Command {
 				if err != nil {
 					return fmt.Errorf("unable to fetch the current user")
 				}
+				if user == nil {
+					return fmt.Errorf("unable to load the current user info")
+				}
 
 				logStreamer, err := providers.FindLogStreamer(logging.StandardOsWriters{}, cfg, appDetails)
 				if err != nil {
