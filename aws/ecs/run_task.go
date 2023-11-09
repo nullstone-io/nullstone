@@ -39,7 +39,7 @@ func RunTask(ctx context.Context, infra Outputs, containerName, username string,
 		return err
 	}
 
-	return monitorTask(ctx, logStreamer, ecsClient, infra.ClusterArn(), taskArn)
+	return monitorTask(ctx, logStreamer, ecsClient, infra.ClusterArn(), taskArn, infra.MainContainerName)
 }
 
 func getTaskDefArn(ctx context.Context, ecsClient *ecs.Client, taskDefArn string) (string, error) {
@@ -115,7 +115,7 @@ func parseRunTaskResult(out *ecs.RunTaskOutput) (string, error) {
 	return "", nil
 }
 
-func getTaskExitCode(ctx context.Context, ecsClient *ecs.Client, clusterArn, taskArn string) (*int32, error) {
+func getTaskExitCode(ctx context.Context, ecsClient *ecs.Client, clusterArn, taskArn, mainContainerName string) (*int32, error) {
 	input := ecs.DescribeTasksInput{
 		Tasks:   []string{taskArn},
 		Cluster: &clusterArn,
@@ -135,28 +135,34 @@ func getTaskExitCode(ctx context.Context, ecsClient *ecs.Client, clusterArn, tas
 	}
 	status := *result.Tasks[0].LastStatus
 
-	exitCode := int32(0)
+	var exitCode *int32
+	foundContainer := false
 	for _, container := range result.Tasks[0].Containers {
-		if container.ExitCode != nil {
-			exitCode = *container.ExitCode
-		}
-		if exitCode != 0 {
+		if container.Name != nil && *container.Name == mainContainerName {
+			if container.ExitCode != nil {
+				exitCode = container.ExitCode
+			}
+			foundContainer = true
 			break
 		}
+	}
+	if !foundContainer {
+		return nil, fmt.Errorf("unable to determine the status of the running task, the primary container (%s) could not be found", mainContainerName)
 	}
 
 	switch status {
 	case "STOPPED":
-		return &exitCode, nil
+		return exitCode, nil
 	case "DELETED":
-		return &exitCode, nil
+		return exitCode, nil
 	}
 
 	return nil, nil
 }
 
-func monitorTask(ctx context.Context, logStreamer admin.LogStreamer, ecsClient *ecs.Client, clusterArn, taskArn string) error {
+func monitorTask(ctx context.Context, logStreamer admin.LogStreamer, ecsClient *ecs.Client, clusterArn, taskArn, mainContainerName string) error {
 	eg, ctx := errgroup.WithContext(ctx)
+	ctx, cancel := context.WithCancel(ctx)
 
 	eg.Go(func() error {
 		absoluteTime := time.Now()
@@ -170,13 +176,14 @@ func monitorTask(ctx context.Context, logStreamer admin.LogStreamer, ecsClient *
 	eg.Go(func() error {
 		for {
 			// check status of task
-			exitCode, err := getTaskExitCode(ctx, ecsClient, clusterArn, taskArn)
+			exitCode, err := getTaskExitCode(ctx, ecsClient, clusterArn, taskArn, mainContainerName)
 			if err != nil {
 				return err
 			}
 			if exitCode != nil {
 				if *exitCode == 0 {
 					log.Printf("Task has completed successfully")
+					cancel()
 					return nil
 				} else {
 					return fmt.Errorf("Task failed with status code %d\n", exitCode)

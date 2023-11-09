@@ -35,7 +35,7 @@ func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []st
 	}
 	if r.Infra.ServiceName == "" {
 		if options.Task != "" {
-			return fmt.Errorf("ecs provider does not support selecting a task, this exec command will create a new task")
+			return fmt.Errorf("fargate and ecs tasks do not support selecting a task, this exec command starts a new task")
 		}
 		return RunTask(ctx, r.Infra, options.Container, options.Username, cmd, options.LogStreamer)
 	}

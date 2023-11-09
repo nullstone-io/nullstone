@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/cristalhq/jwt/v3"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
@@ -32,10 +33,11 @@ var Exec = func(providers admin.Providers) *cli.Command {
 			}
 
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				// claims, err := getClaims(cfg.ApiKey)
-				// if err != nil {
-				// 	return err
-				// }
+				client := api.Client{Config: cfg}
+				user, err := client.CurrentUser().Get()
+				if err != nil {
+					return fmt.Errorf("unable to fetch the current user")
+				}
 
 				logStreamer, err := providers.FindLogStreamer(logging.StandardOsWriters{}, cfg, appDetails)
 				if err != nil {
@@ -50,10 +52,9 @@ var Exec = func(providers admin.Providers) *cli.Command {
 					Task:        c.String("task"),
 					Pod:         c.String("pod"),
 					Container:   c.String("container"),
-					Username:    "ssickles",
+					Username:    user.Name,
 					LogStreamer: logStreamer,
 				}
-				// return remoter.Exec(ctx, options, cmd, claims.Username)
 				return remoter.Exec(ctx, options, cmd)
 			})
 		},
