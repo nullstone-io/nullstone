@@ -2,6 +2,9 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/cristalhq/jwt/v3"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
@@ -24,23 +27,59 @@ var Exec = func(providers admin.Providers) *cli.Command {
 			ContainerFlag,
 		},
 		Action: func(c *cli.Context) error {
-			cmd := []string{"/bin/sh"}
+			var cmd []string
 			if c.Args().Present() {
 				cmd = c.Args().Slice()
 			}
 
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
+				client := api.Client{Config: cfg}
+				user, err := client.CurrentUser().Get()
+				if err != nil {
+					return fmt.Errorf("unable to fetch the current user")
+				}
+				if user == nil {
+					return fmt.Errorf("unable to load the current user info")
+				}
+
+				logStreamer, err := providers.FindLogStreamer(logging.StandardOsWriters{}, cfg, appDetails)
+				if err != nil {
+					return err
+				}
+
 				remoter, err := providers.FindRemoter(logging.StandardOsWriters{}, cfg, appDetails)
 				if err != nil {
 					return err
 				}
 				options := admin.RemoteOptions{
-					Task:      c.String("task"),
-					Pod:       c.String("pod"),
-					Container: c.String("container"),
+					Task:        c.String("task"),
+					Pod:         c.String("pod"),
+					Container:   c.String("container"),
+					Username:    user.Name,
+					LogStreamer: logStreamer,
 				}
 				return remoter.Exec(ctx, options, cmd)
 			})
 		},
 	}
+}
+
+type Claims struct {
+	jwt.StandardClaims
+	Email    string            `json:"email"`
+	Picture  string            `json:"picture"`
+	Username string            `json:"https://nullstone.io/username"`
+	Roles    map[string]string `json:"https://nullstone.io/roles"`
+}
+
+func getClaims(rawToken string) (*Claims, error) {
+	token, err := jwt.ParseString(rawToken)
+	if err != nil {
+		return nil, err
+	}
+	var claims Claims
+	if err := json.Unmarshal(token.RawClaims(), &claims); err != nil {
+		return nil, err
+	}
+	return &claims, nil
 }

@@ -1,3 +1,6 @@
+# 0.0.105 (Nov 09, 2023)
+* Added support for running `nullstone exec` for Fargate and ECS Tasks
+
 # 0.0.104 (Jul 28, 2023)
 * Fixed nil panic when specifying `--stack` that does not exist.
 

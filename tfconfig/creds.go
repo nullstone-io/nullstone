@@ -47,7 +47,11 @@ func ConfigCreds(cfg api.Config) error {
 	}
 	defer file.Close()
 
-	_, err = file.WriteString(fmt.Sprintf(credentialsTmpl, getNullstoneHostname(cfg), cfg.ApiKey))
+	accessToken, err := cfg.AccessTokenSource.GetAccessToken(cfg.OrgName)
+	if err != nil {
+		return err
+	}
+	_, err = file.WriteString(fmt.Sprintf(credentialsTmpl, getNullstoneHostname(cfg), accessToken))
 	return err
 }
 

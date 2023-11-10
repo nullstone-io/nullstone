@@ -13,6 +13,8 @@ type RemoteOptions struct {
 	// Container represents the specific container name for remote access in the k8s pod or ecs task
 	Container    string
 	PortForwards []config.PortForward
+	Username     string
+	LogStreamer  LogStreamer
 }
 
 type Remoter interface {

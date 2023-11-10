@@ -14,7 +14,11 @@ var Profile = &cli.Command{
 		return ProfileAction(c, func(cfg api.Config) error {
 			fmt.Printf("Profile: %s\n", GetProfile(c))
 			fmt.Printf("API Address: %s\n", cfg.BaseAddress)
-			if cfg.ApiKey != "" {
+			accessToken, err := cfg.AccessTokenSource.GetAccessToken(cfg.OrgName)
+			if err != nil {
+				return err
+			}
+			if accessToken != "" {
 				fmt.Printf("API Key: *** redacted ***\n")
 			} else {
 				fmt.Printf("API Key: (not set)\n")
