@@ -62,7 +62,7 @@ var (
 		beanstalkContract: admin.Provider{
 			NewStatuser:    nil, // TODO: beanstalk.NewStatuser
 			NewRemoter:     ec2.NewRemoter,
-			NewLogStreamer: nil,
+			NewLogStreamer: cloudwatch.NewLogStreamer,
 		},
 		ec2Contract: admin.Provider{
 			NewStatuser:    nil,
