@@ -1,3 +1,6 @@
+# 0.0.106 (Nov 30, 2023)
+* Added log streaming support for AWS Elastic Beanstalk.
+
 # 0.0.105 (Nov 09, 2023)
 * Added support for running `nullstone exec` for Fargate and ECS Tasks
 
