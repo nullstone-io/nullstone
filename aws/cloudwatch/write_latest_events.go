@@ -12,10 +12,10 @@ import (
 // Each pass of writeLatestEvents will emit all events (based on filtering)
 // We record the last event timestamp every time we emit an event
 // This allows us to pick up where we left off from a previous query
-func writeLatestEvents(infra Outputs, options config.LogStreamOptions, emitter MessageEmitter) func(ctx context.Context) error {
+func writeLatestEvents(infra Outputs, logGroupName string, options config.LogStreamOptions, emitter MessageEmitter) func(ctx context.Context) error {
 	cwlClient := cloudwatchlogs.NewFromConfig(nsaws.NewConfig(infra.LogReader, infra.Region))
 	input := cloudwatchlogs.FilterLogEventsInput{
-		LogGroupName:  aws.String(infra.LogGroupName),
+		LogGroupName:  aws.String(logGroupName),
 		NextToken:     nil,
 		StartTime:     toAwsTime(options.StartTime),
 		EndTime:       toAwsTime(options.EndTime),

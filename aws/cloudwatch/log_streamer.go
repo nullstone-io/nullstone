@@ -8,12 +8,14 @@ import (
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
+	"golang.org/x/sync/errgroup"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"gopkg.in/nullstone-io/nullstone.v0/display"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -55,11 +57,6 @@ func (l LogStreamer) Stream(ctx context.Context, options config.LogStreamOptions
 		normal.Fprintf(stdout, " %s", event.Message)
 		normal.Fprintln(stdout)
 	}
-	//fn := writeLatestEvents(l.Infra, options, emitter)
-	//if strings.HasSuffix(l.Infra.LogGroupName, "/*") {
-	//	fn = queryLogs(l.Infra, options, emitter)
-	//}
-	fn := queryLogs(l.Infra, options, emitter)
 
 	if options.WatchInterval == time.Duration(0) {
 		options.WatchInterval = DefaultWatchInterval
@@ -67,23 +64,42 @@ func (l LogStreamer) Stream(ctx context.Context, options config.LogStreamOptions
 
 	logger.Println(options.QueryTimeMessage())
 	logger.Println(options.WatchMessage())
+
+	logGroupNames, err := ExpandLogGroups(context.Background(), l.Infra)
+	if err != nil {
+		return err
+	}
+	logger.Println("Querying the following log groups:")
+	logger.Printf("\t%s\n", strings.Join(logGroupNames, "\n\t"))
 	logger.Println()
-	for {
-		if err := fn(ctx); err != nil {
-			if errors.Is(err, context.Canceled) {
+
+	g, ctx := errgroup.WithContext(ctx)
+	for _, logGroupName := range logGroupNames {
+		g.Go(l.streamLogGroup(ctx, logGroupName, options, emitter))
+	}
+	return g.Wait()
+}
+
+func (l LogStreamer) streamLogGroup(ctx context.Context, logGroupName string, options config.LogStreamOptions, emitter func(event LogEvent)) func() error {
+	return func() error {
+		fn := writeLatestEvents(l.Infra, logGroupName, options, emitter)
+		for {
+			if err := fn(ctx); err != nil {
+				if errors.Is(err, context.Canceled) {
+					return nil
+				}
+				return fmt.Errorf("error querying logs: %w", err)
+			}
+			if options.WatchInterval < 0 {
+				// A negative watch interval indicates
 				return nil
 			}
-			return fmt.Errorf("error querying logs: %w", err)
-		}
-		if options.WatchInterval < 0 {
-			// A negative watch interval indicates
-			return nil
-		}
 
-		select {
-		case <-ctx.Done():
-			return nil
-		case <-time.After(options.WatchInterval):
+			select {
+			case <-ctx.Done():
+				return nil
+			case <-time.After(options.WatchInterval):
+			}
 		}
 	}
 }
