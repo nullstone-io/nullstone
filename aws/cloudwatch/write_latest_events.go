@@ -41,7 +41,7 @@ func writeLatestEvents(infra Outputs, options config.LogStreamOptions, emitter M
 				}
 				lastEventTime = event.Timestamp
 				visitedEventIds[*event.EventId] = true
-				emitter(event)
+				emitter(LogEventFromFilteredLogEvent(event))
 			}
 			input.NextToken = out.NextToken
 			if out.NextToken == nil {

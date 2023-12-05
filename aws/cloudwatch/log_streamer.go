@@ -3,7 +3,6 @@ package cloudwatch
 import (
 	"context"
 	"fmt"
-	cwltypes "github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 	"github.com/fatih/color"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
@@ -25,7 +24,7 @@ var (
 	normal               = color.New()
 )
 
-type MessageEmitter func(event cwltypes.FilteredLogEvent)
+type MessageEmitter func(event LogEvent)
 
 func NewLogStreamer(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (admin.LogStreamer, error) {
 	outs, err := outputs.Retrieve[Outputs](nsConfig, appDetails.Workspace)
@@ -49,11 +48,10 @@ type LogStreamer struct {
 func (l LogStreamer) Stream(ctx context.Context, options config.LogStreamOptions) error {
 	stdout := l.OsWriters.Stdout()
 
-	emitter := func(event cwltypes.FilteredLogEvent) {
-		timestamp := time.Unix(*event.Timestamp/1000, 0)
-		normal.Fprintf(stdout, "%s ", display.FormatTime(timestamp))
-		bold.Fprintf(stdout, "[%s]", *event.LogStreamName)
-		normal.Fprintf(stdout, " %s", *event.Message)
+	emitter := func(event LogEvent) {
+		normal.Fprintf(stdout, "%s ", display.FormatTime(event.Timestamp))
+		bold.Fprintf(stdout, "[%s]", event.LogStreamName)
+		normal.Fprintf(stdout, " %s", event.Message)
 		normal.Fprintln(stdout)
 	}
 	fn := writeLatestEvents(l.Infra, options, emitter)
