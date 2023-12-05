@@ -13,6 +13,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"gopkg.in/nullstone-io/nullstone.v0/display"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -51,13 +52,6 @@ type LogStreamer struct {
 func (l LogStreamer) Stream(ctx context.Context, options config.LogStreamOptions) error {
 	stdout := l.OsWriters.Stdout()
 
-	emitter := func(event LogEvent) {
-		normal.Fprintf(stdout, "%s ", display.FormatTime(event.Timestamp))
-		bold.Fprintf(stdout, "[%s]", event.LogStreamName)
-		normal.Fprintf(stdout, " %s", event.Message)
-		normal.Fprintln(stdout)
-	}
-
 	if options.WatchInterval == time.Duration(0) {
 		options.WatchInterval = DefaultWatchInterval
 	}
@@ -72,6 +66,8 @@ func (l LogStreamer) Stream(ctx context.Context, options config.LogStreamOptions
 	logger.Println("Querying the following log groups:")
 	logger.Printf("\t%s\n", strings.Join(logGroupNames, "\n\t"))
 	logger.Println()
+
+	emitter := l.emitLogEvent(stdout, l.Infra.LogGroupName, len(logGroupNames) > 1)
 
 	g, ctx := errgroup.WithContext(ctx)
 	for _, logGroupName := range logGroupNames {
@@ -101,5 +97,19 @@ func (l LogStreamer) streamLogGroup(ctx context.Context, logGroupName string, op
 			case <-time.After(options.WatchInterval):
 			}
 		}
+	}
+}
+
+func (l LogStreamer) emitLogEvent(stdout io.Writer, origLogGroupName string, hasMultiple bool) func(event LogEvent) {
+	prefixToCut, _ := strings.CutSuffix(origLogGroupName, "/*")
+	return func(event LogEvent) {
+		normal.Fprintf(stdout, "%s ", display.FormatTime(event.Timestamp))
+		if hasMultiple {
+			bold.Fprintf(stdout, "[%s:%s]", strings.TrimPrefix(event.LogGroupName, prefixToCut), event.LogStreamName)
+		} else {
+			bold.Fprintf(stdout, "[%s]", event.LogStreamName)
+		}
+		normal.Fprintf(stdout, " %s", event.Message)
+		normal.Fprintln(stdout)
 	}
 }
