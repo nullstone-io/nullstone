@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	nsaws "github.com/nullstone-io/deployment-sdk/aws"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
-	"time"
 )
 
 // Each pass of writeLatestEvents will emit all events (based on filtering)
@@ -50,11 +49,4 @@ func writeLatestEvents(infra Outputs, options config.LogStreamOptions, emitter M
 		}
 		return nil
 	}
-}
-
-func toAwsTime(t *time.Time) *int64 {
-	if t == nil {
-		return nil
-	}
-	return aws.Int64(t.UnixNano() / int64(time.Millisecond))
 }
