@@ -55,7 +55,11 @@ func (l LogStreamer) Stream(ctx context.Context, options config.LogStreamOptions
 		normal.Fprintf(stdout, " %s", event.Message)
 		normal.Fprintln(stdout)
 	}
-	fn := writeLatestEvents(l.Infra, options, emitter)
+	//fn := writeLatestEvents(l.Infra, options, emitter)
+	//if strings.HasSuffix(l.Infra.LogGroupName, "/*") {
+	//	fn = queryLogs(l.Infra, options, emitter)
+	//}
+	fn := queryLogs(l.Infra, options, emitter)
 
 	if options.WatchInterval == time.Duration(0) {
 		options.WatchInterval = DefaultWatchInterval
