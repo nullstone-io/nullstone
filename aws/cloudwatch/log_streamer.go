@@ -2,6 +2,7 @@ package cloudwatch
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/nullstone-io/deployment-sdk/app"
@@ -65,6 +66,9 @@ func (l LogStreamer) Stream(ctx context.Context, options config.LogStreamOptions
 	logger.Println()
 	for {
 		if err := fn(ctx); err != nil {
+			if errors.Is(err, context.Canceled) {
+				return nil
+			}
 			return fmt.Errorf("error querying logs: %w", err)
 		}
 		if options.WatchInterval < 0 {
