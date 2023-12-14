@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
+	"github.com/nullstone-io/deployment-sdk/display"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
-	"gopkg.in/nullstone-io/nullstone.v0/display"
 )
 
 func NewStatuser(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (admin.Statuser, error) {

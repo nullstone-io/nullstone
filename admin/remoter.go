@@ -2,6 +2,7 @@ package admin
 
 import (
 	"context"
+	"github.com/nullstone-io/deployment-sdk/app"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
@@ -14,7 +15,8 @@ type RemoteOptions struct {
 	Container    string
 	PortForwards []config.PortForward
 	Username     string
-	LogStreamer  LogStreamer
+	LogStreamer  app.LogStreamer
+	LogEmitter   app.LogEmitter
 }
 
 type Remoter interface {

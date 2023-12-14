@@ -25,14 +25,6 @@ func (s Providers) FindRemoter(osWriters logging.OsWriters, nsConfig api.Config,
 	return factory.NewRemoter(osWriters, nsConfig, appDetails)
 }
 
-func (s Providers) FindLogStreamer(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (LogStreamer, error) {
-	factory := s.FindFactory(*appDetails.Module)
-	if factory == nil || factory.NewLogStreamer == nil {
-		return nil, nil
-	}
-	return factory.NewLogStreamer(osWriters, nsConfig, appDetails)
-}
-
 func (s Providers) FindFactory(curModule types.Module) *Provider {
 	if len(curModule.ProviderTypes) <= 0 {
 		return nil

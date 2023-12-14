@@ -6,12 +6,11 @@ import (
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/nullstone.v0/admin"
-	"gopkg.in/nullstone-io/nullstone.v0/config"
+	"os"
 	"time"
 )
 
-var Logs = func(providers admin.Providers) *cli.Command {
+var Logs = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:        "logs",
 		Description: "Streams an application's logs to the console for the given environment. Use the start-time `-s` and end-time `-e` flags to only show logs for a given time period. Use the tail flag `-t` to stream the logs in real time.",
@@ -56,8 +55,9 @@ var Logs = func(providers admin.Providers) *cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			logStreamOptions := config.LogStreamOptions{
+			logStreamOptions := app.LogStreamOptions{
 				WatchInterval: -1 * time.Second, // Disabled by default
+				Emitter:       app.NewWriterLogEmitter(os.Stdout),
 			}
 			if c.IsSet("start-time") {
 				absoluteTime := time.Now().Add(-c.Duration("start-time"))

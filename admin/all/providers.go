@@ -3,7 +3,6 @@ package all
 import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
-	"gopkg.in/nullstone-io/nullstone.v0/aws/cloudwatch"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ec2"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/gke"
@@ -55,34 +54,28 @@ var (
 
 	Providers = admin.Providers{
 		ecsContract: admin.Provider{
-			NewStatuser:    ecs.NewStatuser,
-			NewRemoter:     ecs.NewRemoter,
-			NewLogStreamer: cloudwatch.NewLogStreamer,
+			NewStatuser: ecs.NewStatuser,
+			NewRemoter:  ecs.NewRemoter,
 		},
 		beanstalkContract: admin.Provider{
-			NewStatuser:    nil, // TODO: beanstalk.NewStatuser
-			NewRemoter:     ec2.NewRemoter,
-			NewLogStreamer: cloudwatch.NewLogStreamer,
+			NewStatuser: nil, // TODO: beanstalk.NewStatuser
+			NewRemoter:  ec2.NewRemoter,
 		},
 		ec2Contract: admin.Provider{
-			NewStatuser:    nil,
-			NewRemoter:     ec2.NewRemoter,
-			NewLogStreamer: nil,
+			NewStatuser: nil,
+			NewRemoter:  ec2.NewRemoter,
 		},
 		lambdaContract: admin.Provider{
-			NewStatuser:    nil,
-			NewRemoter:     nil, // TODO: lambda.NewRemoter,
-			NewLogStreamer: cloudwatch.NewLogStreamer,
+			NewStatuser: nil,
+			NewRemoter:  nil, // TODO: lambda.NewRemoter,
 		},
 		s3SiteContract: admin.Provider{
-			NewStatuser:    nil,
-			NewRemoter:     nil,
-			NewLogStreamer: cloudwatch.NewLogStreamer,
+			NewStatuser: nil,
+			NewRemoter:  nil,
 		},
 		gkeContract: admin.Provider{
-			NewStatuser:    nil,
-			NewRemoter:     gke.NewRemoter,
-			NewLogStreamer: gke.NewLogStreamer,
+			NewStatuser: nil,
+			NewRemoter:  gke.NewRemoter,
 		},
 	}
 )

@@ -8,10 +8,8 @@ import (
 
 type NewStatuserFunc func(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (Statuser, error)
 type NewRemoterFunc func(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (Remoter, error)
-type NewLogStreamerFunc func(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (LogStreamer, error)
 
 type Provider struct {
-	NewStatuser    NewStatuserFunc
-	NewRemoter     NewRemoterFunc
-	NewLogStreamer NewLogStreamerFunc
+	NewStatuser NewStatuserFunc
+	NewRemoter  NewRemoterFunc
 }

@@ -42,9 +42,9 @@ func Build() *cli.App {
 		cmd.Push(appProviders),
 		cmd.Deploy(appProviders),
 		cmd.Launch(appProviders),
-		cmd.Logs(adminProviders),
+		cmd.Logs(appProviders),
 		cmd.Status(adminProviders),
-		cmd.Exec(adminProviders),
+		cmd.Exec(appProviders, adminProviders),
 		cmd.Ssh(adminProviders),
 		cmd.Profile,
 	}
