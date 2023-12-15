@@ -1,5 +1,6 @@
 # 0.0.107 (Unreleased)
 * Added log streaming support for multiple cloudwatch log groups. (Use `/*` suffix to look for multiple cloudwatch log groups)
+* Moved `LogStreamer` implementations to github.com/nullstone-io/deployment-sdk.
 
 # 0.0.106 (Nov 30, 2023)
 * Added log streaming support for AWS Elastic Beanstalk.
