@@ -10,9 +10,10 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
+	"os"
 )
 
-var Exec = func(providers admin.Providers) *cli.Command {
+var Exec = func(appProviders app.Providers, providers admin.Providers) *cli.Command {
 	return &cli.Command{
 		Name:        "exec",
 		Description: "Executes a command on a container or the virtual machine for the given application. Defaults command to '/bin/sh' which acts as opening a shell to the running container or virtual machine.",
@@ -42,7 +43,7 @@ var Exec = func(providers admin.Providers) *cli.Command {
 					return fmt.Errorf("unable to load the current user info")
 				}
 
-				logStreamer, err := providers.FindLogStreamer(logging.StandardOsWriters{}, cfg, appDetails)
+				logStreamer, err := appProviders.FindLogStreamer(logging.StandardOsWriters{}, cfg, appDetails)
 				if err != nil {
 					return err
 				}
@@ -57,6 +58,7 @@ var Exec = func(providers admin.Providers) *cli.Command {
 					Container:   c.String("container"),
 					Username:    user.Name,
 					LogStreamer: logStreamer,
+					LogEmitter:  app.NewWriterLogEmitter(os.Stdout),
 				}
 				return remoter.Exec(ctx, options, cmd)
 			})

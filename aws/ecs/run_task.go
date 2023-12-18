@@ -7,10 +7,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/nullstone-io/deployment-sdk/app"
 	nsaws "github.com/nullstone-io/deployment-sdk/aws"
 	"golang.org/x/sync/errgroup"
-	"gopkg.in/nullstone-io/nullstone.v0/admin"
-	"gopkg.in/nullstone-io/nullstone.v0/config"
 	"log"
 	"strings"
 	"time"
@@ -18,7 +17,7 @@ import (
 
 const DefaultWatchInterval = 1 * time.Second
 
-func RunTask(ctx context.Context, infra Outputs, containerName, username string, cmd []string, logStreamer admin.LogStreamer) error {
+func RunTask(ctx context.Context, infra Outputs, containerName, username string, cmd []string, logStreamer app.LogStreamer, logEmitter app.LogEmitter) error {
 	region := infra.Region
 	awsConfig := nsaws.NewConfig(infra.Deployer, region)
 	ecsClient := ecs.NewFromConfig(awsConfig)
@@ -39,7 +38,7 @@ func RunTask(ctx context.Context, infra Outputs, containerName, username string,
 		return err
 	}
 
-	return monitorTask(ctx, logStreamer, ecsClient, infra.ClusterArn(), taskArn, infra.MainContainerName)
+	return monitorTask(ctx, logStreamer, logEmitter, ecsClient, infra.ClusterArn(), taskArn, infra.MainContainerName)
 }
 
 func getTaskDefArn(ctx context.Context, ecsClient *ecs.Client, taskDefArn string) (string, error) {
@@ -160,15 +159,16 @@ func getTaskExitCode(ctx context.Context, ecsClient *ecs.Client, clusterArn, tas
 	return nil, nil
 }
 
-func monitorTask(ctx context.Context, logStreamer admin.LogStreamer, ecsClient *ecs.Client, clusterArn, taskArn, mainContainerName string) error {
+func monitorTask(ctx context.Context, logStreamer app.LogStreamer, logEmitter app.LogEmitter, ecsClient *ecs.Client, clusterArn, taskArn, mainContainerName string) error {
 	eg, ctx := errgroup.WithContext(ctx)
 	ctx, cancel := context.WithCancel(ctx)
 
 	eg.Go(func() error {
 		absoluteTime := time.Now()
-		logStreamOptions := config.LogStreamOptions{
+		logStreamOptions := app.LogStreamOptions{
 			StartTime:     &absoluteTime,
 			WatchInterval: time.Duration(0), // this makes sure the log stream doesn't exit until the context is cancelled
+			Emitter:       logEmitter,
 		}
 		return logStreamer.Stream(ctx, logStreamOptions)
 	})
