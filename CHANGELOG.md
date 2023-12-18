@@ -1,4 +1,4 @@
-# 0.0.107 (Unreleased)
+# 0.0.107 (Dec 18, 2023)
 * Added log streaming support for multiple cloudwatch log groups. (Use `/*` suffix to look for multiple cloudwatch log groups)
 * Moved `LogStreamer` implementations to github.com/nullstone-io/deployment-sdk.
 
