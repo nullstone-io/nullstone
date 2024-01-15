@@ -2,20 +2,23 @@ package beanstalk
 
 import (
 	"context"
-	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk"
 )
 
 func GetInstances(ctx context.Context, infra Outputs) ([]string, error) {
-	ec2Client := ec2.NewFromConfig(infra.AdminerConfig())
-	// TODO: Get Instance
-	//out, err := ec2Client.ListTasks(ctx, &ecs.ListTasksInput{
-	//	Cluster:     aws.String(infra.ClusterArn()),
-	//	ServiceName: aws.String(infra.ServiceName),
-	//})
+	client := elasticbeanstalk.NewFromConfig(infra.AdminerConfig())
+	out, err := client.DescribeEnvironmentResources(ctx, &elasticbeanstalk.DescribeEnvironmentResourcesInput{
+		EnvironmentId: aws.String(infra.EnvironmentId),
+	})
 	if err != nil {
 		return nil, err
 	}
-	return out.InstanceIds, nil
+	instanceIds := make([]string, 0)
+	for _, instance := range out.EnvironmentResources.Instances {
+		instanceIds = append(instanceIds, *instance.Id)
+	}
+	return instanceIds, nil
 }
 
 func GetRandomInstance(ctx context.Context, infra Outputs) (string, error) {
