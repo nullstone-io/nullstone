@@ -3,6 +3,7 @@ package all
 import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/beanstalk"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ec2"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/gke"
@@ -59,7 +60,7 @@ var (
 		},
 		beanstalkContract: admin.Provider{
 			NewStatuser: nil, // TODO: beanstalk.NewStatuser
-			NewRemoter:  ec2.NewRemoter,
+			NewRemoter:  beanstalk.NewRemoter,
 		},
 		ec2Contract: admin.Provider{
 			NewStatuser: nil,

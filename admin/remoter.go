@@ -7,6 +7,8 @@ import (
 )
 
 type RemoteOptions struct {
+	// Instance refers to the VM Instance for remote access
+	Instance string
 	// Task refers to the ECS task id for remote access if using ECS
 	Task string
 	// Pod refers to the k8s pod for remote access if using k8s

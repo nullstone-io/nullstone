@@ -22,6 +22,7 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 			StackFlag,
 			AppFlag,
 			EnvFlag,
+			InstanceFlag,
 			TaskFlag,
 			PodFlag,
 			ContainerFlag,
@@ -52,6 +53,7 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 						appDetails.App.Name, module.OrgName, module.Name, module.Subcategory, platform)
 				}
 				options := admin.RemoteOptions{
+					Instance:     c.String("instance"),
 					Task:         c.String("task"),
 					Pod:          c.String("pod"),
 					Container:    c.String("container"),

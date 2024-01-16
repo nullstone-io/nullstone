@@ -2,6 +2,13 @@ package cmd
 
 import "github.com/urfave/cli/v2"
 
+var InstanceFlag = &cli.StringFlag{
+	Name: "instance",
+	Usage: `Select a specific instance to execute the command against.
+		This allows the user to decide which instance to connect.
+		This is optional and by default will connect to a random instance.
+		This is only used for workspaces that use VMs (e.g. Elastic Beanstalk, EC2 Instances, GCP VMs, Azure VMs, etc.).`,
+}
 var TaskFlag = &cli.StringFlag{
 	Name: "task",
 	Usage: `Select a specific task to execute the command against.

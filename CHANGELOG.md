@@ -1,3 +1,6 @@
+# 0.0.108 (Jan 16, 2024)
+* Added support for `nullstone ssh` and `nullstone exec` to Elastic Beanstalk apps.
+
 # 0.0.107 (Dec 18, 2023)
 * Added log streaming support for multiple cloudwatch log groups. (Use `/*` suffix to look for multiple cloudwatch log groups)
 * Moved `LogStreamer` implementations to github.com/nullstone-io/deployment-sdk.

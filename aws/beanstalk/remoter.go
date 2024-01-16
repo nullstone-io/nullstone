@@ -1,7 +1,8 @@
-package ec2
+package beanstalk
 
 import (
 	"context"
+	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
@@ -31,7 +32,11 @@ type Remoter struct {
 
 func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
 	// TODO: Add support for cmd
-	return ssm.StartEc2Session(ctx, r.Infra.AdminerConfig(), r.Infra.Region, r.Infra.InstanceId, nil)
+	instanceId, err := r.getInstanceId(ctx, options)
+	if err != nil {
+		return err
+	}
+	return ssm.StartEc2Session(ctx, r.Infra.AdminerConfig(), r.Infra.Region, instanceId, nil)
 }
 
 func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
@@ -40,5 +45,22 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 		return err
 	}
 
-	return ssm.StartEc2Session(ctx, r.Infra.AdminerConfig(), r.Infra.Region, r.Infra.InstanceId, parameters)
+	instanceId, err := r.getInstanceId(ctx, options)
+	if err != nil {
+		return err
+	}
+	return ssm.StartEc2Session(ctx, r.Infra.AdminerConfig(), r.Infra.Region, instanceId, parameters)
+}
+
+func (r Remoter) getInstanceId(ctx context.Context, options admin.RemoteOptions) (string, error) {
+	if options.Instance == "" {
+		if instanceId, err := GetRandomInstance(ctx, r.Infra); err != nil {
+			return "", err
+		} else if instanceId == "" {
+			return "", fmt.Errorf("cannot exec command with no running instances")
+		} else {
+			return instanceId, nil
+		}
+	}
+	return options.Instance, nil
 }

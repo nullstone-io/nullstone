@@ -23,6 +23,7 @@ var Exec = func(appProviders app.Providers, providers admin.Providers) *cli.Comm
 			StackFlag,
 			AppFlag,
 			EnvFlag,
+			InstanceFlag,
 			TaskFlag,
 			PodFlag,
 			ContainerFlag,
@@ -53,6 +54,7 @@ var Exec = func(appProviders app.Providers, providers admin.Providers) *cli.Comm
 					return err
 				}
 				options := admin.RemoteOptions{
+					Instance:    c.String("instance"),
 					Task:        c.String("task"),
 					Pod:         c.String("pod"),
 					Container:   c.String("container"),
