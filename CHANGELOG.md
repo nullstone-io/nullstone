@@ -1,3 +1,6 @@
+# 0.0.109 (Jan 17, 2024)
+* Fixed bug in registration of beanstalk provider.
+
 # 0.0.108 (Jan 16, 2024)
 * Added support for `nullstone ssh` and `nullstone exec` to Elastic Beanstalk apps.
 

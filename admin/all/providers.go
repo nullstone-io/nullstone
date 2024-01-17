@@ -19,7 +19,7 @@ var (
 	}
 	beanstalkContract = types.ModuleContractName{
 		Category:    string(types.CategoryApp),
-		Subcategory: string(types.SubcategoryAppContainer),
+		Subcategory: string(types.SubcategoryAppServer),
 		Provider:    "aws",
 		Platform:    "ec2",
 		Subplatform: "beanstalk",
