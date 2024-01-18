@@ -1,3 +1,6 @@
+# 0.0.110 (Jan 18, 2024)
+* Fixed `error starting ssm session` bug when using `nullstone ssh` against AWS. (Upgraded aws sdk packages)
+
 # 0.0.109 (Jan 17, 2024)
 * Fixed bug in registration of beanstalk provider.
 

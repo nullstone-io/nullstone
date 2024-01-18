@@ -19,3 +19,6 @@ test:
 
 docs:
 	go run ./docs/main.go
+
+upgrade-aws:
+	go get -u github.com/aws/aws-sdk-go-v2/...
