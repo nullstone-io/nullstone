@@ -2,6 +2,11 @@ module gopkg.in/nullstone-io/nullstone.v0
 
 go 1.21
 
+replace (
+	github.com/nullstone-io/deployment-sdk => ../deployment-sdk
+	gopkg.in/nullstone-io/go-api-client.v0 => ../go-api-client
+)
+
 require (
 	github.com/aws/aws-sdk-go-v2 v1.24.1
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.37.0
