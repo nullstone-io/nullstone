@@ -1,3 +1,6 @@
+# 0.0.111 (Jan 19, 2024)
+* Fixed an issue where a Beanstalk app would sporadically use the EC2 providers for commands. (e.g. `ssh`)
+
 # 0.0.110 (Jan 18, 2024)
 * Fixed `error starting ssm session` bug when using `nullstone ssh` against AWS. (Upgraded aws sdk packages)
 
