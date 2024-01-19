@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
+	"github.com/nullstone-io/deployment-sdk/outputs"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"os"
@@ -78,7 +79,8 @@ var Logs = func(providers app.Providers) *cli.Command {
 			}
 
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				logStreamer, err := providers.FindLogStreamer(logging.StandardOsWriters{}, cfg, appDetails)
+				source := outputs.ApiRetrieverSource{Config: cfg}
+				logStreamer, err := providers.FindLogStreamer(logging.StandardOsWriters{}, source, appDetails)
 				if err != nil {
 					return err
 				}

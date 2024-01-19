@@ -7,12 +7,11 @@ import (
 	"github.com/nullstone-io/deployment-sdk/display"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
-	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 )
 
-func NewStatuser(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (admin.Statuser, error) {
-	outs, err := outputs.Retrieve[Outputs](nsConfig, appDetails.Workspace)
+func NewStatuser(osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (admin.Statuser, error) {
+	outs, err := outputs.Retrieve[Outputs](source, appDetails.Workspace)
 	if err != nil {
 		return nil, err
 	}

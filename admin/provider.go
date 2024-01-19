@@ -3,11 +3,11 @@ package admin
 import (
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
-	"gopkg.in/nullstone-io/go-api-client.v0"
+	"github.com/nullstone-io/deployment-sdk/outputs"
 )
 
-type NewStatuserFunc func(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (Statuser, error)
-type NewRemoterFunc func(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (Remoter, error)
+type NewStatuserFunc func(osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (Statuser, error)
+type NewRemoterFunc func(osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (Remoter, error)
 
 type Provider struct {
 	NewStatuser NewStatuserFunc

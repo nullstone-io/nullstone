@@ -3,26 +3,26 @@ package admin
 import (
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
-	"gopkg.in/nullstone-io/go-api-client.v0"
+	"github.com/nullstone-io/deployment-sdk/outputs"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
 type Providers map[types.ModuleContractName]Provider
 
-func (s Providers) FindStatuser(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (Statuser, error) {
+func (s Providers) FindStatuser(osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (Statuser, error) {
 	factory := s.FindFactory(*appDetails.Module)
 	if factory == nil || factory.NewStatuser == nil {
 		return nil, nil
 	}
-	return factory.NewStatuser(osWriters, nsConfig, appDetails)
+	return factory.NewStatuser(osWriters, source, appDetails)
 }
 
-func (s Providers) FindRemoter(osWriters logging.OsWriters, nsConfig api.Config, appDetails app.Details) (Remoter, error) {
+func (s Providers) FindRemoter(osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (Remoter, error) {
 	factory := s.FindFactory(*appDetails.Module)
 	if factory == nil || factory.NewRemoter == nil {
 		return nil, nil
 	}
-	return factory.NewRemoter(osWriters, nsConfig, appDetails)
+	return factory.NewRemoter(osWriters, source, appDetails)
 }
 
 func (s Providers) FindFactory(curModule types.Module) *Provider {

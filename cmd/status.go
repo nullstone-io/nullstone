@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/logging"
+	"github.com/nullstone-io/deployment-sdk/outputs"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
@@ -86,7 +87,8 @@ func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, w
 				"Version": awi.Version,
 			}
 
-			statuser, err := providers.FindStatuser(logging.StandardOsWriters{}, cfg, awi.AppDetails)
+			source := outputs.ApiRetrieverSource{Config: cfg}
+			statuser, err := providers.FindStatuser(logging.StandardOsWriters{}, source, awi.AppDetails)
 			if err != nil {
 				fmt.Fprintf(writer, "Status failed to initialize: %s\n", err)
 			} else if statuser != nil {
@@ -126,7 +128,8 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers admin.Providers
 		fmt.Fprintln(writer)
 
 		var detailReport admin.StatusDetailReports
-		statuser, err := providers.FindStatuser(logging.StandardOsWriters{}, cfg, awi.AppDetails)
+		source := outputs.ApiRetrieverSource{Config: cfg}
+		statuser, err := providers.FindStatuser(logging.StandardOsWriters{}, source, awi.AppDetails)
 		if err != nil {
 			fmt.Fprintf(writer, "Detailed status failed to initialize: %s\n", err)
 		} else if statuser != nil {

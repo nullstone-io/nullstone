@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
+	"github.com/nullstone-io/deployment-sdk/outputs"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
@@ -43,7 +44,8 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 			}
 
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				remoter, err := providers.FindRemoter(logging.StandardOsWriters{}, cfg, appDetails)
+				source := outputs.ApiRetrieverSource{Config: cfg}
+				remoter, err := providers.FindRemoter(logging.StandardOsWriters{}, source, appDetails)
 				if err != nil {
 					return err
 				} else if remoter == nil {

@@ -7,6 +7,7 @@ import (
 	"github.com/cristalhq/jwt/v3"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
+	"github.com/nullstone-io/deployment-sdk/outputs"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
@@ -44,12 +45,14 @@ var Exec = func(appProviders app.Providers, providers admin.Providers) *cli.Comm
 					return fmt.Errorf("unable to load the current user info")
 				}
 
-				logStreamer, err := appProviders.FindLogStreamer(logging.StandardOsWriters{}, cfg, appDetails)
+				source := outputs.ApiRetrieverSource{Config: cfg}
+
+				logStreamer, err := appProviders.FindLogStreamer(logging.StandardOsWriters{}, source, appDetails)
 				if err != nil {
 					return err
 				}
 
-				remoter, err := providers.FindRemoter(logging.StandardOsWriters{}, cfg, appDetails)
+				remoter, err := providers.FindRemoter(logging.StandardOsWriters{}, source, appDetails)
 				if err != nil {
 					return err
 				}

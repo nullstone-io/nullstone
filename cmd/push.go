@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
+	"github.com/nullstone-io/deployment-sdk/outputs"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 )
@@ -41,7 +42,8 @@ func push(ctx context.Context, cfg api.Config, appDetails app.Details, osWriters
 	if provider.NewPusher == nil {
 		return fmt.Errorf("This app does not support push.")
 	}
-	pusher, err := provider.NewPusher(osWriters, cfg, appDetails)
+	retrieverSource := outputs.ApiRetrieverSource{Config: cfg}
+	pusher, err := provider.NewPusher(osWriters, retrieverSource, appDetails)
 	if err != nil {
 		return fmt.Errorf("error creating app pusher: %w", err)
 	} else if pusher == nil {
