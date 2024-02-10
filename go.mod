@@ -2,6 +2,8 @@ module gopkg.in/nullstone-io/nullstone.v0
 
 go 1.21
 
+toolchain go1.21.3
+
 require (
 	github.com/aws/aws-sdk-go-v2 v1.24.1
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.37.0
@@ -10,7 +12,7 @@ require (
 	github.com/cristalhq/jwt/v3 v3.1.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
-	github.com/nullstone-io/deployment-sdk v0.0.0-20240119221556-8aa8a346063f
+	github.com/nullstone-io/deployment-sdk v0.0.0-20240209040346-b0362626d42f
 	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.8.4
@@ -23,6 +25,8 @@ require (
 	k8s.io/client-go v0.27.2
 	k8s.io/kubectl v0.27.1
 )
+
+replace github.com/nullstone-io/deployment-sdk => ../deployment-sdk
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.2

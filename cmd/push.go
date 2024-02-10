@@ -49,6 +49,7 @@ func push(ctx context.Context, cfg api.Config, appDetails app.Details, osWriters
 	} else if pusher == nil {
 		return fmt.Errorf("this CLI does not support application category=%s, type=%s", appDetails.Module.Category, appDetails.Module.Type)
 	}
+
 	stdout := osWriters.Stdout()
 	fmt.Fprintln(stdout, "Pushing app artifact...")
 	if err := pusher.Push(ctx, source, version); err != nil {

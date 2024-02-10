@@ -1,9 +1,7 @@
-package cmd
+package vcs
 
-import "gopkg.in/nullstone-io/nullstone.v0/vcs"
-
-func getCurrentCommitSha() (string, error) {
-	repo, err := vcs.GetGitRepo()
+func GetCurrentCommitSha() (string, error) {
+	repo, err := GetGitRepo()
 	if err != nil {
 		return "", err
 	}
