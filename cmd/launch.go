@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
-	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"os"
@@ -27,14 +26,23 @@ var Launch = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				source, version := c.String("source"), DetectAppVersion(c)
-				osWriters := logging.StandardOsWriters{}
-				factory := providers.FindFactory(*appDetails.Module)
-				if factory == nil {
-					return fmt.Errorf("this app module is not supported")
+				source, version := c.String("source"), c.String("version")
+
+				pusher, err := getPusher(providers, cfg, appDetails)
+				if err != nil {
+					return err
 				}
 
-				err := push(ctx, cfg, appDetails, osWriters, factory, source, version)
+				if version == "" {
+					fmt.Fprintf(os.Stderr, "No version specified. Defaulting version based on current git commit sha...\n")
+					version, err = calcNewVersion(ctx, *pusher)
+					if err != nil {
+						return err
+					}
+					fmt.Fprintf(os.Stderr, "Version defaulted to: %s\n", version)
+				}
+
+				err = push(ctx, *pusher, source, version)
 				if err != nil {
 					return err
 				}

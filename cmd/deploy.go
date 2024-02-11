@@ -8,6 +8,8 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/go-api-client.v0/ws"
+	"gopkg.in/nullstone-io/nullstone.v0/vcs"
+	version2 "gopkg.in/nullstone-io/nullstone.v0/version"
 	"os"
 	"time"
 )
@@ -31,9 +33,20 @@ var Deploy = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				version, wait := DetectAppVersion(c), c.IsSet("wait")
+				version, wait := c.String("version"), c.IsSet("wait")
+
 				if version == "" {
-					return fmt.Errorf("no version specified, version is required to create a deploy")
+					fmt.Fprintf(os.Stderr, "No version specified. Defaulting version based on current git commit sha...\n")
+					pusher, err := getPusher(providers, cfg, appDetails)
+					if err != nil {
+						return err
+					}
+
+					version, err = getCurrentVersion(ctx, *pusher)
+					if err != nil {
+						return err
+					}
+					fmt.Fprintf(os.Stderr, "Version defaulted to: %s\n", version)
 				}
 
 				fmt.Fprintln(os.Stderr, "Creating deploy...")
@@ -47,6 +60,28 @@ var Deploy = func(providers app.Providers) *cli.Command {
 			})
 		},
 	}
+}
+
+func getCurrentVersion(ctx context.Context, pusher app.Pusher) (string, error) {
+	shortSha, err := vcs.GetCurrentShortCommitSha()
+	if err != nil {
+		return "", fmt.Errorf("error calculating version: %w", err)
+	}
+
+	artifacts, err := pusher.ListArtifacts(ctx)
+	if err != nil {
+		return "", fmt.Errorf("error calculating version: %w", err)
+	}
+
+	seq := version2.FindLatestVersionSequence(shortSha, artifacts)
+	if err != nil {
+		return "", fmt.Errorf("error calculating version: %w", err)
+	}
+
+	if seq == 0 {
+		return "", fmt.Errorf("no artifacts found for this commit SHA (%s) - you must perform a successful push before deploying", shortSha)
+	}
+	return fmt.Sprintf("%s-%d", shortSha, seq), nil
 }
 
 func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy, wait bool) error {
