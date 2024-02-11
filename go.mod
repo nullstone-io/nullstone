@@ -2,8 +2,6 @@ module gopkg.in/nullstone-io/nullstone.v0
 
 go 1.21
 
-toolchain go1.21.3
-
 require (
 	github.com/aws/aws-sdk-go-v2 v1.24.1
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.37.0
