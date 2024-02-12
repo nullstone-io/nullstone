@@ -69,7 +69,8 @@ func calcNewVersion(ctx context.Context, pusher app.Pusher) (string, error) {
 
 	artifacts, err := pusher.ListArtifactVersions(ctx)
 	if err != nil {
-		return "", fmt.Errorf("error calculating version: %w", err)
+		// if we aren't able to pull the list of artifact versions, we can just use the short sha as the fallback
+		return shortSha, nil
 	}
 
 	seq := version2.FindLatestVersionSequence(shortSha, artifacts)
