@@ -10,7 +10,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/vcs"
 	version2 "gopkg.in/nullstone-io/nullstone.v0/version"
-	"os"
 )
 
 // Push command performs a docker push to an authenticated image registry configured against an app/container
@@ -29,6 +28,7 @@ var Push = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
+				osWriters := logging.StandardOsWriters{}
 				source, version := c.String("source"), c.String("version")
 
 				pusher, err := getPusher(providers, cfg, appDetails)
@@ -37,38 +37,28 @@ var Push = func(providers app.Providers) *cli.Command {
 				}
 
 				if version == "" {
-					fmt.Fprintf(os.Stderr, "No version specified. Defaulting version based on current git commit sha...\n")
-					version, err = calcNewVersion(ctx, *pusher)
+					fmt.Fprintf(osWriters.Stderr(), "No version specified. Defaulting version based on current git commit sha...\n")
+					version, err = calcNewVersion(ctx, pusher)
 					if err != nil {
 						return err
 					}
-					fmt.Fprintf(os.Stderr, "Version defaulted to: %s\n", version)
+					fmt.Fprintf(osWriters.Stderr(), "Version defaulted to: %s\n", version)
 				}
 
-				return push(ctx, *pusher, source, version)
+				return push(ctx, osWriters, pusher, source, version)
 			})
 		},
 	}
 }
 
-func getPusher(providers app.Providers, cfg api.Config, appDetails app.Details) (*app.Pusher, error) {
-	osWriters := logging.StandardOsWriters{}
-	provider := providers.FindFactory(*appDetails.Module)
-	if provider == nil {
-		return nil, fmt.Errorf("push is not supported for this app")
-	}
-
-	if provider.NewPusher == nil {
-		return nil, fmt.Errorf("this app does not support push")
-	}
-	retriever := outputs.ApiRetrieverSource{Config: cfg}
-	pusher, err := provider.NewPusher(osWriters, retriever, appDetails)
+func getPusher(providers app.Providers, cfg api.Config, appDetails app.Details) (app.Pusher, error) {
+	pusher, err := providers.FindPusher(logging.StandardOsWriters{}, outputs.ApiRetrieverSource{Config: cfg}, appDetails)
 	if err != nil {
 		return nil, fmt.Errorf("error creating app pusher: %w", err)
 	} else if pusher == nil {
 		return nil, fmt.Errorf("this application category=%s, type=%s does not support push", appDetails.Module.Category, appDetails.Module.Type)
 	}
-	return &pusher, nil
+	return pusher, nil
 }
 
 func calcNewVersion(ctx context.Context, pusher app.Pusher) (string, error) {
@@ -77,7 +67,7 @@ func calcNewVersion(ctx context.Context, pusher app.Pusher) (string, error) {
 		return "", fmt.Errorf("error calculating version: %w", err)
 	}
 
-	artifacts, err := pusher.ListArtifacts(ctx)
+	artifacts, err := pusher.ListArtifactVersions(ctx)
 	if err != nil {
 		return "", fmt.Errorf("error calculating version: %w", err)
 	}
@@ -92,12 +82,12 @@ func calcNewVersion(ctx context.Context, pusher app.Pusher) (string, error) {
 	return version, nil
 }
 
-func push(ctx context.Context, pusher app.Pusher, source, version string) error {
-	fmt.Fprintln(os.Stderr, "Pushing app artifact...")
+func push(ctx context.Context, osWriters logging.OsWriters, pusher app.Pusher, source, version string) error {
+	fmt.Fprintln(osWriters.Stderr(), "Pushing app artifact...")
 	if err := pusher.Push(ctx, source, version); err != nil {
 		return fmt.Errorf("error pushing artifact: %w", err)
 	}
-	fmt.Fprintln(os.Stderr, "App artifact pushed.")
-	fmt.Fprintln(os.Stderr, "")
+	fmt.Fprintln(osWriters.Stderr(), "App artifact pushed.")
+	fmt.Fprintln(osWriters.Stderr(), "")
 	return nil
 }

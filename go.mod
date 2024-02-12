@@ -10,7 +10,7 @@ require (
 	github.com/cristalhq/jwt/v3 v3.1.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
-	github.com/nullstone-io/deployment-sdk v0.0.0-20240211200630-a263af44ccfb
+	github.com/nullstone-io/deployment-sdk v0.0.0-20240212161426-e73f134ed784
 	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.8.4

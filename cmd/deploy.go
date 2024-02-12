@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
+	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/go-api-client.v0/ws"
 	"gopkg.in/nullstone-io/nullstone.v0/vcs"
 	version2 "gopkg.in/nullstone-io/nullstone.v0/version"
-	"os"
 	"time"
 )
 
@@ -33,30 +33,31 @@ var Deploy = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
+				osWriters := logging.StandardOsWriters{}
 				version, wait := c.String("version"), c.IsSet("wait")
 
 				if version == "" {
-					fmt.Fprintf(os.Stderr, "No version specified. Defaulting version based on current git commit sha...\n")
+					fmt.Fprintf(osWriters.Stderr(), "No version specified. Defaulting version based on current git commit sha...\n")
 					pusher, err := getPusher(providers, cfg, appDetails)
 					if err != nil {
 						return err
 					}
 
-					version, err = getCurrentVersion(ctx, *pusher)
+					version, err = getCurrentVersion(ctx, pusher)
 					if err != nil {
 						return err
 					}
-					fmt.Fprintf(os.Stderr, "Version defaulted to: %s\n", version)
+					fmt.Fprintf(osWriters.Stderr(), "Version defaulted to: %s\n", version)
 				}
 
-				fmt.Fprintln(os.Stderr, "Creating deploy...")
+				fmt.Fprintln(osWriters.Stderr(), "Creating deploy...")
 				deploy, err := CreateDeploy(cfg, appDetails, version)
 				if err != nil {
 					return err
 				}
 
-				fmt.Fprintln(os.Stderr)
-				return streamDeployLogs(ctx, cfg, *deploy, wait)
+				fmt.Fprintln(osWriters.Stderr())
+				return streamDeployLogs(ctx, osWriters, cfg, *deploy, wait)
 			})
 		},
 	}
@@ -68,7 +69,7 @@ func getCurrentVersion(ctx context.Context, pusher app.Pusher) (string, error) {
 		return "", fmt.Errorf("error calculating version: %w", err)
 	}
 
-	artifacts, err := pusher.ListArtifacts(ctx)
+	artifacts, err := pusher.ListArtifactVersions(ctx)
 	if err != nil {
 		return "", fmt.Errorf("error calculating version: %w", err)
 	}
@@ -84,8 +85,8 @@ func getCurrentVersion(ctx context.Context, pusher app.Pusher) (string, error) {
 	return fmt.Sprintf("%s-%d", shortSha, seq), nil
 }
 
-func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy, wait bool) error {
-	fmt.Fprintln(os.Stderr, "Waiting for deploy logs...")
+func streamDeployLogs(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, deploy types.Deploy, wait bool) error {
+	fmt.Fprintln(osWriters.Stderr(), "Waiting for deploy logs...")
 	client := api.Client{Config: cfg}
 	msgs, err := client.DeployLogs().Watch(ctx, deploy.StackId, deploy.Id, ws.RetryInfinite(2*time.Second))
 	if err != nil {
@@ -99,14 +100,14 @@ func streamDeployLogs(ctx context.Context, cfg api.Config, deploy types.Deploy, 
 			// Stop streaming logs if we receive a log message from wait-healthy and no --wait
 			break
 		}
-		fmt.Fprint(os.Stderr, msg.Content)
+		fmt.Fprint(osWriters.Stderr(), msg.Content)
 	}
 
 	updated, err := client.Deploys().Get(deploy.StackId, deploy.AppId, deploy.EnvId, deploy.Id)
 	if err != nil {
 		return fmt.Errorf("error retrieving deploy status: %w", err)
 	}
-	fmt.Fprintln(os.Stdout, updated.Reference)
+	fmt.Fprintln(osWriters.Stdout(), updated.Reference)
 	switch updated.Status {
 	case types.DeployStatusCancelled:
 		return fmt.Errorf("Deploy was cancelled.")

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
+	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"os"
 )
 
 // Launch command performs push, deploy, and logs
@@ -26,6 +26,7 @@ var Launch = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
+				osWriters := logging.StandardOsWriters{}
 				source, version := c.String("source"), c.String("version")
 
 				pusher, err := getPusher(providers, cfg, appDetails)
@@ -34,27 +35,27 @@ var Launch = func(providers app.Providers) *cli.Command {
 				}
 
 				if version == "" {
-					fmt.Fprintf(os.Stderr, "No version specified. Defaulting version based on current git commit sha...\n")
-					version, err = calcNewVersion(ctx, *pusher)
+					fmt.Fprintf(osWriters.Stderr(), "No version specified. Defaulting version based on current git commit sha...\n")
+					version, err = calcNewVersion(ctx, pusher)
 					if err != nil {
 						return err
 					}
-					fmt.Fprintf(os.Stderr, "Version defaulted to: %s\n", version)
+					fmt.Fprintf(osWriters.Stderr(), "Version defaulted to: %s\n", version)
 				}
 
-				err = push(ctx, *pusher, source, version)
+				err = push(ctx, osWriters, pusher, source, version)
 				if err != nil {
 					return err
 				}
 
-				fmt.Fprintln(os.Stderr, "Creating deploy...")
+				fmt.Fprintln(osWriters.Stderr(), "Creating deploy...")
 				deploy, err := CreateDeploy(cfg, appDetails, version)
 				if err != nil {
 					return err
 				}
 
-				fmt.Fprintln(os.Stderr)
-				return streamDeployLogs(ctx, cfg, *deploy, true)
+				fmt.Fprintln(osWriters.Stderr())
+				return streamDeployLogs(ctx, osWriters, cfg, *deploy, true)
 			})
 		},
 	}
