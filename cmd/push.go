@@ -38,7 +38,7 @@ var Push = func(providers app.Providers) *cli.Command {
 
 				if version == "" {
 					fmt.Fprintf(osWriters.Stderr(), "No version specified. Defaulting version based on current git commit sha...\n")
-					version, err = calcNewVersion(ctx, pusher)
+					_, version, err = calcNewVersion(ctx, pusher)
 					if err != nil {
 						return err
 					}
@@ -61,26 +61,26 @@ func getPusher(providers app.Providers, cfg api.Config, appDetails app.Details) 
 	return pusher, nil
 }
 
-func calcNewVersion(ctx context.Context, pusher app.Pusher) (string, error) {
+func calcNewVersion(ctx context.Context, pusher app.Pusher) (string, string, error) {
 	shortSha, err := vcs.GetCurrentShortCommitSha()
 	if err != nil {
-		return "", fmt.Errorf("error calculating version: %w", err)
+		return "", "", fmt.Errorf("error calculating version: %w", err)
 	}
 
 	artifacts, err := pusher.ListArtifactVersions(ctx)
 	if err != nil {
 		// if we aren't able to pull the list of artifact versions, we can just use the short sha as the fallback
-		return shortSha, nil
+		return shortSha, shortSha, nil
 	}
 
 	seq := version2.FindLatestVersionSequence(shortSha, artifacts)
 	if err != nil {
-		return "", fmt.Errorf("error calculating version: %w", err)
+		return shortSha, "", fmt.Errorf("error calculating version: %w", err)
 	}
 
 	version := fmt.Sprintf("%s-%d", shortSha, seq+1)
 
-	return version, nil
+	return shortSha, version, nil
 }
 
 func push(ctx context.Context, osWriters logging.OsWriters, pusher app.Pusher, source, version string) error {

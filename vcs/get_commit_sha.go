@@ -5,10 +5,11 @@ func GetCurrentShortCommitSha() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if len(sha) < 7 {
-		return "", nil
+	maxLength := 7
+	if len(sha) < maxLength {
+		maxLength = len(sha)
 	}
-	return sha[0:7], nil
+	return sha[0:maxLength], nil
 }
 
 func GetCurrentCommitSha() (string, error) {

@@ -36,6 +36,7 @@ var Deploy = func(providers app.Providers) *cli.Command {
 				osWriters := logging.StandardOsWriters{}
 				version, wait := c.String("version"), c.IsSet("wait")
 
+				commitSha := ""
 				if version == "" {
 					fmt.Fprintf(osWriters.Stderr(), "No version specified. Defaulting version based on current git commit sha...\n")
 					pusher, err := getPusher(providers, cfg, appDetails)
@@ -43,7 +44,7 @@ var Deploy = func(providers app.Providers) *cli.Command {
 						return err
 					}
 
-					version, err = getCurrentVersion(ctx, pusher)
+					commitSha, version, err = getCurrentVersion(ctx, pusher)
 					if err != nil {
 						return err
 					}
@@ -51,7 +52,7 @@ var Deploy = func(providers app.Providers) *cli.Command {
 				}
 
 				fmt.Fprintln(osWriters.Stderr(), "Creating deploy...")
-				deploy, err := CreateDeploy(cfg, appDetails, version)
+				deploy, err := CreateDeploy(cfg, appDetails, commitSha, version)
 				if err != nil {
 					return err
 				}
@@ -63,27 +64,27 @@ var Deploy = func(providers app.Providers) *cli.Command {
 	}
 }
 
-func getCurrentVersion(ctx context.Context, pusher app.Pusher) (string, error) {
+func getCurrentVersion(ctx context.Context, pusher app.Pusher) (string, string, error) {
 	shortSha, err := vcs.GetCurrentShortCommitSha()
 	if err != nil {
-		return "", fmt.Errorf("error calculating version: %w", err)
+		return "", "", fmt.Errorf("error calculating version: %w", err)
 	}
 
 	artifacts, err := pusher.ListArtifactVersions(ctx)
 	if err != nil {
 		// if we aren't able to pull the list of artifact versions, we can just use the short sha as the fallback
-		return shortSha, nil
+		return shortSha, shortSha, nil
 	}
 
 	seq := version2.FindLatestVersionSequence(shortSha, artifacts)
 	if err != nil {
-		return "", fmt.Errorf("error calculating version: %w", err)
+		return shortSha, "", fmt.Errorf("error calculating version: %w", err)
 	}
 
 	if seq == 0 {
-		return "", fmt.Errorf("no artifacts found for this commit SHA (%s) - you must perform a successful push before deploying", shortSha)
+		return shortSha, "", fmt.Errorf("no artifacts found for this commit SHA (%s) - you must perform a successful push before deploying", shortSha)
 	}
-	return fmt.Sprintf("%s-%d", shortSha, seq), nil
+	return shortSha, fmt.Sprintf("%s-%d", shortSha, seq), nil
 }
 
 func streamDeployLogs(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, deploy types.Deploy, wait bool) error {

@@ -34,9 +34,10 @@ var Launch = func(providers app.Providers) *cli.Command {
 					return err
 				}
 
+				commitSha := ""
 				if version == "" {
 					fmt.Fprintf(osWriters.Stderr(), "No version specified. Defaulting version based on current git commit sha...\n")
-					version, err = calcNewVersion(ctx, pusher)
+					commitSha, version, err = calcNewVersion(ctx, pusher)
 					if err != nil {
 						return err
 					}
@@ -49,7 +50,7 @@ var Launch = func(providers app.Providers) *cli.Command {
 				}
 
 				fmt.Fprintln(osWriters.Stderr(), "Creating deploy...")
-				deploy, err := CreateDeploy(cfg, appDetails, version)
+				deploy, err := CreateDeploy(cfg, appDetails, commitSha, version)
 				if err != nil {
 					return err
 				}
