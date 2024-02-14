@@ -1,3 +1,6 @@
+# 0.0.112 (Feb 14, 2024)
+* Fixed panic when user has not configured an API key.
+
 # 0.0.111 (Jan 19, 2024)
 * Fixed an issue where a Beanstalk app would sporadically use the EC2 providers for commands. (e.g. `ssh`)
 
