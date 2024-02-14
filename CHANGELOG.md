@@ -1,3 +1,6 @@
+# 0.0.113 (Feb 14, 2024)
+* Restoring `NULLSTONE_API_KEY` usage when running CLI commands.
+
 # 0.0.112 (Feb 14, 2024)
 * Fixed panic when user has not configured an API key.
 

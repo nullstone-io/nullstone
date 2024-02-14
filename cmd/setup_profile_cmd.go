@@ -17,15 +17,17 @@ func SetupProfileCmd(c *cli.Context) (*config.Profile, api.Config, error) {
 	if profile.Address != "" {
 		cfg.BaseAddress = profile.Address
 	}
-	cfg.AccessTokenSource = auth.RawAccessTokenSource{AccessToken: profile.ApiKey}
+	if profile.ApiKey != "" {
+		cfg.AccessTokenSource = auth.RawAccessTokenSource{AccessToken: profile.ApiKey}
+	}
 	cfg.OrgName = GetOrg(c, *profile)
 	if cfg.OrgName == "" {
 		return profile, cfg, ErrMissingOrg
 	}
-	existingToken, err := cfg.AccessTokenSource.GetAccessToken(cfg.OrgName)
-	if err != nil {
-		return nil, api.Config{}, err
+
+	if rats, ok := cfg.AccessTokenSource.(auth.RawAccessTokenSource); ok {
+		cfg.AccessTokenSource = auth.RawAccessTokenSource{AccessToken: config.CleanseApiKey(rats.AccessToken)}
 	}
-	cfg.AccessTokenSource = auth.RawAccessTokenSource{AccessToken: config.CleanseApiKey(existingToken)}
+
 	return profile, cfg, nil
 }
