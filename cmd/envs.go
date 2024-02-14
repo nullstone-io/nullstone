@@ -11,6 +11,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
 	"math"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -151,6 +152,35 @@ var EnvsNew = &cli.Command{
 	},
 }
 
+var invalidCharsMatchRe = regexp.MustCompile(`[^a-z\d\-]`) // match characters that aren't: a-z, 0-9, -
+
+// sanitizeEnvName allows a user to specify --name during `envs new` without worrying about sanitizing bad input
+func sanitizeEnvName(input string) string {
+	// 1. Convert uppercase to lowercase
+	// 2. Convert all special characters to '-'
+	// 3. Collapse double hyphens into single
+	// 4. Ensure name starts with a letter
+	// 5. Ensure env name is at most 32 chars
+	sanitized := strings.ToLower(input)
+	sanitized = invalidCharsMatchRe.ReplaceAllString(sanitized, "-")
+	for strings.Contains(sanitized, "--") {
+		sanitized = strings.ReplaceAll(sanitized, "--", "-")
+	}
+
+	if len(sanitized) > 32 {
+		// It's common to use <branch>-<pr_id>
+		// We're going to split on the last '-', and trim before that '-'
+		// If there is no '-', we will have to trim off the entire string
+		if before, after, found := strings.Cut(sanitized, "-"); found {
+			sanitized = fmt.Sprintf("%s-%s", before[:32-1-len(after)], after)
+		} else {
+			sanitized = sanitized[0:32]
+		}
+	}
+
+	return sanitized
+}
+
 var EnvsDelete = &cli.Command{
 	Name:        "delete",
 	Description: "Deletes the given environment. Before issuing this command, make sure you have destroyed all infrastructure in the environment. If you are deleting a preview environment, you can use the `--force` flag to skip the confirmation prompt.",
@@ -260,7 +290,9 @@ func createPipelineEnv(client api.Client, stackId int64, name, providerName, reg
 	if err != nil {
 		return fmt.Errorf("error creating environment: %w", err)
 	}
-	fmt.Printf("created %q environment\n", env.Name)
+
+	fmt.Fprintf(os.Stderr, "created %q environment\n", env.Name)
+	fmt.Println(env.Name)
 	return nil
 }
 
@@ -277,7 +309,8 @@ func createPreviewEnv(client api.Client, stackId int64, name string) error {
 		return fmt.Errorf("unable to create preview environment")
 	}
 
-	fmt.Printf("created %q preview environment\n", env.Name)
+	fmt.Fprintf(os.Stderr, "created %q preview environment\n", env.Name)
+	fmt.Println(env.Name)
 	return nil
 }
 

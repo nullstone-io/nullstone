@@ -1,3 +1,6 @@
+# 0.0.114 (Feb 15, 2024)
+* Sanitizing environment name before creating in `envs new` command.
+
 # 0.0.113 (Feb 14, 2024)
 * Restoring `NULLSTONE_API_KEY` usage when running CLI commands.
 
