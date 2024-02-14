@@ -105,7 +105,7 @@ var EnvsNew = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     "name",
-			Usage:    "Provide a name for this new environment",
+			Usage:    "Provide a name for this new environment. If creating a preview environment, we recommend `<branch>-<pull_request_id>`.",
 			Required: true,
 		},
 		StackRequiredFlag,
@@ -143,6 +143,7 @@ var EnvsNew = &cli.Command{
 				return fmt.Errorf("stack %q does not exist", stackName)
 			}
 
+			name = sanitizeEnvName(name)
 			if preview {
 				return createPreviewEnv(client, stack.Id, name)
 			} else {
