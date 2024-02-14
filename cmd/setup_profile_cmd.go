@@ -17,9 +17,7 @@ func SetupProfileCmd(c *cli.Context) (*config.Profile, api.Config, error) {
 	if profile.Address != "" {
 		cfg.BaseAddress = profile.Address
 	}
-	if profile.ApiKey != "" {
-		cfg.AccessTokenSource = auth.RawAccessTokenSource{AccessToken: profile.ApiKey}
-	}
+	cfg.AccessTokenSource = auth.RawAccessTokenSource{AccessToken: profile.ApiKey}
 	cfg.OrgName = GetOrg(c, *profile)
 	if cfg.OrgName == "" {
 		return profile, cfg, ErrMissingOrg
