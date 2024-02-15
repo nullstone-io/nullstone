@@ -11,10 +11,19 @@ import (
 //	this will return the largest sequence number found
 //	if no matches are found, this will return 0
 func FindLatestVersionSequence(shortSha string, artifacts []string) int {
-	sequence := 0
+	sequence := -1
 	for _, artifact := range artifacts {
 		// if we find an artifact with the same shortSha, we will increase the sequence if it is the largest
-		if strings.HasPrefix(artifact, shortSha) {
+		if artifact == shortSha || strings.HasPrefix(artifact, shortSha) {
+			// if it is an exact match, we have found the first deploy (which doesn't have a sequence appended)
+			if artifact == shortSha {
+				seq := 0
+				if seq > sequence {
+					sequence = seq
+				}
+				continue
+			}
+
 			// split the sha and sequence
 			parts := strings.Split(artifact, "-")
 			// if we don't get exactly 2 parts, this isn't the correct format so we will ignore

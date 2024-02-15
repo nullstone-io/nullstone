@@ -81,8 +81,13 @@ func getCurrentVersion(ctx context.Context, pusher app.Pusher) (string, string, 
 		return shortSha, "", fmt.Errorf("error calculating version: %w", err)
 	}
 
-	if seq == 0 {
+	// no existing deploys found for this commitSha
+	if seq == -1 {
 		return shortSha, "", fmt.Errorf("no artifacts found for this commit SHA (%s) - you must perform a successful push before deploying", shortSha)
+	}
+	// only one deploy found for this commitSha, so we don't need to append a sequence
+	if seq == 0 {
+		return shortSha, shortSha, nil
 	}
 	return shortSha, fmt.Sprintf("%s-%d", shortSha, seq), nil
 }

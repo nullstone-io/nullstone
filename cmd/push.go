@@ -78,7 +78,13 @@ func calcNewVersion(ctx context.Context, pusher app.Pusher) (string, string, err
 		return shortSha, "", fmt.Errorf("error calculating version: %w", err)
 	}
 
-	version := fmt.Sprintf("%s-%d", shortSha, seq+1)
+	version := shortSha
+	// -1 means we didn't find any existing deploys for this commitSha
+	// and we will just use the shortSha as the version
+	// otherwise we will append the sequence number
+	if seq > -1 {
+		version = fmt.Sprintf("%s-%d", shortSha, seq+1)
+	}
 
 	return shortSha, version, nil
 }
