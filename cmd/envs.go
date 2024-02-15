@@ -316,10 +316,12 @@ func createPreviewEnv(client api.Client, stackId int64, name string) error {
 }
 
 var EnvsUp = &cli.Command{
-	Name:        "up",
-	Description: "Launches an entire environment including all of its apps. This command can be used to stand up an entire preview environment.",
-	Usage:       "Launch an entire environment",
-	UsageText:   "nullstone envs up --stack=<stack> --env=<env>",
+	Name: "up",
+	Description: `Launches an entire environment including all of its apps. 
+This command can be used to stand up an entire preview environment.
+This will only build/deploy apps that have auto-deploy enabled.`,
+	Usage:     "Launch an entire environment",
+	UsageText: "nullstone envs up --stack=<stack> --env=<env>",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		EnvFlag,
@@ -335,10 +337,11 @@ var EnvsUp = &cli.Command{
 }
 
 var EnvsDown = &cli.Command{
-	Name:        "down",
-	Description: "Destroys all the apps in an environment and all their dependent infrastructure. This command is useful for tearing down preview environments once you are finished with them.",
-	Usage:       "Destroy an entire environment",
-	UsageText:   "nullstone envs down --stack=<stack> --env=<env>",
+	Name: "down",
+	Description: `Destroys all infrastructure in an environment. 
+This command is useful for tearing down preview environments once you are finished with them.`,
+	Usage:     "Destroy an entire environment",
+	UsageText: "nullstone envs down --stack=<stack> --env=<env>",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		EnvFlag,
