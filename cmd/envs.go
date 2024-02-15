@@ -11,6 +11,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
 	"math"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -104,7 +105,7 @@ var EnvsNew = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     "name",
-			Usage:    "Provide a name for this new environment",
+			Usage:    "Provide a name for this new environment. If creating a preview environment, we recommend `<branch>-<pull_request_id>`.",
 			Required: true,
 		},
 		StackRequiredFlag,
@@ -142,6 +143,7 @@ var EnvsNew = &cli.Command{
 				return fmt.Errorf("stack %q does not exist", stackName)
 			}
 
+			name = sanitizeEnvName(name)
 			if preview {
 				return createPreviewEnv(client, stack.Id, name)
 			} else {
@@ -149,6 +151,38 @@ var EnvsNew = &cli.Command{
 			}
 		})
 	},
+}
+
+var invalidCharsMatchRe = regexp.MustCompile(`[^a-z\d\-]`) // match characters that aren't: a-z, 0-9, -
+
+// sanitizeEnvName allows a user to specify --name during `envs new` without worrying about sanitizing bad input
+func sanitizeEnvName(input string) string {
+	// https://go.dev/play/p/agF5MlgKpLN
+	// 1. Convert uppercase to lowercase
+	// 2. Convert all special characters to '-'
+	// 3. Collapse double hyphens into single
+	// 4. Ensure name starts with a letter
+	// 5. Ensure env name is at most 32 chars
+	sanitized := strings.ToLower(input)
+	sanitized = invalidCharsMatchRe.ReplaceAllString(sanitized, "-")
+	for strings.Contains(sanitized, "--") {
+		sanitized = strings.ReplaceAll(sanitized, "--", "-")
+	}
+
+	if len(sanitized) > 32 {
+		// It's common to use <branch>-<pr_id>
+		// We're going to split on the last '-', and trim before that '-'
+		// If there is no '-', we will have to trim off the entire string
+		if lastIndex := strings.LastIndex(sanitized, "-"); lastIndex > -1 {
+			after := sanitized[lastIndex+1:]
+			before := sanitized[:32-1-len(after)]
+			sanitized = fmt.Sprintf("%s-%s", before, after)
+		} else {
+			sanitized = sanitized[0:32]
+		}
+	}
+
+	return sanitized
 }
 
 var EnvsDelete = &cli.Command{
@@ -260,7 +294,9 @@ func createPipelineEnv(client api.Client, stackId int64, name, providerName, reg
 	if err != nil {
 		return fmt.Errorf("error creating environment: %w", err)
 	}
-	fmt.Printf("created %q environment\n", env.Name)
+
+	fmt.Fprintf(os.Stderr, "created %q environment\n", env.Name)
+	fmt.Println(env.Name)
 	return nil
 }
 
@@ -277,15 +313,18 @@ func createPreviewEnv(client api.Client, stackId int64, name string) error {
 		return fmt.Errorf("unable to create preview environment")
 	}
 
-	fmt.Printf("created %q preview environment\n", env.Name)
+	fmt.Fprintf(os.Stderr, "created %q preview environment\n", env.Name)
+	fmt.Println(env.Name)
 	return nil
 }
 
 var EnvsUp = &cli.Command{
-	Name:        "up",
-	Description: "Launches an entire environment including all of its apps. This command can be used to stand up an entire preview environment.",
-	Usage:       "Launch an entire environment",
-	UsageText:   "nullstone envs up --stack=<stack> --env=<env>",
+	Name: "up",
+	Description: `Launches an entire environment including all of its apps. 
+This command can be used to stand up an entire preview environment.
+This will only build/deploy apps that have auto-deploy enabled.`,
+	Usage:     "Launch an entire environment",
+	UsageText: "nullstone envs up --stack=<stack> --env=<env>",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		EnvFlag,
@@ -301,10 +340,11 @@ var EnvsUp = &cli.Command{
 }
 
 var EnvsDown = &cli.Command{
-	Name:        "down",
-	Description: "Destroys all the apps in an environment and all their dependent infrastructure. This command is useful for tearing down preview environments once you are finished with them.",
-	Usage:       "Destroy an entire environment",
-	UsageText:   "nullstone envs down --stack=<stack> --env=<env>",
+	Name: "down",
+	Description: `Destroys all infrastructure in an environment. 
+This command is useful for tearing down preview environments once you are finished with them.`,
+	Usage:     "Destroy an entire environment",
+	UsageText: "nullstone envs down --stack=<stack> --env=<env>",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		EnvFlag,
