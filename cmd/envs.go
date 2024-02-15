@@ -157,6 +157,7 @@ var invalidCharsMatchRe = regexp.MustCompile(`[^a-z\d\-]`) // match characters t
 
 // sanitizeEnvName allows a user to specify --name during `envs new` without worrying about sanitizing bad input
 func sanitizeEnvName(input string) string {
+	// https://go.dev/play/p/agF5MlgKpLN
 	// 1. Convert uppercase to lowercase
 	// 2. Convert all special characters to '-'
 	// 3. Collapse double hyphens into single
@@ -172,8 +173,10 @@ func sanitizeEnvName(input string) string {
 		// It's common to use <branch>-<pr_id>
 		// We're going to split on the last '-', and trim before that '-'
 		// If there is no '-', we will have to trim off the entire string
-		if before, after, found := strings.Cut(sanitized, "-"); found {
-			sanitized = fmt.Sprintf("%s-%s", before[:32-1-len(after)], after)
+		if lastIndex := strings.LastIndex(sanitized, "-"); lastIndex > -1 {
+			after := sanitized[lastIndex+1:]
+			before := sanitized[:32-1-len(after)]
+			sanitized = fmt.Sprintf("%s-%s", before, after)
 		} else {
 			sanitized = sanitized[0:32]
 		}
