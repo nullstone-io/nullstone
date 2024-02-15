@@ -19,10 +19,7 @@ func GetBrowserUrl(cfg api.Config, workspace types.Workspace, run types.Run) str
 		u.Host = "localhost:8090"
 	}
 
-	u.Path = fmt.Sprintf("orgs/%s/stacks/%d/blocks/%d/activity", workspace.OrgName, workspace.StackId, workspace.BlockId)
-	q := url.Values{}
-	q.Set("runUid", run.Uid.String())
-	q.Set("env", fmt.Sprintf("%d", workspace.EnvId))
-	u.RawQuery = q.Encode()
+	u.Path = fmt.Sprintf("orgs/%s/stacks/%d/envs/%d/blocks/%d/activity/runs/%s",
+		workspace.OrgName, workspace.StackId, workspace.EnvId, workspace.BlockId, run.Uid)
 	return u.String()
 }
