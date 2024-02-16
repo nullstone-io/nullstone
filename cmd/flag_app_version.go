@@ -1,6 +1,9 @@
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"github.com/urfave/cli/v2"
+	"gopkg.in/nullstone-io/nullstone.v0/vcs"
+)
 
 var AppVersionFlag = &cli.StringFlag{
 	Name: "version",
@@ -12,8 +15,8 @@ func DetectAppVersion(c *cli.Context) string {
 	version := c.String("version")
 	if version == "" {
 		// If user does not specify a version, use HEAD commit sha
-		if hash, err := getCurrentCommitSha(); err == nil && len(hash) >= 8 {
-			return hash[0:8]
+		if hash, err := vcs.GetCurrentCommitSha(); err == nil && len(hash) >= 7 {
+			return hash[0:7]
 		}
 	}
 	return version

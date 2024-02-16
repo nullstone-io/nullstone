@@ -6,6 +6,7 @@ import (
 	"golang.org/x/mod/semver"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/modules"
+	"gopkg.in/nullstone-io/nullstone.v0/vcs"
 	"os"
 	"path"
 	"strings"
@@ -144,8 +145,8 @@ var ModulesPublish = &cli.Command{
 					return err
 				}
 				var commitSha string
-				if hash, err := getCurrentCommitSha(); err == nil && len(hash) >= 8 {
-					commitSha = hash[0:8]
+				if hash, err := vcs.GetCurrentCommitSha(); err == nil && len(hash) >= 7 {
+					commitSha = hash[0:7]
 				} else {
 					return fmt.Errorf("Using --version=next-build requires a git repository with a commit. Cannot find commit SHA: %w", err)
 				}
