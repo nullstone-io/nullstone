@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
-	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 )
@@ -23,11 +22,10 @@ var Launch = func(providers app.Providers) *cli.Command {
 			OldEnvFlag,
 			AppSourceFlag,
 			AppVersionFlag,
-			WaitForLaunchFlag,
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				osWriters := logging.StandardOsWriters{}
+				osWriters := CliOsWriters{Context: c}
 				source, version := c.String("source"), c.String("version")
 
 				pusher, err := getPusher(providers, cfg, appDetails)

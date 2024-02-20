@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"github.com/nullstone-io/deployment-sdk/app"
-	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -54,7 +53,6 @@ var Logs = func(providers app.Providers) *cli.Command {
        Use --interval to control how often to query log events.
        This is off by default. Unless this option is provided, this command will exit as soon as current log events are emitted.`,
 			},
-			WaitForLaunchFlag,
 		},
 		Action: func(c *cli.Context) error {
 			logStreamOptions := app.LogStreamOptions{
@@ -80,8 +78,9 @@ var Logs = func(providers app.Providers) *cli.Command {
 			}
 
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
+				osWriters := CliOsWriters{Context: c}
 				source := outputs.ApiRetrieverSource{Config: cfg}
-				logStreamer, err := providers.FindLogStreamer(logging.StandardOsWriters{}, source, appDetails)
+				logStreamer, err := providers.FindLogStreamer(osWriters, source, appDetails)
 				if err != nil {
 					return err
 				}

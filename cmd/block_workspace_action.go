@@ -8,7 +8,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"log"
-	"os"
 )
 
 type BlockWorkspaceActionFn func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error
@@ -28,7 +27,7 @@ func BlockWorkspaceAction(c *cli.Context, fn BlockWorkspaceActionFn) error {
 		return err
 	}
 
-	logger := log.New(os.Stderr, "", 0)
+	logger := log.New(c.App.ErrWriter, "", 0)
 	logger.Printf("Performing workspace command (Org=%s, Block=%s, Stack=%s, Env=%s)", cfg.OrgName, sbe.Block.Name, sbe.Stack.Name, sbe.Env.Name)
 	logger.Println()
 

@@ -16,11 +16,8 @@ func AppWorkspaceAction(c *cli.Context, fn AppWorkspaceFn) error {
 		return err
 	}
 
-	waitForLaunch := c.Bool(WaitForLaunchFlag.Name)
-	osWriters := CliOsWriters{Context: c}
-
 	return ParseAppEnv(c, true, func(stackName, appName, envName string) error {
-		logger := log.New(osWriters.Stderr(), "", 0)
+		logger := log.New(c.App.ErrWriter, "", 0)
 		logger.Printf("Performing application command (Org=%s, App=%s, Stack=%s, Env=%s)", cfg.OrgName, appName, stackName, envName)
 		logger.Println()
 
@@ -30,10 +27,6 @@ func AppWorkspaceAction(c *cli.Context, fn AppWorkspaceFn) error {
 		}
 
 		return CancellableAction(func(ctx context.Context) error {
-			if err := WaitForLaunch(ctx, osWriters, cfg, &appDetails, waitForLaunch); err != nil {
-				return err
-			}
-
 			return fn(ctx, cfg, app.Details{
 				App:       appDetails.App,
 				Env:       appDetails.Env,

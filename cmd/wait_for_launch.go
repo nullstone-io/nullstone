@@ -5,22 +5,11 @@ import (
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
-	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
 )
-
-var WaitForLaunchFlag = &cli.BoolFlag{
-	Name: "wait-for-launch",
-	Usage: `If a workspace is pending launch, this command will track the launch and execute after the launch completes successfully.
-If the workspace launch fails, the command will fail before executing.
-By default, this is enabled. Set wait-for-launch=false to disable.
-The CLI has a 1h timeout to complete a run before this command will cancel.
-If a run needs approval to proceed, the timeout will shorten to 15m.`,
-	Value: true,
-}
 
 func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, appDetails *app.Details, waitForLaunch bool) error {
 	ws := *appDetails.Workspace
