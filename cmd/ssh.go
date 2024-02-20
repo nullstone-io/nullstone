@@ -32,7 +32,6 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 				Aliases: []string{"L"},
 				Usage:   "Use this to forward ports from host to local machine. Format: <local-port>:[<remote-host>]:<remote-port>",
 			},
-			WaitForLaunchFlag,
 		},
 		Action: func(c *cli.Context) error {
 			forwards := make([]config.PortForward, 0)
