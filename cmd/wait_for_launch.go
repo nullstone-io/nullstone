@@ -46,9 +46,9 @@ func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Con
 	fmt.Fprintf(stderr, "Waiting for app %q to launch in %q environment...\n", appDetails.App.Name, appDetails.Env.Name)
 	fmt.Fprintf(stderr, "Watching run for launch: %s\n", runs.GetBrowserUrl(cfg, ws, track))
 
-	result := runs.WaitForTerminal(ctx, osWriters, cfg, ws, track)
-	if result.Status == "" {
-		return fmt.Errorf("Cancelled operation")
+	result, err := runs.WaitForTerminal(ctx, osWriters, cfg, ws, track)
+	if err != nil {
+		return err
 	} else if result.Status == types.RunStatusCompleted {
 		fmt.Fprintln(stderr, "App launched successfully.")
 		fmt.Fprintln(stderr, "")

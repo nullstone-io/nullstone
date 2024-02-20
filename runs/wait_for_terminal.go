@@ -15,7 +15,7 @@ var (
 	WaitForNeedsApprovalTimeout = 15 * time.Minute
 )
 
-func WaitForTerminal(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, ws types.Workspace, track types.Run) types.Run {
+func WaitForTerminal(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, ws types.Workspace, track types.Run) (types.Run, error) {
 	stderr := osWriters.Stderr()
 	// ctx already contains cancellation for Ctrl+C
 	// innerCtx will allow us to cancel when the run reaches a terminal status
@@ -35,7 +35,7 @@ func WaitForTerminal(ctx context.Context, osWriters logging.OsWriters, cfg api.C
 		select {
 		case updatedRun = <-runCh:
 			if types.IsTerminalRunStatus(updatedRun.Status) {
-				return updatedRun
+				return updatedRun, nil
 			}
 			if updatedRun.Status == types.RunStatusNeedsApproval {
 				printApprovalMsg.Do(func() {
@@ -47,9 +47,9 @@ func WaitForTerminal(ctx context.Context, osWriters logging.OsWriters, cfg api.C
 			}
 		case <-waitTimeout.C:
 			fmt.Fprintln(stderr, "Timed out waiting for app to provision.")
-			return updatedRun
+			return updatedRun, fmt.Errorf("Operation cancelled")
 		case <-ctx.Done():
-			return updatedRun
+			return updatedRun, fmt.Errorf("User cancelled operation")
 		}
 	}
 }
