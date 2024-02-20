@@ -54,6 +54,7 @@ var Logs = func(providers app.Providers) *cli.Command {
        Use --interval to control how often to query log events.
        This is off by default. Unless this option is provided, this command will exit as soon as current log events are emitted.`,
 			},
+			WaitForLaunchFlag,
 		},
 		Action: func(c *cli.Context) error {
 			logStreamOptions := app.LogStreamOptions{

@@ -23,6 +23,7 @@ var Launch = func(providers app.Providers) *cli.Command {
 			OldEnvFlag,
 			AppSourceFlag,
 			AppVersionFlag,
+			WaitForLaunchFlag,
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {

@@ -28,6 +28,7 @@ var Exec = func(appProviders app.Providers, providers admin.Providers) *cli.Comm
 			TaskFlag,
 			PodFlag,
 			ContainerFlag,
+			WaitForLaunchFlag,
 		},
 		Action: func(c *cli.Context) error {
 			var cmd []string
