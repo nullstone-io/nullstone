@@ -83,7 +83,7 @@ func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Con
 	timeout time.Duration, approvalTimeout time.Duration) error {
 	stderr := osWriters.Stderr()
 	if details.Workspace.Status == types.WorkspaceStatusProvisioned {
-		fmt.Fprintln(stderr, "Workspace is already launched.")
+		fmt.Fprintln(stderr, "Workspace has launched already.")
 		return nil
 	}
 
@@ -107,6 +107,7 @@ func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Con
 	} else if result.Status == types.RunStatusCompleted {
 		fmt.Fprintln(stderr, "Workspace launched successfully.")
 		fmt.Fprintln(stderr, "")
+		return nil
 	}
 	fmt.Fprintf(stderr, "Workspace failed to launch because run finished with %q status.\n", result.Status)
 	return fmt.Errorf("Could not run command because app failed to launch")
