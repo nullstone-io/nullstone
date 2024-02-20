@@ -28,7 +28,7 @@ func WaitForTerminalRun(ctx context.Context, osWriters logging.OsWriters, cfg ap
 	// This timer provides a timeout when we reach "needs-approval"
 	// This timer starts with an extremely large timeout value, so it doesn't trigger;
 	// When we reach "needs-approval", the timer is reset to the user-specified "approvalTimeout"
-	approvalTimer := time.NewTimer(24 * time.Hour)
+	approvalTimer := time.NewTimer(7 * 24 * time.Hour)
 	defer approvalTimer.Stop()
 	var printApprovalMsg sync.Once
 	onNeedsApproval := func() {
