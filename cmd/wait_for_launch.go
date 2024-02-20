@@ -20,7 +20,7 @@ By default, this is enabled. Set wait-for-launch=false to disable.`,
 	Value: true,
 }
 
-func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, appDetails app.Details, waitForLaunch bool) error {
+func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, appDetails *app.Details, waitForLaunch bool) error {
 	ws := *appDetails.Workspace
 	if ws.Status == types.WorkspaceStatusProvisioned {
 		return nil
@@ -52,6 +52,13 @@ func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Con
 	} else if result.Status == types.RunStatusCompleted {
 		fmt.Fprintln(stderr, "App launched successfully.")
 		fmt.Fprintln(stderr, "")
+
+		// We need to reload the workspace to hydrate with the LastFinishedRun
+		client := api.Client{Config: cfg}
+		appDetails.Workspace, err = client.Workspaces().Get(appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id)
+		if err != nil {
+			return fmt.Errorf("The app launched, but there was an error retrieving the workspace: %w", err)
+		}
 		return nil
 	}
 	fmt.Fprintf(stderr, "App failed to launch because run finished with %q status.\n", result.Status)

@@ -30,7 +30,7 @@ func AppWorkspaceAction(c *cli.Context, fn AppWorkspaceFn) error {
 		}
 
 		return CancellableAction(func(ctx context.Context) error {
-			if err := WaitForLaunch(ctx, osWriters, cfg, appDetails, waitForLaunch); err != nil {
+			if err := WaitForLaunch(ctx, osWriters, cfg, &appDetails, waitForLaunch); err != nil {
 				return err
 			}
 
