@@ -28,7 +28,7 @@ var Push = func(providers app.Providers) *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				osWriters := logging.StandardOsWriters{}
+				osWriters := CliOsWriters{Context: c}
 				source, version := c.String("source"), c.String("version")
 
 				pusher, err := getPusher(providers, cfg, appDetails)

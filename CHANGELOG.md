@@ -1,3 +1,7 @@
+# 0.0.116 (Unreleased)
+* Fixed link to run activity when running `envs up`, `plan`, `apply`, `up`.
+* Added `nullstone wait` command to enable waiting for a workspace to reach `launched`.
+
 # 0.0.115 (Feb 15, 2024)
 * Provided a better mechanism for default deploy versions. This allows multiple deploys to be run from the same git commit sha.
 * Always record the git commit sha on the deploy.

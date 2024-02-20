@@ -6,7 +6,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"log"
-	"os"
 )
 
 type AppWorkspaceFn func(ctx context.Context, cfg api.Config, appDetails app.Details) error
@@ -18,7 +17,7 @@ func AppWorkspaceAction(c *cli.Context, fn AppWorkspaceFn) error {
 	}
 
 	return ParseAppEnv(c, true, func(stackName, appName, envName string) error {
-		logger := log.New(os.Stderr, "", 0)
+		logger := log.New(c.App.ErrWriter, "", 0)
 		logger.Printf("Performing application command (Org=%s, App=%s, Stack=%s, Env=%s)", cfg.OrgName, appName, stackName, envName)
 		logger.Println()
 
