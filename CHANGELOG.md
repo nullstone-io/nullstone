@@ -1,5 +1,6 @@
 # 0.0.116 (Unreleased)
-* Fixed link to run activity when running `envs up`, `plan`, `apply`, `up`. 
+* Fixed link to run activity when running `envs up`, `plan`, `apply`, `up`.
+* By default, the following commands will wait for a workspace to launch before executing: `push`, `deploy`, `launch`, `logs`, `ssh`, `exec`.
 
 # 0.0.115 (Feb 15, 2024)
 * Provided a better mechanism for default deploy versions. This allows multiple deploys to be run from the same git commit sha.
