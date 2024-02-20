@@ -22,15 +22,15 @@ var (
        In the future, we will support --for=destroyed and --for=deployed`,
 	}
 	WaitTimeoutFlag = &cli.DurationFlag{
-		Name:        "timeout",
-		DefaultText: "1s",
+		Name:  "timeout",
+		Value: time.Hour,
 		Usage: `Set --timeout to a golang duration to control how long to wait for a status before cancelling.
        The default is '1h' (1 hour).
       `,
 	}
-	WaitApprovalTimeout = &cli.DurationFlag{
-		Name:        "approval-timeout",
-		DefaultText: "1s",
+	WaitApprovalTimeoutFlag = &cli.DurationFlag{
+		Name:  "approval-timeout",
+		Value: 15 * time.Minute,
 		Usage: `Set --approval-timeout to a golang duration to control how long to wait for approval before cancelling.
        If the workspace run never reaches "needs-approval", this has no effect.
        The default is '15m' (15 minutes).
@@ -52,11 +52,13 @@ In the future, we will add --for=destroyed and --for=deployed.`,
 			BlockFlag,
 			EnvFlag,
 			WaitForFlag,
+			WaitTimeoutFlag,
+			WaitApprovalTimeoutFlag,
 		},
 		Action: func(c *cli.Context) error {
 			waitFor := c.String(WaitForFlag.Name)
 			timeout := c.Duration(WaitTimeoutFlag.Name)
-			approvalTimeout := c.Duration(WaitApprovalTimeout.Name)
+			approvalTimeout := c.Duration(WaitApprovalTimeoutFlag.Name)
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, ws types.Workspace) error {
 				details := workspace.Details{
@@ -79,7 +81,9 @@ In the future, we will add --for=destroyed and --for=deployed.`,
 
 func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, details workspace.Details,
 	timeout time.Duration, approvalTimeout time.Duration) error {
+	stderr := osWriters.Stderr()
 	if details.Workspace.Status == types.WorkspaceStatusProvisioned {
+		fmt.Fprintln(stderr, "Workspace is already launched.")
 		return nil
 	}
 
@@ -93,18 +97,18 @@ func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Con
 		return fmt.Errorf("app %q has not been provisioned in %q environment yet", details.Block.Name, details.Env.Name)
 	}
 
-	stderr := osWriters.Stderr()
-	fmt.Fprintf(stderr, "Waiting for app %q to launch in %q environment...\n", details.Block.Name, details.Env.Name)
+	fmt.Fprintf(stderr, "Waiting for %q to launch in %q environment...\n", details.Block.Name, details.Env.Name)
 	fmt.Fprintf(stderr, "Watching run for launch: %s\n", runs.GetBrowserUrl(cfg, *details.Workspace, *launchRun))
+	fmt.Fprintf(stderr, "Timeout = %s, Approval Timeout = %s\n", timeout, approvalTimeout)
 
 	result, err := runs.WaitForTerminalRun(ctx, osWriters, cfg, *details.Workspace, *launchRun, timeout, approvalTimeout)
 	if err != nil {
 		return err
 	} else if result.Status == types.RunStatusCompleted {
-		fmt.Fprintln(stderr, "App launched successfully.")
+		fmt.Fprintln(stderr, "Workspace launched successfully.")
 		fmt.Fprintln(stderr, "")
 	}
-	fmt.Fprintf(stderr, "App failed to launch because run finished with %q status.\n", result.Status)
+	fmt.Fprintf(stderr, "Workspace failed to launch because run finished with %q status.\n", result.Status)
 	return fmt.Errorf("Could not run command because app failed to launch")
 }
 

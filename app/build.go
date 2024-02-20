@@ -39,6 +39,7 @@ func Build() *cli.App {
 		cmd.Plan(),
 		cmd.Apply(),
 		cmd.Outputs(),
+		cmd.Wait(),
 		cmd.Push(appProviders),
 		cmd.Deploy(appProviders),
 		cmd.Launch(appProviders),
