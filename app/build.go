@@ -36,6 +36,7 @@ func Build() *cli.App {
 		cmd.Modules,
 		cmd.Workspaces,
 		cmd.Up(),
+		cmd.Down(),
 		cmd.Plan(),
 		cmd.Apply(),
 		cmd.Outputs(),
