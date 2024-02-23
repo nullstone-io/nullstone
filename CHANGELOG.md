@@ -1,3 +1,6 @@
+# 0.0.117 (Feb 23, 2024)
+* Fixed issue where `push` and `deploy` did not find existing docker image tag due to ECR paging the image tags.
+
 # 0.0.116 (Feb 20, 2024)
 * Fixed link to run activity when running `envs up`, `plan`, `apply`, `up`.
 * Added `nullstone wait` command to enable waiting for a workspace to reach `launched`.

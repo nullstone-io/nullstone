@@ -752,8 +752,8 @@ github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRW
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f/go.mod h1:ZdcZmHo+o7JKHSa8/e818NopupXU1YMK5fe1lsApnBw=
 github.com/ncw/swift v1.0.47/go.mod h1:23YIA4yWVnGwv2dQlN4bB7egfYX6YLn0Yo/S6zZO/ZM=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
-github.com/nullstone-io/deployment-sdk v0.0.0-20240216035521-cd2ba1687887 h1:x8+lDD7PGvLCZnfbjP3Z9Im9Tk1y4gl4qnFokgp8ae4=
-github.com/nullstone-io/deployment-sdk v0.0.0-20240216035521-cd2ba1687887/go.mod h1:CMHFzZIZ8NY48I+Gi/+/8/l8fLRr2ZhhogLY4wgggHw=
+github.com/nullstone-io/deployment-sdk v0.0.0-20240223213433-e681a2bf1d2a h1:JeIomp4qyxCAxl4i8QC22wqsMHxZz3Q2elH/VqgKDGY=
+github.com/nullstone-io/deployment-sdk v0.0.0-20240223213433-e681a2bf1d2a/go.mod h1:sIWV4DKJ5U2ulK6ZTCZRfvBaUzi92/PmmP28AujBUZk=
 github.com/nullstone-io/module v0.2.9 h1:PcYhPEemBbc+RdP+Q/DF0+XlwJkkNb5R17Hfv8qaYyc=
 github.com/nullstone-io/module v0.2.9/go.mod h1:btQiO0giVWDvvaQ7CLnPmuPPakJc55lAr8OlE1LK6hg=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
@@ -956,6 +956,8 @@ github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1
 github.com/tmccombs/hcl2json v0.3.2-0.20201111174327-c96737926b76/go.mod h1:ljY0/prd2IFUF3cagQjV3cpPEEQKzqyGqnKI7m5DBVY=
 github.com/tmccombs/hcl2json v0.6.0 h1:Qc5NL4NQbpNnw8w8HQcA3GsVHvQDJXJwVTUxf2AEhOs=
 github.com/tmccombs/hcl2json v0.6.0/go.mod h1:QNirG4H64ZvlFsy9werRxXlWNTDR1GhWzXkjqPILHwo=
+github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80 h1:nrZ3ySNYwJbSpD6ce9duiP+QkD3JuLCcWkdaehUS/3Y=
+github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80/go.mod h1:iFyPdL66DjUD96XmzVL3ZntbzcflLnznH0fr99w5VqE=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/urfave/cli v0.0.0-20171014202726-7bc6a0acffa5/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
