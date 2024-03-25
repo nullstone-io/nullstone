@@ -1,11 +1,12 @@
 package modules
 
 import (
+	"context"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
-func Register(cfg api.Config, manifest *Manifest) (*types.Module, error) {
+func Register(ctx context.Context, cfg api.Config, manifest *Manifest) (*types.Module, error) {
 	module := &types.Module{
 		OrgName:       manifest.OrgName,
 		Name:          manifest.Name,
@@ -23,8 +24,8 @@ func Register(cfg api.Config, manifest *Manifest) (*types.Module, error) {
 	}
 
 	client := api.Client{Config: cfg}
-	if err := client.Modules().Create(module.OrgName, module); err != nil {
+	if err := client.Modules().Create(ctx, module.OrgName, module); err != nil {
 		return nil, err
 	}
-	return client.Modules().Get(module.OrgName, module.Name)
+	return client.Modules().Get(ctx, module.OrgName, module.Name)
 }

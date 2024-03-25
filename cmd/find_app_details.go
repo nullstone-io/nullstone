@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -11,9 +12,10 @@ import (
 // FindAppDetails retrieves the app, env, and workspace
 // stackName is optional -- If multiple apps are found, this will return an error
 func FindAppDetails(cfg api.Config, appName, stackName, envName string) (app.Details, error) {
+	ctx := context.TODO()
 	appDetails := app.Details{}
 
-	_, application, env, err := find.StackAppEnv(cfg, stackName, appName, envName)
+	_, application, env, err := find.StackAppEnv(ctx, cfg, stackName, appName, envName)
 	if err != nil {
 		return appDetails, err
 	}
@@ -24,7 +26,7 @@ func FindAppDetails(cfg api.Config, appName, stackName, envName string) (app.Det
 		return appDetails, err
 	}
 
-	if appDetails.Module, err = find.Module(cfg, appDetails.App.ModuleSource); err != nil {
+	if appDetails.Module, err = find.Module(ctx, cfg, appDetails.App.ModuleSource); err != nil {
 		return appDetails, err
 	} else if appDetails.Module == nil {
 		return appDetails, fmt.Errorf("can't find app module %s", appDetails.App.ModuleSource)
@@ -34,9 +36,10 @@ func FindAppDetails(cfg api.Config, appName, stackName, envName string) (app.Det
 }
 
 func getAppWorkspace(cfg api.Config, app *types.Application, env *types.Environment) (*types.Workspace, error) {
+	ctx := context.TODO()
 	client := api.Client{Config: cfg}
 
-	workspace, err := client.Workspaces().Get(app.StackId, app.Id, env.Id)
+	workspace, err := client.Workspaces().Get(ctx, app.StackId, app.Id, env.Id)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving workspace: %w", err)
 	} else if workspace == nil {

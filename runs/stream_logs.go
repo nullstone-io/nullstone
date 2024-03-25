@@ -74,7 +74,7 @@ func pollRun(ctx context.Context, cfg api.Config, stackId int64, runUid uuid.UUI
 	go func() {
 		defer close(ch)
 		for {
-			run, _ := client.Runs().Get(stackId, runUid)
+			run, _ := client.Runs().Get(ctx, stackId, runUid)
 			if run != nil {
 				ch <- *run
 			}

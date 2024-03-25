@@ -37,7 +37,7 @@ var Exec = func(appProviders app.Providers, providers admin.Providers) *cli.Comm
 
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
 				client := api.Client{Config: cfg}
-				user, err := client.CurrentUser().Get()
+				user, err := client.CurrentUser().Get(ctx)
 				if err != nil {
 					return fmt.Errorf("unable to fetch the current user")
 				}
@@ -47,12 +47,12 @@ var Exec = func(appProviders app.Providers, providers admin.Providers) *cli.Comm
 
 				source := outputs.ApiRetrieverSource{Config: cfg}
 
-				logStreamer, err := appProviders.FindLogStreamer(logging.StandardOsWriters{}, source, appDetails)
+				logStreamer, err := appProviders.FindLogStreamer(ctx, logging.StandardOsWriters{}, source, appDetails)
 				if err != nil {
 					return err
 				}
 
-				remoter, err := providers.FindRemoter(logging.StandardOsWriters{}, source, appDetails)
+				remoter, err := providers.FindRemoter(ctx, logging.StandardOsWriters{}, source, appDetails)
 				if err != nil {
 					return err
 				}

@@ -80,7 +80,7 @@ var Logs = func(providers app.Providers) *cli.Command {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
 				osWriters := CliOsWriters{Context: c}
 				source := outputs.ApiRetrieverSource{Config: cfg}
-				logStreamer, err := providers.FindLogStreamer(osWriters, source, appDetails)
+				logStreamer, err := providers.FindLogStreamer(ctx, osWriters, source, appDetails)
 				if err != nil {
 					return err
 				}

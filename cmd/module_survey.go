@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/AlecAivazis/survey/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -152,8 +153,9 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *modules.Manifest) (*modules
 }
 
 func (m *moduleSurvey) questionOrgName(cfg api.Config) *survey.Question {
+	ctx := context.TODO()
 	client := api.Client{Config: cfg}
-	orgs, _ := client.Organizations().List()
+	orgs, _ := client.Organizations().List(ctx)
 
 	return &survey.Question{
 		Name:     "OrgName",

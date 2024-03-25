@@ -55,18 +55,18 @@ var Apply = func() *cli.Command {
 						Module:        block.ModuleSource,
 						ModuleVersion: moduleVersion,
 					}
-					err := runs.SetModuleVersion(cfg, workspace, module)
+					err := runs.SetModuleVersion(ctx, cfg, workspace, module)
 					if err != nil {
 						return err
 					}
 				}
 
-				err := runs.SetConfigVars(cfg, workspace, varFlags)
+				err := runs.SetConfigVars(ctx, cfg, workspace, varFlags)
 				if err != nil {
 					return err
 				}
 
-				newRun, err := runs.Create(cfg, workspace, autoApprove, false)
+				newRun, err := runs.Create(ctx, cfg, workspace, autoApprove, false)
 				if err != nil {
 					return fmt.Errorf("error creating run: %w", err)
 				} else if newRun == nil {

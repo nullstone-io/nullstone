@@ -11,8 +11,8 @@ import (
 	"os"
 )
 
-func NewRemoter(osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (admin.Remoter, error) {
-	outs, err := outputs.Retrieve[Outputs](source, appDetails.Workspace)
+func NewRemoter(ctx context.Context, osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (admin.Remoter, error) {
+	outs, err := outputs.Retrieve[Outputs](ctx, source, appDetails.Workspace)
 	if err != nil {
 		return nil, err
 	}

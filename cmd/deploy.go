@@ -110,7 +110,7 @@ func streamDeployLogs(ctx context.Context, osWriters logging.OsWriters, cfg api.
 		fmt.Fprint(osWriters.Stderr(), msg.Content)
 	}
 
-	updated, err := client.Deploys().Get(deploy.StackId, deploy.AppId, deploy.EnvId, deploy.Id)
+	updated, err := client.Deploys().Get(ctx, deploy.StackId, deploy.AppId, deploy.EnvId, deploy.Id)
 	if err != nil {
 		return fmt.Errorf("error retrieving deploy status: %w", err)
 	}

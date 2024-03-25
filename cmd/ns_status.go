@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -19,6 +20,7 @@ type NsStatus struct {
 }
 
 func (s NsStatus) GetAppWorkspaceInfo(application *types.Application, env *types.Environment) (AppWorkspaceInfo, error) {
+	ctx := context.TODO()
 	awi := AppWorkspaceInfo{
 		AppDetails: app.Details{
 			App: application,
@@ -28,7 +30,7 @@ func (s NsStatus) GetAppWorkspaceInfo(application *types.Application, env *types
 		Version: "not-deployed",
 	}
 
-	module, err := find.Module(s.Config, awi.AppDetails.App.ModuleSource)
+	module, err := find.Module(ctx, s.Config, awi.AppDetails.App.ModuleSource)
 	if err != nil {
 		return awi, err
 	} else if module == nil {
@@ -37,7 +39,7 @@ func (s NsStatus) GetAppWorkspaceInfo(application *types.Application, env *types
 	awi.AppDetails.Module = module
 
 	client := api.Client{Config: s.Config}
-	workspace, err := client.Workspaces().Get(application.StackId, application.Id, env.Id)
+	workspace, err := client.Workspaces().Get(ctx, application.StackId, application.Id, env.Id)
 	if err != nil {
 		return awi, err
 	} else if workspace == nil {
@@ -46,7 +48,7 @@ func (s NsStatus) GetAppWorkspaceInfo(application *types.Application, env *types
 	awi.AppDetails.Workspace = workspace
 	awi.Status = s.calcInfraStatus(workspace)
 
-	appEnv, err := client.AppEnvs().Get(application.StackId, application.Id, env.Name)
+	appEnv, err := client.AppEnvs().Get(ctx, application.StackId, application.Id, env.Name)
 	if err != nil {
 		return awi, err
 	} else if appEnv != nil {

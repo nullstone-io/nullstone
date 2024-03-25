@@ -1,6 +1,7 @@
 package tfconfig
 
 import (
+	"context"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"io/ioutil"
@@ -35,7 +36,7 @@ func IsCredsConfigured(cfg api.Config) bool {
 // This configuration enables Terraform to:
 //   - Configure `backend "remote"` to reach Nullstone state backend
 //   - Download private modules from the Nullstone registry
-func ConfigCreds(cfg api.Config) error {
+func ConfigCreds(ctx context.Context, cfg api.Config) error {
 	credsFilename, err := GetCredentialsFilename()
 	if err != nil {
 		return err
@@ -47,7 +48,7 @@ func ConfigCreds(cfg api.Config) error {
 	}
 	defer file.Close()
 
-	accessToken, err := cfg.AccessTokenSource.GetAccessToken(cfg.OrgName)
+	accessToken, err := cfg.AccessTokenSource.GetAccessToken(ctx, cfg.OrgName)
 	if err != nil {
 		return err
 	}

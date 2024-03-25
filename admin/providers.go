@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"context"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/contract"
 	"github.com/nullstone-io/deployment-sdk/logging"
@@ -10,20 +11,20 @@ import (
 
 type Providers map[types.ModuleContractName]Provider
 
-func (s Providers) FindStatuser(osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (Statuser, error) {
+func (s Providers) FindStatuser(ctx context.Context, osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (Statuser, error) {
 	factory := s.FindFactory(*appDetails.Module)
 	if factory == nil || factory.NewStatuser == nil {
 		return nil, nil
 	}
-	return factory.NewStatuser(osWriters, source, appDetails)
+	return factory.NewStatuser(ctx, osWriters, source, appDetails)
 }
 
-func (s Providers) FindRemoter(osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (Remoter, error) {
+func (s Providers) FindRemoter(ctx context.Context, osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (Remoter, error) {
 	factory := s.FindFactory(*appDetails.Module)
 	if factory == nil || factory.NewRemoter == nil {
 		return nil, nil
 	}
-	return factory.NewRemoter(osWriters, source, appDetails)
+	return factory.NewRemoter(ctx, osWriters, source, appDetails)
 }
 
 func (s Providers) FindFactory(curModule types.Module) *Provider {

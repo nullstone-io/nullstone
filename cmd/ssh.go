@@ -45,7 +45,7 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
 				source := outputs.ApiRetrieverSource{Config: cfg}
-				remoter, err := providers.FindRemoter(logging.StandardOsWriters{}, source, appDetails)
+				remoter, err := providers.FindRemoter(ctx, logging.StandardOsWriters{}, source, appDetails)
 				if err != nil {
 					return err
 				} else if remoter == nil {

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/mod/semver"
@@ -49,6 +50,7 @@ var ModulesGenerate = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			existing, _ := modules.ManifestFromFile(moduleManifestFilename)
 			survey := &moduleSurvey{}
@@ -67,7 +69,7 @@ var ModulesGenerate = &cli.Command{
 			fmt.Printf("generated base Terraform\n")
 
 			if c.IsSet("register") {
-				module, err := modules.Register(cfg, manifest)
+				module, err := modules.Register(ctx, cfg, manifest)
 				if err != nil {
 					return err
 				}
@@ -86,13 +88,14 @@ var ModulesRegister = &cli.Command{
 	Flags:       []cli.Flag{},
 	Aliases:     []string{"new"},
 	Action: func(c *cli.Context) error {
+		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			manifest, err := modules.ManifestFromFile(moduleManifestFilename)
 			if err != nil {
 				return err
 			}
 
-			module, err := modules.Register(cfg, manifest)
+			module, err := modules.Register(ctx, cfg, manifest)
 			if err != nil {
 				return err
 			}
@@ -119,6 +122,7 @@ var ModulesPublish = &cli.Command{
 		includeFlag,
 	},
 	Action: func(c *cli.Context) error {
+		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			version := c.String("version")
 			includes := c.StringSlice("include")
@@ -132,7 +136,7 @@ var ModulesPublish = &cli.Command{
 			// If user specifies --version=next-patch,
 			//   we are going to bump the patch automatically from the latest
 			if version == "next-patch" {
-				version, err = modules.NextPatch(cfg, manifest)
+				version, err = modules.NextPatch(ctx, cfg, manifest)
 				if err != nil {
 					return err
 				}
@@ -140,7 +144,7 @@ var ModulesPublish = &cli.Command{
 			// If user specifies --version=next-build,
 			//   we are going to bump the patch and use the short git commit sha as +build in the semver
 			if version == "next-build" {
-				version, err = modules.NextPatch(cfg, manifest)
+				version, err = modules.NextPatch(ctx, cfg, manifest)
 				if err != nil {
 					return err
 				}
@@ -173,7 +177,7 @@ var ModulesPublish = &cli.Command{
 			defer tarball.Close()
 
 			client := api.Client{Config: cfg}
-			if err := client.ModuleVersions().Create(manifest.OrgName, manifest.Name, version, tarball); err != nil {
+			if err := client.ModuleVersions().Create(ctx, manifest.OrgName, manifest.Name, version, tarball); err != nil {
 				return err
 			}
 			fmt.Fprintf(os.Stderr, "Published %s/%s@%s\n", manifest.OrgName, manifest.Name, version)

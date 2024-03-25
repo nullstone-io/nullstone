@@ -39,13 +39,13 @@ var Up = func() *cli.Command {
 					return nil
 				}
 
-				err := runs.SetConfigVars(cfg, workspace, varFlags)
+				err := runs.SetConfigVars(ctx, cfg, workspace, varFlags)
 				if err != nil {
 					return err
 				}
 
 				t := true
-				newRun, err := runs.Create(cfg, workspace, &t, false)
+				newRun, err := runs.Create(ctx, cfg, workspace, &t, false)
 				if err != nil {
 					return fmt.Errorf("error creating run: %w", err)
 				} else if newRun == nil {

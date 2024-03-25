@@ -56,7 +56,7 @@ var Status = func(providers admin.Providers) *cli.Command {
 }
 
 func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, watchInterval time.Duration, stackName, appName string) error {
-	application, err := find.App(cfg, appName, stackName)
+	application, err := find.App(ctx, cfg, appName, stackName)
 	if err != nil {
 		return err
 	} else if application == nil {
@@ -64,7 +64,7 @@ func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, w
 	}
 
 	client := api.Client{Config: cfg}
-	envs, err := client.Environments().List(application.StackId)
+	envs, err := client.Environments().List(ctx, application.StackId)
 	if err != nil {
 		return fmt.Errorf("error retrieving environments: %w", err)
 	}
@@ -88,7 +88,7 @@ func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, w
 			}
 
 			source := outputs.ApiRetrieverSource{Config: cfg}
-			statuser, err := providers.FindStatuser(logging.StandardOsWriters{}, source, awi.AppDetails)
+			statuser, err := providers.FindStatuser(ctx, logging.StandardOsWriters{}, source, awi.AppDetails)
 			if err != nil {
 				fmt.Fprintf(writer, "Status failed to initialize: %s\n", err)
 			} else if statuser != nil {
@@ -112,7 +112,7 @@ func appStatus(ctx context.Context, cfg api.Config, providers admin.Providers, w
 }
 
 func appEnvStatus(ctx context.Context, cfg api.Config, providers admin.Providers, watchInterval time.Duration, stackName, appName, envName string) error {
-	_, application, env, err := find.StackAppEnv(cfg, stackName, appName, envName)
+	_, application, env, err := find.StackAppEnv(ctx, cfg, stackName, appName, envName)
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func appEnvStatus(ctx context.Context, cfg api.Config, providers admin.Providers
 
 		var detailReport admin.StatusDetailReports
 		source := outputs.ApiRetrieverSource{Config: cfg}
-		statuser, err := providers.FindStatuser(logging.StandardOsWriters{}, source, awi.AppDetails)
+		statuser, err := providers.FindStatuser(ctx, logging.StandardOsWriters{}, source, awi.AppDetails)
 		if err != nil {
 			fmt.Fprintf(writer, "Detailed status failed to initialize: %s\n", err)
 		} else if statuser != nil {
