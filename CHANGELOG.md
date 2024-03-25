@@ -1,4 +1,4 @@
-# 0.0.118 (Mar 25, 2204)
+# 0.0.119 (Mar 25, 2024)
 * Added support for AWS Batch jobs; including pushing images, deploy, and logs.
 
 # 0.0.117 (Feb 23, 2024)
