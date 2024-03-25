@@ -33,7 +33,7 @@ var Outputs = func() *cli.Command {
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				client := api.Client{Config: cfg}
 				showSensitive := c.IsSet("sensitive")
-				outputs, err := client.WorkspaceOutputs().GetCurrent(stack.Id, workspace.Uid, showSensitive)
+				outputs, err := client.WorkspaceOutputs().GetCurrent(ctx, stack.Id, workspace.Uid, showSensitive)
 				if err != nil {
 					return err
 				}

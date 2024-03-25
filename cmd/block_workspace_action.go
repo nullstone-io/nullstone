@@ -13,6 +13,8 @@ import (
 type BlockWorkspaceActionFn func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error
 
 func BlockWorkspaceAction(c *cli.Context, fn BlockWorkspaceActionFn) error {
+	ctx := context.TODO()
+
 	_, cfg, err := SetupProfileCmd(c)
 	if err != nil {
 		return err
@@ -22,7 +24,7 @@ func BlockWorkspaceAction(c *cli.Context, fn BlockWorkspaceActionFn) error {
 	blockName := c.String(BlockFlag.Name)
 	envName := c.String(EnvFlag.Name)
 
-	sbe, err := find.StackBlockEnvByName(cfg, stackName, blockName, envName)
+	sbe, err := find.StackBlockEnvByName(ctx, cfg, stackName, blockName, envName)
 	if err != nil {
 		return err
 	}
@@ -32,7 +34,7 @@ func BlockWorkspaceAction(c *cli.Context, fn BlockWorkspaceActionFn) error {
 	logger.Println()
 
 	client := api.Client{Config: cfg}
-	workspace, err := client.Workspaces().Get(sbe.Stack.Id, sbe.Block.Id, sbe.Env.Id)
+	workspace, err := client.Workspaces().Get(ctx, sbe.Stack.Id, sbe.Block.Id, sbe.Env.Id)
 	if err != nil {
 		return fmt.Errorf("error looking for workspace: %w", err)
 	} else if workspace == nil {

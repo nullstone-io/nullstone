@@ -1,3 +1,6 @@
+# 0.0.118 (Mar 25, 2204)
+* Added support for AWS Batch jobs; including pushing images, deploy, and logs.
+
 # 0.0.117 (Feb 23, 2024)
 * Fixed issue where `push` and `deploy` did not find existing docker image tag due to ECR paging the image tags.
 

@@ -1,6 +1,7 @@
 package workspaces
 
 import (
+	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -11,10 +12,10 @@ import (
 // This does the following:
 //  1. Pull the latest run config for the workspace
 //  2. Scan module in local file system for `ns_connection` that have not been added to run config
-func GetRunConfig(cfg api.Config, workspace Manifest) (types.RunConfig, error) {
+func GetRunConfig(ctx context.Context, cfg api.Config, workspace Manifest) (types.RunConfig, error) {
 	client := api.Client{Config: cfg}
 	uid, _ := uuid.Parse(workspace.WorkspaceUid)
-	runConfig, err := client.RunConfigs().GetLatest(workspace.StackId, uid)
+	runConfig, err := client.RunConfigs().GetLatest(ctx, workspace.StackId, uid)
 	if err != nil {
 		return types.RunConfig{}, err
 	} else if runConfig == nil {

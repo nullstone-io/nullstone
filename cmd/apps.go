@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
@@ -31,9 +32,10 @@ var AppsList = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			client := api.Client{Config: cfg}
-			allApps, err := client.Apps().List()
+			allApps, err := client.Apps().List(ctx)
 			if err != nil {
 				return fmt.Errorf("error listing applications: %w", err)
 			}
@@ -44,11 +46,11 @@ var AppsList = &cli.Command{
 				for i, app := range allApps {
 					var appCategory types.CategoryName
 					var appType string
-					if appModule, err := find.Module(cfg, app.ModuleSource); err == nil {
+					if appModule, err := find.Module(ctx, cfg, app.ModuleSource); err == nil {
 						appCategory = appModule.Category
 						appType = appModule.Type
 					}
-					stack, err := client.Stacks().Get(app.StackId)
+					stack, err := client.Stacks().Get(ctx, app.StackId)
 					if err != nil {
 						return fmt.Errorf("error looking for stack %q: %w", app.StackId, err)
 					}

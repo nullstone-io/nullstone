@@ -90,7 +90,7 @@ func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Con
 	// If we made it here, we want to wait for a launch and the workspace has not been provisioned yet
 	// Let's look for all the runs on this workspace to see if there are any pending
 	// If we retrieve non-terminal runs, we use the oldest (next in line) to determine whether we can proceed
-	launchRun, err := findLaunchRun(cfg, details)
+	launchRun, err := findLaunchRun(ctx, cfg, details)
 	if err != nil {
 		return err
 	} else if launchRun == nil {
@@ -113,8 +113,8 @@ func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Con
 	return fmt.Errorf("Could not run command because app failed to launch")
 }
 
-func findLaunchRun(cfg api.Config, details workspace.Details) (*types.Run, error) {
-	ntRuns, err := find.NonTerminalRuns(cfg, details.Block.StackId, details.Workspace.Uid)
+func findLaunchRun(ctx context.Context, cfg api.Config, details workspace.Details) (*types.Run, error) {
+	ntRuns, err := find.NonTerminalRuns(ctx, cfg, details.Block.StackId, details.Workspace.Uid)
 	if err != nil {
 		return nil, err
 	}

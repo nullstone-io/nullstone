@@ -41,9 +41,10 @@ var WorkspacesSelect = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			if !tfconfig.IsCredsConfigured(cfg) {
-				if err := tfconfig.ConfigCreds(cfg); err != nil {
+				if err := tfconfig.ConfigCreds(ctx, cfg); err != nil {
 					fmt.Printf("Warning: unable to configure Terraform-based credentials with Nullstone servers: %s\n", err)
 				} else {
 					fmt.Println("Configured Terraform-based credentials with Nullstone servers.")
@@ -54,7 +55,7 @@ var WorkspacesSelect = &cli.Command{
 			stackName := c.String("stack")
 			blockName := c.String("block")
 			envName := c.String("env")
-			sbe, err := find.StackBlockEnvByName(cfg, stackName, blockName, envName)
+			sbe, err := find.StackBlockEnvByName(ctx, cfg, stackName, blockName, envName)
 			if err != nil {
 				return err
 			}
@@ -72,7 +73,7 @@ var WorkspacesSelect = &cli.Command{
 				EnvName:     sbe.Env.Name,
 				Connections: workspaces.ManifestConnections{},
 			}
-			workspace, err := client.Workspaces().Get(targetWorkspace.StackId, targetWorkspace.BlockId, targetWorkspace.EnvId)
+			workspace, err := client.Workspaces().Get(ctx, targetWorkspace.StackId, targetWorkspace.BlockId, targetWorkspace.EnvId)
 			if err != nil {
 				return err
 			} else if workspace == nil {
@@ -80,11 +81,11 @@ var WorkspacesSelect = &cli.Command{
 			}
 			targetWorkspace.WorkspaceUid = workspace.Uid.String()
 
-			runConfig, err := workspaces.GetRunConfig(cfg, targetWorkspace)
+			runConfig, err := workspaces.GetRunConfig(ctx, cfg, targetWorkspace)
 			if err != nil {
 				return fmt.Errorf("could not retreive current workspace configuration: %w", err)
 			}
-			manualConnections, err := surveyMissingConnections(cfg, targetWorkspace.StackName, runConfig)
+			manualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, runConfig)
 			if err != nil {
 				return err
 			}
@@ -104,7 +105,7 @@ var WorkspacesSelect = &cli.Command{
 	},
 }
 
-func surveyMissingConnections(cfg api.Config, sourceStackName string, runConfig types.RunConfig) (types.Connections, error) {
+func surveyMissingConnections(ctx context.Context, cfg api.Config, sourceStackName string, runConfig types.RunConfig) (types.Connections, error) {
 	initialPrompt := &sync.Once{}
 	connections := types.Connections{}
 	for name, conn := range runConfig.Connections {
@@ -114,7 +115,7 @@ func surveyMissingConnections(cfg api.Config, sourceStackName string, runConfig 
 				fmt.Println("There are connections in this module that do not have a target set.")
 				fmt.Println("Type the block name for each connection to configure the connection locally.")
 			})
-			ct, err := surveyMissingConnection(cfg, sourceStackName, name, conn)
+			ct, err := surveyMissingConnection(ctx, cfg, sourceStackName, name, conn)
 			if err != nil {
 				return nil, err
 			} else if ct != nil {
@@ -128,7 +129,7 @@ func surveyMissingConnections(cfg api.Config, sourceStackName string, runConfig 
 	return connections, nil
 }
 
-func surveyMissingConnection(cfg api.Config, sourceStackName, name string, conn types.Connection) (*types.ConnectionTarget, error) {
+func surveyMissingConnection(ctx context.Context, cfg api.Config, sourceStackName, name string, conn types.Connection) (*types.ConnectionTarget, error) {
 	preface := "[required]"
 	if conn.Optional {
 		preface = "[optional]"
@@ -145,7 +146,7 @@ func surveyMissingConnection(cfg api.Config, sourceStackName, name string, conn 
 			return nil, nil
 		}
 
-		ct, err := find.ConnectionTarget(cfg, sourceStackName, answer)
+		ct, err := find.ConnectionTarget(ctx, cfg, sourceStackName, answer)
 		if err != nil {
 			fmt.Printf("Invalid connection: %s\n", err)
 			fmt.Println("Try again.")

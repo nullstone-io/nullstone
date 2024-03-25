@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/ryanuber/columnize"
@@ -49,9 +50,10 @@ var EnvsList = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			stackName := c.String(StackRequiredFlag.Name)
-			stack, err := find.Stack(cfg, stackName)
+			stack, err := find.Stack(ctx, cfg, stackName)
 			if err != nil {
 				return fmt.Errorf("error retrieving stack: %w", err)
 			} else if stack == nil {
@@ -59,7 +61,7 @@ var EnvsList = &cli.Command{
 			}
 
 			client := api.Client{Config: cfg}
-			envs, err := client.Environments().List(stack.Id)
+			envs, err := client.Environments().List(ctx, stack.Id)
 			if err != nil {
 				return fmt.Errorf("error listing environments: %w", err)
 			}
@@ -127,6 +129,7 @@ var EnvsNew = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			client := api.Client{Config: cfg}
 			name := c.String("name")
@@ -136,7 +139,7 @@ var EnvsNew = &cli.Command{
 			zone := c.String("zone")
 			preview := c.IsSet("preview")
 
-			stack, err := client.StacksByName().Get(stackName)
+			stack, err := client.StacksByName().Get(ctx, stackName)
 			if err != nil {
 				return fmt.Errorf("error looking for stack %q: %w", stackName, err)
 			} else if stack == nil {
@@ -199,20 +202,21 @@ var EnvsDelete = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			client := api.Client{Config: cfg}
 			stackName := c.String("stack")
 			envName := c.String("env")
 			force := c.IsSet("force")
 
-			stack, err := client.StacksByName().Get(stackName)
+			stack, err := client.StacksByName().Get(ctx, stackName)
 			if err != nil {
 				return fmt.Errorf("error looking for stack %q: %w", stackName, err)
 			} else if stack == nil {
 				return fmt.Errorf("stack %q does not exist", stackName)
 			}
 
-			env, err := find.Env(cfg, stack.Id, envName)
+			env, err := find.Env(ctx, cfg, stack.Id, envName)
 			if err != nil {
 				return fmt.Errorf("error looking for environment in stack %q - %q: %w", stack.Name, envName, err)
 			} else if env == nil {
@@ -241,7 +245,7 @@ var EnvsDelete = &cli.Command{
 				}
 			}
 
-			_, err = client.Environments().Destroy(stack.Id, env.Id)
+			_, err = client.Environments().Destroy(ctx, stack.Id, env.Id)
 			if err != nil {
 				return fmt.Errorf("error deleting environment: %w", err)
 			}
@@ -253,10 +257,12 @@ var EnvsDelete = &cli.Command{
 }
 
 func createPipelineEnv(client api.Client, stackId int64, name, providerName, region, zone string) error {
+	ctx := context.TODO()
+
 	if providerName == "" {
 		return fmt.Errorf("provider is required")
 	}
-	provider, err := client.Providers().Get(providerName)
+	provider, err := client.Providers().Get(ctx, providerName)
 	if err != nil {
 		return fmt.Errorf("error looking for provider %q: %w", providerName, err)
 	} else if provider == nil {
@@ -287,7 +293,7 @@ func createPipelineEnv(client api.Client, stackId int64, name, providerName, reg
 		return fmt.Errorf("CLI does not support provider type %q yet", provider.ProviderType)
 	}
 
-	env, err := client.Environments().Create(stackId, &types.Environment{
+	env, err := client.Environments().Create(ctx, stackId, &types.Environment{
 		Name:           name,
 		ProviderConfig: pc,
 	})
@@ -301,7 +307,8 @@ func createPipelineEnv(client api.Client, stackId int64, name, providerName, reg
 }
 
 func createPreviewEnv(client api.Client, stackId int64, name string) error {
-	env, err := client.Environments().Create(stackId, &types.Environment{
+	ctx := context.TODO()
+	env, err := client.Environments().Create(ctx, stackId, &types.Environment{
 		OrgName: client.Config.OrgName,
 		StackId: stackId,
 		Name:    name,
@@ -360,6 +367,7 @@ This command is useful for tearing down preview environments once you are finish
 }
 
 func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
+	ctx := context.TODO()
 	client := api.Client{Config: cfg}
 	stackName := c.String("stack")
 	envName := c.String("env")
@@ -369,14 +377,14 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 		action = "destroy"
 	}
 
-	stack, err := client.StacksByName().Get(stackName)
+	stack, err := client.StacksByName().Get(ctx, stackName)
 	if err != nil {
 		return fmt.Errorf("error looking for stack %q: %w", stackName, err)
 	} else if stack == nil {
 		return fmt.Errorf("stack %q does not exist", stackName)
 	}
 
-	env, err := find.Env(cfg, stack.Id, envName)
+	env, err := find.Env(ctx, cfg, stack.Id, envName)
 	if err != nil {
 		return fmt.Errorf("error looking for environment in stack %d - %q: %w", stack.Id, envName, err)
 	} else if env == nil {
@@ -384,7 +392,7 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 	}
 
 	body := types.CreateEnvRunInput{IsDestroy: isDestroy}
-	newRuns, err := client.EnvRuns().Create(stack.Id, env.Id, body)
+	newRuns, err := client.EnvRuns().Create(ctx, stack.Id, env.Id, body)
 	if err != nil {
 		return fmt.Errorf("error creating run: %w", err)
 	}
@@ -394,11 +402,11 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 		return nil
 	}
 
-	workspaces, err := client.Workspaces().List(stack.Id)
+	workspaces, err := client.Workspaces().List(ctx, stack.Id)
 	if err != nil {
 		return fmt.Errorf("error retrieving list of workspaces: %w", err)
 	}
-	blocks, err := client.Blocks().List(stack.Id)
+	blocks, err := client.Blocks().List(ctx, stack.Id)
 	if err != nil {
 		return fmt.Errorf("error retrieving list of blocks: %w", err)
 	}

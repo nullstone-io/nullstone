@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
@@ -35,17 +36,18 @@ var BlocksList = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
+			ctx := context.TODO()
 			client := api.Client{Config: cfg}
 
 			stackName := c.String(StackRequiredFlag.Name)
-			stack, err := client.StacksByName().Get(stackName)
+			stack, err := client.StacksByName().Get(ctx, stackName)
 			if err != nil {
 				return fmt.Errorf("error looking for stack %q: %w", stackName, err)
 			} else if stack == nil {
 				return fmt.Errorf("stack %q does not exist in organization %q", stackName, cfg.OrgName)
 			}
 
-			allBlocks, err := client.Blocks().List(stack.Id)
+			allBlocks, err := client.Blocks().List(ctx, stack.Id)
 			if err != nil {
 				return fmt.Errorf("error listing blocks: %w", err)
 			}
@@ -56,7 +58,7 @@ var BlocksList = &cli.Command{
 				for i, block := range allBlocks {
 					var blockCategory types.CategoryName
 					var blockType string
-					if blockModule, err := find.Module(cfg, block.ModuleSource); err == nil {
+					if blockModule, err := find.Module(ctx, cfg, block.ModuleSource); err == nil {
 						blockCategory = blockModule.Category
 						blockType = blockModule.Type
 					}
@@ -98,10 +100,11 @@ var BlocksNew = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
+			ctx := context.TODO()
 			client := api.Client{Config: cfg}
 
 			stackName := c.String(StackRequiredFlag.Name)
-			stack, err := client.StacksByName().Get(stackName)
+			stack, err := client.StacksByName().Get(ctx, stackName)
 			if err != nil {
 				return fmt.Errorf("error looking for stack %q: %w", stackName, err)
 			} else if stack == nil {
@@ -117,7 +120,7 @@ var BlocksNew = &cli.Command{
 			connectionSlice := c.StringSlice("connection")
 
 			// TODO: Add support for module version in --module
-			module, err := find.Module(cfg, moduleSource)
+			module, err := find.Module(ctx, cfg, moduleSource)
 			if err != nil {
 				return err
 			}
@@ -145,7 +148,7 @@ var BlocksNew = &cli.Command{
 					Repo:      "",
 					Framework: "other",
 				}
-				if newApp, err := client.Apps().Create(stack.Id, app); err != nil {
+				if newApp, err := client.Apps().Create(ctx, stack.Id, app); err != nil {
 					return err
 				} else if newApp != nil {
 					fmt.Printf("created %s app\n", newApp.Name)
@@ -153,7 +156,7 @@ var BlocksNew = &cli.Command{
 					fmt.Println("unable to create app")
 				}
 			} else {
-				if newBlock, err := client.Blocks().Create(stack.Id, block); err != nil {
+				if newBlock, err := client.Blocks().Create(ctx, stack.Id, block); err != nil {
 					return err
 				} else if newBlock != nil {
 					fmt.Printf("created %q block\n", newBlock.Name)
@@ -178,13 +181,15 @@ func blockTypeFromModuleCategory(categoryName types.CategoryName) string {
 }
 
 func mapConnectionsToTargets(cfg api.Config, stack *types.Stack, mappings []string) (map[string]types.ConnectionTarget, error) {
+	ctx := context.TODO()
+
 	connections := map[string]types.ConnectionTarget{}
 	for _, connMapping := range mappings {
 		tokens := strings.SplitN(connMapping, "=", 2)
 		if len(tokens) < 2 {
 			return nil, fmt.Errorf("invalid connection mapping %q: must specify <connection-name>=<block-name>", connMapping)
 		}
-		ct, err := find.ConnectionTarget(cfg, stack.Name, tokens[1])
+		ct, err := find.ConnectionTarget(ctx, cfg, stack.Name, tokens[1])
 		if err != nil {
 			return nil, fmt.Errorf("error finding %q: %w", tokens[1], err)
 		}

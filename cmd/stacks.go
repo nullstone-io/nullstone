@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
@@ -31,9 +32,10 @@ var StacksList = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			client := api.Client{Config: cfg}
-			allStacks, err := client.Stacks().List()
+			allStacks, err := client.Stacks().List(ctx)
 			if err != nil {
 				return fmt.Errorf("error listing stacks: %w", err)
 			}
@@ -74,11 +76,12 @@ var StacksNew = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			client := api.Client{Config: cfg}
 			name := c.String("name")
 			description := c.String("description")
-			stack, err := client.Stacks().Create(&types.Stack{
+			stack, err := client.Stacks().Create(ctx, &types.Stack{
 				Name:        name,
 				Description: description,
 			})

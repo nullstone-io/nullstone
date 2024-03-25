@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -11,10 +12,11 @@ var Profile = &cli.Command{
 	Usage:     "View the current profile and its configuration",
 	UsageText: "nullstone profile",
 	Action: func(c *cli.Context) error {
+		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			fmt.Printf("Profile: %s\n", GetProfile(c))
 			fmt.Printf("API Address: %s\n", cfg.BaseAddress)
-			accessToken, err := cfg.AccessTokenSource.GetAccessToken(cfg.OrgName)
+			accessToken, err := cfg.AccessTokenSource.GetAccessToken(ctx, cfg.OrgName)
 			if err != nil {
 				return err
 			}

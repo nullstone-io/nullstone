@@ -52,7 +52,8 @@ var Push = func(providers app.Providers) *cli.Command {
 }
 
 func getPusher(providers app.Providers, cfg api.Config, appDetails app.Details) (app.Pusher, error) {
-	pusher, err := providers.FindPusher(logging.StandardOsWriters{}, outputs.ApiRetrieverSource{Config: cfg}, appDetails)
+	ctx := context.TODO()
+	pusher, err := providers.FindPusher(ctx, logging.StandardOsWriters{}, outputs.ApiRetrieverSource{Config: cfg}, appDetails)
 	if err != nil {
 		return nil, fmt.Errorf("error creating app pusher: %w", err)
 	} else if pusher == nil {

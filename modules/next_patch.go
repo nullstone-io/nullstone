@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"context"
 	"fmt"
 	"golang.org/x/mod/semver"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -10,8 +11,8 @@ import (
 )
 
 // NextPatch bumps the patch in major.minor.patch from the latest module version
-func NextPatch(cfg api.Config, manifest *Manifest) (string, error) {
-	latestVersion, err := find.ModuleVersion(cfg, fmt.Sprintf("%s/%s", manifest.OrgName, manifest.Name), "latest")
+func NextPatch(ctx context.Context, cfg api.Config, manifest *Manifest) (string, error) {
+	latestVersion, err := find.ModuleVersion(ctx, cfg, fmt.Sprintf("%s/%s", manifest.OrgName, manifest.Name), "latest")
 	if err != nil {
 		return "", fmt.Errorf("error retrieving latest version: %w", err)
 	} else if latestVersion == nil {
