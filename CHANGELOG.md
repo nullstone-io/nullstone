@@ -1,3 +1,6 @@
+# 0.0.120 (Apr 09, 2024)
+* Added `ingress` as an option for category when generating a new module.
+
 # 0.0.119 (Mar 25, 2024)
 * Added support for AWS Batch jobs; including pushing images, deploy, and logs.
 
