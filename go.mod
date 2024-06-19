@@ -1,6 +1,9 @@
 module gopkg.in/nullstone-io/nullstone.v0
 
 go 1.21
+replace (
+	gopkg.in/nullstone-io/go-api-client.v0 => ../go-api-client
+)
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.26.0
@@ -17,7 +20,7 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.18.0
 	golang.org/x/sync v0.5.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20240409171401-6a698b5ac0bc
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20240618211415-f1adb7935315
 	k8s.io/api v0.27.2
 	k8s.io/apimachinery v0.27.2
 	k8s.io/client-go v0.27.2
