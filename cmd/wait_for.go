@@ -52,8 +52,8 @@ func waitForWorkspaceWorkflowRun(ctx context.Context, cfg api.Config, ww types.W
 		if cur.Run != nil {
 			return *cur.Run, nil
 		}
-		if types.IsTerminalRunStatus(cur.Run.Status) {
-			return types.Run{}, fmt.Errorf("workflow reached %s status before a run could be found", cur.Run.Status)
+		if types.IsTerminalWorkspaceWorkflow(cur.Status) {
+			return types.Run{}, fmt.Errorf("workflow reached %s status before a run could be found", cur.Status)
 		}
 		so := <-ch
 		if so.Err != nil {

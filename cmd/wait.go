@@ -9,6 +9,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/app_urls"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
 	"strings"
 	"time"
@@ -98,7 +99,7 @@ func WaitForLaunch(ctx context.Context, osWriters logging.OsWriters, cfg api.Con
 	}
 
 	fmt.Fprintf(stderr, "Waiting for %q to launch in %q environment...\n", details.Block.Name, details.Env.Name)
-	fmt.Fprintf(stderr, "Watching run for launch: %s\n", runs.GetBrowserUrl(cfg, *details.Workspace, *launchRun))
+	fmt.Fprintf(stderr, "Watching run for launch: %s\n", app_urls.GetRun(cfg, *details.Workspace, *launchRun))
 	fmt.Fprintf(stderr, "Timeout = %s, Approval Timeout = %s\n", timeout, approvalTimeout)
 
 	result, err := runs.WaitForTerminalRun(ctx, osWriters, cfg, *details.Workspace, *launchRun, timeout, approvalTimeout)
