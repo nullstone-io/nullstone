@@ -8,6 +8,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/go-api-client.v0/ws"
+	"gopkg.in/nullstone-io/nullstone.v0/app_urls"
 	"os"
 	"sync"
 	"time"
@@ -57,7 +58,7 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 				printApprovalMsg.Do(func() {
 					fmt.Fprintln(os.Stdout, "Nullstone requires approval before applying infrastructure changes.")
 					fmt.Fprintln(os.Stdout, "Visit the infrastructure logs in a browser to approve/reject.")
-					fmt.Fprintln(os.Stdout, GetBrowserUrl(cfg, workspace, run))
+					fmt.Fprintln(os.Stdout, app_urls.GetRun(cfg, workspace, run))
 				})
 			}
 		case <-ctx.Done():

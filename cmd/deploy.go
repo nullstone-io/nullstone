@@ -164,32 +164,3 @@ func streamDeployIntentLogs(ctx context.Context, osWriters logging.OsWriters, cf
 
 	return streamDeployLogs(ctx, osWriters, cfg, *activities.Deploy, wait)
 }
-
-func waitForRunningIntentWorkflow(ctx context.Context, cfg api.Config, iw types.IntentWorkflow) (types.IntentWorkflow, error) {
-	client := api.Client{Config: cfg}
-	intentWorkflow, ch, err := client.IntentWorkflows().WatchGet(ctx, iw.StackId, iw.Id, ws.RetryInfinite(time.Second))
-	if err != nil {
-		return iw, fmt.Errorf("error waiting for deployment: %w", err)
-	} else if intentWorkflow == nil {
-		return iw, context.Canceled
-	}
-
-	cur := *intentWorkflow
-	for {
-		switch cur.Status {
-		case types.IntentWorkflowStatusRunning:
-			return cur, nil
-		case types.IntentWorkflowStatusCompleted:
-			return cur, nil
-		case types.IntentWorkflowStatusFailed:
-			return cur, fmt.Errorf("Deployment failed: %s", cur.StatusMessage)
-		case types.IntentWorkflowStatusCancelled:
-			return cur, fmt.Errorf("Deployment was cancelled.")
-		}
-		so := <-ch
-		if so.Err != nil {
-			return cur, fmt.Errorf("error waiting for deployment: %w", err)
-		}
-		cur = so.Object.ApplyTo(cur)
-	}
-}

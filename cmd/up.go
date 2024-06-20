@@ -5,11 +5,8 @@ import (
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	api_runs "gopkg.in/nullstone-io/go-api-client.v0/runs"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"gopkg.in/nullstone-io/nullstone.v0/app_urls"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
-	"os"
 )
 
 var Up = func() *cli.Command {
@@ -47,19 +44,15 @@ var Up = func() *cli.Command {
 				}
 
 				t := true
-				newRun, err := api_runs.Create(ctx, cfg, workspace, "", &t, false, "")
-				if err != nil {
-					return fmt.Errorf("error creating run: %w", err)
-				} else if newRun == nil {
-					return fmt.Errorf("unable to create run")
+				input := PerformRunInput{
+					Workspace:  workspace,
+					CommitSha:  "",
+					IsApproved: &t,
+					IsDestroy:  false,
+					BlockType:  types.BlockType(block.Type),
+					StreamLogs: c.IsSet("wait"),
 				}
-				fmt.Printf("created run %q\n", newRun.Uid)
-				fmt.Fprintln(os.Stdout, app_urls.GetRun(cfg, workspace, *newRun)
-
-				if c.IsSet("wait") {
-					return runs.StreamLogs(ctx, cfg, workspace, newRun)
-				}
-				return nil
+				return PerformRun(ctx, cfg, input)
 			})
 		},
 	}
