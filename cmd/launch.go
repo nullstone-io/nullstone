@@ -26,6 +26,7 @@ var Launch = func(providers app.Providers) *cli.Command {
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
 				osWriters := CliOsWriters{Context: c}
+				stderr := osWriters.Stderr()
 				source, version := c.String("source"), c.String("version")
 
 				pusher, err := getPusher(providers, cfg, appDetails)
@@ -35,12 +36,12 @@ var Launch = func(providers app.Providers) *cli.Command {
 
 				commitSha := ""
 				if version == "" {
-					fmt.Fprintf(osWriters.Stderr(), "No version specified. Defaulting version based on current git commit sha...\n")
+					fmt.Fprintf(stderr, "No version specified. Defaulting version based on current git commit sha...\n")
 					commitSha, version, err = calcNewVersion(ctx, pusher)
 					if err != nil {
 						return err
 					}
-					fmt.Fprintf(osWriters.Stderr(), "Version defaulted to: %s\n", version)
+					fmt.Fprintf(stderr, "Version defaulted to: %s\n", version)
 				}
 
 				err = push(ctx, osWriters, pusher, source, version)
@@ -48,14 +49,20 @@ var Launch = func(providers app.Providers) *cli.Command {
 					return err
 				}
 
-				fmt.Fprintln(osWriters.Stderr(), "Creating deploy...")
-				deploy, err := CreateDeploy(cfg, appDetails, commitSha, version)
+				fmt.Fprintln(stderr, "Creating deploy...")
+				result, err := CreateDeploy(cfg, appDetails, commitSha, version)
 				if err != nil {
 					return err
 				}
 
-				fmt.Fprintln(osWriters.Stderr())
-				return streamDeployLogs(ctx, osWriters, cfg, *deploy, true)
+				fmt.Fprintln(stderr)
+				if result.Deploy != nil {
+					return streamDeployLogs(ctx, osWriters, cfg, *result.Deploy, true)
+				} else if result.IntentWorkflow != nil {
+					return streamDeployIntentLogs(ctx, osWriters, cfg, appDetails, *result.IntentWorkflow, true)
+				}
+				fmt.Fprintln(stderr, "Unable to stream deployment logs")
+				return nil
 			})
 		},
 	}

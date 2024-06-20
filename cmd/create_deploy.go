@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
-func CreateDeploy(nsConfig api.Config, appDetails app.Details, commitSha, version string) (*types.Deploy, error) {
+func CreateDeploy(nsConfig api.Config, appDetails app.Details, commitSha, version string) (*api.DeployCreateResult, error) {
 	ctx := context.TODO()
 	client := api.Client{Config: nsConfig}
 	payload := api.DeployCreatePayload{
@@ -16,11 +15,11 @@ func CreateDeploy(nsConfig api.Config, appDetails app.Details, commitSha, versio
 		Version:    version,
 		CommitSha:  commitSha,
 	}
-	newDeploy, err := client.Deploys().Create(ctx, appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id, payload)
+	result, err := client.Deploys().Create(ctx, appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id, payload)
 	if err != nil {
 		return nil, fmt.Errorf("error creating deploy: %w", err)
-	} else if newDeploy == nil {
+	} else if result == nil {
 		return nil, fmt.Errorf("unable to create deploy")
 	}
-	return newDeploy, nil
+	return result, nil
 }
