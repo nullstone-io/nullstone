@@ -9,7 +9,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"gopkg.in/nullstone-io/nullstone.v0/runs"
 	"math"
 	"os"
 	"regexp"
@@ -372,11 +371,6 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 	stackName := c.String("stack")
 	envName := c.String("env")
 
-	action := "launch"
-	if isDestroy {
-		action = "destroy"
-	}
-
 	stack, err := client.StacksByName().Get(ctx, stackName)
 	if err != nil {
 		return fmt.Errorf("error looking for stack %q: %w", stackName, err)
@@ -391,56 +385,11 @@ func createEnvRun(c *cli.Context, cfg api.Config, isDestroy bool) error {
 		return fmt.Errorf("environment %q does not exist in stack %d", envName, stack.Id)
 	}
 
-	body := types.CreateEnvRunInput{IsDestroy: isDestroy}
-	newRuns, err := client.EnvRuns().Create(ctx, stack.Id, env.Id, body)
-	if err != nil {
-		return fmt.Errorf("error creating run: %w", err)
+	input := PerformEnvRunInput{
+		CommitSha: "",
+		Stack:     *stack,
+		Env:       *env,
+		IsDestroy: isDestroy,
 	}
-
-	if len(newRuns) <= 0 {
-		fmt.Fprintf(os.Stdout, "no runs created to %s the %q environment\n", action, envName)
-		return nil
-	}
-
-	workspaces, err := client.Workspaces().List(ctx, stack.Id)
-	if err != nil {
-		return fmt.Errorf("error retrieving list of workspaces: %w", err)
-	}
-	blocks, err := client.Blocks().List(ctx, stack.Id)
-	if err != nil {
-		return fmt.Errorf("error retrieving list of blocks: %w", err)
-	}
-
-	findWorkspace := func(run types.Run) *types.Workspace {
-		for _, workspace := range workspaces {
-			if workspace.Uid == run.WorkspaceUid {
-				return &workspace
-			}
-		}
-		return nil
-	}
-	findBlock := func(workspace *types.Workspace) *types.Block {
-		if workspace == nil {
-			return nil
-		}
-		for _, block := range blocks {
-			if workspace.BlockId == block.Id {
-				return &block
-			}
-		}
-		return nil
-	}
-	for _, run := range newRuns {
-		blockName := "(unknown)"
-		workspace := findWorkspace(run)
-		if block := findBlock(workspace); block != nil {
-			blockName = block.Name
-		}
-		browserUrl := ""
-		if workspace != nil {
-			browserUrl = fmt.Sprintf(" Logs: %s", runs.GetBrowserUrl(cfg, *workspace, run))
-		}
-		fmt.Fprintf(os.Stdout, "created run to %s %s and dependencies in %q environment.%s\n", action, blockName, envName, browserUrl)
-	}
-	return nil
+	return PerformEnvRun(ctx, cfg, input)
 }

@@ -2,12 +2,10 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
-	"os"
 )
 
 var Plan = func() *cli.Command {
@@ -56,24 +54,15 @@ var Plan = func() *cli.Command {
 				}
 
 				f := false
-				newRun, err := runs.Create(ctx, cfg, workspace, &f, false)
-				if err != nil {
-					return fmt.Errorf("error creating run: %w", err)
-				} else if newRun == nil {
-					return fmt.Errorf("unable to create run")
+				input := PerformRunInput{
+					Workspace:  workspace,
+					CommitSha:  "",
+					IsApproved: &f,
+					IsDestroy:  false,
+					BlockType:  types.BlockType(block.Type),
+					StreamLogs: c.IsSet("wait"),
 				}
-				fmt.Fprintf(os.Stdout, "created plan run %q\n", newRun.Uid)
-				fmt.Fprintln(os.Stdout, runs.GetBrowserUrl(cfg, workspace, *newRun))
-
-				if c.IsSet("wait") {
-					err := runs.StreamLogs(ctx, cfg, workspace, newRun)
-					if err == runs.ErrRunDisapproved {
-						// Disapproved plans are expected, return no error
-						return nil
-					}
-					return err
-				}
-				return nil
+				return PerformRun(ctx, cfg, input)
 			})
 		},
 	}

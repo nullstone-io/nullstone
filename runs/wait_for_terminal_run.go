@@ -6,6 +6,7 @@ import (
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/app_urls"
 	"sync"
 	"time"
 )
@@ -35,7 +36,7 @@ func WaitForTerminalRun(ctx context.Context, osWriters logging.OsWriters, cfg ap
 		printApprovalMsg.Do(func() {
 			fmt.Fprintln(stderr, "Nullstone requires approval before applying infrastructure changes.")
 			fmt.Fprintln(stderr, "Visit the infrastructure logs in a browser to approve/reject.")
-			fmt.Fprintln(stderr, GetBrowserUrl(cfg, ws, updatedRun))
+			fmt.Fprintln(stderr, app_urls.GetRun(cfg, ws, updatedRun))
 		})
 		approvalTimer.Reset(approvalTimeout)
 	}
