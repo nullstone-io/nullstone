@@ -1,3 +1,5 @@
+version: 2
+
 builds:
   - env:
       - CGO_ENABLED=0
@@ -21,19 +23,21 @@ changelog:
       - '^docs:'
       - '^test:'
 brews:
-  - tap:
-      owner: nullstone-io
-      name: nullstone
-    folder: Formula
+  - name: nullstone
     homepage: https://nullstone.io
     description: An internal developer platform running on your cloud
     license: MIT
+    repository:
+      owner: nullstone-io
+      name: nullstone
+    directory: Formula
     install: |-
       bin.install "nullstone"
-scoop:
-  bucket:
-    owner: nullstone-io
-    name: nullstone
-  homepage: https://nullstone.io
-  description: An internal developer platform running on your cloud
-  license: MIT
+
+scoops:
+  - homepage: https://nullstone.io
+    description: An internal developer platform running on your cloud
+    license: MIT
+    repository:
+      owner: nullstone-io
+      name: nullstone
