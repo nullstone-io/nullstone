@@ -1,3 +1,6 @@
+# 0.0.121 (Jul 11, 2024)
+* Updated CLI commands (`launch`, `deploy`, `plan`, `apply`, `up`, `envs up`, `envs down`) to interop with workflows.
+
 # 0.0.120 (Apr 09, 2024)
 * Added `ingress` as an option for category when generating a new module.
 
