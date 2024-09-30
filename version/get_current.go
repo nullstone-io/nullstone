@@ -13,11 +13,11 @@ func GetCurrent(ctx context.Context, pusher app.Pusher) (Info, error) {
 	if result.CommitSha, err = vcs.GetCurrentCommitSha(); err != nil {
 		return Info{}, fmt.Errorf("error calculating version: %w", err)
 	}
-	result.Version = result.ShortCommitSha()
 
 	artifacts, err := pusher.ListArtifactVersions(ctx)
 	if err != nil {
 		// if we aren't able to pull the list of artifact versions, we can just use the short sha as the fallback
+		result.Version = result.ShortCommitSha()
 		return result, nil
 	}
 
@@ -34,8 +34,10 @@ func GetCurrent(ctx context.Context, pusher app.Pusher) (Info, error) {
 	}
 	// only one deploy found for this commitSha, so we don't need to append a sequence
 	if seq == 0 {
+		result.Version = result.ShortCommitSha()
 		return result, nil
 	}
+	
 	result.Version = fmt.Sprintf("%s-%d", result.ShortCommitSha(), seq)
 	return result, nil
 }
