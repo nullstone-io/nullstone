@@ -37,7 +37,7 @@ func GetCurrent(ctx context.Context, pusher app.Pusher) (Info, error) {
 		result.Version = result.ShortCommitSha()
 		return result, nil
 	}
-	
+
 	result.Version = fmt.Sprintf("%s-%d", result.ShortCommitSha(), seq)
 	return result, nil
 }

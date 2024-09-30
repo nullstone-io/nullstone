@@ -8,20 +8,6 @@ import (
 	"os"
 )
 
-const (
-	AutomationToolCircleCI       = "circleci"
-	AutomationToolGithubActions  = "github-actions"
-	AutomationToolGitlab         = "gitlab"
-	AutomationToolBitbucket      = "bitbucket"
-	AutomationToolJenkins        = "jenkins"
-	AutomationToolTravis         = "travis"
-	AutomationToolAzurePipelines = "azure-pipeline"
-	AutomationToolAppveyor       = "appveyor"
-	AutomationToolTeamCity       = "team-city"
-	AutomationToolCodeship       = "codeship"
-	AutomationToolSemaphore      = "semaphore"
-)
-
 func CreateDeploy(nsConfig api.Config, appDetails app.Details, commitSha, version string) (*api.DeployCreateResult, error) {
 	ctx := context.TODO()
 	client := api.Client{Config: nsConfig}
@@ -42,38 +28,38 @@ func CreateDeploy(nsConfig api.Config, appDetails app.Details, commitSha, versio
 
 func detectAutomationTool() string {
 	if os.Getenv("CIRCLECI") != "" {
-		return AutomationToolCircleCI
+		return api.AutomationToolCircleCI
 	}
 	if os.Getenv("GITHUB_ACTIONS") != "" {
-		return AutomationToolGithubActions
+		return api.AutomationToolGithubActions
 	}
 	if os.Getenv("GITLAB_CI") != "" {
-		return AutomationToolGitlab
+		return api.AutomationToolGitlab
 	}
 	if os.Getenv("BITBUCKET_PIPELINES") != "" {
-		return AutomationToolBitbucket
+		return api.AutomationToolBitbucket
 	}
 	if os.Getenv("JENKINS_URL") != "" {
-		return AutomationToolJenkins
+		return api.AutomationToolJenkins
 	}
 	if os.Getenv("TRAVIS") != "" {
-		return AutomationToolTravis
+		return api.AutomationToolTravis
 	}
 	if os.Getenv("TF_BUILD") != "" {
 		// TF_BUILD is not referring to Terraform, it's legacy from the original system called "Team Foundation"
-		return AutomationToolAzurePipelines
+		return api.AutomationToolAzurePipelines
 	}
 	if os.Getenv("APPVEYOR") != "" {
-		return AutomationToolAppveyor
+		return api.AutomationToolAppveyor
 	}
 	if os.Getenv("TEAMCITY_VERSION") != "" {
-		return AutomationToolTeamCity
+		return api.AutomationToolTeamCity
 	}
 	if os.Getenv("CI_NAME") != "codeship" {
-		return AutomationToolCodeship
+		return api.AutomationToolCodeship
 	}
 	if os.Getenv("SEMAPHORE") != "" {
-		return AutomationToolSemaphore
+		return api.AutomationToolSemaphore
 	}
 	return ""
 }
