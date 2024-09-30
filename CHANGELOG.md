@@ -1,3 +1,6 @@
+# 0.0.122 (Sep 30, 2024)
+* Added `commitSha` when created deploy so that Nullstone can add commit info to deploy activity.
+
 # 0.0.121 (Jul 11, 2024)
 * Updated CLI commands (`launch`, `deploy`, `plan`, `apply`, `up`, `envs up`, `envs down`) to interop with workflows.
 
