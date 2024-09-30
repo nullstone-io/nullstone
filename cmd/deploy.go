@@ -9,7 +9,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/go-api-client.v0/ws"
-	"gopkg.in/nullstone-io/nullstone.v0/vcs"
 	version2 "gopkg.in/nullstone-io/nullstone.v0/version"
 	"time"
 )
@@ -44,10 +43,12 @@ var Deploy = func(providers app.Providers) *cli.Command {
 						return err
 					}
 
-					commitSha, version, err = getCurrentVersion(ctx, pusher)
+					info, err := version2.GetCurrent(ctx, pusher)
 					if err != nil {
 						return err
 					}
+					version = info.Version
+					commitSha = info.CommitSha
 					fmt.Fprintf(osWriters.Stderr(), "Version defaulted to: %s\n", version)
 				}
 
@@ -67,34 +68,6 @@ var Deploy = func(providers app.Providers) *cli.Command {
 			})
 		},
 	}
-}
-
-func getCurrentVersion(ctx context.Context, pusher app.Pusher) (string, string, error) {
-	shortSha, err := vcs.GetCurrentShortCommitSha()
-	if err != nil {
-		return "", "", fmt.Errorf("error calculating version: %w", err)
-	}
-
-	artifacts, err := pusher.ListArtifactVersions(ctx)
-	if err != nil {
-		// if we aren't able to pull the list of artifact versions, we can just use the short sha as the fallback
-		return shortSha, shortSha, nil
-	}
-
-	seq := version2.FindLatestVersionSequence(shortSha, artifacts)
-	if err != nil {
-		return shortSha, "", fmt.Errorf("error calculating version: %w", err)
-	}
-
-	// no existing deploys found for this commitSha
-	if seq == -1 {
-		return shortSha, "", fmt.Errorf("no artifacts found for this commit SHA (%s) - you must perform a successful push before deploying", shortSha)
-	}
-	// only one deploy found for this commitSha, so we don't need to append a sequence
-	if seq == 0 {
-		return shortSha, shortSha, nil
-	}
-	return shortSha, fmt.Sprintf("%s-%d", shortSha, seq), nil
 }
 
 func streamDeployLogs(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, deploy types.Deploy, wait bool) error {

@@ -8,7 +8,6 @@ import (
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/nullstone.v0/vcs"
 	version2 "gopkg.in/nullstone-io/nullstone.v0/version"
 )
 
@@ -38,10 +37,11 @@ var Push = func(providers app.Providers) *cli.Command {
 
 				if version == "" {
 					fmt.Fprintf(osWriters.Stderr(), "No version specified. Defaulting version based on current git commit sha...\n")
-					_, version, err = calcNewVersion(ctx, pusher)
+					info, err := version2.CalcNew(ctx, pusher)
 					if err != nil {
 						return err
 					}
+					version = info.Version
 					fmt.Fprintf(osWriters.Stderr(), "Version defaulted to: %s\n", version)
 				}
 
@@ -60,34 +60,6 @@ func getPusher(providers app.Providers, cfg api.Config, appDetails app.Details) 
 		return nil, fmt.Errorf("this application category=%s, type=%s does not support push", appDetails.Module.Category, appDetails.Module.Type)
 	}
 	return pusher, nil
-}
-
-func calcNewVersion(ctx context.Context, pusher app.Pusher) (string, string, error) {
-	shortSha, err := vcs.GetCurrentShortCommitSha()
-	if err != nil {
-		return "", "", fmt.Errorf("error calculating version: %w", err)
-	}
-
-	artifacts, err := pusher.ListArtifactVersions(ctx)
-	if err != nil {
-		// if we aren't able to pull the list of artifact versions, we can just use the short sha as the fallback
-		return shortSha, shortSha, nil
-	}
-
-	seq := version2.FindLatestVersionSequence(shortSha, artifacts)
-	if err != nil {
-		return shortSha, "", fmt.Errorf("error calculating version: %w", err)
-	}
-
-	version := shortSha
-	// -1 means we didn't find any existing deploys for this commitSha
-	// and we will just use the shortSha as the version
-	// otherwise we will append the sequence number
-	if seq > -1 {
-		version = fmt.Sprintf("%s-%d", shortSha, seq+1)
-	}
-
-	return shortSha, version, nil
 }
 
 func push(ctx context.Context, osWriters logging.OsWriters, pusher app.Pusher, source, version string) error {

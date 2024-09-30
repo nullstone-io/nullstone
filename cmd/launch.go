@@ -6,6 +6,7 @@ import (
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	version2 "gopkg.in/nullstone-io/nullstone.v0/version"
 )
 
 // Launch command performs push, deploy, and logs
@@ -37,10 +38,12 @@ var Launch = func(providers app.Providers) *cli.Command {
 				commitSha := ""
 				if version == "" {
 					fmt.Fprintf(stderr, "No version specified. Defaulting version based on current git commit sha...\n")
-					commitSha, version, err = calcNewVersion(ctx, pusher)
+					info, err := version2.CalcNew(ctx, pusher)
 					if err != nil {
 						return err
 					}
+					version = info.Version
+					commitSha = info.CommitSha
 					fmt.Fprintf(stderr, "Version defaulted to: %s\n", version)
 				}
 
