@@ -1,4 +1,4 @@
-# 0.0.122 (Sep 30, 2024)
+# 0.0.122 (Oct 01, 2024)
 * Added `commitSha` when created deploy so that Nullstone can add commit info to deploy activity.
 * Added detection of automation tool (e.g. CircleCI, Github Actions, Gitlab, etc.) when creating deploy.
 

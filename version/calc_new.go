@@ -32,6 +32,7 @@ func CalcNew(ctx context.Context, pusher app.Pusher) (Info, error) {
 	// otherwise we will append the sequence number
 	if seq > -1 {
 		result.Version = fmt.Sprintf("%s-%d", result.ShortCommitSha(), seq+1)
+		return result, nil
 	}
 
 	result.Version = result.ShortCommitSha()
