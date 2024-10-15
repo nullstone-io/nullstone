@@ -1,6 +1,8 @@
 module gopkg.in/nullstone-io/nullstone.v0
 
-go 1.21
+go 1.22.0
+
+toolchain go1.22.8
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.26.0
@@ -11,13 +13,14 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
 	github.com/nullstone-io/deployment-sdk v0.0.0-20240704122950-a55160b619cd
+	github.com/nullstone-io/iac v0.0.0-20241015231743-11c53a0d0e36
 	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.18.0
 	golang.org/x/sync v0.5.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241001151051-6c276b70fab6
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241014133021-30b0d9bd3fb8
 	k8s.io/api v0.27.2
 	k8s.io/apimachinery v0.27.2
 	k8s.io/client-go v0.27.2
@@ -57,7 +60,7 @@ require (
 	github.com/tmccombs/hcl2json v0.6.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
 	github.com/zclconf/go-cty v1.14.1 // indirect
-	golang.org/x/mod v0.14.0
+	golang.org/x/mod v0.21.0
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/term v0.16.0 // indirect
@@ -70,6 +73,7 @@ require (
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
+	github.com/BSick7/go-api v0.13.1 // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Microsoft/hcsshim v0.9.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect

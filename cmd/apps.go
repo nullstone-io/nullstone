@@ -50,7 +50,7 @@ var AppsList = &cli.Command{
 						appCategory = appModule.Category
 						appType = appModule.Type
 					}
-					stack, err := client.Stacks().Get(ctx, app.StackId)
+					stack, err := client.Stacks().Get(ctx, app.StackId, false)
 					if err != nil {
 						return fmt.Errorf("error looking for stack %q: %w", app.StackId, err)
 					}
