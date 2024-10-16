@@ -73,6 +73,13 @@ func applyWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, sta
 		identifier := fmt.Sprintf(".%s", change.Identifier)
 		if identifier == types.ChangeIdentifierModuleVersion {
 			identifier = ""
+		} else if change.ChangeType == types.ChangeTypeCapability {
+			if cur, ok := change.Current.(types.CapabilityConfig); ok {
+				identifier = fmt.Sprintf("[%s]", cur.Source)
+			}
+			if desired, ok := change.Desired.(types.CapabilityConfig); identifier == "" && ok {
+				identifier = fmt.Sprintf("[%s]", desired.Source)
+			}
 		}
 		switch change.Action {
 		case types.ChangeActionAdd:
