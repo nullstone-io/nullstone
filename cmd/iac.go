@@ -3,16 +3,11 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/mitchellh/colorstring"
-	"github.com/nullstone-io/iac"
-	"github.com/nullstone-io/iac/core"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"gopkg.in/nullstone-io/nullstone.v0/git"
+	iac2 "gopkg.in/nullstone-io/nullstone.v0/iac"
 	"os"
-	"path/filepath"
 )
 
 var Iac = &cli.Command{
@@ -40,11 +35,6 @@ var IacTest = &cli.Command{
 				if err != nil {
 					return fmt.Errorf("cannot retrieve Nullstone IaC files: %w", err)
 				}
-				apiClient := &api.Client{Config: cfg}
-				pmr, err := parseIacFiles(curDir)
-				if err != nil {
-					return err
-				}
 
 				stackName := c.String("stack")
 				stack, err := find.Stack(ctx, cfg, stackName)
@@ -61,108 +51,18 @@ var IacTest = &cli.Command{
 				} else if env == nil {
 					return find.EnvDoesNotExistError{StackName: stackName, EnvName: envName}
 				}
+
 				stdout := os.Stdout
-
-				// Emit information about detected IaC files
-				numFiles := len(pmr.Overrides)
-				if pmr.Config != nil {
-					numFiles++
-				}
-				colorstring.Fprintf(stdout, "[bold]Found %d IaC files[reset]\n", numFiles)
-				if cur := pmr.Config; cur != nil {
-					relFilename, _ := filepath.Rel(curDir, cur.IacContext.Filename)
-					fmt.Fprintf(stdout, "    📂 %s\n", relFilename)
-				}
-				for _, cur := range pmr.Overrides {
-					relFilename, _ := filepath.Rel(curDir, cur.IacContext.Filename)
-					fmt.Fprintf(stdout, "    📂 %s\n", relFilename)
-				}
-				fmt.Fprintln(stdout)
-
-				colorstring.Fprintf(stdout, "[bold]Testing Nullstone IaC files against %s/%s environment...[reset]\n", stack.Name, env.Name)
-				resolver := core.NewApiResolver(apiClient, stack.Id, env.Id)
-				if errs := iac.Resolve(ctx, *pmr, resolver); len(errs) > 0 {
-					colorstring.Fprintf(stdout, "[bold]Detected errors when resolving Nullstone IaC files[reset]\n")
-					for _, err := range errs {
-						relFilename, _ := filepath.Rel(curDir, err.IacContext.Filename)
-						colorstring.Fprintf(stdout, "    [red]✖[reset] (%s) %s => %s\n", relFilename, err.ObjectPathContext.Context(), err.ErrorMessage)
-					}
-					fmt.Fprintln(stdout)
-					return fmt.Errorf("IaC files are invalid.")
-				} else {
-					colorstring.Fprintln(stdout, "    [green]✔[reset] Resolution completed successfully.")
+				pmr, err := iac2.Discover(curDir, stdout)
+				if err != nil {
+					return err
 				}
 
-				if errs := iac.Validate(*pmr); len(errs) > 0 {
-					colorstring.Fprintf(stdout, "    [bold]Detected errors when validating Nullstone IaC files[reset]\n")
-					for _, err := range errs {
-						relFilename, _ := filepath.Rel(curDir, err.IacContext.Filename)
-						colorstring.Fprintf(stdout, "        [red]✖[reset] (%s) %s => %s\n", relFilename, err.ObjectPathContext.Context(), err.ErrorMessage)
-					}
-					fmt.Fprintln(stdout)
-					return fmt.Errorf("IaC files are invalid.")
-				} else {
-					colorstring.Fprintln(stdout, "    [green]✔[reset] Validation completed successfully.")
+				if err := iac2.Process(ctx, cfg, curDir, stdout, *stack, *env, *pmr); err != nil {
+					return err
 				}
-
-				if pmr.Config != nil {
-					blocks := pmr.Config.ToBlocks(stack.OrgName, stack.Id)
-					blocksToCreate := map[string]types.Block{}
-					for _, cur := range blocks {
-						blocksToCreate[cur.Name] = cur
-					}
-					existing, err := apiClient.Blocks().List(ctx, stack.Id)
-					if err != nil {
-						fmt.Fprintln(stdout)
-						return fmt.Errorf("error checking for existing blocks: %w", err)
-					}
-					for _, cur := range existing {
-						delete(blocksToCreate, cur.Name)
-					}
-
-					if len(blocksToCreate) > 0 {
-						colorstring.Fprintf(stdout, "    [bold]Nullstone will create the following %d blocks...[reset]\n", len(blocksToCreate))
-						for name, _ := range blocksToCreate {
-							colorstring.Fprintf(stdout, "        [green]+[reset] %s\n", name)
-						}
-						if err := resolver.ResourceResolver.BackfillMissingBlocks(ctx, blocks); err != nil {
-							fmt.Fprintln(stdout)
-							return fmt.Errorf("error initializing normalization: %w", err)
-						}
-					} else {
-						colorstring.Fprintln(stdout, "    [green]✔[reset] Nullstone does not need to create any blocks.")
-					}
-				}
-
-				if errs := iac.Normalize(ctx, *pmr, resolver); len(errs) > 0 {
-					colorstring.Fprintf(stdout, "    [bold]Detected errors when validating connections in Nullstone IaC files[reset]\n")
-					for _, err := range errs {
-						relFilename, _ := filepath.Rel(curDir, err.IacContext.Filename)
-						colorstring.Fprintf(stdout, "        [red]✖[reset] (%s) %s => %s\n", relFilename, err.ObjectPathContext.Context(), err.ErrorMessage)
-					}
-					fmt.Fprintln(stdout)
-					return fmt.Errorf("IaC files are invalid.")
-				} else {
-					colorstring.Fprintln(stdout, "    [green]✔[reset] Connection validation completed successfully.")
-				}
-
 				return nil
 			})
 		})
 	},
-}
-
-func parseIacFiles(dir string) (*iac.ParseMapResult, error) {
-	rootDir, err := git.GetRootDir(dir)
-	if err != nil {
-		return nil, fmt.Errorf("error looking for repository root directory: %w", err)
-	} else if rootDir == "" {
-		rootDir = dir
-	}
-
-	pmr, err := iac.ParseConfigDir(filepath.Join(rootDir, ".nullstone"))
-	if err != nil {
-		return nil, fmt.Errorf("error parsing nullstone IaC files: %w", err)
-	}
-	return pmr, nil
 }
