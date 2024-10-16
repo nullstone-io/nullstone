@@ -42,11 +42,9 @@ func Apply(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stac
 }
 
 func applyWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, stack types.Stack, block types.Block, env types.Environment, pmr iac.ParseMapResult) error {
-	colorstring.Fprintf(w, "    [bold]Diffing %s[reset]\n", block.Name)
-
 	effective, err := apiClient.WorkspaceConfigs().GetEffective(ctx, stack.Id, block.Id, env.Id)
 	if err != nil {
-		return fmt.Errorf("errore retrieving workspace: %w", err)
+		return fmt.Errorf("error retrieving workspace: %w", err)
 	} else if effective == nil {
 		return nil
 	}
@@ -62,27 +60,28 @@ func applyWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, sta
 
 	differ := workspace.Differ{Current: *effective, Desired: updated}
 	changes := differ.Diff()
+	if len(changes) == 0 {
+		return nil
+	}
+
 	s := "s"
 	if len(changes) == 1 {
 		s = ""
 	}
-	colorstring.Fprintf(w, "        The IaC files will cause %d change%s\n", len(changes), s)
+	colorstring.Fprintf(w, "    [bold]%s[reset] => %d change%s\n", block.Name, len(changes), s)
 	for _, change := range changes {
-		colorstring.Fprintf(w, "            ")
-		switch change.Action {
-		case types.ChangeActionAdd:
-			colorstring.Fprintf(w, "[green]+")
-		case types.ChangeActionDelete:
-			colorstring.Fprintf(w, "[red]-")
-		case types.ChangeActionUpdate:
-			colorstring.Fprintf(w, "[yellow]~")
-		}
 		identifier := fmt.Sprintf(".%s", change.Identifier)
 		if identifier == types.ChangeIdentifierModuleVersion {
 			identifier = ""
 		}
-		colorstring.Fprintf(w, " %s%s", change.ChangeType, identifier)
-		colorstring.Fprintf(w, "[reset]\n")
+		switch change.Action {
+		case types.ChangeActionAdd:
+			colorstring.Fprintf(w, "        [green]+ %s%s[reset]\n", change.ChangeType, identifier)
+		case types.ChangeActionDelete:
+			colorstring.Fprintf(w, "        [red]- %s%s[reset]\n", change.ChangeType, identifier)
+		case types.ChangeActionUpdate:
+			colorstring.Fprintf(w, "        [yellow]~ %s%s[reset]\n", change.ChangeType, identifier)
+		}
 	}
 
 	return nil
