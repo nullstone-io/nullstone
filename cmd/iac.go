@@ -61,7 +61,8 @@ var IacTest = &cli.Command{
 				if err := iac2.Process(ctx, cfg, curDir, stdout, *stack, *env, *pmr); err != nil {
 					return err
 				}
-				return nil
+
+				return iac2.Apply(ctx, cfg, curDir, stdout, *stack, *env, *pmr)
 			})
 		})
 	},
