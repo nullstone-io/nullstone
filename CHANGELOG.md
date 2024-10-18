@@ -1,4 +1,4 @@
-# 0.0.123 (Unreleased)
+# 0.0.123 (Oct 18, 2024)
 * Added `nullstone iac test` command to validate Nullstone IaC files.
 
 # 0.0.122 (Oct 01, 2024)
