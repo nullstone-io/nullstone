@@ -58,8 +58,7 @@ func applyWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, sta
 		return fmt.Errorf("error applying changes: %w", err)
 	}
 
-	differ := workspace.Differ{Current: *effective, Desired: updated}
-	changes := differ.Diff()
+	changes := workspace.DiffWorkspaceConfig(*effective, updated)
 	if len(changes) == 0 {
 		return nil
 	}

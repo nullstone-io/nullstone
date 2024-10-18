@@ -60,7 +60,7 @@ func Process(ctx context.Context, cfg api.Config, curDir string, w io.Writer, st
 			for name, _ := range blocksToCreate {
 				colorstring.Fprintf(w, "        [green]+[reset] %s\n", name)
 			}
-			if err := resolver.ResourceResolver.BackfillMissingBlocks(ctx, blocks); err != nil {
+			if _, err := resolver.ResourceResolver.BackfillMissingBlocks(ctx, blocks); err != nil {
 				fmt.Fprintln(w)
 				return fmt.Errorf("error initializing normalization: %w", err)
 			}
