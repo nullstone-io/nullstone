@@ -35,6 +35,7 @@ func Build() *cli.App {
 		cmd.Blocks,
 		cmd.Modules,
 		cmd.Workspaces,
+		cmd.Iac,
 		cmd.Up(),
 		cmd.Plan(),
 		cmd.Apply(),

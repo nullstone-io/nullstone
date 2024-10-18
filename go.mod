@@ -1,6 +1,8 @@
 module gopkg.in/nullstone-io/nullstone.v0
 
-go 1.21
+go 1.22.0
+
+toolchain go1.22.8
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.26.0
@@ -9,15 +11,18 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.26.7
 	github.com/cristalhq/jwt/v3 v3.1.0
 	github.com/go-git/go-git/v5 v5.4.2
+	github.com/google/go-cmp v0.6.0
 	github.com/gosuri/uilive v0.0.4
+	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nullstone-io/deployment-sdk v0.0.0-20240704122950-a55160b619cd
+	github.com/nullstone-io/iac v0.0.0-20241018152635-822b89688b4a
 	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.18.0
 	golang.org/x/sync v0.5.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241001151051-6c276b70fab6
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241018151116-b54e3dedfc76
 	k8s.io/api v0.27.2
 	k8s.io/apimachinery v0.27.2
 	k8s.io/client-go v0.27.2
@@ -57,7 +62,7 @@ require (
 	github.com/tmccombs/hcl2json v0.6.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
 	github.com/zclconf/go-cty v1.14.1 // indirect
-	golang.org/x/mod v0.14.0
+	golang.org/x/mod v0.21.0
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/term v0.16.0 // indirect
@@ -70,6 +75,7 @@ require (
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
+	github.com/BSick7/go-api v0.13.1 // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Microsoft/hcsshim v0.9.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
@@ -115,13 +121,13 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
+	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
@@ -130,7 +136,6 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.2 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/miekg/pkcs11 v1.0.3 // indirect
-	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/moby/spdystream v0.2.0 // indirect
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/moby/sys/mountinfo v0.4.1 // indirect
