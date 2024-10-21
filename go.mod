@@ -11,18 +11,17 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.26.7
 	github.com/cristalhq/jwt/v3 v3.1.0
 	github.com/go-git/go-git/v5 v5.4.2
-	github.com/google/go-cmp v0.6.0
 	github.com/gosuri/uilive v0.0.4
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nullstone-io/deployment-sdk v0.0.0-20240704122950-a55160b619cd
-	github.com/nullstone-io/iac v0.0.0-20241018152635-822b89688b4a
+	github.com/nullstone-io/iac v0.0.0-20241021182307-a62c638bf4ae
 	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.18.0
 	golang.org/x/sync v0.5.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241018151116-b54e3dedfc76
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241021181456-5c5f766808e5
 	k8s.io/api v0.27.2
 	k8s.io/apimachinery v0.27.2
 	k8s.io/client-go v0.27.2
@@ -121,6 +120,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
+	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect

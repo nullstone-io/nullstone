@@ -1,3 +1,6 @@
+# 0.0.124 (Oct 21, 2024)
+* Fixed generation of capabilities using `workspaces select` CLI command.
+
 # 0.0.123 (Oct 18, 2024)
 * Added `nullstone iac test` command to validate Nullstone IaC files.
 
