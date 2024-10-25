@@ -11,6 +11,10 @@ import (
 	"io"
 )
 
+const (
+	indentStep = "    "
+)
+
 func Apply(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ParseMapResult) error {
 	blockNames := pmr.BlockNames(env)
 	apiClient := &api.Client{Config: cfg}
@@ -27,7 +31,11 @@ func Apply(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stac
 	}
 
 	hasError := false
-	colorstring.Fprintf(w, "[bold]Detecting changes for %d blocks in %s/%s...[reset]\n", len(blocks), stack.Name, env.Name)
+	plural := "s"
+	if len(blocks) == 1 {
+		plural = ""
+	}
+	colorstring.Fprintf(w, "[bold]Detecting changes for %d block%s in %s/%s...[reset]\n", len(blocks), plural, stack.Name, env.Name)
 	for _, block := range blocks {
 		if err := applyWorkspace(ctx, apiClient, w, stack, block, env, pmr); err != nil {
 			colorstring.Fprintf(w, "[red]An error occurred: %s[reset]\n", err)
@@ -36,7 +44,7 @@ func Apply(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stac
 	}
 
 	if hasError {
-		return fmt.Errorf("An error occurred diffing blocks.")
+		return fmt.Errorf("An error occurred diffing block%s.", plural)
 	}
 	return nil
 }
@@ -49,6 +57,8 @@ func applyWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, sta
 		return nil
 	}
 
+	types.FillWorkspaceConfigMissingEnv(effective, env)
+
 	updated, err := effective.Clone()
 	if err != nil {
 		return fmt.Errorf("error cloning workspace: %w", err)
@@ -59,36 +69,6 @@ func applyWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, sta
 	}
 
 	changes := workspace.DiffWorkspaceConfig(*effective, updated)
-	if len(changes) == 0 {
-		return nil
-	}
-
-	s := "s"
-	if len(changes) == 1 {
-		s = ""
-	}
-	colorstring.Fprintf(w, "    [bold]%s[reset] => %d change%s\n", block.Name, len(changes), s)
-	for _, change := range changes {
-		identifier := fmt.Sprintf(".%s", change.Identifier)
-		if identifier == types.ChangeIdentifierModuleVersion {
-			identifier = ""
-		} else if change.ChangeType == types.ChangeTypeCapability {
-			if cur, ok := change.Current.(types.CapabilityConfig); ok {
-				identifier = fmt.Sprintf("[%s]", cur.Source)
-			}
-			if desired, ok := change.Desired.(types.CapabilityConfig); identifier == "" && ok {
-				identifier = fmt.Sprintf("[%s]", desired.Source)
-			}
-		}
-		switch change.Action {
-		case types.ChangeActionAdd:
-			colorstring.Fprintf(w, "        [green]+ %s%s[reset]\n", change.ChangeType, identifier)
-		case types.ChangeActionDelete:
-			colorstring.Fprintf(w, "        [red]- %s%s[reset]\n", change.ChangeType, identifier)
-		case types.ChangeActionUpdate:
-			colorstring.Fprintf(w, "        [yellow]~ %s%s[reset]\n", change.ChangeType, identifier)
-		}
-	}
-
+	emitWorkspaceChanges(w, block, changes)
 	return nil
 }
