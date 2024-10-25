@@ -1,3 +1,9 @@
+# 0.0.125 (Oct 25, 2024)
+* `nullstone iac test` now emits previous and updated values for `module_version`, `env_variable`, `variable`, and `connection` changes.
+* Eliminated diffs in `nullstone iac test` for similar values.
+  * Variable values set to the same as the default
+  * Connections having a missing environment id
+
 # 0.0.124 (Oct 21, 2024)
 * Fixed generation of capabilities using `workspaces select` CLI command.
 
