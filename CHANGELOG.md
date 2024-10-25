@@ -1,4 +1,4 @@
-# 0.0.125 (Oct 24, 2024)
+# 0.0.125 (Oct 25, 2024)
 * `nullstone iac test` now emits previous and updated values for `module_version`, `env_variable`, `variable`, and `connection` changes.
 * Eliminated diffs in `nullstone iac test` for similar values.
   * Variable values set to the same as the default
