@@ -6,25 +6,29 @@ import (
 	"path/filepath"
 )
 
-func GetRootDir(curDir string) (string, error) {
+func GetRootDir(curDir string) (string, *git.Repository, error) {
 	if curDir == "" {
 		curDir = "."
 	}
 	repo, err := git.PlainOpen(curDir)
 	if err != nil {
 		if errors.Is(err, git.ErrRepositoryNotExists) {
-			return "", nil
+			return "", nil, nil
 		}
-		return "", err
+		return "", nil, err
 	}
 
 	worktree, err := repo.Worktree()
 	if err != nil {
 		if errors.Is(err, git.ErrIsBareRepository) {
-			return "", nil
+			return "", repo, nil
 		}
-		return "", err
+		return "", repo, err
 	}
 
-	return filepath.Abs(worktree.Filesystem.Root())
+	dir, err := filepath.Abs(worktree.Filesystem.Root())
+	if err != nil {
+		return "", nil, err
+	}
+	return dir, repo, nil
 }

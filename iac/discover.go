@@ -6,7 +6,9 @@ import (
 	"github.com/nullstone-io/iac"
 	"gopkg.in/nullstone-io/nullstone.v0/git"
 	"io"
+	"net/url"
 	"path/filepath"
+	"strings"
 )
 
 func Discover(dir string, w io.Writer) (*iac.ParseMapResult, error) {
@@ -34,14 +36,25 @@ func Discover(dir string, w io.Writer) (*iac.ParseMapResult, error) {
 }
 
 func parseIacFiles(dir string) (*iac.ParseMapResult, error) {
-	rootDir, err := git.GetRootDir(dir)
+	rootDir, repo, err := git.GetRootDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("error looking for repository root directory: %w", err)
 	} else if rootDir == "" {
 		rootDir = dir
 	}
 
-	pmr, err := iac.ParseConfigDir(filepath.Join(rootDir, ".nullstone"))
+	parseContext := "local"
+	remote, err := repo.Remote("origin")
+	if err == nil && remote != nil {
+		if remoteConfig := remote.Config(); remoteConfig != nil && len(remoteConfig.URLs) > 0 {
+			remoteUrl, err := url.Parse(remoteConfig.URLs[0])
+			if err == nil && remoteUrl != nil {
+				parseContext = strings.TrimSuffix(strings.TrimPrefix(remoteUrl.Path, "/"), ".git")
+			}
+		}
+	}
+
+	pmr, err := iac.ParseConfigDir(parseContext, filepath.Join(rootDir, ".nullstone"))
 	if err != nil {
 		return nil, fmt.Errorf("error parsing nullstone IaC files: %w", err)
 	}

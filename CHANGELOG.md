@@ -1,3 +1,6 @@
+# 0.0.126 (Oct 31, 2024)
+* `nullstone iac test` will find IaC files with `.yml` *or* `.yaml` file extension.
+
 # 0.0.125 (Oct 25, 2024)
 * `nullstone iac test` now emits previous and updated values for `module_version`, `env_variable`, `variable`, and `connection` changes.
 * Eliminated diffs in `nullstone iac test` for similar values.
