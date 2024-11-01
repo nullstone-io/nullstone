@@ -777,6 +777,8 @@ github.com/nullstone-io/iac v0.0.0-20241025133315-2ceba267e009 h1:n/N00nAI27Og5o
 github.com/nullstone-io/iac v0.0.0-20241025133315-2ceba267e009/go.mod h1:QPw/RbUF3Fu4zs2cu63i+LFon5mU8HEkOCUrSJ7hC6U=
 github.com/nullstone-io/iac v0.0.0-20241031195625-8151ddbc32b5 h1:3G1Y+YdoKx0yTtOnqGfBjNyHs6G56J4jVbai1UaUTvo=
 github.com/nullstone-io/iac v0.0.0-20241031195625-8151ddbc32b5/go.mod h1:QPw/RbUF3Fu4zs2cu63i+LFon5mU8HEkOCUrSJ7hC6U=
+github.com/nullstone-io/iac v0.0.0-20241031212530-155e6a0fbc77 h1:hiVxd5ESEMPdguz7UpYTPdcAFba+hFWf07k29Q16FFg=
+github.com/nullstone-io/iac v0.0.0-20241031212530-155e6a0fbc77/go.mod h1:7nXM4Snak8HA3jJeMo7n+bkeFnyFG0MUqG20EJE9Gn4=
 github.com/nullstone-io/module v0.2.9 h1:PcYhPEemBbc+RdP+Q/DF0+XlwJkkNb5R17Hfv8qaYyc=
 github.com/nullstone-io/module v0.2.9/go.mod h1:btQiO0giVWDvvaQ7CLnPmuPPakJc55lAr8OlE1LK6hg=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
@@ -1464,6 +1466,8 @@ gopkg.in/inf.v0 v0.9.1/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=
 gopkg.in/natefinch/lumberjack.v2 v2.0.0/go.mod h1:l0ndWWf7gzL7RNwBG7wST/UCcT4T24xpD6X8LsfU/+k=
 gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241025125133-d3e3cc5ae079 h1:QM+6o67PfrdBSEEEbxkFWSmNU7d1kD3Ex6aVTJsqgtg=
 gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241025125133-d3e3cc5ae079/go.mod h1:EHFRYFcg303Tc9FDxBmvUrT8AncZ4KMT8FrRoGJnqDk=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241031212340-d6b8e4fd6fd2 h1:AJIm45PjZ15tJwefaZREaE8F/txaC4tc4GzUSxi5lmg=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241031212340-d6b8e4fd6fd2/go.mod h1:EHFRYFcg303Tc9FDxBmvUrT8AncZ4KMT8FrRoGJnqDk=
 gopkg.in/resty.v1 v1.12.0/go.mod h1:mDo4pnntr5jdWRML875a/NmxYqAlA73dVijT2AXvQQo=
 gopkg.in/rethinkdb/rethinkdb-go.v6 v6.2.1 h1:d4KQkxAaAiRY2h5Zqis161Pv91A37uZyJOx73duwUwM=
 gopkg.in/rethinkdb/rethinkdb-go.v6 v6.2.1/go.mod h1:WbjuEoo1oadwzQ4apSDU+JTvmllEHtsNHS6y7vFc7iw=
