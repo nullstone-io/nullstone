@@ -11,6 +11,14 @@ import (
 	"strings"
 )
 
+var (
+	blankVcsUrl = url.URL{
+		Scheme: "https",
+		Host:   "localhost",
+		Path:   "local/repo",
+	}
+)
+
 func Discover(dir string, w io.Writer) (*iac.ParseMapResult, error) {
 	pmr, err := parseIacFiles(dir)
 	if err != nil {
@@ -43,18 +51,16 @@ func parseIacFiles(dir string) (*iac.ParseMapResult, error) {
 		rootDir = dir
 	}
 
-	parseContext := "local"
-	remote, err := repo.Remote("origin")
-	if err == nil && remote != nil {
-		if remoteConfig := remote.Config(); remoteConfig != nil && len(remoteConfig.URLs) > 0 {
-			remoteUrl, err := url.Parse(remoteConfig.URLs[0])
-			if err == nil && remoteUrl != nil {
-				parseContext = strings.TrimSuffix(strings.TrimPrefix(remoteUrl.Path, "/"), ".git")
-			}
-		}
+	repoUrl, err := git.GetVcsUrl(repo)
+	if err != nil {
+		return nil, fmt.Errorf("error trying to discover the repo url of the local repository: %w", err)
+	}
+	if repoUrl == nil {
+		repoUrl = &blankVcsUrl
 	}
 
-	pmr, err := iac.ParseConfigDir(parseContext, filepath.Join(rootDir, ".nullstone"))
+	repoName := strings.TrimPrefix(repoUrl.Path, "/")
+	pmr, err := iac.ParseConfigDir(repoUrl.String(), repoName, filepath.Join(rootDir, ".nullstone"))
 	if err != nil {
 		return nil, fmt.Errorf("error parsing nullstone IaC files: %w", err)
 	}

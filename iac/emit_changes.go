@@ -3,6 +3,7 @@ package iac
 import (
 	"fmt"
 	"github.com/mitchellh/colorstring"
+	"github.com/nullstone-io/iac/events"
 	"github.com/nullstone-io/iac/workspace"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"io"
@@ -133,4 +134,34 @@ func compareWorkspaceChange(a, b types.WorkspaceChange) int {
 	}
 	return -1
 
+}
+
+func emitEventChanges(w io.Writer, changes events.Changes) {
+	if len(changes) == 0 {
+		return
+	}
+	s := "s"
+	if len(changes) == 1 {
+		s = ""
+	}
+	indent := indentStep
+	colorstring.Fprintf(w, "%s[bold]events[reset] => %d change%s\n", indent, len(changes), s)
+	indent += indentStep
+	for _, change := range changes {
+		emitEventChangeLabel(w, indent, change)
+		if change.Action == events.ChangeActionUpdate {
+			// TODO: emitEventUpdateChangeDiff(w, indent, change)
+		}
+	}
+}
+
+func emitEventChangeLabel(w io.Writer, indent string, change events.Change) {
+	switch change.Action {
+	case events.ChangeActionAdd:
+		colorstring.Fprintf(w, "%s[green]+ %s[reset]\n", indent, change.Desired.Name)
+	case events.ChangeActionDelete:
+		colorstring.Fprintf(w, "%s[red]- %s[reset]\n", indent, change.Current.Name)
+	case events.ChangeActionUpdate:
+		colorstring.Fprintf(w, "%s[yellow]~ %s[reset]\n", indent, change.Desired.Name)
+	}
 }
