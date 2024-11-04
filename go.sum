@@ -781,6 +781,8 @@ github.com/nullstone-io/iac v0.0.0-20241104140921-092265a9c694 h1:sTWWoh9seUCEO6
 github.com/nullstone-io/iac v0.0.0-20241104140921-092265a9c694/go.mod h1:epRMIDLC3pXZSCEJmuJG6a2y5XjIWRHSbPXCTCJ+nqI=
 github.com/nullstone-io/iac v0.0.0-20241104145036-1763ab1c1469 h1:P52Q14YNPlvWyWdafuAekElO8nVIPx9woHNRuWAJYM8=
 github.com/nullstone-io/iac v0.0.0-20241104145036-1763ab1c1469/go.mod h1:epRMIDLC3pXZSCEJmuJG6a2y5XjIWRHSbPXCTCJ+nqI=
+github.com/nullstone-io/iac v0.0.0-20241104163601-ed4a469819b7 h1:S49zKrXsg/ZdMFlZj4pKtn/YqhwqfDt8qJuC9ELt5wk=
+github.com/nullstone-io/iac v0.0.0-20241104163601-ed4a469819b7/go.mod h1:lY2Ww6mXCDvGPj6Fi5VoWyGvTKn2etk3+4faNDZ+BqI=
 github.com/nullstone-io/module v0.2.9 h1:PcYhPEemBbc+RdP+Q/DF0+XlwJkkNb5R17Hfv8qaYyc=
 github.com/nullstone-io/module v0.2.9/go.mod h1:btQiO0giVWDvvaQ7CLnPmuPPakJc55lAr8OlE1LK6hg=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
