@@ -62,7 +62,7 @@ var IacTest = &cli.Command{
 					return err
 				}
 
-				return iac2.Test(ctx, cfg, curDir, stdout, *stack, *env, *pmr)
+				return iac2.Test(ctx, cfg, stdout, *stack, *env, *pmr)
 			})
 		})
 	},

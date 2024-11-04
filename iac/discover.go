@@ -43,18 +43,21 @@ func parseIacFiles(dir string) (*iac.ParseMapResult, error) {
 		rootDir = dir
 	}
 
-	parseContext := "local"
+	repoUrl := ""
+	repoName := "local"
 	remote, err := repo.Remote("origin")
 	if err == nil && remote != nil {
 		if remoteConfig := remote.Config(); remoteConfig != nil && len(remoteConfig.URLs) > 0 {
 			remoteUrl, err := url.Parse(remoteConfig.URLs[0])
 			if err == nil && remoteUrl != nil {
-				parseContext = strings.TrimSuffix(strings.TrimPrefix(remoteUrl.Path, "/"), ".git")
+				remoteUrl.Path = strings.TrimPrefix(remoteUrl.Path, ".git")
+				repoUrl = remoteUrl.String()
+				repoName = strings.TrimPrefix(remoteUrl.Path, "/")
 			}
 		}
 	}
 
-	pmr, err := iac.ParseConfigDir(parseContext, filepath.Join(rootDir, ".nullstone"))
+	pmr, err := iac.ParseConfigDir(repoUrl, repoName, filepath.Join(rootDir, ".nullstone"))
 	if err != nil {
 		return nil, fmt.Errorf("error parsing nullstone IaC files: %w", err)
 	}
