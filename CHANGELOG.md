@@ -1,4 +1,4 @@
-# 0.0.126 (Unreleased)
+# 0.0.126 (Nov 04, 2024)
 * `nullstone iac test` will find IaC files with `.yml` *or* `.yaml` file extension.
 * Added support for `events` in IaC files.
 

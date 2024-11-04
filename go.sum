@@ -773,8 +773,8 @@ github.com/ncw/swift v1.0.47/go.mod h1:23YIA4yWVnGwv2dQlN4bB7egfYX6YLn0Yo/S6zZO/
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
 github.com/nullstone-io/deployment-sdk v0.0.0-20240704122950-a55160b619cd h1:3DWDfyQ9UGUfkfrK0PshA43fCp7PZuC/BjqYUBTZhi8=
 github.com/nullstone-io/deployment-sdk v0.0.0-20240704122950-a55160b619cd/go.mod h1:7wc/0tmIELFoBTjNB5+hsyvTQD60mnt+BJ9/AU2/Cb8=
-github.com/nullstone-io/iac v0.0.0-20241104163601-ed4a469819b7 h1:S49zKrXsg/ZdMFlZj4pKtn/YqhwqfDt8qJuC9ELt5wk=
-github.com/nullstone-io/iac v0.0.0-20241104163601-ed4a469819b7/go.mod h1:lY2Ww6mXCDvGPj6Fi5VoWyGvTKn2etk3+4faNDZ+BqI=
+github.com/nullstone-io/iac v0.0.0-20241104165455-5b50a5757a06 h1:ex3xZvrPC/ms1tcSgq8YRdzIJfRglL6PrmMJdTB9eoQ=
+github.com/nullstone-io/iac v0.0.0-20241104165455-5b50a5757a06/go.mod h1:tRZPp425TN0XVAkrkICbZ1EAkmmhNb7ueq7xBLX2goM=
 github.com/nullstone-io/module v0.2.9 h1:PcYhPEemBbc+RdP+Q/DF0+XlwJkkNb5R17Hfv8qaYyc=
 github.com/nullstone-io/module v0.2.9/go.mod h1:btQiO0giVWDvvaQ7CLnPmuPPakJc55lAr8OlE1LK6hg=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
@@ -1460,8 +1460,8 @@ gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2/go.mod h1:Xk6kEKp8OKb+X14hQBKW
 gopkg.in/inf.v0 v0.9.1 h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
 gopkg.in/inf.v0 v0.9.1/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=
 gopkg.in/natefinch/lumberjack.v2 v2.0.0/go.mod h1:l0ndWWf7gzL7RNwBG7wST/UCcT4T24xpD6X8LsfU/+k=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241104151810-b4b908dceb08 h1:b+ncJFJNNu/lioxJ8efkskafCmhAihHMVcApWTBq76M=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241104151810-b4b908dceb08/go.mod h1:m/JNiW4XSXjRLAedd7LYOO0l/FfCiKffRFolkKpfpgA=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241104165420-28a5aae528a6 h1:pBqC7B6hjZH+GeFfrKb9cCSabCAlQ8o2Ij0o96GTwUY=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241104165420-28a5aae528a6/go.mod h1:m/JNiW4XSXjRLAedd7LYOO0l/FfCiKffRFolkKpfpgA=
 gopkg.in/resty.v1 v1.12.0/go.mod h1:mDo4pnntr5jdWRML875a/NmxYqAlA73dVijT2AXvQQo=
 gopkg.in/rethinkdb/rethinkdb-go.v6 v6.2.1 h1:d4KQkxAaAiRY2h5Zqis161Pv91A37uZyJOx73duwUwM=
 gopkg.in/rethinkdb/rethinkdb-go.v6 v6.2.1/go.mod h1:WbjuEoo1oadwzQ4apSDU+JTvmllEHtsNHS6y7vFc7iw=
