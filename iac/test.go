@@ -15,7 +15,7 @@ const (
 	indentStep = "    "
 )
 
-func Apply(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ParseMapResult) error {
+func Test(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ParseMapResult) error {
 	blockNames := pmr.BlockNames(env)
 	apiClient := &api.Client{Config: cfg}
 	allBlocks, err := apiClient.Blocks().List(ctx, stack.Id)
