@@ -4,6 +4,8 @@ go 1.22.0
 
 toolchain go1.22.8
 
+replace gopkg.in/nullstone-io/go-api-client.v0 => ../go-api-client
+
 require (
 	github.com/aws/aws-sdk-go-v2 v1.26.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.37.0
@@ -14,7 +16,7 @@ require (
 	github.com/gosuri/uilive v0.0.4
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nullstone-io/deployment-sdk v0.0.0-20240704122950-a55160b619cd
-	github.com/nullstone-io/iac v0.0.0-20241104134449-33fe88b0c19b
+	github.com/nullstone-io/iac v0.0.0-20241104145036-1763ab1c1469
 	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.8.4

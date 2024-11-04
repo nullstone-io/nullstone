@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/mitchellh/colorstring"
 	"github.com/nullstone-io/iac"
+	iacEvents "github.com/nullstone-io/iac/events"
 	"github.com/nullstone-io/iac/workspace"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -15,7 +16,17 @@ const (
 	indentStep = "    "
 )
 
-func Test(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ParseMapResult) error {
+func Test(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ParseMapResult) error {
+	if err := testWorkspaces(ctx, cfg, w, stack, env, pmr); err != nil {
+		return err
+	}
+	if err := testEvents(ctx, cfg, w, stack, env, pmr); err != nil {
+		return err
+	}
+	return nil
+}
+
+func testWorkspaces(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ParseMapResult) error {
 	blockNames := pmr.BlockNames(env)
 	apiClient := &api.Client{Config: cfg}
 	allBlocks, err := apiClient.Blocks().List(ctx, stack.Id)
@@ -37,7 +48,7 @@ func Test(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stack
 	}
 	colorstring.Fprintf(w, "[bold]Detecting changes for %d block%s in %s/%s...[reset]\n", len(blocks), plural, stack.Name, env.Name)
 	for _, block := range blocks {
-		if err := applyWorkspace(ctx, apiClient, w, stack, block, env, pmr); err != nil {
+		if err := testWorkspace(ctx, apiClient, w, stack, block, env, pmr); err != nil {
 			colorstring.Fprintf(w, "[red]An error occurred: %s[reset]\n", err)
 			hasError = true
 		}
@@ -49,7 +60,7 @@ func Test(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stack
 	return nil
 }
 
-func applyWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, stack types.Stack, block types.Block, env types.Environment, pmr iac.ParseMapResult) error {
+func testWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, stack types.Stack, block types.Block, env types.Environment, pmr iac.ParseMapResult) error {
 	effective, err := apiClient.WorkspaceConfigs().GetEffective(ctx, stack.Id, block.Id, env.Id)
 	if err != nil {
 		return fmt.Errorf("error retrieving workspace: %w", err)
@@ -70,5 +81,26 @@ func applyWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, sta
 
 	changes := workspace.DiffWorkspaceConfig(*effective, updated)
 	emitWorkspaceChanges(w, block, changes)
+	return nil
+}
+
+func testEvents(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ParseMapResult) error {
+	apiClient := api.Client{Config: cfg}
+	existingEvents, err := apiClient.EnvEvents().List(ctx, stack.Id, env.Id)
+	if err != nil {
+		return fmt.Errorf("error looking up existing events: %w", err)
+	}
+
+	current := map[string]types.EnvEvent{}
+	for _, cur := range existingEvents {
+		if cur.OwningRepoUrl == pmr.Config.IacContext.RepoUrl {
+			current[cur.Name] = cur
+		}
+	}
+
+	colorstring.Fprintf(w, "[bold]Detecting changes for events in %s/%s...[reset]\n", stack.Name, env.Name)
+	desired := iacEvents.Get(pmr, env)
+	changes := iacEvents.Diff(current, desired, pmr.Config.IacContext.RepoUrl)
+	emitEventChanges(w, changes)
 	return nil
 }
