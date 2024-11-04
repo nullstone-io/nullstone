@@ -6,8 +6,17 @@ import (
 	"github.com/nullstone-io/iac"
 	"gopkg.in/nullstone-io/nullstone.v0/git"
 	"io"
+	"net/url"
 	"path/filepath"
 	"strings"
+)
+
+var (
+	blankVcsUrl = url.URL{
+		Scheme: "https",
+		Host:   "localhost",
+		Path:   "local/repo",
+	}
 )
 
 func Discover(dir string, w io.Writer) (*iac.ParseMapResult, error) {
@@ -42,7 +51,14 @@ func parseIacFiles(dir string) (*iac.ParseMapResult, error) {
 		rootDir = dir
 	}
 
-	repoUrl := git.GetVcsUrl(repo)
+	repoUrl, err := git.GetVcsUrl(repo)
+	if err != nil {
+		return nil, fmt.Errorf("error trying to discover the repo url of the local repository: %w", err)
+	}
+	if repoUrl == nil {
+		repoUrl = &blankVcsUrl
+	}
+
 	repoName := strings.TrimPrefix(repoUrl.Path, "/")
 	pmr, err := iac.ParseConfigDir(repoUrl.String(), repoName, filepath.Join(rootDir, ".nullstone"))
 	if err != nil {

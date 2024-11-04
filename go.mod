@@ -4,8 +4,6 @@ go 1.22.0
 
 toolchain go1.22.8
 
-replace gopkg.in/nullstone-io/go-api-client.v0 => ../go-api-client
-
 require (
 	github.com/aws/aws-sdk-go-v2 v1.26.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.37.0
