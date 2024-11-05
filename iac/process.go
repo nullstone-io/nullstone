@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 )
 
-func Process(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ParseMapResult) error {
+func Process(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ConfigFiles) error {
 	apiClient := &api.Client{Config: cfg}
 	colorstring.Fprintf(w, "[bold]Testing Nullstone IaC files against %s/%s environment...[reset]\n", stack.Name, env.Name)
 	resolver := core.NewApiResolver(apiClient, stack.Id, env.Id)

@@ -19,7 +19,7 @@ var (
 	}
 )
 
-func Discover(dir string, w io.Writer) (*iac.ParseMapResult, error) {
+func Discover(dir string, w io.Writer) (*iac.ConfigFiles, error) {
 	pmr, err := parseIacFiles(dir)
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func Discover(dir string, w io.Writer) (*iac.ParseMapResult, error) {
 	return pmr, nil
 }
 
-func parseIacFiles(dir string) (*iac.ParseMapResult, error) {
+func parseIacFiles(dir string) (*iac.ConfigFiles, error) {
 	rootDir, repo, err := git.GetRootDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("error looking for repository root directory: %w", err)

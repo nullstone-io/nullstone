@@ -773,8 +773,8 @@ github.com/ncw/swift v1.0.47/go.mod h1:23YIA4yWVnGwv2dQlN4bB7egfYX6YLn0Yo/S6zZO/
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
 github.com/nullstone-io/deployment-sdk v0.0.0-20240704122950-a55160b619cd h1:3DWDfyQ9UGUfkfrK0PshA43fCp7PZuC/BjqYUBTZhi8=
 github.com/nullstone-io/deployment-sdk v0.0.0-20240704122950-a55160b619cd/go.mod h1:7wc/0tmIELFoBTjNB5+hsyvTQD60mnt+BJ9/AU2/Cb8=
-github.com/nullstone-io/iac v0.0.0-20241104165455-5b50a5757a06 h1:ex3xZvrPC/ms1tcSgq8YRdzIJfRglL6PrmMJdTB9eoQ=
-github.com/nullstone-io/iac v0.0.0-20241104165455-5b50a5757a06/go.mod h1:tRZPp425TN0XVAkrkICbZ1EAkmmhNb7ueq7xBLX2goM=
+github.com/nullstone-io/iac v0.0.0-20241105141304-4427f5e31e88 h1:/mXYlqXFwPf0lqBGosvYzregrSL8N0FPaS5dG/Jzar4=
+github.com/nullstone-io/iac v0.0.0-20241105141304-4427f5e31e88/go.mod h1:tRZPp425TN0XVAkrkICbZ1EAkmmhNb7ueq7xBLX2goM=
 github.com/nullstone-io/module v0.2.9 h1:PcYhPEemBbc+RdP+Q/DF0+XlwJkkNb5R17Hfv8qaYyc=
 github.com/nullstone-io/module v0.2.9/go.mod h1:btQiO0giVWDvvaQ7CLnPmuPPakJc55lAr8OlE1LK6hg=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=

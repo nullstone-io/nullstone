@@ -16,7 +16,7 @@ const (
 	indentStep = "    "
 )
 
-func Test(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ParseMapResult) error {
+func Test(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ConfigFiles) error {
 	if err := testWorkspaces(ctx, cfg, w, stack, env, pmr); err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func Test(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, e
 	return nil
 }
 
-func testWorkspaces(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ParseMapResult) error {
+func testWorkspaces(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ConfigFiles) error {
 	blockNames := pmr.BlockNames(env)
 	apiClient := &api.Client{Config: cfg}
 	allBlocks, err := apiClient.Blocks().List(ctx, stack.Id)
@@ -60,7 +60,7 @@ func testWorkspaces(ctx context.Context, cfg api.Config, w io.Writer, stack type
 	return nil
 }
 
-func testWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, stack types.Stack, block types.Block, env types.Environment, pmr iac.ParseMapResult) error {
+func testWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, stack types.Stack, block types.Block, env types.Environment, pmr iac.ConfigFiles) error {
 	effective, err := apiClient.WorkspaceConfigs().GetEffective(ctx, stack.Id, block.Id, env.Id)
 	if err != nil {
 		return fmt.Errorf("error retrieving workspace: %w", err)
@@ -84,7 +84,7 @@ func testWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, stac
 	return nil
 }
 
-func testEvents(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ParseMapResult) error {
+func testEvents(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ConfigFiles) error {
 	apiClient := api.Client{Config: cfg}
 	existingEvents, err := apiClient.EnvEvents().List(ctx, stack.Id, env.Id)
 	if err != nil {
@@ -93,14 +93,14 @@ func testEvents(ctx context.Context, cfg api.Config, w io.Writer, stack types.St
 
 	current := map[string]types.EnvEvent{}
 	for _, cur := range existingEvents {
-		if cur.OwningRepoUrl == pmr.Config.IacContext.RepoUrl {
+		if cur.OwningRepoUrl == pmr.RepoUrl {
 			current[cur.Name] = cur
 		}
 	}
 
 	colorstring.Fprintf(w, "[bold]Detecting changes for events in %s/%s...[reset]\n", stack.Name, env.Name)
 	desired := iacEvents.Get(pmr, env)
-	changes := iacEvents.Diff(current, desired, pmr.Config.IacContext.RepoUrl)
+	changes := iacEvents.Diff(current, desired, pmr.RepoUrl)
 	emitEventChanges(w, changes)
 	return nil
 }

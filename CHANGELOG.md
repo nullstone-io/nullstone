@@ -1,3 +1,6 @@
+# 0.0.128 (Nov 05, 2024)
+* Fixed nil panic when performing `nullstone iac test` without any IaC files.
+
 # 0.0.127 (Nov 05, 2024)
 * Fixed nil panic when performing `nullstone iac test` in a directory without a git repo.
 
