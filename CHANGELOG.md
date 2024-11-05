@@ -1,3 +1,6 @@
+# 0.0.127 (Nov 05, 2024)
+* Fixed nil panic when performing `nullstone iac test` in a directory without a git repo.
+
 # 0.0.126 (Nov 04, 2024)
 * `nullstone iac test` will find IaC files with `.yml` *or* `.yaml` file extension.
 * Added support for `events` in IaC files.

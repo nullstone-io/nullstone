@@ -7,6 +7,10 @@ import (
 )
 
 func GetVcsUrl(repo *git.Repository) (*url.URL, error) {
+	if repo == nil {
+		return nil, nil
+	}
+
 	remote, err := repo.Remote("origin")
 	if err != nil {
 		return nil, err
