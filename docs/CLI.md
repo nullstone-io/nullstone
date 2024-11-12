@@ -134,7 +134,7 @@ $ nullstone envs new --name=<name> --stack=<stack> [--provider=<provider>] [--pr
 #### Options
 | Option | Description | |
 | --- | --- | --- |
-| `--name` | Provide a name for this new environment | required |
+| `--name` | Provide a name for this new environment. If creating a preview environment, we recommend ``branch`-`pull_request_id``. | required |
 | `--stack` | Name of the stack to use for this operation | required |
 | `--preview` | Use this flag to create a preview environment. If not set, a standard environment will be created. |  |
 | `--provider` | Select the name of the provider to use for this environment. When creating a preview environment, this parameter will not be used. |  |
@@ -142,8 +142,26 @@ $ nullstone envs new --name=<name> --stack=<stack> [--provider=<provider>] [--pr
 | `--zone` | For GCP, select the zone to launch infrastructure for this environment. Defaults to us-east1b |  |
 
 
+## envs delete
+Deletes the given environment. Before issuing this command, make sure you have destroyed all infrastructure in the environment. If you are deleting a preview environment, you can use the `--force` flag to skip the confirmation prompt.
+
+#### Usage
+```shell
+$ nullstone envs delete --stack=<stack> --env=<env>	[--force]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+| `--force` | Use this flag to skip the confirmation prompt when deleting an environment. |  |
+
+
 ## envs up
-Launches an entire environment including all of its apps. This command can be used to stand up an entire preview environment.
+Launches an entire environment including all of its apps. 
+This command can be used to stand up an entire preview environment.
+This will only build/deploy apps that have auto-deploy enabled.
 
 #### Usage
 ```shell
@@ -158,7 +176,8 @@ $ nullstone envs up --stack=<stack> --env=<env>
 
 
 ## envs down
-Destroys all the apps in an environment and all their dependent infrastructure. This command is useful for tearing down preview environments once you are finished with them.
+Destroys all infrastructure in an environment. 
+This command is useful for tearing down preview environments once you are finished with them.
 
 #### Usage
 ```shell
@@ -186,7 +205,41 @@ $ nullstone exec [--stack=<stack-name>] --app=<app-name> --env=<env-name> [optio
 | `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
 | `--app` | Name of the app to use for this operation |  |
 | `--env` | Name of the environment to use for this operation | required |
-| `--task` | Select a specific task/replica to execute the command against.		This is optional and by default will connect to a random task/replica.       	If using Kubernetes, this will select which replica of the pod to connect.       	If using ECS, this will select which task of the service to connect. |  |
+| `--instance` | Select a specific instance to execute the command against.		This allows the user to decide which instance to connect.		This is optional and by default will connect to a random instance.		This is only used for workspaces that use VMs (e.g. Elastic Beanstalk, EC2 Instances, GCP VMs, Azure VMs, etc.). |  |
+| `--task` | Select a specific task to execute the command against.		This is optional and by default will connect to a random task.        This is only used by ECS and determines which task to connect. |  |
+| `--pod` | Select a pod to execute the command against.        When specified, allows you to connect to a specific pod within a replica set.        This is optional and will connect to a random pod by default.        This is only used by Kubernetes clusters and determines which pod in the replica to connect. |  |
+| `--container` | Select a specific container within a task or pod.        If using sidecars, this allows you to connect to other containers besides the primary application container. |  |
+
+
+## iac test
+Test the current repository's IaC files against a Nullstone stack.
+
+#### Usage
+```shell
+$ nullstone iac test --stack=<stack> --env=<env>
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
+| `--env` | Name of the environment to use for this operation | required |
+
+
+## iac generate
+Generate IaC from a Nullstone stack for apps
+
+#### Usage
+```shell
+$ nullstone iac --stack=<stack> --env=<env> --app=<app>
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
+| `--env` | Name of the environment to use for this operation | required |
+| `--block` | Name of the block to use for this operation |  |
 
 
 ## launch
@@ -363,7 +416,10 @@ $ nullstone ssh [--stack=<stack-name>] --app=<app-name> --env=<env-name> [option
 | `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
 | `--app` | Name of the app to use for this operation |  |
 | `--env` | Name of the environment to use for this operation | required |
-| `--task` | Select a specific task/replica to execute the command against.		This is optional and by default will connect to a random task/replica.       	If using Kubernetes, this will select which replica of the pod to connect.       	If using ECS, this will select which task of the service to connect. |  |
+| `--instance` | Select a specific instance to execute the command against.		This allows the user to decide which instance to connect.		This is optional and by default will connect to a random instance.		This is only used for workspaces that use VMs (e.g. Elastic Beanstalk, EC2 Instances, GCP VMs, Azure VMs, etc.). |  |
+| `--task` | Select a specific task to execute the command against.		This is optional and by default will connect to a random task.        This is only used by ECS and determines which task to connect. |  |
+| `--pod` | Select a pod to execute the command against.        When specified, allows you to connect to a specific pod within a replica set.        This is optional and will connect to a random pod by default.        This is only used by Kubernetes clusters and determines which pod in the replica to connect. |  |
+| `--container` | Select a specific container within a task or pod.        If using sidecars, this allows you to connect to other containers besides the primary application container. |  |
 | `--forward, -L` | Use this to forward ports from host to local machine. Format: `local-port`:[`remote-host`]:`remote-port` |  |
 
 
@@ -415,7 +471,7 @@ $ nullstone status [--stack=<stack-name>] --app=<app-name> [--env=<env-name>] [o
 
 
 ## up
-Launches the infrastructure for the given block/environment and it's dependencies.
+Launches the infrastructure for the given block/environment and its dependencies.
 
 #### Usage
 ```shell
@@ -439,6 +495,28 @@ Prints the version of the CLI.
 ```shell
 nullstone -v
 ```
+
+## wait
+Waits for a workspace to reach a specific status.
+This is helpful to wait for infrastructure to provision or an app to deploy.
+Currently, this supports --for=launched to wait for a workspace to provision.
+In the future, we will add --for=destroyed and --for=deployed.
+
+#### Usage
+```shell
+$ nullstone wait [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
+| `--block` | Name of the block to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+| `--for` | Configure the wait command to reach a specific status.        Currently this supports --for=launched.       In the future, we will support --for=destroyed and --for=deployed |  |
+| `--timeout` | Set --timeout to a golang duration to control how long to wait for a status before cancelling.       The default is '1h' (1 hour).       |  |
+| `--approval-timeout` | Set --approval-timeout to a golang duration to control how long to wait for approval before cancelling.       If the workspace run never reaches "needs-approval", this has no effect.       The default is '15m' (15 minutes).       |  |
+
 
 ## workspaces select
 Sync a given workspace's state with the current directory. Running this command will allow you to run terraform plans/applies locally against the selected workspace.
