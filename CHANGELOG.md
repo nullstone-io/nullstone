@@ -1,3 +1,6 @@
+# 0.0.129 (Nov 12, 2024)
+* Added `nullstone iac generate` command to export workspace config to an IaC file.
+
 # 0.0.128 (Nov 05, 2024)
 * Fixed nil panic when performing `nullstone iac test` without any IaC files.
 
