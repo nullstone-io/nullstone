@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	iac2 "gopkg.in/nullstone-io/nullstone.v0/iac"
 	"os"
 )
@@ -16,6 +18,7 @@ var Iac = &cli.Command{
 	UsageText: "nullstone iac [subcommand]",
 	Subcommands: []*cli.Command{
 		IacTest,
+		IacGenerate,
 	},
 }
 
@@ -64,6 +67,35 @@ var IacTest = &cli.Command{
 
 				return iac2.Test(ctx, cfg, stdout, *stack, *env, *pmr)
 			})
+		})
+	},
+}
+
+var IacGenerate = &cli.Command{
+	Name:        "generate",
+	Description: "Generate IaC from a Nullstone stack for apps",
+	Usage:       "Generate IaC from an application workspace",
+	UsageText:   "nullstone iac --stack=<stack> --env=<env> --app=<app>",
+	Flags: []cli.Flag{
+		StackFlag,
+		EnvFlag,
+		&cli.StringFlag{
+			Name:    "block",
+			Usage:   "Name of the block to use for this operation",
+			EnvVars: []string{"NULLSTONE_BLOCK"},
+		},
+	},
+	Action: func(c *cli.Context) error {
+		return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
+			apiClient := api.Client{Config: cfg}
+			buf := bytes.NewBufferString("")
+			err := apiClient.WorkspaceConfigFiles().GetConfigFile(ctx, stack.Id, block.Id, env.Id, buf)
+			if err != nil {
+				return err
+			}
+
+			fmt.Fprintln(os.Stdout, buf.String())
+			return nil
 		})
 	},
 }
