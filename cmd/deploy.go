@@ -97,10 +97,12 @@ func streamDeployLogs(ctx context.Context, osWriters logging.OsWriters, cfg api.
 	}
 	fmt.Fprintln(stdout, updated.Reference)
 	switch updated.Status {
+	case types.DeployStatusCompleted:
+		colorstring.Fprintln(stderr, "[green]Deployment completed.[reset]")
 	case types.DeployStatusCancelled:
-		return fmt.Errorf("Deploy was cancelled.")
+		return fmt.Errorf("Deployment was cancelled.")
 	case types.DeployStatusFailed:
-		return fmt.Errorf("Deploy failed to complete: %s", updated.StatusMessage)
+		return fmt.Errorf("Deployment failed to complete: %s", updated.StatusMessage)
 	}
 	return nil
 }
@@ -131,6 +133,9 @@ func streamDeployIntentLogs(ctx context.Context, osWriters logging.OsWriters, cf
 		colorstring.Fprintln(stderr, "[yellow]We cannot find the deployment workflow to report the deployment logs.[reset]")
 		colorstring.Fprintln(stderr, "[bold]Waiting for successful deployment without reporting deployment logs...[reset]")
 		iw, err = waitForCompletedIntentWorkflow(ctx, cfg, iw)
+		if err == nil {
+			colorstring.Fprintln(stderr, "[green]Deployment completed.[reset]")
+		}
 		return err
 	}
 

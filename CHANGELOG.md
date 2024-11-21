@@ -1,3 +1,6 @@
+# 0.0.131 (Nov 21, 2024)
+* Added "Deployment completed." message after streaming deployment logs.
+
 # 0.0.130 (Nov 21, 2024)
 * Created fallback when we cannot find app deployment workflow.
 
