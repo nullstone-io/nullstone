@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/mitchellh/colorstring"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/urfave/cli/v2"
@@ -113,9 +114,11 @@ func streamDeployIntentLogs(ctx context.Context, osWriters logging.OsWriters, cf
 	if iw, err = waitForRunningIntentWorkflow(ctx, cfg, iw); err != nil {
 		return err
 	} else if iw.Status == types.IntentWorkflowStatusCompleted {
-		fmt.Fprintln(stderr, "Deployment completed.")
+		colorstring.Fprintln(stderr, "[green]Deployment completed.[reset]")
 		return nil
 	}
+
+	colorstring.Fprintln(stderr, "[green]Deployment started.[reset]")
 
 	var wflow types.WorkspaceWorkflow
 	for _, ww := range iw.WorkspaceWorkflows {
@@ -125,7 +128,10 @@ func streamDeployIntentLogs(ctx context.Context, osWriters logging.OsWriters, cf
 		}
 	}
 	if wflow.Id == 0 {
-		return fmt.Errorf("deployment workflow is missing")
+		colorstring.Fprintln(stderr, "[yellow]We cannot find the deployment workflow to report the deployment logs.[reset]")
+		colorstring.Fprintln(stderr, "[bold]Waiting for successful deployment without reporting deployment logs...[reset]")
+		iw, err = waitForCompletedIntentWorkflow(ctx, cfg, iw)
+		return err
 	}
 
 	activities, err := client.WorkspaceWorkflows().GetActivities(ctx, wflow.StackId, wflow.BlockId, wflow.EnvId, wflow.Id)
