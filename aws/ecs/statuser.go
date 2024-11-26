@@ -15,6 +15,7 @@ func NewStatuser(ctx context.Context, osWriters logging.OsWriters, source output
 	if err != nil {
 		return nil, err
 	}
+	outs.InitializeCreds(source, appDetails.Workspace)
 
 	return Statuser{
 		OsWriters: osWriters,
