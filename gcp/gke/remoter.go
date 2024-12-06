@@ -16,6 +16,7 @@ func NewRemoter(ctx context.Context, osWriters logging.OsWriters, source outputs
 	if err != nil {
 		return nil, err
 	}
+	outs.InitializeCreds(source, appDetails.Workspace)
 
 	return Remoter{
 		OsWriters: osWriters,
