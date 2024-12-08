@@ -1,3 +1,6 @@
+# 0.0.132 (Dec 08, 2024)
+* Added support for pushing and deploying using Google Artifact Registry.
+
 # 0.0.131 (Nov 21, 2024)
 * Added "Deployment completed." message after streaming deployment logs.
 
