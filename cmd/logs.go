@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"github.com/mitchellh/colorstring"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	"github.com/urfave/cli/v2"
@@ -83,6 +84,9 @@ var Logs = func(providers app.Providers) *cli.Command {
 				logStreamer, err := providers.FindLogStreamer(ctx, osWriters, source, appDetails)
 				if err != nil {
 					return err
+				}
+				if logStreamer == nil {
+					colorstring.Fprintln(osWriters.Stderr(), "[yellow]log streaming is not supported for this provider[reset]")
 				}
 				return logStreamer.Stream(ctx, logStreamOptions)
 			})
