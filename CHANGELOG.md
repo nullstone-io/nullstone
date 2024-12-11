@@ -1,3 +1,7 @@
+# 0.0.132 (Dec 11, 2024)
+* Added ability for users with `software_engineer` to access logs, metrics, and status.
+* Added support for GCP static sites.
+
 # 0.0.131 (Nov 21, 2024)
 * Added "Deployment completed." message after streaming deployment logs.
 
