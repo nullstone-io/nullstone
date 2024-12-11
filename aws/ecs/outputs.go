@@ -3,6 +3,9 @@ package ecs
 import (
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	nsaws "github.com/nullstone-io/deployment-sdk/aws"
+	"github.com/nullstone-io/deployment-sdk/aws/creds"
+	"github.com/nullstone-io/deployment-sdk/outputs"
+	nstypes "gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
 type Outputs struct {
@@ -18,21 +21,26 @@ type Outputs struct {
 	ClusterNamespace ClusterNamespaceOutputs `ns:",connectionContract:cluster-namespace/aws/ecs:*,optional"`
 }
 
-func (o Outputs) ClusterArn() string {
+func (o *Outputs) InitializeCreds(source outputs.RetrieverSource, ws *nstypes.Workspace) {
+	credsFactory := creds.NewProviderFactory(source, ws.StackId, ws.Uid)
+	o.Deployer.RemoteProvider = credsFactory("adminer", "deployer")
+}
+
+func (o *Outputs) ClusterArn() string {
 	if o.ClusterNamespace.ClusterArn != "" {
 		return o.ClusterNamespace.ClusterArn
 	}
 	return o.Cluster.ClusterArn
 }
 
-func (o Outputs) PrivateSubnetIds() []string {
+func (o *Outputs) PrivateSubnetIds() []string {
 	if o.ClusterNamespace.Cluster.Network.PrivateSubnetIds != nil {
 		return o.ClusterNamespace.Cluster.Network.PrivateSubnetIds
 	}
 	return o.Cluster.Network.PrivateSubnetIds
 }
 
-func (o Outputs) GetLaunchType() types.LaunchType {
+func (o *Outputs) GetLaunchType() types.LaunchType {
 	switch o.LaunchType {
 	case "EC2":
 		return types.LaunchTypeEc2
