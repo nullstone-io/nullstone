@@ -1,3 +1,6 @@
+# 0.0.134 (Dec 17, 2024)
+* Improve reliability of streaming deploy logs when performing a deployment.
+
 # 0.0.133 (Dec 11, 2024)
 * Added ability for users with `software_engineer` to access logs, metrics, and status.
 * Added support for GCP static sites.
