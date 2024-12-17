@@ -22,6 +22,12 @@ func waitForRunningIntentWorkflow(ctx context.Context, cfg api.Config, iw types.
 	for {
 		switch cur.Status {
 		case types.IntentWorkflowStatusRunning:
+			updated, err := client.IntentWorkflows().Get(ctx, iw.StackId, iw.Id)
+			if err != nil {
+				return cur, fmt.Errorf("error waiting for deployment: %w", err)
+			} else if updated != nil {
+				cur = *updated
+			}
 			return cur, nil
 		case types.IntentWorkflowStatusCompleted:
 			return cur, nil
