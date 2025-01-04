@@ -1,8 +1,8 @@
 module gopkg.in/nullstone-io/nullstone.v0
 
-go 1.22.0
+go 1.23.0
 
-toolchain go1.22.8
+toolchain go1.23.3
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.26.0
@@ -13,7 +13,7 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
-	github.com/nullstone-io/deployment-sdk v0.0.0-20241211140744-31a2fc4195ae
+	github.com/nullstone-io/deployment-sdk v0.0.0-20250104150935-98b03a7618f3
 	github.com/nullstone-io/iac v0.0.0-20241105141304-4427f5e31e88
 	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible
@@ -21,7 +21,7 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.28.0
 	golang.org/x/sync v0.8.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241126225657-182d3304f2df
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20241213224916-66a525701805
 	k8s.io/api v0.27.2
 	k8s.io/apimachinery v0.27.2
 	k8s.io/client-go v0.27.2

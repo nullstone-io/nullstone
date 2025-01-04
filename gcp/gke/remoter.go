@@ -4,11 +4,17 @@ import (
 	"context"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
+	"github.com/nullstone-io/deployment-sdk/gcp/gke"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/k8s"
+	"k8s.io/client-go/rest"
 	"os"
+)
+
+var (
+	_ admin.Remoter = Remoter{}
 )
 
 func NewRemoter(ctx context.Context, osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (admin.Remoter, error) {
@@ -32,6 +38,10 @@ type Remoter struct {
 }
 
 func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
+	if r.Infra.ServiceName == "" {
+		return fmt.Errorf("cannot `exec` unless you have a long-running service, use `run` for a job/task")
+	}
+
 	opts := &k8s.ExecOptions{
 		In:     os.Stdin,
 		Out:    r.OsWriters.Stdout(),
@@ -54,4 +64,20 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 	}
 
 	return ExecCommand(ctx, r.Infra, options.Pod, options.Container, []string{"/bin/sh"}, opts)
+}
+
+func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string) error {
+	if r.Infra.ServiceName != "" {
+		return fmt.Errorf("cannot use `run` for a long-running service, use `exec` instead")
+	}
+
+	runner := k8s.JobRunner{
+		Namespace:         r.Infra.ServiceNamespace,
+		MainContainerName: r.Infra.MainContainerName,
+		JobDefinition:     r.Infra.JobDefinition,
+		NewConfigFn: func(ctx context.Context) (*rest.Config, error) {
+			return gke.CreateKubeConfig(ctx, r.Infra.ClusterNamespace, r.Infra.Deployer)
+		},
+	}
+	return runner.Run(ctx, options, cmd)
 }

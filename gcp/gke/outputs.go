@@ -16,6 +16,9 @@ type Outputs struct {
 	ImageRepoUrl      docker.ImageUrl    `ns:"image_repo_url,optional"`
 	Deployer          gcp.ServiceAccount `ns:"deployer"`
 	MainContainerName string             `ns:"main_container_name,optional"`
+	// JobDefinition is only specified for a job/task
+	// It is a base64-encoded JSON string that contains the manifest for a job
+	JobDefinition string `ns:"job_definition,optional"`
 
 	ClusterNamespace ClusterNamespaceOutputs `ns:",connectionContract:cluster-namespace/gcp/k8s:gke"`
 }
