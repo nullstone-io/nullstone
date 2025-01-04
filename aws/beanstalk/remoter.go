@@ -10,6 +10,10 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ssm"
 )
 
+var (
+	_ admin.Remoter = Remoter{}
+)
+
 func NewRemoter(ctx context.Context, osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (admin.Remoter, error) {
 	outs, err := outputs.Retrieve[Outputs](ctx, source, appDetails.Workspace, appDetails.WorkspaceConfig)
 	if err != nil {
@@ -50,6 +54,10 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 		return err
 	}
 	return ssm.StartEc2Session(ctx, r.Infra.AdminerConfig(), r.Infra.Region, instanceId, parameters)
+}
+
+func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string) error {
+	return fmt.Errorf("`run` is not supported for Beanstalk yet")
 }
 
 func (r Remoter) getInstanceId(ctx context.Context, options admin.RemoteOptions) (string, error) {
