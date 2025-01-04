@@ -9,6 +9,10 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 )
 
+var (
+	_ admin.Remoter = Remoter{}
+)
+
 func NewRemoter(ctx context.Context, osWriters logging.OsWriters, source outputs.RetrieverSource, appDetails app.Details) (admin.Remoter, error) {
 	outs, err := outputs.Retrieve[Outputs](ctx, source, appDetails.Workspace, appDetails.WorkspaceConfig)
 	if err != nil {
@@ -58,6 +62,13 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 		return err
 	}
 	return ExecCommand(ctx, r.Infra, taskId, options.Container, []string{"/bin/sh"}, nil)
+}
+
+func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string) error {
+	if r.Infra.ServiceName != "" {
+		return fmt.Errorf("cannot use `run` with a long-running application, use `exec` instead")
+	}
+	return RunTask(ctx, r.Infra, options.Container, options.Username, cmd, options.LogStreamer, options.LogEmitter)
 }
 
 func (r Remoter) getTaskId(ctx context.Context, options admin.RemoteOptions) (string, error) {
