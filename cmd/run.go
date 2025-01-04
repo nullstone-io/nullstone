@@ -14,7 +14,7 @@ import (
 
 var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Command {
 	return &cli.Command{
-		Name:        "Run",
+		Name:        "run",
 		Description: "Starts a new container/serverless for the given Nullstone job/task. ",
 		Usage:       "Starts a new job/task",
 		UsageText:   "nullstone run [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options] [command]",
