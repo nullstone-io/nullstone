@@ -1,3 +1,7 @@
+# 0.0.135 (Unreleased)
+* Added `nullstone run` command that allows you to a start a new job/task.
+* Added support for `nullstone run` to ECS/Fargate tasks and GKE jobs.
+
 # 0.0.134 (Dec 17, 2024)
 * Improve reliability of streaming deploy logs when performing a deployment.
 

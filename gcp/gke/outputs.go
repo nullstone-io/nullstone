@@ -16,6 +16,9 @@ type Outputs struct {
 	ImageRepoUrl      docker.ImageUrl    `ns:"image_repo_url,optional"`
 	Deployer          gcp.ServiceAccount `ns:"deployer"`
 	MainContainerName string             `ns:"main_container_name,optional"`
+	// JobDefinitionName is only specified for a job/task
+	// It refers to a Kubernetes ConfigMap containing the job definition in the "template" field
+	JobDefinitionName string `ns:"job_definition_name,optional"`
 
 	ClusterNamespace ClusterNamespaceOutputs `ns:",connectionContract:cluster-namespace/gcp/k8s:gke"`
 }

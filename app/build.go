@@ -48,6 +48,7 @@ func Build() *cli.App {
 		cmd.Status(adminProviders),
 		cmd.Exec(appProviders, adminProviders),
 		cmd.Ssh(adminProviders),
+		cmd.Run(appProviders, adminProviders),
 		cmd.Profile,
 	}
 	sort.Sort(cli.CommandsByName(cliApp.Commands))
