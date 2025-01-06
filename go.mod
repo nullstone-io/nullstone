@@ -13,7 +13,7 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gosuri/uilive v0.0.4
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
-	github.com/nullstone-io/deployment-sdk v0.0.0-20250104150935-98b03a7618f3
+	github.com/nullstone-io/deployment-sdk v0.0.0-20250106165400-fe36d56faf49
 	github.com/nullstone-io/iac v0.0.0-20241105141304-4427f5e31e88
 	github.com/nullstone-io/module v0.2.9
 	github.com/ryanuber/columnize v2.1.2+incompatible

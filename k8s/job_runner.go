@@ -2,20 +2,16 @@ package k8s
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/k8s"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
-	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"log"
-	"strings"
 	"time"
 )
 
@@ -23,18 +19,13 @@ const DefaultWatchInterval = 1 * time.Second
 
 type JobRunner struct {
 	Namespace         string
+	AppName           string
 	MainContainerName string
-	JobDefinition     string
+	JobDefinitionName string
 	NewConfigFn       k8s.NewConfiger
 }
 
 func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []string) error {
-	decoder := json.NewDecoder(base64.NewDecoder(base64.StdEncoding, strings.NewReader(r.JobDefinition)))
-	var jobDef batchv1.Job
-	if err := decoder.Decode(&jobDef); err != nil {
-		return fmt.Errorf("job_definition from app module outputs is invalid: %w", err)
-	}
-
 	cfg, err := r.NewConfigFn(ctx)
 	if err != nil {
 		return fmt.Errorf("error creating kubernetes config: %w", err)
@@ -44,13 +35,17 @@ func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []stri
 		return fmt.Errorf("error creating kube client: %w", err)
 	}
 
-	// Add a unique suffix (-{{timestamp}}) to ensure we can `run` repeatedly to create new jobs
-	jobDef.Name = fmt.Sprintf("%s-%d", jobDef.Name, time.Now().Unix())
+	jobDef, _, err := k8s.GetJobDefinition(ctx, client, r.Namespace, r.JobDefinitionName)
+	if err != nil {
+		return fmt.Errorf("error retrieving job definition from Kubernetes config map (%s): %w", r.JobDefinitionName, err)
+	}
 
-	// Override `command` if specified by CLI user
-	r.overrideMainContainerCommand(jobDef, cmd)
+	// Create a unique job name (e.g. `<app-name>-<timestamp>`) so we can repeatedly create new jobs
+	jobDef.Name = fmt.Sprintf("%s-%d", r.AppName, time.Now().Unix())
+	// If specified by CLI user, override cmd in main container
+	jobDef.Spec.Template = r.overrideMainContainerCommand(jobDef.Spec.Template, cmd)
 
-	job, err := client.BatchV1().Jobs(r.Namespace).Create(ctx, &jobDef, metav1.CreateOptions{})
+	job, err := client.BatchV1().Jobs(r.Namespace).Create(ctx, jobDef, metav1.CreateOptions{})
 	if err != nil {
 		return fmt.Errorf("error creating job: %w", err)
 	}
@@ -124,16 +119,16 @@ func (r JobRunner) getJobContainerStatus(ctx context.Context, client *kubernetes
 	return nil, nil
 }
 
-func (r JobRunner) overrideMainContainerCommand(job batchv1.Job, cmd []string) batchv1.Job {
+func (r JobRunner) overrideMainContainerCommand(podTemplateSpec corev1.PodTemplateSpec, cmd []string) corev1.PodTemplateSpec {
 	if len(cmd) < 1 {
-		return job
+		return podTemplateSpec
 	}
-	for i, container := range job.Spec.Template.Spec.Containers {
+	for i, container := range podTemplateSpec.Spec.Containers {
 		if container.Name == r.MainContainerName {
 			container.Command = cmd
-			job.Spec.Template.Spec.Containers[i] = container
-			return job
+			podTemplateSpec.Spec.Containers[i] = container
+			return podTemplateSpec
 		}
 	}
-	return job
+	return podTemplateSpec
 }

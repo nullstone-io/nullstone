@@ -73,8 +73,9 @@ func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string
 
 	runner := k8s.JobRunner{
 		Namespace:         r.Infra.ServiceNamespace,
+		AppName:           r.Details.App.Name,
 		MainContainerName: r.Infra.MainContainerName,
-		JobDefinition:     r.Infra.JobDefinition,
+		JobDefinitionName: r.Infra.JobDefinitionName,
 		NewConfigFn: func(ctx context.Context) (*rest.Config, error) {
 			return gke.CreateKubeConfig(ctx, r.Infra.ClusterNamespace, r.Infra.Deployer)
 		},
