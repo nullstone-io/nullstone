@@ -820,8 +820,8 @@ github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRW
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f/go.mod h1:ZdcZmHo+o7JKHSa8/e818NopupXU1YMK5fe1lsApnBw=
 github.com/ncw/swift v1.0.47/go.mod h1:23YIA4yWVnGwv2dQlN4bB7egfYX6YLn0Yo/S6zZO/ZM=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
-github.com/nullstone-io/deployment-sdk v0.0.0-20250106165400-fe36d56faf49 h1:5q56OcuYTzZohIqfGfILviabgsebrf7pFzvEMbm6DUc=
-github.com/nullstone-io/deployment-sdk v0.0.0-20250106165400-fe36d56faf49/go.mod h1:44JrdCw01w4meAG+S4kKIZQxatCJa1fiBUxyo+FBzoA=
+github.com/nullstone-io/deployment-sdk v0.0.0-20250106193300-6ff1ee19f6e7 h1:m4nhAsZv4G+DLalvjVUvLuzF2zehfgKb7tvZJocc8pk=
+github.com/nullstone-io/deployment-sdk v0.0.0-20250106193300-6ff1ee19f6e7/go.mod h1:44JrdCw01w4meAG+S4kKIZQxatCJa1fiBUxyo+FBzoA=
 github.com/nullstone-io/iac v0.0.0-20241105141304-4427f5e31e88 h1:/mXYlqXFwPf0lqBGosvYzregrSL8N0FPaS5dG/Jzar4=
 github.com/nullstone-io/iac v0.0.0-20241105141304-4427f5e31e88/go.mod h1:tRZPp425TN0XVAkrkICbZ1EAkmmhNb7ueq7xBLX2goM=
 github.com/nullstone-io/module v0.2.9 h1:PcYhPEemBbc+RdP+Q/DF0+XlwJkkNb5R17Hfv8qaYyc=
