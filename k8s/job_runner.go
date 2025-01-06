@@ -11,7 +11,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"log"
 	"time"
 )
 
@@ -50,7 +49,36 @@ func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []stri
 		return fmt.Errorf("error creating job: %w", err)
 	}
 
+	if err := r.waitForActiveJob(ctx, client, jobDef.Name); err != nil {
+		return err
+	}
+
 	return r.monitorJob(ctx, client, options, job.Name)
+}
+
+func (r JobRunner) waitForActiveJob(ctx context.Context, client *kubernetes.Clientset, jobName string) error {
+	for {
+		job, err := client.BatchV1().Jobs(r.Namespace).Get(ctx, jobName, metav1.GetOptions{})
+		if err != nil {
+			return fmt.Errorf("error getting status of job: %w", err)
+		}
+		if job.Status.Failed > 0 {
+			return fmt.Errorf("Job failed to start")
+		}
+		if job.Status.Active > 0 {
+			return nil
+		}
+		select {
+		case <-ctx.Done():
+			switch err := ctx.Err(); {
+			case errors.Is(err, context.Canceled):
+				return fmt.Errorf("cancelled")
+			case errors.Is(err, context.DeadlineExceeded):
+				return fmt.Errorf("timeout")
+			}
+		case <-time.After(DefaultWatchInterval):
+		}
+	}
 }
 
 func (r JobRunner) monitorJob(ctx context.Context, client *kubernetes.Clientset, options admin.RunOptions, jobName string) error {
@@ -67,7 +95,13 @@ func (r JobRunner) monitorJob(ctx context.Context, client *kubernetes.Clientset,
 			Emitter:       options.LogEmitter,
 			Selector:      &selector,
 		}
-		return options.LogStreamer.Stream(ctx, logStreamOptions)
+		if err := options.LogStreamer.Stream(ctx, logStreamOptions); err != nil {
+			if errors.Is(err, context.Canceled) {
+				return nil
+			}
+			return err
+		}
+		return nil
 	})
 	eg.Go(func() error {
 		defer cancel()
@@ -80,7 +114,8 @@ func (r JobRunner) monitorJob(ctx context.Context, client *kubernetes.Clientset,
 			if containerStatus != nil {
 				if containerStatus.State.Terminated != nil {
 					if exitCode := containerStatus.State.Terminated.ExitCode; exitCode == 0 {
-						log.Printf("Job has completed successfully")
+						time.Sleep(time.Second) // Wait for logs to flush
+						fmt.Printf("Job has completed successfully\n")
 						return nil
 					} else {
 
