@@ -14,6 +14,7 @@ type ExecOptions struct {
 	ErrOut          io.Writer
 	TTY             bool
 	InterruptParent *interrupt.Handler
+	PortMappings    []string
 }
 
 func (o *ExecOptions) CreateTTY() (term.TTY, remotecommand.TerminalSizeQueue, error) {
