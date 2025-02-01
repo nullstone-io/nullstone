@@ -16,6 +16,11 @@ func ExecCommand(ctx context.Context, cfg *rest.Config, podNamespace, podName, c
 		return fmt.Errorf("unable to execute kubernetes command: %w", err)
 	}
 
+	portForwarder, err := NewPortForwarder(cfg, podNamespace, podName, opts.PortMappings)
+	if err != nil {
+		return fmt.Errorf("unable to create port forwarder: %w", err)
+	}
+
 	return tty.Safe(func() error {
 		restClient, err := rest.RESTClientFor(cfg)
 		if err != nil {
@@ -39,6 +44,12 @@ func ExecCommand(ctx context.Context, cfg *rest.Config, podNamespace, podName, c
 		executor, err := remotecommand.NewSPDYExecutor(cfg, http.MethodPost, req.URL())
 		if err != nil {
 			return fmt.Errorf("unable to create kubernetes remote executor: %w", err)
+		}
+
+		if portForwarder != nil {
+			stop := make(chan struct{}, 1)
+			defer close(stop)
+			go portForwarder.ForwardPorts(stop, opts)
 		}
 
 		return executor.StreamWithContext(ctx, remotecommand.StreamOptions{

@@ -1,3 +1,6 @@
+# 0.0.136 (Feb 01, 2025)
+* Added support for port forwarding when using `nullstone ssh` command. (`--forward <local-port>:<remote-port>`)
+
 # 0.0.135 (Jan 06, 2025)
 * Added `nullstone run` command that allows you to a start a new job/task.
 * Added support for `nullstone run` to ECS/Fargate tasks and GKE jobs.

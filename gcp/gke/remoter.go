@@ -48,6 +48,9 @@ func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []st
 		ErrOut: r.OsWriters.Stderr(),
 		TTY:    false,
 	}
+	for _, pf := range options.PortForwards {
+		opts.PortMappings = append(opts.PortMappings, fmt.Sprintf("%s:%s", pf.LocalPort, pf.RemotePort))
+	}
 
 	return ExecCommand(ctx, r.Infra, options.Pod, options.Container, cmd, opts)
 }
@@ -59,8 +62,8 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 		ErrOut: r.OsWriters.Stderr(),
 		TTY:    true,
 	}
-	if len(options.PortForwards) > 0 {
-		return fmt.Errorf("gke provider does not support port forwarding yet")
+	for _, pf := range options.PortForwards {
+		opts.PortMappings = append(opts.PortMappings, fmt.Sprintf("%s:%s", pf.LocalPort, pf.RemotePort))
 	}
 
 	return ExecCommand(ctx, r.Infra, options.Pod, options.Container, []string{"/bin/sh"}, opts)
