@@ -21,7 +21,7 @@ func NewPortForwarder(cfg *rest.Config, podNamespace, podName string, portMappin
 	if len(portMappings) < 1 {
 		return nil, nil
 	}
-	
+
 	restClient, err := rest.RESTClientFor(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create rest client: %w", err)
