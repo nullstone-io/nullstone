@@ -77,6 +77,14 @@ func (g CapabilitiesGenerator) Generate(runConfig types.RunConfig) error {
 
 func (g CapabilitiesGenerator) transformCapabilities(runConfig types.RunConfig) (types.CapabilityConfigs, error) {
 	capabilities := runConfig.Capabilities
+	if len(runConfig.NamedCapabilities) > 0 {
+		// Prefer to use NamedCapabilities
+		capabilities = make(types.CapabilityConfigs, 0)
+		for _, namedCapability := range runConfig.NamedCapabilities {
+			capabilities = append(capabilities, namedCapability)
+		}
+	}
+
 	// Terraform assumes that module source has a host of `registry.terraform.io` if not specified
 	// We are going to override that behavior to presume `api.nullstone.io` instead
 	for i, capability := range capabilities {
