@@ -35,7 +35,7 @@ var AppsList = &cli.Command{
 		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			client := api.Client{Config: cfg}
-			allApps, err := client.Apps().List(ctx)
+			allApps, err := client.Apps().GlobalList(ctx)
 			if err != nil {
 				return fmt.Errorf("error listing applications: %w", err)
 			}
