@@ -138,16 +138,14 @@ var BlocksNew = &cli.Command{
 				StackId:             stack.Id,
 				Type:                blockTypeFromModuleCategory(module.Category),
 				Name:                name,
+				Repo:                "",
 				ModuleSource:        moduleSource,
 				ModuleSourceVersion: "latest",
 				Connections:         connections,
 			}
 			if strings.HasPrefix(string(module.Category), "app") {
-				app := &types.Application{
-					Block:     *block,
-					Repo:      "",
-					Framework: "other",
-				}
+				app := &types.Application{Block: *block}
+				app.Framework = "other"
 				if newApp, err := client.Apps().Create(ctx, stack.Id, app); err != nil {
 					return err
 				} else if newApp != nil {

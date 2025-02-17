@@ -23,14 +23,13 @@ func GetRunConfig(ctx context.Context, cfg api.Config, workspace Manifest) (type
 			WorkspaceUid: uid,
 			Targets:      types.RunTargets{},
 			WorkspaceConfig: types.WorkspaceConfig{
-				Source:            "",
-				SourceVersion:     "",
-				Variables:         types.Variables{},
-				Connections:       types.Connections{},
-				Capabilities:      types.CapabilityConfigs{},
-				NamedCapabilities: types.NamedCapabilityConfigs{},
-				Providers:         types.Providers{},
-				Dependencies:      types.Dependencies{},
+				Source:        "",
+				SourceVersion: "",
+				Variables:     types.Variables{},
+				Connections:   types.Connections{},
+				Capabilities:  types.CapabilityConfigs{},
+				Providers:     types.Providers{},
+				Dependencies:  types.Dependencies{},
 			},
 		}
 	}
