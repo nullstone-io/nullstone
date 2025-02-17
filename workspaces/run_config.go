@@ -20,15 +20,17 @@ func GetRunConfig(ctx context.Context, cfg api.Config, workspace Manifest) (type
 		return types.RunConfig{}, err
 	} else if runConfig == nil {
 		runConfig = &types.RunConfig{
-			WorkspaceUid:  uid,
-			Source:        "",
-			SourceVersion: "",
-			Variables:     types.Variables{},
-			Connections:   types.Connections{},
-			Capabilities:  types.CapabilityConfigs{},
-			Providers:     types.Providers{},
-			Targets:       types.RunTargets{},
-			Dependencies:  types.Dependencies{},
+			WorkspaceUid: uid,
+			Targets:      types.RunTargets{},
+			WorkspaceConfig: types.WorkspaceConfig{
+				Source:        "",
+				SourceVersion: "",
+				Variables:     types.Variables{},
+				Connections:   types.Connections{},
+				Capabilities:  types.CapabilityConfigs{},
+				Providers:     types.Providers{},
+				Dependencies:  types.Dependencies{},
+			},
 		}
 	}
 

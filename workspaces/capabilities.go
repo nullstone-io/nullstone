@@ -76,9 +76,9 @@ func (g CapabilitiesGenerator) Generate(runConfig types.RunConfig) error {
 }
 
 func (g CapabilitiesGenerator) transformCapabilities(runConfig types.RunConfig) (types.CapabilityConfigs, error) {
-	capabilities := runConfig.Capabilities
 	// Terraform assumes that module source has a host of `registry.terraform.io` if not specified
 	// We are going to override that behavior to presume `api.nullstone.io` instead
+	capabilities := runConfig.Capabilities
 	for i, capability := range capabilities {
 		if ms, err := artifacts.ParseSource(capability.Source); err == nil {
 			if ms.Host == "" {
