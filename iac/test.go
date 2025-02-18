@@ -68,7 +68,7 @@ func testWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, stac
 		return nil
 	}
 
-	types.FillWorkspaceConfigMissingEnv(effective, env)
+	fillWorkspaceConfigMissingEnv(effective, env)
 
 	updated, err := effective.Clone()
 	if err != nil {
@@ -103,4 +103,42 @@ func testEvents(ctx context.Context, cfg api.Config, w io.Writer, stack types.St
 	changes := iacEvents.Diff(current, desired, pmr.RepoUrl)
 	emitEventChanges(w, changes)
 	return nil
+}
+
+func fillWorkspaceConfigMissingEnv(c *types.WorkspaceConfig, env types.Environment) {
+	envId := env.Id
+	fillRef := func(conn types.Connection) bool {
+		if conn.EffectiveTarget == nil {
+			return false
+		}
+		filled := false
+		if conn.EffectiveTarget.StackId == env.StackId {
+			if conn.EffectiveTarget.EnvId == nil {
+				conn.EffectiveTarget.EnvId = &envId
+				filled = true
+			}
+			if conn.EffectiveTarget.EnvName == "" {
+				conn.EffectiveTarget.EnvName = env.Name
+				filled = true
+			}
+		}
+		return filled
+	}
+	fillConns := func(conns types.Connections) bool {
+		filled := false
+		for name, conn := range conns {
+			if fillRef(conn) {
+				conns[name] = conn
+				filled = true
+			}
+		}
+		return filled
+	}
+
+	fillConns(c.Connections)
+	for i, capability := range c.Capabilities {
+		if fillConns(capability.Connections) {
+			c.Capabilities[i] = capability
+		}
+	}
 }
