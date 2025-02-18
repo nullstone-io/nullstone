@@ -1,3 +1,6 @@
+# 0.0.137 (Feb 17, 2025)
+* Internal update to add `name` to capabilities.
+
 # 0.0.136 (Feb 01, 2025)
 * Added support for port forwarding when using `nullstone ssh` command. (`--forward <local-port>:<remote-port>`)
 
