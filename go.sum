@@ -433,10 +433,10 @@ github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRW
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f h1:y5//uYreIhSUg3J1GEMiLbxo1LJaP8RfCpH6pymGZus=
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f/go.mod h1:ZdcZmHo+o7JKHSa8/e818NopupXU1YMK5fe1lsApnBw=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
-github.com/nullstone-io/deployment-sdk v0.0.0-20250218235730-04edfee4e150 h1:9nBkrw/tdL4LVRVlR8dw1/3XRlvHc/y3leIu5vmZ7lc=
-github.com/nullstone-io/deployment-sdk v0.0.0-20250218235730-04edfee4e150/go.mod h1:dAFYmzjQV9NXZMWiNrvaWy+asGvje0n5Y+FNHkQmhPg=
-github.com/nullstone-io/iac v0.0.0-20250218235623-8518d7e5d218 h1:WPCzt/PSKpcpptnU+G/9gnOBEY1VHOmstopaKXm1JUo=
-github.com/nullstone-io/iac v0.0.0-20250218235623-8518d7e5d218/go.mod h1:R8IxIYIhLSqgg29+vCMD4Yx2mFXN0LNW+toWLd+d4rU=
+github.com/nullstone-io/deployment-sdk v0.0.0-20250219014445-076858d24e1f h1:sfLeRDdImpzU9I1okwQh7dBC3GnR32dKT4AOZhneB54=
+github.com/nullstone-io/deployment-sdk v0.0.0-20250219014445-076858d24e1f/go.mod h1:kvIXwbCZK9pY9RZk1dZdFWg0yXR9Jd7MRXTiTzOBjGA=
+github.com/nullstone-io/iac v0.0.0-20250219014336-718dc4d77370 h1:/+U2YvmGqww0iroYxHNOin1b/AZyFVg4jdbbTmgRiBE=
+github.com/nullstone-io/iac v0.0.0-20250219014336-718dc4d77370/go.mod h1:4sKgcpPpEe/oaCRE1Lgf0N0w6Oz0Q566JZpOBK+2arA=
 github.com/nullstone-io/module v0.2.9 h1:PcYhPEemBbc+RdP+Q/DF0+XlwJkkNb5R17Hfv8qaYyc=
 github.com/nullstone-io/module v0.2.9/go.mod h1:btQiO0giVWDvvaQ7CLnPmuPPakJc55lAr8OlE1LK6hg=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
@@ -734,8 +734,8 @@ gopkg.in/fsnotify.v1 v1.4.7/go.mod h1:Tz8NjZHkW78fSQdbUxIjBTcgA1z1m8ZHf0WmKUhAMy
 gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2/go.mod h1:Xk6kEKp8OKb+X14hQBKWaSkCsqBpgog8nAV2xsGOxlo=
 gopkg.in/inf.v0 v0.9.1 h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
 gopkg.in/inf.v0 v0.9.1/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250218235351-6fd3845575c3 h1:otDdi1jVKvC40xz3OJpblebsewFsh6Z3pTaViFash44=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250218235351-6fd3845575c3/go.mod h1:m/JNiW4XSXjRLAedd7LYOO0l/FfCiKffRFolkKpfpgA=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250219013947-90a0ced3236b h1:F/X+BMqVbLh3Q43+iPWsbcKN+zpRq4Gj4kCA5tzTt2w=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250219013947-90a0ced3236b/go.mod h1:m/JNiW4XSXjRLAedd7LYOO0l/FfCiKffRFolkKpfpgA=
 gopkg.in/rethinkdb/rethinkdb-go.v6 v6.2.1 h1:d4KQkxAaAiRY2h5Zqis161Pv91A37uZyJOx73duwUwM=
 gopkg.in/rethinkdb/rethinkdb-go.v6 v6.2.1/go.mod h1:WbjuEoo1oadwzQ4apSDU+JTvmllEHtsNHS6y7vFc7iw=
 gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7/go.mod h1:dt/ZhP58zS4L8KSrWDmTeBkI65Dw0HsyUHuEVlX15mw=
