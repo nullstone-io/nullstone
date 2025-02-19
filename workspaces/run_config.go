@@ -47,10 +47,10 @@ func GetRunConfig(ctx context.Context, cfg api.Config, workspace Manifest) (type
 			// Connection exists in local scan, but not in run config
 			// Let's add the definition with an empty target
 			runConfig.Connections[name] = types.Connection{
-				Connection: local,
-				Target:     "",
-				Reference:  nil,
-				Unused:     false,
+				Connection:      local,
+				Target:          nil,
+				EffectiveTarget: nil,
+				Unused:          false,
 			}
 		}
 	}

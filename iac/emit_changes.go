@@ -85,7 +85,7 @@ func emitUpdateChangeDiff(w io.Writer, indent string, change types.WorkspaceChan
 	case types.ChangeTypeConnection:
 		prevConn, _ := change.Current.(types.Connection)
 		newConn, _ := change.Desired.(types.Connection)
-		colorstring.Fprintf(w, "%s[red]%s[reset] => [green]%s[reset]\n", indent, prevConn.Reference, newConn.Reference)
+		colorstring.Fprintf(w, "%s[red]%s[reset] => [green]%s[reset]\n", indent, prevConn.EffectiveTarget, newConn.EffectiveTarget)
 	case types.ChangeTypeCapability:
 		// TODO: Implement
 	}

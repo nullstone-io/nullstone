@@ -91,10 +91,10 @@ var WorkspacesSelect = &cli.Command{
 			}
 			for name, conn := range manualConnections {
 				targetWorkspace.Connections[name] = workspaces.ManifestConnectionTarget{
-					StackId:   conn.Reference.StackId,
-					BlockId:   conn.Reference.BlockId,
-					BlockName: conn.Reference.BlockName,
-					EnvId:     conn.Reference.EnvId,
+					StackId:   conn.EffectiveTarget.StackId,
+					BlockId:   conn.EffectiveTarget.BlockId,
+					BlockName: conn.EffectiveTarget.BlockName,
+					EnvId:     conn.EffectiveTarget.EnvId,
 				}
 			}
 
@@ -110,7 +110,7 @@ func surveyMissingConnections(ctx context.Context, cfg api.Config, sourceStackNa
 	connections := types.Connections{}
 	for name, conn := range runConfig.Connections {
 		// Let's ask the user if the connection has no reference
-		if conn.Reference == nil || conn.Reference.BlockId < 1 {
+		if conn.EffectiveTarget == nil || conn.EffectiveTarget.BlockId < 1 {
 			initialPrompt.Do(func() {
 				fmt.Println("There are connections in this module that do not have a target set.")
 				fmt.Println("Type the block name for each connection to configure the connection locally.")
@@ -120,8 +120,8 @@ func surveyMissingConnections(ctx context.Context, cfg api.Config, sourceStackNa
 				return nil, err
 			} else if ct != nil {
 				connections[name] = types.Connection{
-					Connection: conn.Connection,
-					Reference:  ct,
+					Connection:      conn.Connection,
+					EffectiveTarget: ct,
 				}
 			}
 		}
