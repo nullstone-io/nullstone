@@ -48,7 +48,7 @@ func GetRunConfig(ctx context.Context, cfg api.Config, workspace Manifest) (type
 			// Let's add the definition with an empty target
 			runConfig.Connections[name] = types.Connection{
 				Connection:      local,
-				Target:          nil,
+				DesiredTarget:   nil,
 				EffectiveTarget: nil,
 				Unused:          false,
 			}
