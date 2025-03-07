@@ -47,7 +47,7 @@ var BlocksList = &cli.Command{
 				return fmt.Errorf("stack %q does not exist in organization %q", stackName, cfg.OrgName)
 			}
 
-			allBlocks, err := client.Blocks().List(ctx, stack.Id)
+			allBlocks, err := client.Blocks().List(ctx, stack.Id, false)
 			if err != nil {
 				return fmt.Errorf("error listing blocks: %w", err)
 			}

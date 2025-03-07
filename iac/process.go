@@ -46,7 +46,7 @@ func Process(ctx context.Context, cfg api.Config, curDir string, w io.Writer, st
 		for _, cur := range blocks {
 			blocksToCreate[cur.Name] = cur
 		}
-		existing, err := apiClient.Blocks().List(ctx, stack.Id)
+		existing, err := apiClient.Blocks().List(ctx, stack.Id, false)
 		if err != nil {
 			fmt.Fprintln(w)
 			return fmt.Errorf("error checking for existing blocks: %w", err)

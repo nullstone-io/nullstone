@@ -50,7 +50,7 @@ func PerformEnvRun(ctx context.Context, cfg api.Config, input PerformEnvRunInput
 	if err != nil {
 		return fmt.Errorf("error retrieving list of workspaces: %w", err)
 	}
-	blocks, err := client.Blocks().List(ctx, input.Stack.Id)
+	blocks, err := client.Blocks().List(ctx, input.Stack.Id, false)
 	if err != nil {
 		return fmt.Errorf("error retrieving list of blocks: %w", err)
 	}
