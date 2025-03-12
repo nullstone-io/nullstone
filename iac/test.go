@@ -29,7 +29,7 @@ func Test(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, e
 func testWorkspaces(ctx context.Context, cfg api.Config, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ConfigFiles) error {
 	blockNames := pmr.BlockNames(env)
 	apiClient := &api.Client{Config: cfg}
-	allBlocks, err := apiClient.Blocks().List(ctx, stack.Id)
+	allBlocks, err := apiClient.Blocks().List(ctx, stack.Id, false)
 	if err != nil {
 		return fmt.Errorf("error retrieving blocks: %w", err)
 	}

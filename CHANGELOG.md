@@ -1,3 +1,7 @@
+# 0.0.139 (Mar 12, 2025)
+* Fixed resolution errors on new blocks when performing `nullstone iac test`.
+* Updated API client.
+
 # 0.0.138 (Feb 19, 2025)
 * Internal update to add effective and desired values to workspace config.
 
