@@ -1,3 +1,6 @@
+# 0.0.140 (Mar 18, 2025)
+* Added support for environment event actions (`env-launched`, `env-destroyed`) to `iac` commands.
+
 # 0.0.139 (Mar 12, 2025)
 * Fixed resolution errors on new blocks when performing `nullstone iac test`.
 * Updated API client.
