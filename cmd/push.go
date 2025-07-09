@@ -46,15 +46,9 @@ var Push = func(providers app.Providers) *cli.Command {
 					fmt.Fprintf(osWriters.Stderr(), "Version defaulted to: %s\n", version)
 				}
 
-				commitInfo, err := vcs.GetCommitInfo()
-				if err != nil {
-					return fmt.Errorf("error retrieving commit info from .git/: %w", err)
+				if err := recordArtifact(ctx, osWriters, cfg, appDetails, version); err != nil {
+					return err
 				}
-				apiClient := api.Client{Config: cfg}
-				if _, err := apiClient.CodeArtifacts().Upsert(ctx, appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id, version, commitInfo); err != nil {
-					fmt.Fprintf(osWriters.Stderr(), "Unable to record artifact in Nullstone: %s\n", err)
-				}
-				fmt.Fprintf(osWriters.Stderr(), "Recorded artifact (%s) in Nullstone (commit SHA = %s).\n", version, commitInfo.CommitSha)
 
 				return push(ctx, osWriters, pusher, source, version)
 			})
@@ -71,6 +65,19 @@ func getPusher(providers app.Providers, cfg api.Config, appDetails app.Details) 
 		return nil, fmt.Errorf("this application category=%s, type=%s does not support push", appDetails.Module.Category, appDetails.Module.Type)
 	}
 	return pusher, nil
+}
+
+func recordArtifact(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, appDetails app.Details, version string) error {
+	commitInfo, err := vcs.GetCommitInfo()
+	if err != nil {
+		return fmt.Errorf("error retrieving commit info from .git/: %w", err)
+	}
+	apiClient := api.Client{Config: cfg}
+	if _, err := apiClient.CodeArtifacts().Upsert(ctx, appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id, version, commitInfo); err != nil {
+		fmt.Fprintf(osWriters.Stderr(), "Unable to record artifact in Nullstone: %s\n", err)
+	}
+	fmt.Fprintf(osWriters.Stderr(), "Recorded artifact (%s) in Nullstone (commit SHA = %s).\n", version, commitInfo.CommitSha)
+	return nil
 }
 
 func push(ctx context.Context, osWriters logging.OsWriters, pusher app.Pusher, source, version string) error {
