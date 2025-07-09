@@ -21,7 +21,7 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.32.0
 	golang.org/x/sync v0.10.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250318133220-7c4a863ec1b2
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250709154052-dd1c4da0ac17
 	k8s.io/api v0.32.1
 	k8s.io/apimachinery v0.32.1
 	k8s.io/client-go v0.32.1

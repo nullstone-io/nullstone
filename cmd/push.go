@@ -8,6 +8,7 @@ import (
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/nullstone.v0/vcs"
 	version2 "gopkg.in/nullstone-io/nullstone.v0/version"
 )
 
@@ -43,6 +44,15 @@ var Push = func(providers app.Providers) *cli.Command {
 					}
 					version = info.Version
 					fmt.Fprintf(osWriters.Stderr(), "Version defaulted to: %s\n", version)
+				}
+
+				commitInfo, err := vcs.GetCommitInfo()
+				if err != nil {
+					return fmt.Errorf("error retrieving commit info from .git/: %w", err)
+				}
+				apiClient := api.Client{Config: cfg}
+				if _, err := apiClient.CodeArtifacts().Upsert(ctx, appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id, version, commitInfo); err != nil {
+					fmt.Fprintf(osWriters.Stderr(), "Unable to record artifact in Nullstone: %s\n", err)
 				}
 
 				return push(ctx, osWriters, pusher, source, version)

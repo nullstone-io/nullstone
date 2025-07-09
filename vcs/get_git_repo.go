@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"errors"
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"os"
@@ -15,7 +16,7 @@ func GetGitRepo() (*git.Repository, error) {
 		DetectDotGit:          true,
 		EnableDotGitCommonDir: true,
 	})
-	if err == git.ErrRepositoryNotExists {
+	if errors.Is(err, git.ErrRepositoryNotExists) {
 		return nil, nil
 	}
 	return repo, err
