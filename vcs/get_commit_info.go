@@ -69,7 +69,7 @@ func extractApiRepository(cfg *config.RemoteConfig) types.Repo {
 		repo.Name = repoName[1]
 	} else if strings.HasPrefix(cfg.URLs[0], "https://") {
 		// HTTPS format: https://github.com/org/repo.git
-		u, err := url.Parse(cfg.URLs[0])
+		u, err := url.Parse(strings.TrimSuffix(cfg.URLs[0], ".git"))
 		if err != nil {
 			return repo
 		}
