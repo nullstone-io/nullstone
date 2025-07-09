@@ -54,6 +54,7 @@ var Push = func(providers app.Providers) *cli.Command {
 				if _, err := apiClient.CodeArtifacts().Upsert(ctx, appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id, version, commitInfo); err != nil {
 					fmt.Fprintf(osWriters.Stderr(), "Unable to record artifact in Nullstone: %s\n", err)
 				}
+				fmt.Fprintf(osWriters.Stderr(), "Recorded artifact (%s) in Nullstone (commit SHA = %s).\n", version, commitInfo.CommitSha)
 
 				return push(ctx, osWriters, pusher, source, version)
 			})
