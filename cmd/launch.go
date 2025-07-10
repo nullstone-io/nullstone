@@ -47,6 +47,10 @@ var Launch = func(providers app.Providers) *cli.Command {
 					fmt.Fprintf(stderr, "Version defaulted to: %s\n", version)
 				}
 
+				if err := recordArtifact(ctx, osWriters, cfg, appDetails, version); err != nil {
+					return err
+				}
+
 				err = push(ctx, osWriters, pusher, source, version)
 				if err != nil {
 					return err
