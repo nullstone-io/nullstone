@@ -1,3 +1,6 @@
+# 0.0.141 (Jul 10, 2025)
+* Record code artifact in Nullstone when performing `nullstone push|launch`.
+
 # 0.0.140 (Mar 18, 2025)
 * Added support for environment event actions (`env-launched`, `env-destroyed`) to `iac` commands.
 
