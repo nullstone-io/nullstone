@@ -6,14 +6,13 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"gopkg.in/nullstone-io/nullstone.v0/modules"
 	"strings"
 )
 
 type moduleSurvey struct{}
 
-func (m *moduleSurvey) Ask(cfg api.Config, defaults *modules.Manifest) (*modules.Manifest, error) {
-	manifest := modules.Manifest{}
+func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*types.ModuleManifest, error) {
+	manifest := types.ModuleManifest{}
 	if defaults != nil {
 		manifest = *defaults
 	}

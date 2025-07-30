@@ -217,7 +217,7 @@ locals {
 `
 )
 
-func generateApp(manifest *Manifest) error {
+func generateApp(manifest *types.ModuleManifest) error {
 	if manifest.Category != string(types.CategoryApp) {
 		// We don't generate capabilities if not an app module
 		return nil

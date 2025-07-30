@@ -2,6 +2,7 @@ package modules
 
 import (
 	"fmt"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/artifacts"
 )
 
@@ -18,7 +19,7 @@ var (
 	}
 )
 
-func Package(manifest *Manifest, version string, addlFiles []string) (string, error) {
+func Package(manifest *types.ModuleManifest, version string, addlFiles []string) (string, error) {
 	excludeFn := func(entry artifacts.GlobEntry) bool {
 		_, ok := excludes[entry.Path]
 		return ok

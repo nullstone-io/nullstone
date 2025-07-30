@@ -18,7 +18,7 @@ locals {
 `
 )
 
-func generateDomain(manifest *Manifest) error {
+func generateDomain(manifest *types.ModuleManifest) error {
 	if manifest.Category != string(types.CategoryDomain) {
 		// We don't generate capabilities if not a domain module
 		return nil
