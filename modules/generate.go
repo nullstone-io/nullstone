@@ -1,10 +1,11 @@
 package modules
 
 import (
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"io/ioutil"
 )
 
-type generateFunc func(manifest *Manifest) error
+type generateFunc func(manifest *types.ModuleManifest) error
 
 var (
 	scaffoldTfFilename = "nullstone.tf"
@@ -43,7 +44,7 @@ locals {
 	}
 )
 
-func Generate(manifest *Manifest) error {
+func Generate(manifest *types.ModuleManifest) error {
 	for _, gfn := range generateFns {
 		if err := gfn(manifest); err != nil {
 			return err
@@ -52,7 +53,7 @@ func Generate(manifest *Manifest) error {
 	return nil
 }
 
-func generateScaffold(manifest *Manifest) error {
+func generateScaffold(manifest *types.ModuleManifest) error {
 	return generateFile(scaffoldTfFilename, baseScaffoldTf)
 }
 

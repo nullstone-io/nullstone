@@ -58,7 +58,7 @@ var ModulesGenerate = &cli.Command{
 			if err != nil {
 				return err
 			}
-			if err := manifest.WriteManifestToFile(moduleManifestFilename); err != nil {
+			if err := modules.WriteManifestToFile(*manifest, moduleManifestFilename); err != nil {
 				return err
 			}
 			fmt.Printf("generated module manifest file to %s\n", moduleManifestFilename)
@@ -177,7 +177,7 @@ var ModulesPublish = &cli.Command{
 			defer tarball.Close()
 
 			client := api.Client{Config: cfg}
-			if err := client.ModuleVersions().Create(ctx, manifest.OrgName, manifest.Name, version, tarball); err != nil {
+			if err := client.ModuleVersions().Create(ctx, manifest.OrgName, manifest.Name, manifest.ToolName, version, tarball); err != nil {
 				return err
 			}
 			fmt.Fprintf(os.Stderr, "Published %s/%s@%s\n", manifest.OrgName, manifest.Name, version)

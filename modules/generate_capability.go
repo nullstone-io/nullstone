@@ -18,7 +18,7 @@ EOF
 `
 )
 
-func generateCapability(manifest *Manifest) error {
+func generateCapability(manifest *types.ModuleManifest) error {
 	if manifest.Category != string(types.CategoryCapability) {
 		// We don't generate capability tf if not a capability module
 		return nil

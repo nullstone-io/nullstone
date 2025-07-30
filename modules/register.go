@@ -6,7 +6,7 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
-func Register(ctx context.Context, cfg api.Config, manifest *Manifest) (*types.Module, error) {
+func Register(ctx context.Context, cfg api.Config, manifest *types.ModuleManifest) (*types.Module, error) {
 	module := &types.Module{
 		OrgName:       manifest.OrgName,
 		Name:          manifest.Name,

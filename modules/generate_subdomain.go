@@ -17,7 +17,7 @@ locals {
 `
 )
 
-func generateSubdomain(manifest *Manifest) error {
+func generateSubdomain(manifest *types.ModuleManifest) error {
 	if manifest.Category != string(types.CategorySubdomain) {
 		// We don't generate capabilities if not a subdomain module
 		return nil

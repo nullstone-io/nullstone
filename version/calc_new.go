@@ -22,10 +22,6 @@ func CalcNew(ctx context.Context, pusher app.Pusher) (Info, error) {
 	}
 
 	seq := FindLatestVersionSequence(result.ShortCommitSha(), artifacts)
-	if err != nil {
-		result.Version = ""
-		return result, fmt.Errorf("error calculating version: %w", err)
-	}
 
 	// -1 means we didn't find any existing deploys for this commitSha
 	// and we will just use the shortSha as the version

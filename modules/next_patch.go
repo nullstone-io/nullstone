@@ -6,12 +6,13 @@ import (
 	"golang.org/x/mod/semver"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"strconv"
 	"strings"
 )
 
 // NextPatch bumps the patch in major.minor.patch from the latest module version
-func NextPatch(ctx context.Context, cfg api.Config, manifest *Manifest) (string, error) {
+func NextPatch(ctx context.Context, cfg api.Config, manifest *types.ModuleManifest) (string, error) {
 	latestVersion, err := find.ModuleVersion(ctx, cfg, fmt.Sprintf("%s/%s", manifest.OrgName, manifest.Name), "latest")
 	if err != nil {
 		return "", fmt.Errorf("error retrieving latest version: %w", err)
