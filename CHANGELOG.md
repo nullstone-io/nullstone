@@ -1,3 +1,6 @@
+# 0.0.142 (Jul 30, 2025)
+* Added support for OpenTofu for managing modules.
+
 # 0.0.141 (Jul 10, 2025)
 * Record code artifact in Nullstone when performing `nullstone push|launch`.
 
