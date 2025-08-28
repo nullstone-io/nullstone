@@ -12,7 +12,7 @@ require (
 	github.com/gosuri/uilive v0.0.4
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nullstone-io/deployment-sdk v0.0.0-20250710212051-98804b006207
-	github.com/nullstone-io/iac v0.0.0-20250827191644-0e0364ba99c6
+	github.com/nullstone-io/iac v0.0.0-20250828163053-44c2d8582c62
 	github.com/nullstone-io/module v0.2.10
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.11.1
