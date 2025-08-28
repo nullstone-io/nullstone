@@ -110,9 +110,18 @@ func emitModuleUpdateChangeDiff(w io.Writer, indent string, change types.Workspa
 			indent += indentStep
 			prevVar, _ := change.Current.(types.Variable)
 			newVar, _ := change.Desired.(types.Variable)
-			colorstring.Fprintf(w, "%s[yellow]~ type[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, prevVar.Type, newVar.Type)
-			colorstring.Fprintf(w, "%s[yellow]~ sensitive[reset]: [red]%t[reset] => [green]%t[reset]\n", indent, prevVar.Sensitive, newVar.Sensitive)
-			colorstring.Fprintf(w, "%s[yellow]~ default[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, variableValToString(prevVar.Default), variableValToString(newVar.Default))
+			if prevVar.Type != newVar.Type {
+				colorstring.Fprintf(w, "%s[yellow]~ type[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, prevVar.Type, newVar.Type)
+			}
+			if prevVar.Sensitive != newVar.Sensitive {
+				colorstring.Fprintf(w, "%s[yellow]~ sensitive[reset]: [red]%t[reset] => [green]%t[reset]\n", indent, prevVar.Sensitive, newVar.Sensitive)
+			}
+			if prevDefault, newDefault := variableValToString(prevVar.Default), variableValToString(newVar.Default); prevDefault != newDefault {
+				colorstring.Fprintf(w, "%s[yellow]~ default[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, prevDefault, newDefault)
+			}
+			if prevVar.Description != newVar.Description {
+				colorstring.Fprintf(w, "%s[yellow]~ description[reset]\n", indent)
+			}
 		case types.ChangeTypeConnection:
 			emitChangeLabel(w, indent, change, true)
 			indent += indentStep
@@ -134,18 +143,23 @@ func emitSubdomainChangeDiff(w io.Writer, indent string, change types.WorkspaceC
 		cur = &types.ExtraSubdomainConfig{}
 	}
 
-	if prev.SubdomainNameTemplate != cur.SubdomainNameTemplate {
-		colorstring.Fprintf(w, "%s[yellow]~ template[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, prev.SubdomainNameTemplate, cur.SubdomainNameTemplate)
+	emit := func(field string, p, c string) {
+		if p == c {
+			return
+		}
+		if p == "" {
+			p = "(empty)"
+		}
+		if c == "" {
+			c = "(empty)"
+		}
+		colorstring.Fprintf(w, "%s[yellow]~ %s[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, field, p, c)
 	}
-	if prev.SubdomainName != cur.SubdomainName {
-		colorstring.Fprintf(w, "%s[yellow]~ subdomain_name[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, prev.SubdomainName, cur.SubdomainName)
-	}
-	if prev.DomainName != cur.DomainName {
-		colorstring.Fprintf(w, "%s[yellow]~ domain_name[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, prev.DomainName, cur.DomainName)
-	}
-	if prev.Fqdn != cur.Fqdn {
-		colorstring.Fprintf(w, "%s[yellow]~ fqdn[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, prev.Fqdn, cur.Fqdn)
-	}
+
+	emit("template", prev.SubdomainNameTemplate, cur.SubdomainNameTemplate)
+	emit("template", prev.SubdomainName, cur.SubdomainName)
+	emit("template", prev.DomainName, cur.DomainName)
+	emit("template", prev.Fqdn, cur.Fqdn)
 }
 
 func variableValToString(val any) string {
