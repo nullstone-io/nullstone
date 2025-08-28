@@ -3,13 +3,14 @@ package iac
 import (
 	"context"
 	"fmt"
+	"io"
+
 	"github.com/mitchellh/colorstring"
 	"github.com/nullstone-io/iac"
 	iacEvents "github.com/nullstone-io/iac/events"
 	"github.com/nullstone-io/iac/workspace"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"io"
 )
 
 const (
@@ -75,7 +76,16 @@ func testWorkspace(ctx context.Context, apiClient *api.Client, w io.Writer, stac
 		return fmt.Errorf("error cloning workspace: %w", err)
 	}
 
-	if err := iac.ApplyChangesTo(pmr, block, env, workspace.ConfigUpdater{Config: &updated}); err != nil {
+	updater := workspace.ConfigUpdater{
+		Config: &updated,
+		TemplateVars: workspace.TemplateVars{
+			OrgName:   stack.OrgName,
+			StackName: stack.Name,
+			EnvName:   env.Name,
+			EnvIsProd: env.IsProd,
+		},
+	}
+	if err := iac.ApplyChangesTo(pmr, block, env, updater); err != nil {
 		return fmt.Errorf("error applying changes: %w", err)
 	}
 
