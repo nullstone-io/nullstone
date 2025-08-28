@@ -99,8 +99,6 @@ func emitUpdateChangeDiff(w io.Writer, indent string, change types.WorkspaceChan
 }
 
 func emitModuleUpdateChangeDiff(w io.Writer, indent string, change types.WorkspaceChange) {
-	indent += indentStep
-
 	if change.Action == types.ChangeActionUpdate {
 		switch change.ChangeType {
 		case types.ChangeTypeModuleVersion:
