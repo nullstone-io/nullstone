@@ -82,7 +82,7 @@ func streamDeployLogs(ctx context.Context, osWriters logging.OsWriters, cfg api.
 	}
 	for msg := range msgs {
 		if msg.Type == "error" {
-			return fmt.Errorf(msg.Content)
+			return fmt.Errorf("%s", msg.Content)
 		}
 		if !wait && msg.Context == types.DeployPhaseWaitHealthy {
 			// Stop streaming logs if we receive a log message from wait-healthy and no --wait

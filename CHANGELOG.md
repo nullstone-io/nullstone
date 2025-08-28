@@ -1,3 +1,6 @@
+# 0.0.143 (Aug 28, 2025)
+* Added support for subdomain configuration for `nullstone iac` commands.
+
 # 0.0.142 (Jul 30, 2025)
 * Added support for OpenTofu for managing modules.
 
