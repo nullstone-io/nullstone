@@ -2,12 +2,14 @@ package iac
 
 import (
 	"fmt"
+	"io"
+	"slices"
+	"strconv"
+
 	"github.com/mitchellh/colorstring"
 	"github.com/nullstone-io/iac/events"
 	"github.com/nullstone-io/iac/workspace"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"io"
-	"slices"
 )
 
 func emitWorkspaceChanges(w io.Writer, block types.Block, changes workspace.IndexedChanges) {
@@ -35,6 +37,9 @@ func emitChangeLabel(w io.Writer, indent string, change types.WorkspaceChange, i
 	identifier := fmt.Sprintf(".%s", change.Identifier)
 	if change.Identifier == types.ChangeIdentifierModuleVersion {
 		changeType = "module"
+		identifier = ""
+	} else if change.Identifier == "extra_subdomain" {
+		changeType = "dns"
 		identifier = ""
 	} else if change.ChangeType == types.ChangeTypeCapability {
 		if cur, ok := change.Current.(types.CapabilityConfig); ok {
@@ -77,7 +82,7 @@ func emitUpdateChangeDiff(w io.Writer, indent string, change types.WorkspaceChan
 	case types.ChangeTypeVariable:
 		prevVar, _ := change.Current.(types.Variable)
 		newVar, _ := change.Desired.(types.Variable)
-		colorstring.Fprintf(w, "%s[red]%s[reset] => [green]%s[reset]\n", indent, prevVar.Value, newVar.Value)
+		colorstring.Fprintf(w, "%s[red]%s[reset] => [green]%s[reset]\n", indent, variableValToString(prevVar.Value), variableValToString(newVar.Value))
 	case types.ChangeTypeEnvVariable:
 		prevEnvVar, _ := change.Current.(types.EnvVariable)
 		newEnvVar, _ := change.Desired.(types.EnvVariable)
@@ -88,12 +93,12 @@ func emitUpdateChangeDiff(w io.Writer, indent string, change types.WorkspaceChan
 		colorstring.Fprintf(w, "%s[red]%s[reset] => [green]%s[reset]\n", indent, prevConn.EffectiveTarget, newConn.EffectiveTarget)
 	case types.ChangeTypeCapability:
 		// TODO: Implement
+	case types.ChangeTypeExtraSubdomain:
+		emitSubdomainChangeDiff(w, indent, change)
 	}
 }
 
 func emitModuleUpdateChangeDiff(w io.Writer, indent string, change types.WorkspaceChange) {
-	indent += indentStep
-
 	if change.Action == types.ChangeActionUpdate {
 		switch change.ChangeType {
 		case types.ChangeTypeModuleVersion:
@@ -105,9 +110,18 @@ func emitModuleUpdateChangeDiff(w io.Writer, indent string, change types.Workspa
 			indent += indentStep
 			prevVar, _ := change.Current.(types.Variable)
 			newVar, _ := change.Desired.(types.Variable)
-			colorstring.Fprintf(w, "%s[yellow]~ type[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, prevVar.Type, newVar.Type)
-			colorstring.Fprintf(w, "%s[yellow]~ sensitive[reset]: [red]%t[reset] => [green]%t[reset]\n", indent, prevVar.Sensitive, newVar.Sensitive)
-			colorstring.Fprintf(w, "%s[yellow]~ default[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, prevVar.Default, newVar.Default)
+			if prevVar.Type != newVar.Type {
+				colorstring.Fprintf(w, "%s[yellow]~ type[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, prevVar.Type, newVar.Type)
+			}
+			if prevVar.Sensitive != newVar.Sensitive {
+				colorstring.Fprintf(w, "%s[yellow]~ sensitive[reset]: [red]%t[reset] => [green]%t[reset]\n", indent, prevVar.Sensitive, newVar.Sensitive)
+			}
+			if prevDefault, newDefault := variableValToString(prevVar.Default), variableValToString(newVar.Default); prevDefault != newDefault {
+				colorstring.Fprintf(w, "%s[yellow]~ default[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, prevDefault, newDefault)
+			}
+			if prevVar.Description != newVar.Description {
+				colorstring.Fprintf(w, "%s[yellow]~ description[reset]\n", indent)
+			}
 		case types.ChangeTypeConnection:
 			emitChangeLabel(w, indent, change, true)
 			indent += indentStep
@@ -117,6 +131,49 @@ func emitModuleUpdateChangeDiff(w io.Writer, indent string, change types.Workspa
 			colorstring.Fprintf(w, "%s[yellow]~ optional[reset]: [red]%t[reset] => [green]%t[reset]\n", indent, prevConn.Optional, newConn.Optional)
 		}
 	}
+}
+
+func emitSubdomainChangeDiff(w io.Writer, indent string, change types.WorkspaceChange) {
+	prev, _ := change.Current.(*types.ExtraSubdomainConfig)
+	if prev == nil {
+		prev = &types.ExtraSubdomainConfig{}
+	}
+	cur, _ := change.Desired.(*types.ExtraSubdomainConfig)
+	if cur == nil {
+		cur = &types.ExtraSubdomainConfig{}
+	}
+
+	emit := func(field string, p, c string) {
+		if p == c {
+			return
+		}
+		if p == "" {
+			p = "(empty)"
+		}
+		if c == "" {
+			c = "(empty)"
+		}
+		colorstring.Fprintf(w, "%s[yellow]~ %s[reset]: [red]%s[reset] => [green]%s[reset]\n", indent, field, p, c)
+	}
+
+	emit("template", prev.SubdomainNameTemplate, cur.SubdomainNameTemplate)
+	emit("template", prev.SubdomainName, cur.SubdomainName)
+	emit("template", prev.DomainName, cur.DomainName)
+	emit("template", prev.Fqdn, cur.Fqdn)
+}
+
+func variableValToString(val any) string {
+	switch val.(type) {
+	case int:
+		return fmt.Sprintf("%d", val)
+	case int64:
+		return fmt.Sprintf("%d", val)
+	case float64:
+		return strconv.FormatFloat(val.(float64), 'f', -1, 64)
+	case bool:
+		return fmt.Sprintf("%t", val)
+	}
+	return fmt.Sprintf("%s", val)
 }
 
 func compareWorkspaceChange(a, b types.WorkspaceChange) int {

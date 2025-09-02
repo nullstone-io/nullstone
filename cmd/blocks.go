@@ -3,12 +3,13 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"strings"
 )
 
 var Blocks = &cli.Command{
@@ -154,7 +155,8 @@ var BlocksNew = &cli.Command{
 					fmt.Println("unable to create app")
 				}
 			} else {
-				if newBlock, err := client.Blocks().Create(ctx, stack.Id, block); err != nil {
+				input := api.CreateBlockInput{Block: *block}
+				if newBlock, err := client.Blocks().Create(ctx, stack.Id, input); err != nil {
 					return err
 				} else if newBlock != nil {
 					fmt.Printf("created %q block\n", newBlock.Name)
