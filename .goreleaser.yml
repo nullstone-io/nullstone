@@ -27,12 +27,13 @@ brews:
     homepage: https://nullstone.io
     description: An internal developer platform running on your cloud
     license: MIT
-    repository:
-      owner: nullstone-io
-      name: nullstone
     directory: Formula
     install: |-
       bin.install "nullstone"
+    repository:
+      owner: nullstone-io
+      name: nullstone
+      token: "{{ .Env.GITHUB_TOKEN }}"
     commit_author:
       name: nullstone-release-bot
       email: dev@nullstone.io
@@ -44,6 +45,7 @@ scoops:
     repository:
       owner: nullstone-io
       name: nullstone
+      token: "{{ .Env.GITHUB_TOKEN }}"
     commit_author:
       name: nullstone-release-bot
       email: dev@nullstone.io
