@@ -33,6 +33,9 @@ brews:
     directory: Formula
     install: |-
       bin.install "nullstone"
+    commit_author:
+      name: nullstone-release-bot
+      email: dev@nullstone.io
 
 scoops:
   - homepage: https://nullstone.io
@@ -41,3 +44,6 @@ scoops:
     repository:
       owner: nullstone-io
       name: nullstone
+    commit_author:
+      name: nullstone-release-bot
+      email: dev@nullstone.io
