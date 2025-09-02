@@ -1,4 +1,4 @@
-# 0.0.143 (Aug 28, 2025)
+# 0.0.143 (Sep 01, 2025)
 * Added support for subdomain configuration for `nullstone iac` commands.
 * Improved output format for `nullstone iac test`.
 
