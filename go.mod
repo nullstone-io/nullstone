@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.38.3
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.63.4
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.63.5
 	github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.33.3
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.50.2
 	github.com/cristalhq/jwt/v3 v3.1.0
