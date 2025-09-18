@@ -1,4 +1,4 @@
-# 0.0.144 (Sep 17, 2025)
+# 0.0.144 (Sep 18, 2025)
 * Added `TfId` for Terraform generation of capabilities.
 * Updated Terraform templates to use `TfId` when running `nullstone modules generate`.
 
