@@ -3,13 +3,15 @@ package iac
 import (
 	"context"
 	"fmt"
+	"io"
+	"path/filepath"
+
 	"github.com/mitchellh/colorstring"
 	"github.com/nullstone-io/iac"
+	"github.com/nullstone-io/iac/config"
 	"github.com/nullstone-io/iac/core"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"io"
-	"path/filepath"
 )
 
 func Process(ctx context.Context, cfg api.Config, curDir string, w io.Writer, stack types.Stack, env types.Environment, pmr iac.ConfigFiles) error {
@@ -46,7 +48,8 @@ func Process(ctx context.Context, cfg api.Config, curDir string, w io.Writer, st
 		}
 	}
 
-	if errs := iac.Resolve(ctx, pmr, resolver); len(errs) > 0 {
+	finder := config.NewIacFinder(pmr.Config, pmr.GetOverrides(env), stack.Id, env.Id)
+	if errs := iac.Resolve(ctx, pmr, resolver, finder); len(errs) > 0 {
 		colorstring.Fprintf(w, "[bold]Detected errors when resolving Nullstone IaC files[reset]\n")
 		for _, err := range errs {
 			relFilename, _ := filepath.Rel(curDir, err.IacContext.Filename)

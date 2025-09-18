@@ -12,14 +12,14 @@ require (
 	github.com/gosuri/uilive v0.0.4
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nullstone-io/deployment-sdk v0.0.0-20250905174727-cf770029169d
-	github.com/nullstone-io/iac v0.0.0-20250828173903-c48ebbcbb8d7
+	github.com/nullstone-io/iac v0.0.0-20250917131538-262f7c213ea9
 	github.com/nullstone-io/module v0.2.10
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.41.0
 	golang.org/x/sync v0.16.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250827190547-23e095f2d482
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250917131312-854c712a6d64
 	k8s.io/api v0.34.0
 	k8s.io/apimachinery v0.34.0
 	k8s.io/client-go v0.34.0

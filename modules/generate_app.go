@@ -54,9 +54,10 @@ locals {
     NULLSTONE_PUBLIC_HOSTS  = join(",", local.public_hosts)
     NULLSTONE_PRIVATE_HOSTS = join(",", local.private_hosts)
   })
-
-  input_env_vars = merge(local.standard_env_vars, local.cap_env_vars, var.env_vars)
-  input_secrets  = merge(local.cap_secrets, var.secrets)
+  
+  input_env_vars    = merge(local.standard_env_vars, local.cap_env_vars, var.env_vars)
+  input_secrets     = merge(local.cap_secrets, var.secrets)
+  input_secret_keys = nonsensitive(concat(keys(local.cap_secrets), keys(var.secrets)))
 }
 
 data "ns_env_variables" "this" {
@@ -64,10 +65,20 @@ data "ns_env_variables" "this" {
   input_secrets       = local.input_secrets
 }
 
+// ns_secret_keys.this is used to calculate a set of secrets to add to aws secrets manager
+// The resulting "secret_keys" attribute must be known at plan time
+// This doesn't need to do a full interpolation because we only care about which inputs need to be added to aws secrets manager
+// ns_secret_keys.input_env_variables should contain only var.env_vars since they could contain interpolation that promotes them to sensitive
+// We exclude "local.cap_env_vars" because capabilities must use "cap_secrets" to create secrets
+data "ns_secret_keys" "this" {
+  input_env_variables = var.env_vars
+  input_secret_keys   = local.input_secret_keys
+}
+
 locals {
-  secret_keys  = data.ns_env_variables.this.secret_keys
-  all_secrets  = data.ns_env_variables.this.secrets
-  all_env_vars = data.ns_env_variables.this.env_variables
+  secret_keys          = data.ns_secret_keys.this.secret_keys
+  all_secrets          = data.ns_env_variables.this.secrets
+  all_env_vars         = data.ns_env_variables.this.env_variables
   existing_secret_refs = [for key, ref in data.ns_env_variables.this.secret_refs : { name = key, valueFrom = ref }]
 }
 `
@@ -155,7 +166,7 @@ locals {
 	capabilitiesTfTmpl         = `{{ range . -}}
 provider "ns" {
   capability_id = {{ .Id }}
-  alias         = "cap_{{ .Id }}"
+  alias         = "{{ .TfModuleName }}"
 }
 
 module "{{ .TfModuleName }}" {
@@ -165,14 +176,15 @@ module "{{ .TfModuleName }}" {
   {{- end }}
 
   app_metadata = local.app_metadata
-
-  {{- range $key, $value := .Variables }}
-  {{ if not $value.Unused -}}
+  {{ if .Variables -}}
+  {{ range $key, $value := .Variables -}}
+  {{- if $value.HasValue -}}
   {{ $key }} = jsondecode({{ $value.Value | to_json_string }})
-  {{- end }}{{ end }}
-
+  {{- end -}}
+  {{- end }}
+  {{ end }}
   providers = {
-    ns = ns.cap_{{ .Id}}
+    ns = ns.{{ .TfModuleName }}
   }
 }
 {{ end }}
@@ -193,6 +205,7 @@ locals {
 {{- range $index, $element := .ExceptNeedsDestroyed }}
     {{ if $index }}, {{ end }}{
       id         = {{ $element.Id }}
+      tfId       = "{{ $element.TfId }}"
       namespace  = "{{ $element.Namespace }}"
       env_prefix = "{{ $element.EnvPrefix }}"
       outputs    = {{ $element.TfModuleAddr }}
@@ -210,7 +223,7 @@ locals {
 
   cap_secrets = merge([
     for mod in local.cap_modules : {
-      for item in lookup(mod.outputs, "secrets", []) : "${mod.env_prefix}${item.name}" => item.value
+      for item in lookup(mod.outputs, "secrets", []) : "${mod.env_prefix}${item.name}" => sensitive(item.value)
     }
   ]...)
 }

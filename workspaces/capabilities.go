@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"gopkg.in/nullstone-io/go-api-client.v0/artifacts"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"io/ioutil"
 	"os"
 	"strings"
 	"text/template"
+
+	"gopkg.in/nullstone-io/go-api-client.v0/artifacts"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
 var (
@@ -54,7 +54,7 @@ func (g CapabilitiesGenerator) Generate(runConfig types.RunConfig) error {
 		return fmt.Errorf("error retrieving current configuration of capabilities: %w", err)
 	}
 
-	rawTemplateContent, err := ioutil.ReadFile(g.TemplateFilename)
+	rawTemplateContent, err := os.ReadFile(g.TemplateFilename)
 	if err != nil {
 		return fmt.Errorf("error reading capabilities template file: %w", err)
 	}
@@ -69,7 +69,7 @@ func (g CapabilitiesGenerator) Generate(runConfig types.RunConfig) error {
 		return fmt.Errorf("error executing capabilities template: %w", err)
 	}
 
-	if err := ioutil.WriteFile(g.TargetFilename, content.Bytes(), 0644); err != nil {
+	if err := os.WriteFile(g.TargetFilename, content.Bytes(), 0644); err != nil {
 		return fmt.Errorf("error writing %q: %s", g.TargetFilename, err)
 	}
 	return nil
