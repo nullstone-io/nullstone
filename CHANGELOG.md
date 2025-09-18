@@ -1,3 +1,7 @@
+# 0.0.144 (Sep 18, 2025)
+* Added `TfId` for Terraform generation of capabilities.
+* Updated Terraform templates to use `TfId` when running `nullstone modules generate`.
+
 # 0.0.143 (Sep 01, 2025)
 * Added support for subdomain configuration for `nullstone iac` commands.
 * Improved output format for `nullstone iac test`.
