@@ -49,6 +49,28 @@ func Process(ctx context.Context, cfg api.Config, curDir string, w io.Writer, st
 	}
 
 	finder := config.NewIacFinder(pmr.Config, pmr.GetOverrides(env), stack.Id, env.Id)
+	if errs := iac.Initialize(ctx, pmr, resolver); len(errs) > 0 {
+		colorstring.Fprintf(w, "[bold]Detected errors when initializing Nullstone IaC files[reset]\n")
+		for _, err := range errs {
+			relFilename, _ := filepath.Rel(curDir, err.IacContext.Filename)
+			colorstring.Fprintf(w, "    [red]✖[reset] (%s) %s => %s\n", relFilename, err.ObjectPathContext.Context(), err.ErrorMessage)
+		}
+		fmt.Fprintln(w)
+		return fmt.Errorf("IaC files are invalid.")
+	} else {
+		colorstring.Fprintln(w, "    [green]✔[reset] Initialization completed successfully.")
+	}
+	if errs := iac.Normalize(ctx, pmr, resolver); len(errs) > 0 {
+		colorstring.Fprintf(w, "    [bold]Detected errors when validating connections in Nullstone IaC files[reset]\n")
+		for _, err := range errs {
+			relFilename, _ := filepath.Rel(curDir, err.IacContext.Filename)
+			colorstring.Fprintf(w, "        [red]✖[reset] (%s) %s => %s\n", relFilename, err.ObjectPathContext.Context(), err.ErrorMessage)
+		}
+		fmt.Fprintln(w)
+		return fmt.Errorf("IaC files are invalid.")
+	} else {
+		colorstring.Fprintln(w, "    [green]✔[reset] Connection validation completed successfully.")
+	}
 	if errs := iac.Resolve(ctx, pmr, resolver, finder); len(errs) > 0 {
 		colorstring.Fprintf(w, "[bold]Detected errors when resolving Nullstone IaC files[reset]\n")
 		for _, err := range errs {
@@ -60,7 +82,6 @@ func Process(ctx context.Context, cfg api.Config, curDir string, w io.Writer, st
 	} else {
 		colorstring.Fprintln(w, "    [green]✔[reset] Resolution completed successfully.")
 	}
-
 	if errs := iac.Validate(pmr); len(errs) > 0 {
 		colorstring.Fprintf(w, "    [bold]Detected errors when validating Nullstone IaC files[reset]\n")
 		for _, err := range errs {
@@ -71,18 +92,6 @@ func Process(ctx context.Context, cfg api.Config, curDir string, w io.Writer, st
 		return fmt.Errorf("IaC files are invalid.")
 	} else {
 		colorstring.Fprintln(w, "    [green]✔[reset] Validation completed successfully.")
-	}
-
-	if errs := iac.Normalize(ctx, pmr, resolver); len(errs) > 0 {
-		colorstring.Fprintf(w, "    [bold]Detected errors when validating connections in Nullstone IaC files[reset]\n")
-		for _, err := range errs {
-			relFilename, _ := filepath.Rel(curDir, err.IacContext.Filename)
-			colorstring.Fprintf(w, "        [red]✖[reset] (%s) %s => %s\n", relFilename, err.ObjectPathContext.Context(), err.ErrorMessage)
-		}
-		fmt.Fprintln(w)
-		return fmt.Errorf("IaC files are invalid.")
-	} else {
-		colorstring.Fprintln(w, "    [green]✔[reset] Connection validation completed successfully.")
 	}
 	fmt.Fprintln(w)
 
