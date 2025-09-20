@@ -165,8 +165,8 @@ locals {
 	capabilitiesTfTmplFilename = "capabilities.tf.tmpl"
 	capabilitiesTfTmpl         = `{{ range . -}}
 provider "ns" {
-  capability_id = {{ .Id }}
-  alias         = "{{ .TfModuleName }}"
+  capability_name = {{ .Name }}
+  alias           = "{{ .TfModuleName }}"
 }
 
 module "{{ .TfModuleName }}" {
@@ -204,7 +204,7 @@ locals {
   cap_modules = [
 {{- range $index, $element := .ExceptNeedsDestroyed }}
     {{ if $index }}, {{ end }}{
-      id         = {{ $element.Id }}
+      name       = {{ $element.Name }}
       tfId       = "{{ $element.TfId }}"
       namespace  = "{{ $element.Namespace }}"
       env_prefix = "{{ $element.EnvPrefix }}"
