@@ -204,7 +204,7 @@ locals {
   cap_modules = [
 {{- range $index, $element := .ExceptNeedsDestroyed }}
     {{ if $index }}, {{ end }}{
-      name       = {{ $element.Name }}
+      name       = "{{ $element.Name }}"
       tfId       = "{{ $element.TfId }}"
       namespace  = "{{ $element.Namespace }}"
       env_prefix = "{{ $element.EnvPrefix }}"
