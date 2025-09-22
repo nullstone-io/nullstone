@@ -176,13 +176,10 @@ module "{{ .TfModuleName }}" {
   {{- end }}
 
   app_metadata = local.app_metadata
-  {{ if .Variables -}}
-  {{ range $key, $value := .Variables -}}
-  {{- if $value.HasValue -}}
+  {{ range $key, $value := .Variables -}}{{- if $value.HasValue }}
   {{ $key }} = jsondecode({{ $value.Value | to_json_string }})
-  {{- end -}}
-  {{- end }}
-  {{ end }}
+  {{- end -}}{{- end }}
+
   providers = {
     ns = ns.{{ .TfModuleName }}
   }
