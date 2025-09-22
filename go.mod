@@ -6,7 +6,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.39.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.64.0
 	github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.33.3
-	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.50.2
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.50.4
 	github.com/cristalhq/jwt/v3 v3.1.0
 	github.com/go-git/go-git/v5 v5.16.2
 	github.com/gosuri/uilive v0.0.4
