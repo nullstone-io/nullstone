@@ -165,7 +165,7 @@ locals {
 	capabilitiesTfTmplFilename = "capabilities.tf.tmpl"
 	capabilitiesTfTmpl         = `{{ range . -}}
 provider "ns" {
-  capability_name = {{ .Name }}
+  capability_name = "{{ .Name }}"
   alias           = "{{ .TfModuleName }}"
 }
 
