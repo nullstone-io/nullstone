@@ -433,8 +433,8 @@ github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f/go.mod h1:ZdcZmHo+
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
 github.com/nullstone-io/deployment-sdk v0.0.0-20250905174727-cf770029169d h1:lY9Bc3E4it9vf89Zq0iONJn2LO9GsY5SQk/yhPTeRQY=
 github.com/nullstone-io/deployment-sdk v0.0.0-20250905174727-cf770029169d/go.mod h1:ga5kT0jT0B2IlgpAEqgAVCaRGCvtXBDeBekdMk6xqWE=
-github.com/nullstone-io/iac v0.0.0-20250922145139-876093c95df4 h1:AGyowZ5KsT4D8cr2w5Yu1T9JQaseDgSdydQbLzR+mSE=
-github.com/nullstone-io/iac v0.0.0-20250922145139-876093c95df4/go.mod h1:oh2Z/+5jIoBlnUGxPouxh86Avl+5gH2RVKb+q3vEve0=
+github.com/nullstone-io/iac v0.0.0-20250922172952-38ed4863e8dc h1:0H6s6XS0BOHf6S/iwztiUKga6T9H4RzWx456FfWCUY8=
+github.com/nullstone-io/iac v0.0.0-20250922172952-38ed4863e8dc/go.mod h1:oh2Z/+5jIoBlnUGxPouxh86Avl+5gH2RVKb+q3vEve0=
 github.com/nullstone-io/module v0.2.10 h1:wCKrlyxyH9XQW5HliW/V6qNsDgUQxUCcWL60Ojlz+2U=
 github.com/nullstone-io/module v0.2.10/go.mod h1:btQiO0giVWDvvaQ7CLnPmuPPakJc55lAr8OlE1LK6hg=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
