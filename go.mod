@@ -20,9 +20,9 @@ require (
 	golang.org/x/crypto v0.42.0
 	golang.org/x/sync v0.17.0
 	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250917131312-854c712a6d64
-	k8s.io/api v0.34.0
-	k8s.io/apimachinery v0.34.0
-	k8s.io/client-go v0.34.0
+	k8s.io/api v0.34.1
+	k8s.io/apimachinery v0.34.1
+	k8s.io/client-go v0.34.1
 	k8s.io/kubectl v0.32.1
 )
 
