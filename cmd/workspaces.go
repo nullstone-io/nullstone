@@ -60,7 +60,7 @@ var WorkspacesSelect = &cli.Command{
 				return err
 			}
 
-			// TODO: Add support for capability testing --> workspaces.Manifest.CapabilityId
+			// TODO: Add support for capability testing --> workspaces.Manifest.CapabilityName
 
 			targetWorkspace := workspaces.Manifest{
 				OrgName:     cfg.OrgName,

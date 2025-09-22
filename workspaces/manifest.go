@@ -21,7 +21,11 @@ type Manifest struct {
 
 	WorkspaceUid string `json:"workspaceUid" yaml:"workspace_uid"`
 
+	// CapabilityId
+	// Deprecated
 	CapabilityId int64 `json:"capabilityId,omitempty" yaml:"capability_id,omitempty"`
+
+	CapabilityName string `json:"capabilityName,omitempty" yaml:"capability_name,omitempty"`
 
 	Connections ManifestConnections `json:"connections" yaml:"connections"`
 }

@@ -165,8 +165,8 @@ locals {
 	capabilitiesTfTmplFilename = "capabilities.tf.tmpl"
 	capabilitiesTfTmpl         = `{{ range . -}}
 provider "ns" {
-  capability_id = {{ .Id }}
-  alias         = "{{ .TfModuleName }}"
+  capability_name = "{{ .Name }}"
+  alias           = "{{ .TfModuleName }}"
 }
 
 module "{{ .TfModuleName }}" {
@@ -176,13 +176,10 @@ module "{{ .TfModuleName }}" {
   {{- end }}
 
   app_metadata = local.app_metadata
-  {{ if .Variables -}}
-  {{ range $key, $value := .Variables -}}
-  {{- if $value.HasValue -}}
+  {{ range $key, $value := .Variables -}}{{- if $value.HasValue }}
   {{ $key }} = jsondecode({{ $value.Value | to_json_string }})
-  {{- end -}}
-  {{- end }}
-  {{ end }}
+  {{- end -}}{{- end }}
+
   providers = {
     ns = ns.{{ .TfModuleName }}
   }
@@ -204,7 +201,7 @@ locals {
   cap_modules = [
 {{- range $index, $element := .ExceptNeedsDestroyed }}
     {{ if $index }}, {{ end }}{
-      id         = {{ $element.Id }}
+      name       = "{{ $element.Name }}"
       tfId       = "{{ $element.TfId }}"
       namespace  = "{{ $element.Namespace }}"
       env_prefix = "{{ $element.EnvPrefix }}"
