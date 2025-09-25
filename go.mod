@@ -21,7 +21,7 @@ require (
 	golang.org/x/sync v0.17.0
 	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250922133652-cb0e5726b6e2
 	k8s.io/api v0.34.0
-	k8s.io/apimachinery v0.34.0
+	k8s.io/apimachinery v0.34.1
 	k8s.io/client-go v0.34.0
 	k8s.io/kubectl v0.32.1
 )
