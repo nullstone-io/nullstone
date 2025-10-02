@@ -40,6 +40,7 @@ func PackageModule(dir, filename string, patterns []string, excludeFn func(entry
 		if err != nil {
 			return fmt.Errorf("error deciphering relative path of tar file: %w", err)
 		}
+		relPath = filepath.ToSlash(relPath) // Normalize to POSIX path separator
 		header, err := tar.FileInfoHeader(entry.Info, relPath)
 		if err != nil {
 			return fmt.Errorf("error creating file header %s: %w", relPath, err)

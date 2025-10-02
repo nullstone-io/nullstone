@@ -1,3 +1,6 @@
+# 0.0.146 (Oct 02, 2025)
+* Fixed packaging of nullstone modules with `--include` on Windows.
+
 # 0.0.145 (Sep 22, 2025)
 * Updated `nullstone modules generate` to identify capabilities by `Name` instead of by `Id`.
 
