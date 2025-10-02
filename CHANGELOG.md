@@ -6,6 +6,7 @@
 * Added support for `includes: []` in `.nullstone/module.yml` to specify additional files to include when packaging a module.
 * Added `SourceUrl` to module to allow users to link to the source code of the module.
 * Updated `nullstone workspaces select` to detect tool name from module manifest when initializing (e.g. `terraform init`, `tofu init`).
+* Fixed packaging of nullstone modules with `--include` on Windows.
 
 # 0.0.160 (Feb 09, 2026)
 * Fixed nil panic when performing `nullstone run` with `--env-var`.
