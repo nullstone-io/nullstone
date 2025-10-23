@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
@@ -14,6 +15,11 @@ import (
 
 // Push command performs a docker push to an authenticated image registry configured against an app/container
 var Push = func(providers app.Providers) *cli.Command {
+	skipWhenExistsFlag := &cli.BoolFlag{
+		Name:  "skip-when-exists",
+		Usage: "Skip pushing if the artifact already exists in the registry",
+	}
+
 	return &cli.Command{
 		Name:        "push",
 		Description: "Upload (push) an artifact containing the source for your application. Specify a semver version to associate with the artifact. The version specified can be used in the deploy command to select this artifact.",
@@ -25,18 +31,31 @@ var Push = func(providers app.Providers) *cli.Command {
 			OldEnvFlag,
 			AppSourceFlag,
 			AppVersionFlag,
+			skipWhenExistsFlag,
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
 				osWriters := CliOsWriters{Context: c}
 				source, version := c.String("source"), c.String("version")
+				skipWhenExists := c.IsSet(skipWhenExistsFlag.Name)
 
 				pusher, err := getPusher(providers, cfg, appDetails)
 				if err != nil {
 					return err
 				}
 
-				if version == "" {
+				if skipWhenExists {
+					fmt.Fprintf(osWriters.Stderr(), "Checking to see if artifact version already exists...\n")
+					info, err := version2.GetExistingVersion(ctx, pusher, version)
+					if err != nil {
+						return fmt.Errorf("error checking if version already exists: %w", err)
+					} else if info != nil {
+						fmt.Fprintln(osWriters.Stderr(), "App artifact already exists. Skipped push.")
+						fmt.Fprintln(osWriters.Stderr(), "")
+						return nil
+					}
+					version = info.Version
+				} else if version == "" {
 					fmt.Fprintf(osWriters.Stderr(), "No version specified. Defaulting version based on current git commit sha...\n")
 					info, err := version2.CalcNew(ctx, pusher)
 					if err != nil {

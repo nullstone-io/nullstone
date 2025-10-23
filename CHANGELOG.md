@@ -1,3 +1,6 @@
+# 0.0.146 (Oct 23, 2025)
+* Added `--skip-when-exists` flag to `nullstone push` that will skip pushing an image if it already exists in the app's registry.
+
 # 0.0.145 (Sep 22, 2025)
 * Updated `nullstone modules generate` to identify capabilities by `Name` instead of by `Id`.
 
