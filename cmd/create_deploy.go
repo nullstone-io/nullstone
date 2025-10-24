@@ -3,18 +3,20 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/nullstone-io/deployment-sdk/app"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"os"
+	"gopkg.in/nullstone-io/nullstone.v0/artifacts"
 )
 
-func CreateDeploy(nsConfig api.Config, appDetails app.Details, commitSha, version string) (*api.DeployCreateResult, error) {
+func CreateDeploy(nsConfig api.Config, appDetails app.Details, info artifacts.VersionInfo) (*api.DeployCreateResult, error) {
 	ctx := context.TODO()
 	client := api.Client{Config: nsConfig}
 	payload := api.DeployCreatePayload{
 		FromSource:     false,
-		Version:        version,
-		CommitSha:      commitSha,
+		Version:        info.EffectiveVersion,
+		CommitSha:      info.CommitInfo.CommitSha,
 		AutomationTool: detectAutomationTool(),
 	}
 	result, err := client.Deploys().Create(ctx, appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id, payload)

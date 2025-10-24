@@ -3,6 +3,8 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/mitchellh/colorstring"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
@@ -10,11 +12,16 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/go-api-client.v0/ws"
-	version2 "gopkg.in/nullstone-io/nullstone.v0/version"
-	"time"
+	"gopkg.in/nullstone-io/nullstone.v0/artifacts"
 )
 
 var Deploy = func(providers app.Providers) *cli.Command {
+	waitFlag := &cli.BoolFlag{
+		Name:    "wait",
+		Aliases: []string{"w"},
+		Usage:   "Wait for the deploy to complete and stream the logs to the console.",
+	}
+
 	return &cli.Command{
 		Name:        "deploy",
 		Description: "Deploy a new version of your code for this application. This command works in tandem with the `nullstone push` command. This command deploys the artifacts that were uploaded during the `push` command.",
@@ -25,36 +32,20 @@ var Deploy = func(providers app.Providers) *cli.Command {
 			AppFlag,
 			OldEnvFlag,
 			AppVersionFlag,
-			&cli.BoolFlag{
-				Name:    "wait",
-				Aliases: []string{"w"},
-				Usage:   "Wait for the deploy to complete and stream the logs to the console.",
-			},
+			waitFlag,
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
 				osWriters := CliOsWriters{Context: c}
-				version, wait := c.String("version"), c.IsSet("wait")
+				wait := c.IsSet(waitFlag.Name)
 
-				commitSha := ""
-				if version == "" {
-					fmt.Fprintf(osWriters.Stderr(), "No version specified. Defaulting version based on current git commit sha...\n")
-					pusher, err := getPusher(providers, cfg, appDetails)
-					if err != nil {
-						return err
-					}
-
-					info, err := version2.GetCurrent(ctx, pusher)
-					if err != nil {
-						return err
-					}
-					version = info.Version
-					commitSha = info.CommitSha
-					fmt.Fprintf(osWriters.Stderr(), "Version defaulted to: %s\n", version)
+				info, err := calcDeployInfo(ctx, c)
+				if err != nil {
+					return err
 				}
 
 				fmt.Fprintln(osWriters.Stderr(), "Creating deploy...")
-				result, err := CreateDeploy(cfg, appDetails, commitSha, version)
+				result, err := CreateDeploy(cfg, appDetails, info)
 				if err != nil {
 					return err
 				}
@@ -69,6 +60,25 @@ var Deploy = func(providers app.Providers) *cli.Command {
 			})
 		},
 	}
+}
+
+func calcDeployInfo(ctx context.Context, c *cli.Context) (artifacts.VersionInfo, error) {
+	osWriters := CliOsWriters{Context: c}
+	stderr := osWriters.Stderr()
+	version := c.String(AppVersionFlag.Name)
+
+	if version == "" {
+		fmt.Fprintf(stderr, "No version specified. Defaulting version based on current git commit sha...\n")
+	}
+	info, err := artifacts.GetVersionInfoFromWorkingDir(version)
+	if err != nil {
+		return info, err
+	}
+	if version == "" {
+		fmt.Fprintf(stderr, "Version defaulted to %q\n", info.DesiredVersion)
+	}
+
+	return info, nil
 }
 
 func streamDeployLogs(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, deploy types.Deploy, wait bool) error {

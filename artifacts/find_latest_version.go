@@ -1,15 +1,15 @@
-package version
+package artifacts
 
 import (
 	"strconv"
 	"strings"
 )
 
-// FindLatestVersionSequence takes the provided shortSha and finds any versions in the list of artifacts
+// FindLatestVersionSequence takes the provided shortSha and finds any versions in the list of artifacts.
 //
 //	a match is any artifact that starts with the shortSha
 //	this will return the largest sequence number found
-//	if no matches are found, this will return 0
+//	if no matches are found, this will return -1
 func FindLatestVersionSequence(shortSha string, artifacts []string) int {
 	sequence := -1
 	for _, artifact := range artifacts {
