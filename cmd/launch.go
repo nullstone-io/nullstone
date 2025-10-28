@@ -3,10 +3,10 @@ package cmd
 import (
 	"context"
 	"fmt"
+
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	version2 "gopkg.in/nullstone-io/nullstone.v0/version"
 )
 
 // Launch command performs push, deploy, and logs
@@ -28,36 +28,33 @@ var Launch = func(providers app.Providers) *cli.Command {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
 				osWriters := CliOsWriters{Context: c}
 				stderr := osWriters.Stderr()
-				source, version := c.String("source"), c.String("version")
+				source := c.String(AppSourceFlag.Name)
 
 				pusher, err := getPusher(providers, cfg, appDetails)
 				if err != nil {
 					return err
 				}
 
-				commitSha := ""
-				if version == "" {
-					fmt.Fprintf(stderr, "No version specified. Defaulting version based on current git commit sha...\n")
-					info, err := version2.CalcNew(ctx, pusher)
-					if err != nil {
-						return err
-					}
-					version = info.Version
-					commitSha = info.CommitSha
-					fmt.Fprintf(stderr, "Version defaulted to: %s\n", version)
-				}
-
-				if err := recordArtifact(ctx, osWriters, cfg, appDetails, version); err != nil {
-					return err
-				}
-
-				err = push(ctx, osWriters, pusher, source, version)
+				info, skipPush, err := calcPushInfo(ctx, c, pusher)
 				if err != nil {
 					return err
 				}
 
+				if skipPush {
+					fmt.Fprintln(osWriters.Stderr(), "App artifact already exists. Skipped push.")
+					fmt.Fprintln(osWriters.Stderr(), "")
+					return nil
+				} else {
+					if err := recordArtifact(ctx, osWriters, cfg, appDetails, info); err != nil {
+						return err
+					}
+					if err := push(ctx, osWriters, pusher, source, info); err != nil {
+						return err
+					}
+				}
+
 				fmt.Fprintln(stderr, "Creating deploy...")
-				result, err := CreateDeploy(cfg, appDetails, commitSha, version)
+				result, err := CreateDeploy(cfg, appDetails, info)
 				if err != nil {
 					return err
 				}

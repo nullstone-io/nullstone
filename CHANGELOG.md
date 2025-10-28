@@ -1,3 +1,7 @@
+# 0.0.146 (Oct 28, 2025)
+* Changed `nullstone push` to skip pushing an artifact if the desired version already exists in the app's registry.
+* Added `--unique` flag to `nullstone push` that will always push an image to the app's registry.
+
 # 0.0.145 (Sep 22, 2025)
 * Updated `nullstone modules generate` to identify capabilities by `Name` instead of by `Id`.
 
