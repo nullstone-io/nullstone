@@ -44,9 +44,15 @@ var Push = func(providers app.Providers) *cli.Command {
 					return err
 				}
 
-				info, err := calcPushInfo(ctx, c, pusher)
+				info, skip, err := calcPushInfo(ctx, c, pusher)
 				if err != nil {
 					return err
+				}
+
+				if skip {
+					fmt.Fprintln(osWriters.Stderr(), "App artifact already exists. Skipped push.")
+					fmt.Fprintln(osWriters.Stderr(), "")
+					return nil
 				}
 
 				if err := recordArtifact(ctx, osWriters, cfg, appDetails, info); err != nil {
@@ -70,7 +76,9 @@ func getPusher(providers app.Providers, cfg api.Config, appDetails app.Details) 
 	return pusher, nil
 }
 
-func calcPushInfo(ctx context.Context, c *cli.Context, pusher app.Pusher) (artifacts.VersionInfo, error) {
+// calcPushInfo calculates version and commit info to push an artifact
+// This also returns whether we should skip pushing the artifact
+func calcPushInfo(ctx context.Context, c *cli.Context, pusher app.Pusher) (artifacts.VersionInfo, bool, error) {
 	osWriters := CliOsWriters{Context: c}
 	stderr := osWriters.Stderr()
 	version, unique := c.String(AppVersionFlag.Name), c.IsSet(UniquePushFlag.Name)
@@ -80,28 +88,24 @@ func calcPushInfo(ctx context.Context, c *cli.Context, pusher app.Pusher) (artif
 	}
 	info, err := artifacts.GetVersionInfoFromWorkingDir(version)
 	if err != nil {
-		return info, err
+		return info, false, err
 	}
 	if version == "" {
-		fmt.Fprintf(stderr, "Version defaulted to %q\n", info.DesiredVersion)
+		fmt.Fprintf(stderr, "Version defaulted to %q.\n", info.DesiredVersion)
 	}
 
 	deconflictor, err := artifacts.NewVersionDeconflictor(ctx, pusher)
 	if err != nil {
-		return info, fmt.Errorf("error reading artifact registry: %w", err)
+		return info, false, fmt.Errorf("error reading artifact registry: %w", err)
 	}
 
 	if unique {
 		info.EffectiveVersion = deconflictor.CreateUnique(info.DesiredVersion)
 		fmt.Fprintf(stderr, "Artifacts matching %q exist in artifact registry. Changing version to %q.\n", info.DesiredVersion, info.EffectiveVersion)
-	} else if deconflictor.DoesVersionExist(info.DesiredVersion) {
-		fmt.Fprintln(stderr, "App artifact already exists. Skipped push.")
-		fmt.Fprintln(stderr, "")
-		return info, nil
-	} else {
-		info.EffectiveVersion = info.DesiredVersion
+		return info, false, nil
 	}
-	return info, nil
+	info.EffectiveVersion = info.DesiredVersion
+	return info, deconflictor.DoesVersionExist(info.DesiredVersion), nil
 }
 
 func recordArtifact(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, appDetails app.Details, info artifacts.VersionInfo) error {

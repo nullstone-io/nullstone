@@ -35,18 +35,22 @@ var Launch = func(providers app.Providers) *cli.Command {
 					return err
 				}
 
-				info, err := calcPushInfo(ctx, c, pusher)
+				info, skipPush, err := calcPushInfo(ctx, c, pusher)
 				if err != nil {
 					return err
 				}
 
-				if err := recordArtifact(ctx, osWriters, cfg, appDetails, info); err != nil {
-					return err
-				}
-
-				err = push(ctx, osWriters, pusher, source, info)
-				if err != nil {
-					return err
+				if skipPush {
+					fmt.Fprintln(osWriters.Stderr(), "App artifact already exists. Skipped push.")
+					fmt.Fprintln(osWriters.Stderr(), "")
+					return nil
+				} else {
+					if err := recordArtifact(ctx, osWriters, cfg, appDetails, info); err != nil {
+						return err
+					}
+					if err := push(ctx, osWriters, pusher, source, info); err != nil {
+						return err
+					}
 				}
 
 				fmt.Fprintln(stderr, "Creating deploy...")
