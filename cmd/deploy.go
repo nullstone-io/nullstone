@@ -74,6 +74,7 @@ func calcDeployInfo(ctx context.Context, c *cli.Context) (artifacts.VersionInfo,
 	if err != nil {
 		return info, err
 	}
+	info.EffectiveVersion = info.DesiredVersion
 	if version == "" {
 		fmt.Fprintf(stderr, "Version defaulted to %q.\n", info.DesiredVersion)
 	}
