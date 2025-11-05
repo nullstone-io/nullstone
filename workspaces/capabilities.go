@@ -2,13 +2,19 @@ package workspaces
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"maps"
 	"os"
+	"slices"
 	"strings"
 	"text/template"
 
+	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/artifacts"
+	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
@@ -41,6 +47,7 @@ type CapabilitiesGenerator struct {
 	Manifest         Manifest
 	TemplateFilename string
 	TargetFilename   string
+	ApiConfig        api.Config
 }
 
 func (g CapabilitiesGenerator) ShouldGenerate() bool {
@@ -49,8 +56,12 @@ func (g CapabilitiesGenerator) ShouldGenerate() bool {
 }
 
 func (g CapabilitiesGenerator) Generate(runConfig types.RunConfig) error {
-	capabilities, err := g.transformCapabilities(runConfig)
-	if err != nil {
+	capabilities := runConfig.Capabilities
+	var err error
+	if capabilities, err = g.backfillMeta(capabilities); err != nil {
+		return fmt.Errorf("error filling capability meta: %w", err)
+	}
+	if capabilities, err = g.transformCapabilities(capabilities); err != nil {
 		return fmt.Errorf("error retrieving current configuration of capabilities: %w", err)
 	}
 
@@ -75,19 +86,54 @@ func (g CapabilitiesGenerator) Generate(runConfig types.RunConfig) error {
 	return nil
 }
 
-func (g CapabilitiesGenerator) transformCapabilities(runConfig types.RunConfig) (types.CapabilityConfigs, error) {
+func (g CapabilitiesGenerator) transformCapabilities(capabilities types.CapabilityConfigs) (types.CapabilityConfigs, error) {
 	// Terraform assumes that module source has a host of `registry.terraform.io` if not specified
 	// We are going to override that behavior to presume `api.nullstone.io` instead
-	capabilities := runConfig.Capabilities
-	for i, capability := range capabilities {
+	result := make(types.CapabilityConfigs, 0)
+	for _, capability := range capabilities {
 		if ms, err := artifacts.ParseSource(capability.Source); err == nil {
 			if ms.Host == "" {
 				// Set the module source host to api.nullstone.io without the URI scheme
 				ms.Host = strings.TrimPrefix(strings.TrimPrefix(g.RegistryAddress, "https://"), "http://")
 				capability.Source = ms.String()
-				capabilities[i] = capability
 			}
 		}
+		result = append(result, capability)
 	}
-	return capabilities, nil
+	return result, nil
+}
+
+func (g CapabilitiesGenerator) backfillMeta(capabilities types.CapabilityConfigs) (types.CapabilityConfigs, error) {
+	errs := make([]error, 0)
+	result := make(types.CapabilityConfigs, 0)
+	for _, cur := range capabilities {
+		meta, err := g.resolveCapabilityMeta(cur)
+		if err != nil {
+			errs = append(errs, err)
+		}
+		cur.Meta = meta
+		result = append(result, cur)
+	}
+	return result, errors.Join(errs...)
+}
+
+func (g CapabilitiesGenerator) resolveCapabilityMeta(cur types.CapabilityConfig) (*types.CapabilityConfigMeta, error) {
+	ctx := context.Background()
+	mod, err := find.Module(ctx, g.ApiConfig, cur.Source)
+	if err != nil {
+		return nil, err
+	}
+	meta := &types.CapabilityConfigMeta{
+		Subcategory: mod.Subcategory,
+		Platform:    mod.Platform,
+		Subplatform: mod.Subplatform,
+	}
+
+	mv, err := find.ModuleVersion(ctx, g.ApiConfig, cur.Source, cur.SourceVersion)
+	if err != nil {
+		return nil, err
+	}
+	meta.OutputNames = slices.Collect(maps.Keys(mv.Manifest.Outputs))
+
+	return meta, nil
 }

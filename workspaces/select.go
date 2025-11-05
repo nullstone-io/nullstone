@@ -3,12 +3,13 @@ package workspaces
 import (
 	"context"
 	"fmt"
-	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"gopkg.in/nullstone-io/nullstone.v0/git"
 	"log"
 	"path"
 	"strings"
+
+	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/git"
 )
 
 var (
@@ -49,6 +50,7 @@ func Select(ctx context.Context, cfg api.Config, workspace Manifest, runConfig t
 		Manifest:         workspace,
 		TemplateFilename: "capabilities.tf.tmpl",
 		TargetFilename:   "capabilities.tf",
+		ApiConfig:        cfg,
 	}
 	if capGenerator.ShouldGenerate() {
 		fmt.Printf("Generating %q from %q\n", capGenerator.TargetFilename, capGenerator.TemplateFilename)
