@@ -1,4 +1,4 @@
-# 0.0.148 (Nov 05, 2025)
+# 0.0.148 (Nov 06, 2025)
 * Updated `workspaces select` command to generate `capabilities` with `meta` that contains additional information about the capability.
 
 # 0.0.147 (Oct 29, 2025)
