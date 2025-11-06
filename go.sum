@@ -744,8 +744,8 @@ gopkg.in/fsnotify.v1 v1.4.7/go.mod h1:Tz8NjZHkW78fSQdbUxIjBTcgA1z1m8ZHf0WmKUhAMy
 gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2/go.mod h1:Xk6kEKp8OKb+X14hQBKWaSkCsqBpgog8nAV2xsGOxlo=
 gopkg.in/inf.v0 v0.9.1 h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
 gopkg.in/inf.v0 v0.9.1/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250922133652-cb0e5726b6e2 h1:dE+37jlj+2M9UxfTrsb/FPGMp3ke19uGzi3fm1odP+M=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20250922133652-cb0e5726b6e2/go.mod h1:Bj01hknD135uWb7j+9EIcE775ZXYv9pWSXdryTHMrhM=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20251105201937-c571247eeee2 h1:yLbco/NW9rBr2hCj0XK1cISNhQbThvcSdcaWSvqMWh8=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20251105201937-c571247eeee2/go.mod h1:Bj01hknD135uWb7j+9EIcE775ZXYv9pWSXdryTHMrhM=
 gopkg.in/rethinkdb/rethinkdb-go.v6 v6.2.1 h1:d4KQkxAaAiRY2h5Zqis161Pv91A37uZyJOx73duwUwM=
 gopkg.in/rethinkdb/rethinkdb-go.v6 v6.2.1/go.mod h1:WbjuEoo1oadwzQ4apSDU+JTvmllEHtsNHS6y7vFc7iw=
 gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7/go.mod h1:dt/ZhP58zS4L8KSrWDmTeBkI65Dw0HsyUHuEVlX15mw=

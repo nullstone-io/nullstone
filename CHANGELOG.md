@@ -1,3 +1,6 @@
+# 0.0.148 (Nov 06, 2025)
+* Updated `workspaces select` command to generate `capabilities` with `meta` that contains additional information about the capability.
+
 # 0.0.147 (Oct 29, 2025)
 * Fixed bug in `nullstone deploy` when a user doesn't specify `--version` flag.
 
