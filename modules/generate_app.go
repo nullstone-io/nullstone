@@ -45,6 +45,13 @@ EOF
 }
 
 locals {
+  cap_env_vars = {
+    for item in local.capabilities.env : "${local.cap_env_prefixes[item.cap_tf_id]}${item.name}" => item.value
+  }
+  cap_secrets = {
+    for item in local.capabilities.secrets : "${local.cap_env_prefixes[item.cap_tf_id]}${item.name}" => sensitive(item.value)
+  }
+
   standard_env_vars = tomap({
     NULLSTONE_STACK         = data.ns_workspace.this.stack_name
     NULLSTONE_APP           = data.ns_workspace.this.block_name
@@ -54,7 +61,7 @@ locals {
     NULLSTONE_PUBLIC_HOSTS  = join(",", local.public_hosts)
     NULLSTONE_PRIVATE_HOSTS = join(",", local.private_hosts)
   })
-  
+
   input_env_vars    = merge(local.standard_env_vars, local.cap_env_vars, var.env_vars)
   input_secrets     = merge(local.cap_secrets, var.secrets)
   input_secret_keys = nonsensitive(concat(keys(local.cap_secrets), keys(var.secrets)))
@@ -89,10 +96,10 @@ locals {
   // Typically, they are created through capabilities attached to the application
   // If this module has URLs, add them here as list(string)
   additional_private_urls = []
-  additional_public_urls = []
+  additional_public_urls  = []
 
-  private_urls = concat([for url in try(local.capabilities.private_urls, []) : url["url"]], local.additional_private_urls)
-  public_urls  = concat([for url in try(local.capabilities.public_urls, []) : url["url"]], local.additional_public_urls)
+  private_urls = concat([for cur in local.capabilities.private_urls : cur.url], local.additional_private_urls)
+  public_urls  = concat([for cur in local.capabilities.public_urls : cur.url], local.additional_public_urls)
 }
 
 locals {
@@ -137,13 +144,52 @@ output "public_urls" {
 	capabilitiesTf         = `// This file is replaced by code-generation using 'capabilities.tf.tmpl'
 // This file helps app module creators define a contract for what types of capability outputs are supported.
 locals {
+  cap_modules = [
+    {
+      name       = ""
+      tfId       = ""
+      namespace  = ""
+      env_prefix = ""
+      outputs    = {}
+
+      meta = {
+        subcategory = ""
+        platform    = ""
+        subplatform = ""
+        outputNames = []
+      }
+    }
+  ]
+
+  // cap_env_prefixes is a map indexed by tfId which points to the env_prefix in local.cap_modules
+  cap_env_prefixes = tomap({
+    x = ""
+  })
+
   capabilities = {
+    env = [
+      {
+        cap_tf_id = "x"
+        name      = ""
+        value     = ""
+      }
+    ]
+
+    secrets = [
+      {
+        cap_tf_id = "x"
+        name      = ""
+        value     = sensitive("")
+      }
+    ]
+
     // private_urls follows a wonky syntax so that we can send all capability outputs into the merge module
     // Terraform requires that all members be of type list(map(any))
     // They will be flattened into list(string) when we output from this module
     private_urls = [
       {
-        url = ""
+        cap_tf_id = "x"
+        url       = "http://example"
       }
     ]
 
@@ -152,13 +198,39 @@ locals {
     // They will be flattened into list(string) when we output from this module
     public_urls = [
       {
-        url = ""
+        cap_tf_id = "x"
+        url       = "https://example.com"
+      }
+    ]
+
+    // metrics allows capabilities to attach metrics to the application
+    // These metrics are displayed on the Application Monitoring page
+    // See https://docs.nullstone.io/extending/metrics/overview.html
+    metrics = [
+      {
+        cap_tf_id = "x"
+        name      = ""
+        type      = "usage|usage-percent|duration|generic"
+        unit      = ""
+
+        mappings = jsonencode({})
       }
     ]
   }
+}
+`
 
-  cap_env_vars = {}
-  cap_secrets  = {}
+	capabilityOutputsTfFilename = "capability_outputs.tf"
+	capabilityOutputsTf         = `locals {
+  // This indicates which outputs are supported by this app module
+  // When adding support for a new output, add it to this list; the output will be available at "local.capabilities.<output_name>"
+  capability_output_names = [
+    "env",
+    "secrets",
+    "private_urls",
+    "public_urls",
+    "metrics",
+  ]
 }
 `
 
@@ -185,19 +257,8 @@ module "{{ .TfModuleName }}" {
   }
 }
 {{ end }}
-module "caps" {
-  source  = "nullstone-modules/cap-merge/ns"
-  modules = local.modules
-}
 
 locals {
-  modules      = [
-{{- range $index, $element := .ExceptNeedsDestroyed.TfModuleAddrs -}}
-{{ if $index }}, {{ end }}{{ $element }}
-{{- end -}}
-]
-  capabilities = module.caps.outputs
-
   cap_modules = [
 {{- range $index, $element := .ExceptNeedsDestroyed }}
     {{ if $index }}, {{ end }}{
@@ -206,23 +267,21 @@ locals {
       namespace  = "{{ $element.Namespace }}"
       env_prefix = "{{ $element.EnvPrefix }}"
       outputs    = {{ $element.TfModuleAddr }}
+
+      meta = jsondecode({{ $element.Meta | to_json_string }})
     }
 {{- end }}
   ]
-}
 
-locals {
-  cap_env_vars = merge([
-    for mod in local.cap_modules : {
-      for item in lookup(mod.outputs, "env", []) : "${mod.env_prefix}${item.name}" => item.value
-    }
-  ]...)
+  cap_env_prefixes = {
+    for mod in local.cap_modules : mod.tfId => mod.env_prefix
+  }
 
-  cap_secrets = merge([
-    for mod in local.cap_modules : {
-      for item in lookup(mod.outputs, "secrets", []) : "${mod.env_prefix}${item.name}" => sensitive(item.value)
-    }
-  ]...)
+  capabilities = {
+    for outputName in local.capability_output_names : outputName => flatten([
+      for mod in local.cap_modules : [ for x in lookup(mod.outputs, outputName, []) : merge({ cap_tf_id = mod.tfId }, x) ] if contains(try(mod.meta.outputNames, []), outputName)
+    ])
+  }
 }
 `
 )
@@ -246,6 +305,9 @@ func generateApp(manifest *types.ModuleManifest) error {
 		return err
 	}
 	if err := generateFile(appOutputsTfFilename, appOutputsTf); err != nil {
+		return err
+	}
+	if err := generateFile(capabilityOutputsTfFilename, capabilityOutputsTf); err != nil {
 		return err
 	}
 	return generateFile(capabilitiesTfTmplFilename, capabilitiesTfTmpl)

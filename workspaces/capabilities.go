@@ -134,6 +134,9 @@ func (g CapabilitiesGenerator) resolveCapabilityMeta(cur types.CapabilityConfig)
 		return nil, err
 	}
 	meta.OutputNames = slices.Collect(maps.Keys(mv.Manifest.Outputs))
+	if meta.OutputNames == nil {
+		meta.OutputNames = make([]string, 0)
+	}
 
 	return meta, nil
 }
