@@ -3,13 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
-	"os"
 )
 
 var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Command {
@@ -52,7 +53,7 @@ var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Comma
 					return err
 				}
 				options := admin.RunOptions{
-					Container:   c.String("container"),
+					Container:   c.String(ContainerFlag.Name),
 					Username:    user.Name,
 					LogStreamer: logStreamer,
 					LogEmitter:  app.NewWriterLogEmitter(os.Stdout),

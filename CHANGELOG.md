@@ -1,3 +1,6 @@
+# 0.0.150 (Dec 19, 2025)
+* Added app support (`push`, `deploy`, `launch`, `run`, `logs`) for Cloud Run jobs.
+
 # 0.0.149 (Dec 15, 2025)
 * Enable support for GCP service account impersonation when pushing GCP artifacts.
 
