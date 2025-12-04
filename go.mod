@@ -3,6 +3,7 @@ module gopkg.in/nullstone-io/nullstone.v0
 go 1.24.0
 
 require (
+	cloud.google.com/go/run v1.8.1
 	github.com/aws/aws-sdk-go-v2 v1.39.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.64.0
 	github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.33.3
@@ -76,7 +77,6 @@ require (
 	cloud.google.com/go/logging v1.13.0 // indirect
 	cloud.google.com/go/longrunning v0.6.4 // indirect
 	cloud.google.com/go/monitoring v1.23.0 // indirect
-	cloud.google.com/go/run v1.8.1 // indirect
 	cloud.google.com/go/storage v1.47.0 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
