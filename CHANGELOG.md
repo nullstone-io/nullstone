@@ -1,3 +1,6 @@
+# 0.0.149 (Dec 15, 2025)
+* Enable support for GCP service account impersonation when pushing GCP artifacts.
+
 # 0.0.148 (Nov 06, 2025)
 * Updated `workspaces select` command to generate `capabilities` with `meta` that contains additional information about the capability.
 * Updated generated terraform for `modules generate` to optimize capability outputs.
