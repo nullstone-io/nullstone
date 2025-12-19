@@ -12,15 +12,15 @@ require (
 	github.com/go-git/go-git/v5 v5.16.2
 	github.com/gosuri/uilive v0.0.4
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
-	github.com/nullstone-io/deployment-sdk v0.0.0-20251215195325-ea2bf8df2345
-	github.com/nullstone-io/iac v0.0.0-20250922172952-38ed4863e8dc
+	github.com/nullstone-io/deployment-sdk v0.0.0-20251219020910-ce84df02cb98
+	github.com/nullstone-io/iac v0.0.0-20251022110736-dc1cb12c5af7
 	github.com/nullstone-io/module v0.2.10
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/crypto v0.46.0
 	golang.org/x/sync v0.19.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20251105201937-c571247eeee2
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20251209224316-3f2fb93be0ec
 	k8s.io/api v0.34.0
 	k8s.io/apimachinery v0.34.0
 	k8s.io/client-go v0.34.0
