@@ -1,7 +1,6 @@
 package gke
 
 import (
-	"github.com/nullstone-io/deployment-sdk/docker"
 	"github.com/nullstone-io/deployment-sdk/gcp"
 	"github.com/nullstone-io/deployment-sdk/gcp/creds"
 	"github.com/nullstone-io/deployment-sdk/gcp/gke"
@@ -13,7 +12,6 @@ import (
 type Outputs struct {
 	ServiceNamespace  string             `ns:"service_namespace"`
 	ServiceName       string             `ns:"service_name"`
-	ImageRepoUrl      docker.ImageUrl    `ns:"image_repo_url,optional"`
 	Deployer          gcp.ServiceAccount `ns:"deployer"`
 	MainContainerName string             `ns:"main_container_name,optional"`
 	// JobDefinitionName is only specified for a job/task
