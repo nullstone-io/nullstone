@@ -1,3 +1,6 @@
+# 0.0.151 (Dec 19, 2025)
+* Fixed issue generating capabilities template in `workspaces select`; missing env/secrets from capabilities.
+
 # 0.0.150 (Dec 19, 2025)
 * Added app support (`push`, `deploy`, `launch`, `run`, `logs`) for Cloud Run jobs.
 
