@@ -134,6 +134,8 @@ func (g CapabilitiesGenerator) resolveCapabilityMeta(cur types.CapabilityConfig)
 		return nil, err
 	}
 	meta.OutputNames = slices.Collect(maps.Keys(mv.Manifest.Outputs))
+	// env + secrets don't show up in the manifest outputs; we should always include them
+	meta.OutputNames = append(meta.OutputNames, "env", "secrets")
 	if meta.OutputNames == nil {
 		meta.OutputNames = make([]string, 0)
 	}
