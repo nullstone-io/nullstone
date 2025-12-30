@@ -3,6 +3,8 @@ package gke
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/gcp/gke"
 	"github.com/nullstone-io/deployment-sdk/logging"
@@ -10,7 +12,6 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/k8s"
 	"k8s.io/client-go/rest"
-	"os"
 )
 
 var (
@@ -82,6 +83,8 @@ func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string
 		NewConfigFn: func(ctx context.Context) (*rest.Config, error) {
 			return gke.CreateKubeConfig(ctx, r.Infra.ClusterNamespace, r.Infra.Deployer)
 		},
+		Out:    r.OsWriters.Stdout(),
+		ErrOut: r.OsWriters.Stderr(),
 	}
 	return runner.Run(ctx, options, cmd)
 }

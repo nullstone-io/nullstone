@@ -42,13 +42,14 @@ var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Comma
 				}
 
 				source := outputs.ApiRetrieverSource{Config: cfg}
+				osWriters := logging.StandardOsWriters{}
 
-				logStreamer, err := appProviders.FindLogStreamer(ctx, logging.StandardOsWriters{}, source, appDetails)
+				logStreamer, err := appProviders.FindLogStreamer(ctx, osWriters, source, appDetails)
 				if err != nil {
 					return err
 				}
 
-				remoter, err := providers.FindRemoter(ctx, logging.StandardOsWriters{}, source, appDetails)
+				remoter, err := providers.FindRemoter(ctx, osWriters, source, appDetails)
 				if err != nil {
 					return err
 				}

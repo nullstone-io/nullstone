@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"time"
+
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/k8s"
 	"golang.org/x/sync/errgroup"
@@ -11,7 +14,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"time"
 )
 
 const DefaultWatchInterval = 1 * time.Second
@@ -22,6 +24,9 @@ type JobRunner struct {
 	MainContainerName string
 	JobDefinitionName string
 	NewConfigFn       k8s.NewConfiger
+
+	Out    io.Writer
+	ErrOut io.Writer
 }
 
 func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []string) error {
@@ -34,6 +39,7 @@ func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []stri
 		return fmt.Errorf("error creating kube client: %w", err)
 	}
 
+	fmt.Fprintln(r.ErrOut, "Retrieving job definition...")
 	jobDef, _, err := k8s.GetJobDefinition(ctx, client, r.Namespace, r.JobDefinitionName)
 	if err != nil {
 		return fmt.Errorf("error retrieving job definition from Kubernetes config map (%s): %w", r.JobDefinitionName, err)
@@ -41,18 +47,22 @@ func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []stri
 
 	// Create a unique job name (e.g. `<app-name>-<timestamp>`) so we can repeatedly create new jobs
 	jobDef.Name = fmt.Sprintf("%s-%d", r.AppName, time.Now().Unix())
-	// If specified by CLI user, override cmd in main container
+	// If specified by a CLI user, override cmd in the "main" container
 	jobDef.Spec.Template = r.overrideMainContainerCommand(jobDef.Spec.Template, cmd)
 
+	fmt.Fprintf(r.ErrOut, "Creating kubernetes job (name = %s)...\n", jobDef.Name)
 	job, err := client.BatchV1().Jobs(r.Namespace).Create(ctx, jobDef, metav1.CreateOptions{})
 	if err != nil {
 		return fmt.Errorf("error creating job: %w", err)
 	}
 
+	fmt.Fprintln(r.ErrOut, "Waiting for job to start...")
 	if err := r.waitForActiveJob(ctx, client, jobDef.Name); err != nil {
 		return err
 	}
-
+	fmt.Fprintln(r.ErrOut, "Job started.")
+	
+	fmt.Fprintln(r.ErrOut, "Monitoring job and streaming logs...")
 	return r.monitorJob(ctx, client, options, job.Name)
 }
 
@@ -113,14 +123,12 @@ func (r JobRunner) monitorJob(ctx context.Context, client *kubernetes.Clientset,
 			}
 			if containerStatus != nil {
 				if containerStatus.State.Terminated != nil {
-					if exitCode := containerStatus.State.Terminated.ExitCode; exitCode == 0 {
-						time.Sleep(time.Second) // Wait for logs to flush
-						fmt.Printf("Job has completed successfully\n")
-						return nil
-					} else {
-
+					if exitCode := containerStatus.State.Terminated.ExitCode; exitCode != 0 {
 						return fmt.Errorf("Job failed with status code %d\n", exitCode)
 					}
+					time.Sleep(time.Second) // Wait for logs to flush
+					fmt.Printf("Job has completed successfully\n")
+					return nil
 				}
 			}
 
