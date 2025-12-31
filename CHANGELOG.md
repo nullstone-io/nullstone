@@ -1,3 +1,7 @@
+# 0.0.152 (Dec 31, 2025)
+* Improved `nullstone logs` for kubernetes apps/jobs to handle pods starting/stopping during log streaming. 
+* Improved logs when performing `nullstone run` on k8s jobs so logs are flushed before showing exit code.
+
 # 0.0.151 (Dec 19, 2025)
 * Fixed issue generating capabilities template in `workspaces select`; missing env/secrets from capabilities.
 
