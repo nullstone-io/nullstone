@@ -16,7 +16,14 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-const DefaultWatchInterval = 1 * time.Second
+const (
+	DefaultWatchInterval = 1 * time.Second
+)
+
+var (
+	DefaultCancelFlushTimeout = 250 * time.Millisecond
+	DefaultStopFlushTimeout   = 1000 * time.Millisecond
+)
 
 type JobRunner struct {
 	Namespace         string
@@ -61,7 +68,7 @@ func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []stri
 		return err
 	}
 	fmt.Fprintln(r.ErrOut, "Job started.")
-	
+
 	fmt.Fprintln(r.ErrOut, "Monitoring job and streaming logs...")
 	return r.monitorJob(ctx, client, options, job.Name)
 }
@@ -97,13 +104,15 @@ func (r JobRunner) monitorJob(ctx context.Context, client *kubernetes.Clientset,
 
 	selector := fmt.Sprintf("job-name=%s", jobName)
 
+	absoluteTime := time.Now()
 	eg.Go(func() error {
-		absoluteTime := time.Now()
 		logStreamOptions := app.LogStreamOptions{
-			StartTime:     &absoluteTime,
-			WatchInterval: time.Duration(0), // this makes sure the log stream doesn't exit until the context is cancelled
-			Emitter:       options.LogEmitter,
-			Selector:      &selector,
+			StartTime:          &absoluteTime,
+			WatchInterval:      time.Duration(0), // this makes sure the log stream doesn't exit until the context is cancelled
+			Emitter:            options.LogEmitter,
+			Selector:           &selector,
+			CancelFlushTimeout: &DefaultCancelFlushTimeout,
+			StopFlushTimeout:   &DefaultStopFlushTimeout,
 		}
 		if err := options.LogStreamer.Stream(ctx, logStreamOptions); err != nil {
 			if errors.Is(err, context.Canceled) {
@@ -126,7 +135,6 @@ func (r JobRunner) monitorJob(ctx context.Context, client *kubernetes.Clientset,
 					if exitCode := containerStatus.State.Terminated.ExitCode; exitCode != 0 {
 						return fmt.Errorf("Job failed with status code %d\n", exitCode)
 					}
-					time.Sleep(time.Second) // Wait for logs to flush
 					fmt.Printf("Job has completed successfully\n")
 					return nil
 				}
