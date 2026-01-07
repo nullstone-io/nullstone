@@ -1,3 +1,6 @@
+# 0.0.154 (Jan 07, 2026)
+* Fixed initial deployments of Cloud Run apps.
+
 # 0.0.153 (Jan 06, 2026)
 * Added app support (`push`, `deploy`, `launch`, `logs`) for GCP Cloud Functions.
 

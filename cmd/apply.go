@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -35,7 +36,7 @@ var Apply = func() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "module-version",
-				Usage: "The version of the module to apply.",
+				Usage: "The version of the module to apply. If not specified, Nullstone will use the last execution.",
 			},
 		},
 		Action: func(c *cli.Context) error {
