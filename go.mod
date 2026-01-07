@@ -12,7 +12,7 @@ require (
 	github.com/go-git/go-git/v5 v5.16.2
 	github.com/gosuri/uilive v0.0.4
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
-	github.com/nullstone-io/deployment-sdk v0.0.0-20251231204741-a8a233e9c6bd
+	github.com/nullstone-io/deployment-sdk v0.0.0-20260107004824-bd886e15f8df
 	github.com/nullstone-io/iac v0.0.0-20251022110736-dc1cb12c5af7
 	github.com/nullstone-io/module v0.2.10
 	github.com/ryanuber/columnize v2.1.2+incompatible
@@ -73,6 +73,7 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute v1.38.0 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
+	cloud.google.com/go/functions v1.19.6 // indirect
 	cloud.google.com/go/iam v1.5.2 // indirect
 	cloud.google.com/go/logging v1.13.0 // indirect
 	cloud.google.com/go/longrunning v0.6.7 // indirect

@@ -10,6 +10,8 @@ cloud.google.com/go/compute v1.38.0 h1:MilCLYQW2m7Dku8hRIIKo4r0oKastlD74sSu16riY
 cloud.google.com/go/compute v1.38.0/go.mod h1:oAFNIuXOmXbK/ssXm3z4nZB8ckPdjltJ7xhHCdbWFZM=
 cloud.google.com/go/compute/metadata v0.9.0 h1:pDUj4QMoPejqq20dK0Pg2N4yG9zIkYGdBtwLoEkH9Zs=
 cloud.google.com/go/compute/metadata v0.9.0/go.mod h1:E0bWwX5wTnLPedCKqk3pJmVgCBSM6qQI1yTBdEb3C10=
+cloud.google.com/go/functions v1.19.6 h1:vJgWlvxtJG6p/JrbXAkz83DbgwOyFhZZI1Y32vUddjY=
+cloud.google.com/go/functions v1.19.6/go.mod h1:0G0RnIlbM4MJEycfbPZlCzSf2lPOjL7toLDwl+r0ZBw=
 cloud.google.com/go/iam v1.5.2 h1:qgFRAGEmd8z6dJ/qyEchAuL9jpswyODjA2lS+w234g8=
 cloud.google.com/go/iam v1.5.2/go.mod h1:SE1vg0N81zQqLzQEwxL2WI6yhetBdbNQuTvIKCSkUHE=
 cloud.google.com/go/logging v1.13.0 h1:7j0HgAp0B94o1YRDqiqm26w4q1rDMH7XNRU34lJXHYc=
@@ -365,8 +367,8 @@ github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f h1:y5//uYreIhSUg3J1GEMiLbxo1LJaP8RfCpH6pymGZus=
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f/go.mod h1:ZdcZmHo+o7JKHSa8/e818NopupXU1YMK5fe1lsApnBw=
-github.com/nullstone-io/deployment-sdk v0.0.0-20251231204741-a8a233e9c6bd h1:v8xA1a+31jwa6yLcsEfGiNU9sW5397gt+ZLv0shd9yM=
-github.com/nullstone-io/deployment-sdk v0.0.0-20251231204741-a8a233e9c6bd/go.mod h1:BlM6+I9OCI5x4bqg4K1n6VqvPBk0H9GhIUKReSCx5Pc=
+github.com/nullstone-io/deployment-sdk v0.0.0-20260107004824-bd886e15f8df h1:J+utxyX9VG+t4z4frxsOLF0iBvB3KHZQNITuoOu5vac=
+github.com/nullstone-io/deployment-sdk v0.0.0-20260107004824-bd886e15f8df/go.mod h1:kmvt9Ez3MSXVYNnTfMLMJej9yT10O0+u0xIKfxjitUE=
 github.com/nullstone-io/iac v0.0.0-20251022110736-dc1cb12c5af7 h1:lV5sOwb82P11EtBWo52tL/VCawU0i42DZ1Cq9tP/rnA=
 github.com/nullstone-io/iac v0.0.0-20251022110736-dc1cb12c5af7/go.mod h1:Sys7eNFaMQNel6K/+pVmzhMZYxX83PupRCMAVajLelw=
 github.com/nullstone-io/module v0.2.10 h1:wCKrlyxyH9XQW5HliW/V6qNsDgUQxUCcWL60Ojlz+2U=
