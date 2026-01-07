@@ -6,7 +6,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/aws/beanstalk"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ec2"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
-	"gopkg.in/nullstone-io/nullstone.v0/gcp/cloudrun"
+	"gopkg.in/nullstone-io/nullstone.v0/gcp/cloudfunctions"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/gke"
 )
 
@@ -60,6 +60,13 @@ var (
 		Platform:    "cloudrun",
 		Subplatform: "",
 	}
+	cloudFunctionsContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppServerless),
+		Provider:    "gcp",
+		Platform:    "cloudfunctions",
+		Subplatform: "",
+	}
 
 	Providers = admin.Providers{
 		ecsContract: admin.Provider{
@@ -88,7 +95,11 @@ var (
 		},
 		cloudRunContract: admin.Provider{
 			NewStatuser: nil,
-			NewRemoter:  cloudrun.NewRemoter,
+			NewRemoter:  cloudfunctions.NewRemoter,
+		},
+		cloudFunctionsContract: admin.Provider{
+			NewStatuser: nil,
+			NewRemoter:  cloudfunctions.NewRemoter,
 		},
 	}
 )

@@ -1,3 +1,6 @@
+# 0.0.153 (Jan 06, 2026)
+* Added app support (`push`, `deploy`, `launch`, `logs`) for GCP Cloud Functions.
+
 # 0.0.152 (Dec 31, 2025)
 * Improved `nullstone logs` for kubernetes apps/jobs to handle pods starting/stopping during log streaming. 
 * Improved logs when performing `nullstone run` on k8s jobs so logs are flushed before showing exit code.
