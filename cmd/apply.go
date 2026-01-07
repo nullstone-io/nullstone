@@ -50,7 +50,7 @@ var Apply = func() *cli.Command {
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				if moduleVersion != "" {
-					module := types.WorkspaceModuleInput{
+					module := api.UpdateWorkspaceModuleInput{
 						Module:        block.ModuleSource,
 						ModuleVersion: moduleVersion,
 					}

@@ -3,6 +3,7 @@ package k8s
 import (
 	"fmt"
 	"io"
+
 	"k8s.io/client-go/tools/remotecommand"
 	"k8s.io/kubectl/pkg/util/interrupt"
 	"k8s.io/kubectl/pkg/util/term"
@@ -26,7 +27,7 @@ func (o *ExecOptions) CreateTTY() (term.TTY, remotecommand.TerminalSizeQueue, er
 	if !tty.IsTerminalIn() {
 		return term.TTY{}, nil, fmt.Errorf("unable to use a TTY - input is not a terminal or the right kind of file")
 	}
-	var sizeQueue remotecommand.TerminalSizeQueue
+	var sizeQueue term.TerminalSizeQueue
 	if tty.Raw {
 		// this call spawns a goroutine to monitor/update the terminal size
 		sizeQueue = tty.MonitorSize(tty.GetSize())
@@ -35,5 +36,26 @@ func (o *ExecOptions) CreateTTY() (term.TTY, remotecommand.TerminalSizeQueue, er
 		// true
 		o.ErrOut = nil
 	}
-	return tty, sizeQueue, nil
+	return tty, TerminalSizeQueue{Internal: sizeQueue}, nil
+}
+
+var (
+	_ remotecommand.TerminalSizeQueue = TerminalSizeQueue{}
+)
+
+// TerminalSizeQueue is a stub to interface between term.TerminalSizeQueue and remotecommand.TerminalSizeQueue
+type TerminalSizeQueue struct {
+	Internal term.TerminalSizeQueue
+}
+
+func (t TerminalSizeQueue) Next() *remotecommand.TerminalSize {
+	if t.Internal == nil {
+		return nil
+	}
+
+	ts := t.Internal.Next()
+	return &remotecommand.TerminalSize{
+		Width:  ts.Width,
+		Height: ts.Height,
+	}
 }

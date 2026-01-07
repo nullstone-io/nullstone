@@ -1,3 +1,6 @@
+# 0.0.155 (Jan 07, 2026)
+* Fixed an issue where `nullstone apply` failed if `--module-version` was specified.
+
 # 0.0.154 (Jan 07, 2026)
 * Fixed initial deployments of Cloud Run apps.
 
