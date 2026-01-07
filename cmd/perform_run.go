@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"time"
+
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	api_runs "gopkg.in/nullstone-io/go-api-client.v0/runs"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/app_urls"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
-	"os"
 )
 
 type PerformRunInput struct {
@@ -22,7 +24,7 @@ type PerformRunInput struct {
 }
 
 func PerformRun(ctx context.Context, cfg api.Config, input PerformRunInput) error {
-	result, err := api_runs.Create(ctx, cfg, input.Workspace, input.CommitSha, input.IsApproved, input.IsDestroy, "")
+	result, err := api_runs.Create(ctx, cfg, input.Workspace, input.CommitSha, input.IsApproved, time.Now(), input.IsDestroy, "")
 	if err != nil {
 		return fmt.Errorf("error creating run: %w", err)
 	} else if result == nil {
