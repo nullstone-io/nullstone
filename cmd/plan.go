@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -38,7 +39,7 @@ var Plan = func() *cli.Command {
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				if moduleVersion != "" {
-					module := types.WorkspaceModuleInput{
+					module := api.UpdateWorkspaceModuleInput{
 						Module:        block.ModuleSource,
 						ModuleVersion: moduleVersion,
 					}
