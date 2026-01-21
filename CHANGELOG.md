@@ -1,3 +1,6 @@
+# 0.0.157 (Jan 21, 2026)
+* Fixed registration of `cloudrun` for `nullstone run`. 
+
 # 0.0.156 (Jan 21, 2026)
 * Added an error message when `nullstone run` is not supported by workspace.
 * Fixed registration of `cloudrun` with CLI when performing `nullstone run`.
