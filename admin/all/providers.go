@@ -55,7 +55,7 @@ var (
 	}
 	cloudRunContract = types.ModuleContractName{
 		Category:    string(types.CategoryApp),
-		Subcategory: string(types.SubcategoryAppServerless),
+		Subcategory: string(types.SubcategoryAppContainer),
 		Provider:    "gcp",
 		Platform:    "cloudrun",
 		Subplatform: "",
