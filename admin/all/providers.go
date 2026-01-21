@@ -7,6 +7,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ec2"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/cloudfunctions"
+	"gopkg.in/nullstone-io/nullstone.v0/gcp/cloudrun"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/gke"
 )
 
@@ -95,7 +96,7 @@ var (
 		},
 		cloudRunContract: admin.Provider{
 			NewStatuser: nil,
-			NewRemoter:  cloudfunctions.NewRemoter,
+			NewRemoter:  cloudrun.NewRemoter,
 		},
 		cloudFunctionsContract: admin.Provider{
 			NewStatuser: nil,
