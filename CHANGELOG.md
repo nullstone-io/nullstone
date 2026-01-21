@@ -1,3 +1,7 @@
+# 0.0.156 (Jan 21, 2026)
+* Added an error message when `nullstone run` is not supported by workspace.
+* Fixed registration of `cloudrun` with CLI when performing `nullstone run`.
+
 # 0.0.155 (Jan 07, 2026)
 * Fixed an issue where `nullstone apply` failed if `--module-version` was specified.
 
