@@ -59,6 +59,9 @@ var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Comma
 					LogStreamer: logStreamer,
 					LogEmitter:  app.NewWriterLogEmitter(os.Stdout),
 				}
+				if remoter == nil {
+					return fmt.Errorf("run is not supported for this workspace")
+				}
 				return remoter.Run(ctx, options, cmd)
 			})
 		},
