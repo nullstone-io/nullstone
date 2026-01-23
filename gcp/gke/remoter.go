@@ -70,7 +70,7 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 	return ExecCommand(ctx, r.Infra, options.Pod, options.Container, []string{"/bin/sh"}, opts)
 }
 
-func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string) error {
+func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string, envVars map[string]string) error {
 	if r.Infra.ServiceName != "" {
 		return fmt.Errorf("cannot use `run` for a long-running service, use `exec` instead")
 	}
@@ -86,5 +86,5 @@ func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string
 		Out:    r.OsWriters.Stdout(),
 		ErrOut: r.OsWriters.Stderr(),
 	}
-	return runner.Run(ctx, options, cmd)
+	return runner.Run(ctx, options, cmd, envVars)
 }

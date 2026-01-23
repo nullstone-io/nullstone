@@ -2,6 +2,7 @@ package admin
 
 import (
 	"context"
+
 	"github.com/nullstone-io/deployment-sdk/app"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
@@ -38,5 +39,5 @@ type Remoter interface {
 	Ssh(ctx context.Context, options RemoteOptions) error
 
 	// Run starts a new job/task and executes a command
-	Run(ctx context.Context, options RunOptions, cmd []string) error
+	Run(ctx context.Context, options RunOptions, cmd []string, envVars map[string]string) error
 }

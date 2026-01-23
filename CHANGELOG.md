@@ -1,3 +1,6 @@
+# 0.0.158 (TBD)
+* Added support for adding environment variables to a job/task when using `nullstone run`.
+
 # 0.0.157 (Jan 21, 2026)
 * Fixed registration of `cloudrun` for `nullstone run`. 
 

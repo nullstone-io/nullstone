@@ -4,20 +4,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/nullstone-io/deployment-sdk/app"
 	nsaws "github.com/nullstone-io/deployment-sdk/aws"
 	"golang.org/x/sync/errgroup"
-	"log"
-	"strings"
-	"time"
 )
 
 const DefaultWatchInterval = 1 * time.Second
 
-func RunTask(ctx context.Context, infra Outputs, containerName, username string, cmd []string, logStreamer app.LogStreamer, logEmitter app.LogEmitter) error {
+func RunTask(ctx context.Context, infra Outputs, containerName, username string, cmd []string, envVars map[string]string, logStreamer app.LogStreamer, logEmitter app.LogEmitter) error {
 	region := infra.Region
 	awsConfig := nsaws.NewConfig(infra.Deployer, region)
 	ecsClient := ecs.NewFromConfig(awsConfig)
@@ -28,7 +29,7 @@ func RunTask(ctx context.Context, infra Outputs, containerName, username string,
 	}
 	infra.TaskArn = latestArn
 
-	out, err := ecsClient.RunTask(ctx, createTaskInput(infra, containerName, cmd, username))
+	out, err := ecsClient.RunTask(ctx, createTaskInput(infra, containerName, cmd, envVars, username))
 	if err != nil {
 		return fmt.Errorf("error starting job: %w", err)
 	}
@@ -63,7 +64,7 @@ func getTaskDefArn(ctx context.Context, ecsClient *ecs.Client, taskDefArn string
 	return "", nil
 }
 
-func createTaskInput(infra Outputs, containerName string, cmd []string, createdBy string) *ecs.RunTaskInput {
+func createTaskInput(infra Outputs, containerName string, cmd []string, envVars map[string]string, createdBy string) *ecs.RunTaskInput {
 	clusterArn := infra.ClusterArn()
 	subnetIds := infra.PrivateSubnetIds()
 	securityGroupIds := []string{infra.AppSecurityGroupId}
@@ -72,6 +73,14 @@ func createTaskInput(infra Outputs, containerName string, cmd []string, createdB
 	}
 	taskDefArn := infra.TaskArn
 	launchType := infra.GetLaunchType()
+
+	var envOverrides []types.KeyValuePair
+	for name, value := range envVars {
+		envOverrides = append(envOverrides, types.KeyValuePair{
+			Name:  aws.String(name),
+			Value: aws.String(value),
+		})
+	}
 
 	return &ecs.RunTaskInput{
 		TaskDefinition:       aws.String(taskDefArn),
@@ -90,8 +99,9 @@ func createTaskInput(infra Outputs, containerName string, cmd []string, createdB
 		Overrides: &types.TaskOverride{
 			ContainerOverrides: []types.ContainerOverride{
 				{
-					Name:    aws.String(containerName),
-					Command: cmd,
+					Name:        aws.String(containerName),
+					Command:     cmd,
+					Environment: envOverrides,
 				},
 			},
 		},

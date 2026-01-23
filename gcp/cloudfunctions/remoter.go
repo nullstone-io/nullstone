@@ -42,6 +42,6 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 	return fmt.Errorf("cannot `ssh` into a cloud function")
 }
 
-func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string) error {
+func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string, envVars map[string]string) error {
 	return fmt.Errorf("`run` is not supported for a cloud function")
 }
