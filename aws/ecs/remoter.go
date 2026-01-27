@@ -3,6 +3,7 @@ package ecs
 import (
 	"context"
 	"fmt"
+
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
@@ -41,7 +42,7 @@ func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []st
 		if options.Task != "" {
 			return fmt.Errorf("fargate and ecs tasks do not support selecting a task, this exec command starts a new task")
 		}
-		return RunTask(ctx, r.Infra, options.Container, options.Username, cmd, options.LogStreamer, options.LogEmitter)
+		return RunTask(ctx, r.Infra, options.Container, options.Username, cmd, nil, options.LogStreamer, options.LogEmitter)
 	}
 	taskId, err := r.getTaskId(ctx, options)
 	if err != nil {
@@ -64,11 +65,11 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 	return ExecCommand(ctx, r.Infra, taskId, options.Container, []string{"/bin/sh"}, nil)
 }
 
-func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string) error {
+func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string, envVars map[string]string) error {
 	if r.Infra.ServiceName != "" {
 		return fmt.Errorf("cannot use `run` with a long-running application, use `exec` instead")
 	}
-	return RunTask(ctx, r.Infra, options.Container, options.Username, cmd, options.LogStreamer, options.LogEmitter)
+	return RunTask(ctx, r.Infra, options.Container, options.Username, cmd, envVars, options.LogStreamer, options.LogEmitter)
 }
 
 func (r Remoter) getTaskId(ctx context.Context, options admin.RemoteOptions) (string, error) {

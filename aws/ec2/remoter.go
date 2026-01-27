@@ -3,6 +3,7 @@ package ec2
 import (
 	"context"
 	"fmt"
+
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
@@ -48,6 +49,6 @@ func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
 	return ssm.StartEc2Session(ctx, r.Infra.AdminerConfig(), r.Infra.Region, r.Infra.InstanceId, parameters)
 }
 
-func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string) error {
+func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string, envVars map[string]string) error {
 	return fmt.Errorf("`run` is not supported for EC2 yet")
 }

@@ -36,7 +36,7 @@ type JobRunner struct {
 	ErrOut io.Writer
 }
 
-func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []string) error {
+func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []string, envVars map[string]string) error {
 	cfg, err := r.NewConfigFn(ctx)
 	if err != nil {
 		return fmt.Errorf("error creating kubernetes config: %w", err)
@@ -55,7 +55,7 @@ func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []stri
 	// Create a unique job name (e.g. `<app-name>-<timestamp>`) so we can repeatedly create new jobs
 	jobDef.Name = fmt.Sprintf("%s-%d", r.AppName, time.Now().Unix())
 	// If specified by a CLI user, override cmd in the "main" container
-	jobDef.Spec.Template = r.overrideMainContainerCommand(jobDef.Spec.Template, cmd)
+	jobDef.Spec.Template = r.overrideMainContainerCommand(jobDef.Spec.Template, cmd, envVars)
 
 	fmt.Fprintf(r.ErrOut, "Creating kubernetes job (name = %s)...\n", jobDef.Name)
 	job, err := client.BatchV1().Jobs(r.Namespace).Create(ctx, jobDef, metav1.CreateOptions{})
@@ -170,16 +170,39 @@ func (r JobRunner) getJobContainerStatus(ctx context.Context, client *kubernetes
 	return nil, nil
 }
 
-func (r JobRunner) overrideMainContainerCommand(podTemplateSpec corev1.PodTemplateSpec, cmd []string) corev1.PodTemplateSpec {
+func (r JobRunner) overrideMainContainerCommand(podTemplateSpec corev1.PodTemplateSpec, cmd []string, envVars map[string]string) corev1.PodTemplateSpec {
 	if len(cmd) < 1 {
 		return podTemplateSpec
 	}
 	for i, container := range podTemplateSpec.Spec.Containers {
 		if container.Name == r.MainContainerName {
 			container.Command = cmd
+			r.overrideEnvVars(&container, envVars)
 			podTemplateSpec.Spec.Containers[i] = container
 			return podTemplateSpec
 		}
 	}
 	return podTemplateSpec
+}
+
+func (r JobRunner) overrideEnvVars(container *corev1.Container, envVars map[string]string) {
+	findExisting := func(name string) int {
+		for i, ev := range container.Env {
+			if ev.Name == name {
+				return i
+			}
+		}
+		return -1
+	}
+
+	for name, value := range envVars {
+		// First, check to see if env var already exists
+		// If it does, override it
+		// If it doesn't, add it
+		if index := findExisting(name); index >= 0 {
+			container.Env[index] = corev1.EnvVar{Name: name, Value: value}
+		} else {
+			container.Env = append(container.Env, corev1.EnvVar{Name: name, Value: value})
+		}
+	}
 }

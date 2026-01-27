@@ -25,9 +25,9 @@ const (
 	defaultPollInterval = 2 * time.Second
 )
 
-func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []string) error {
+func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []string, envVars map[string]string) error {
 	// Start the job execution
-	exec, err := r.startJob(ctx, cmd)
+	exec, err := r.startJob(ctx, cmd, envVars)
 	if err != nil {
 		return fmt.Errorf("error running job: %w", err)
 	}
@@ -62,7 +62,7 @@ func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []stri
 	return eg.Wait()
 }
 
-func (r JobRunner) startJob(ctx context.Context, cmd []string) (*runpb.Execution, error) {
+func (r JobRunner) startJob(ctx context.Context, cmd []string, envVars map[string]string) (*runpb.Execution, error) {
 	// Create a client for Cloud Run Jobs
 	client, err := cloudrun.NewJobsClient(ctx, r.Adminer)
 	if err != nil {
@@ -74,12 +74,23 @@ func (r JobRunner) startJob(ctx context.Context, cmd []string) (*runpb.Execution
 		Name:      r.JobName,
 		Overrides: &runpb.RunJobRequest_Overrides{ContainerOverrides: make([]*runpb.RunJobRequest_Overrides_ContainerOverride, 0)},
 	}
+
+	var args []string
+	var envOverrides []*runpb.EnvVar
+	for name, value := range envVars {
+		envOverrides = append(envOverrides, &runpb.EnvVar{Name: name, Values: &runpb.EnvVar_Value{Value: value}})
+	}
 	if len(cmd) > 0 {
+		args = cmd
+	}
+
+	if len(cmd) > 0 || len(envVars) > 0 {
 		req.Overrides = &runpb.RunJobRequest_Overrides{
 			ContainerOverrides: []*runpb.RunJobRequest_Overrides_ContainerOverride{
 				{
 					Name: r.MainContainerName,
-					Args: cmd,
+					Args: args,
+					Env:  envOverrides,
 				},
 			},
 		}
