@@ -15,9 +15,14 @@ import (
 )
 
 var RunEnvVarFlag = &cli.StringSliceFlag{
-	Name:     "env",
-	Aliases:  []string{"e"},
-	Usage:    "Environment variable to pass to the job/task",
+	Name:    "env",
+	Aliases: []string{"e"},
+	Usage: `Pass environment variables to the job/task. 
+You can use this flag multiple times to specify multiple environment variables. 
+For each environment variable, use <NAME>=<value>.
+
+This is supported for AWS ECS/Fargate jobs, GCP Cloud Run jobs, and Kubernetes jobs.
+`,
 	Required: false,
 }
 
