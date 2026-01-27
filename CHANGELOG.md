@@ -1,4 +1,4 @@
-# 0.0.158 (TBD)
+# 0.0.158 (Jan 27, 2026)
 * Added support for adding environment variables to a job/task when using `nullstone run`.
 
 # 0.0.157 (Jan 21, 2026)
