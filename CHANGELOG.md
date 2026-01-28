@@ -1,3 +1,6 @@
+# 0.0.159 (Jan 28, 2026)
+* Fixed `--env-var` flag not overriding `--env`.
+
 # 0.0.158 (Jan 27, 2026)
 * Added support for adding environment variables to a job/task when using `nullstone run`.
 
