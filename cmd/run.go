@@ -15,7 +15,7 @@ import (
 )
 
 var RunEnvVarFlag = &cli.StringSliceFlag{
-	Name:    "env",
+	Name:    "env-var",
 	Aliases: []string{"e"},
 	Usage: `Pass environment variables to the job/task. 
 You can use this flag multiple times to specify multiple environment variables. 
@@ -60,7 +60,7 @@ var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Comma
 				for _, raw := range rawEnvVars {
 					before, after, ok := strings.Cut(raw, "=")
 					if !ok {
-						return fmt.Errorf("invalid --env flag, expected <NAME>=<value>")
+						return fmt.Errorf("invalid --env-var flag, expected <NAME>=<value>")
 					}
 					envVars[before] = after
 				}
