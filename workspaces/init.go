@@ -6,8 +6,17 @@ import (
 	"os/exec"
 )
 
-func Init(ctx context.Context) error {
-	process := "terraform"
+func Init(ctx context.Context, toolName string) error {
+	var process string
+	switch toolName {
+	default:
+		process = "terraform"
+	case "terraform":
+		process = "terraform"
+	case "opentofu":
+		process = "opentofu"
+	}
+
 	args := []string{
 		"init",
 		"-reconfigure",
