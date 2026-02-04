@@ -2,6 +2,7 @@
 * Added support for EKS services and jobs.
 * Changed `nullstone push` to emit artifact version to stdout.
 * Added `ToolName` (e.g. `terraform`, `opentofu`) to `nullstone modules generate`.
+* Added support for `includes: []` in `.nullstone/module.yml` to specify additional files to include when packaging a module. 
 
 # 0.0.160 (Feb 09, 2026)
 * Fixed nil panic when performing `nullstone run` with `--env-var`.
