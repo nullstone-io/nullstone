@@ -3,13 +3,21 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/AlecAivazis/survey/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"strings"
 )
 
 type moduleSurvey struct{}
+
+var (
+	AllToolNames = []string{
+		"terraform",
+		"opentofu",
+	}
+)
 
 func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*types.ModuleManifest, error) {
 	manifest := types.ModuleManifest{}
@@ -45,6 +53,15 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 				Message: "Description:",
 				Help:    "A description helps users understand what the module does.",
 				Default: manifest.Description,
+			},
+		},
+		{
+			Name:     "ToolName",
+			Validate: survey.Required,
+			Prompt: &survey.Select{
+				Message: "Tool Name:",
+				Options: AllToolNames,
+				Default: manifest.ToolName,
 			},
 		},
 	}

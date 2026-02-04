@@ -1,6 +1,7 @@
 # 0.0.161 (Unreleased)
 * Added support for EKS services and jobs.
 * Changed `nullstone push` to emit artifact version to stdout.
+* Added `ToolName` (e.g. `terraform`, `opentofu`) to `nullstone modules generate`.
 
 # 0.0.160 (Feb 09, 2026)
 * Fixed nil panic when performing `nullstone run` with `--env-var`.
