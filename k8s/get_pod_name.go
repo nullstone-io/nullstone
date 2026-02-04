@@ -1,8 +1,9 @@
-package gke
+package k8s
 
 import (
 	"context"
 	"fmt"
+
 	v1 "k8s.io/api/core/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -11,13 +12,12 @@ import (
 
 // GetPodName finds a pod based on the current infrastructure and an optional pod name
 // If pod name is left blank, this will find either the only active pod or first active pod in a replica set
-func GetPodName(ctx context.Context, cfg *rest.Config, infra Outputs, pod string) (string, error) {
-	name := infra.ServiceName
+func GetPodName(ctx context.Context, cfg *rest.Config, namespace string, appName string, pod string) (string, error) {
 	kubeClient, err := kubernetes.NewForConfig(cfg)
 
 	// If pod is specified, let's verify it exists and is running
 	if pod != "" {
-		pod, err := kubeClient.CoreV1().Pods(infra.ServiceNamespace).Get(ctx, pod, meta_v1.GetOptions{})
+		pod, err := kubeClient.CoreV1().Pods(namespace).Get(ctx, pod, meta_v1.GetOptions{})
 		if err != nil {
 			return "", err
 		}
@@ -32,8 +32,8 @@ func GetPodName(ctx context.Context, cfg *rest.Config, infra Outputs, pod string
 
 	// If replicas>1, the pods have unique names, but the replicaset has name=<service-name>
 	// Let's look for pods by replicaset first
-	listOptions := meta_v1.ListOptions{LabelSelector: fmt.Sprintf("replicaset=%s", name)}
-	podsOutput, err := kubeClient.CoreV1().Pods(infra.ServiceNamespace).List(ctx, listOptions)
+	listOptions := meta_v1.ListOptions{LabelSelector: fmt.Sprintf("replicaset=%s", appName)}
+	podsOutput, err := kubeClient.CoreV1().Pods(namespace).List(ctx, listOptions)
 	if err != nil {
 		return "", err
 	}
@@ -44,8 +44,8 @@ func GetPodName(ctx context.Context, cfg *rest.Config, infra Outputs, pod string
 	}
 
 	// If we don't find a replica, look for the pod by name directly
-	listOptions = meta_v1.ListOptions{LabelSelector: fmt.Sprintf("nullstone.io/app=%s", name)}
-	podsOutput, err = kubeClient.CoreV1().Pods(infra.ServiceNamespace).List(ctx, listOptions)
+	listOptions = meta_v1.ListOptions{LabelSelector: fmt.Sprintf("nullstone.io/app=%s", appName)}
+	podsOutput, err = kubeClient.CoreV1().Pods(namespace).List(ctx, listOptions)
 	if err != nil {
 		return "", err
 	}
@@ -55,5 +55,5 @@ func GetPodName(ctx context.Context, cfg *rest.Config, infra Outputs, pod string
 		}
 	}
 
-	return name, nil
+	return appName, nil
 }

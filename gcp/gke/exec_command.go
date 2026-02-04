@@ -3,6 +3,7 @@ package gke
 import (
 	"context"
 	"fmt"
+
 	"github.com/nullstone-io/deployment-sdk/gcp/gke"
 	"gopkg.in/nullstone-io/nullstone.v0/k8s"
 )
@@ -13,7 +14,7 @@ func ExecCommand(ctx context.Context, infra Outputs, pod, container string, cmd 
 		return fmt.Errorf("error creating kube config: %w", err)
 	}
 
-	podName, err := GetPodName(ctx, cfg, infra, pod)
+	podName, err := k8s.GetPodName(ctx, cfg, infra.ServiceNamespace, infra.ServiceName, pod)
 	if err != nil {
 		return fmt.Errorf("error finding pod: %w", err)
 	}
