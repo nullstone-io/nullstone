@@ -8,6 +8,7 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/vcs"
 )
 
 type moduleSurvey struct{}
@@ -23,6 +24,12 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 	manifest := types.ModuleManifest{}
 	if defaults != nil {
 		manifest = *defaults
+	}
+	if manifest.SourceUrl == "" {
+		// Detect repository URL through Git
+		if commitInfo, err := vcs.GetCommitInfo(); err == nil {
+			manifest.SourceUrl = commitInfo.Repository.Url
+		}
 	}
 
 	initialQuestions := []*survey.Question{
@@ -62,6 +69,14 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 				Message: "Tool Name:",
 				Options: AllToolNames,
 				Default: manifest.ToolName,
+			},
+		},
+		{
+			Name: "SourceUrl",
+			Prompt: &survey.Input{
+				Message: "Repository URL:",
+				Help:    "The URL to the source repository (e.g. https://github.com/owner/repo)",
+				Default: manifest.SourceUrl,
 			},
 		},
 	}
