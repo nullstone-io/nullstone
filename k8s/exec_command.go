@@ -3,11 +3,12 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
-	"net/http"
 )
 
 func ExecCommand(ctx context.Context, cfg *rest.Config, podNamespace, podName, containerName string, cmd []string, opts *ExecOptions) error {
