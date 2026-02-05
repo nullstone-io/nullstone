@@ -29,12 +29,13 @@ func AppWorkspaceAction(c *cli.Context, fn AppWorkspaceFn) error {
 		infraDetails, err := apiClient.WorkspaceInfraDetails().GetByName(ctx, stackName, appName, envName, false)
 		if err != nil {
 			return err
+		} else if infraDetails == nil {
+			return fmt.Errorf("Application Workspace (%s/%s/%s) does not exist.\n", stackName, appName, envName)
 		}
 
 		application, ok := infraDetails.Block().(types.Application)
 		if !ok {
-			logger.Printf("This command operates on Applications, but the Block is a(n) %s", infraDetails.BlockType())
-			return fmt.Errorf("cannot run command")
+			return fmt.Errorf("This command operates on Applications, but the Block is a(n) %s\n", infraDetails.BlockType())
 		}
 
 		return CancellableAction(func(ctx context.Context) error {
