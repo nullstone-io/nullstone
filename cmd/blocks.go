@@ -55,15 +55,9 @@ var BlocksList = &cli.Command{
 
 			if c.IsSet("detail") {
 				appDetails := make([]string, len(allBlocks)+1)
-				appDetails[0] = "ID|Type|Name|Reference|Category|Module Type|Module|Stack"
+				appDetails[0] = "ID|Type|Name|Reference|Stack"
 				for i, block := range allBlocks {
-					var blockCategory types.CategoryName
-					var blockType string
-					if blockModule, err := find.Module(ctx, cfg, block.ModuleSource); err == nil {
-						blockCategory = blockModule.Category
-						blockType = blockModule.Type
-					}
-					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s|%s|%s|%s", block.Id, block.Type, block.Name, block.Reference, blockCategory, blockType, block.ModuleSource, stackName)
+					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s", block.Id, block.Type, block.Name, block.Reference, stackName)
 				}
 				fmt.Println(columnize.Format(appDetails, columnize.DefaultConfig()))
 			} else {
