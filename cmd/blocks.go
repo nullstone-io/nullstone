@@ -135,14 +135,11 @@ var BlocksNew = &cli.Command{
 			}
 
 			block := &types.Block{
-				OrgName:             cfg.OrgName,
-				StackId:             stack.Id,
-				Type:                blockTypeFromModuleCategory(module.Category),
-				Name:                name,
-				Repo:                "",
-				ModuleSource:        moduleSource,
-				ModuleSourceVersion: "latest",
-				Connections:         connections,
+				OrgName: cfg.OrgName,
+				StackId: stack.Id,
+				Type:    blockTypeFromModuleCategory(module.Category),
+				Name:    name,
+				Repo:    "",
 			}
 			if strings.HasPrefix(string(module.Category), "app") {
 				app := &types.Application{Block: *block}
@@ -155,7 +152,14 @@ var BlocksNew = &cli.Command{
 					fmt.Println("unable to create app")
 				}
 			} else {
-				input := api.CreateBlockInput{Block: *block}
+				input := api.CreateBlockInput{
+					Block: *block,
+					Template: &types.WorkspaceTemplateConfig{
+						Module:           moduleSource,
+						ModuleConstraint: "latest",
+						Connections:      connections,
+					},
+				}
 				if newBlock, err := client.Blocks().Create(ctx, stack.Id, input); err != nil {
 					return err
 				} else if newBlock != nil {

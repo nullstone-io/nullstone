@@ -39,11 +39,8 @@ var Plan = func() *cli.Command {
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				if moduleVersion != "" {
-					module := api.UpdateWorkspaceModuleInput{
-						Module:        block.ModuleSource,
-						ModuleVersion: moduleVersion,
-					}
-					err := runs.SetModuleVersion(ctx, cfg, workspace, module)
+					input := api.UpdateWorkspaceModuleInput{ModuleVersion: moduleVersion}
+					err := runs.SetModuleVersion(ctx, cfg, workspace, input)
 					if err != nil {
 						return err
 					}
