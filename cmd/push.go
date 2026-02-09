@@ -19,7 +19,7 @@ var (
 	}
 )
 
-// Push command performs a docker push to an authenticated image registry configured against an app/container
+// Push uploads/pushes the artifact to an authenticated registry configured against an app/container
 var Push = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
 		Name:        "push",

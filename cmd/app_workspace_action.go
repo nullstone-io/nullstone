@@ -8,6 +8,7 @@ import (
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
@@ -26,6 +27,22 @@ func AppWorkspaceAction(c *cli.Context, fn AppWorkspaceFn) error {
 
 		ctx := context.TODO()
 		apiClient := api.Client{Config: cfg}
+
+		// Find stack name if
+		if stackName == "" {
+			application, err := find.App(ctx, apiClient.Config, appName, "")
+			if err != nil {
+				return fmt.Errorf("error finding application: %w", err)
+			}
+			stack, err := apiClient.Stacks().Get(ctx, application.StackId, false)
+			if err != nil {
+				return fmt.Errorf("error finding stack: %w", err)
+			} else if stack == nil {
+				return fmt.Errorf("stack does not exist")
+			}
+			stackName = stack.Name
+		}
+
 		infraDetails, err := apiClient.WorkspaceInfraDetails().GetByName(ctx, stackName, appName, envName, false)
 		if err != nil {
 			return err

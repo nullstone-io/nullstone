@@ -1,10 +1,15 @@
-# 0.0.161 (Unreleased)
+# 0.0.161 (Feb 09, 2026)
 * Added support for EKS services and jobs.
 * Changed `nullstone push` to emit the artifact version to stdout.
+* Added `nullstone pull` command to download an artifact by `--version` for an application workspace.
 * Added `ToolName` (e.g. `terraform`, `opentofu`) to `nullstone modules generate`.
 * Added support for `includes: []` in `.nullstone/module.yml` to specify additional files to include when packaging a module.
 * Added `SourceUrl` to module to allow users to link to the source code of the module.
-* Updated `nullstone workspaces select` to detect tool name from module manifest when initializing (e.g. `terraform init`, `tofu init`). 
+* Updated `nullstone workspaces select` to detect tool name from module manifest when initializing (e.g. `terraform init`, `tofu init`).
+* Fixed packaging of nullstone modules with `--include` on Windows.
+* Fixed `nullstone modules generate` to pre-fill answers based on existing module manifest.
+* Added `--manifest-only` flag to `nullstone modules generate` to only generate the module manifest file.
+* Fixed `nullstone run` when running Cloud Run jobs.
 
 # 0.0.160 (Feb 09, 2026)
 * Fixed nil panic when performing `nullstone run` with `--env-var`.

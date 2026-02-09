@@ -15,7 +15,7 @@ import (
 )
 
 type JobRunner struct {
-	JobName           string
+	JobId             string
 	MainContainerName string
 	Adminer           gcp.ServiceAccount
 }
@@ -71,7 +71,7 @@ func (r JobRunner) startJob(ctx context.Context, cmd []string, envVars map[strin
 
 	// If a command is provided, use it as "args" in main container overrides
 	req := &runpb.RunJobRequest{
-		Name:      r.JobName,
+		Name:      r.JobId,
 		Overrides: &runpb.RunJobRequest_Overrides{ContainerOverrides: make([]*runpb.RunJobRequest_Overrides_ContainerOverride, 0)},
 	}
 
@@ -98,7 +98,7 @@ func (r JobRunner) startJob(ctx context.Context, cmd []string, envVars map[strin
 
 	op, err := client.RunJob(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("error running job: %w", err)
+		return nil, fmt.Errorf("error starting job: %w", err)
 	}
 	if _, err := op.Wait(ctx); err != nil {
 		return nil, fmt.Errorf("an error occurred waiting for job to start: %w", err)

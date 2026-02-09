@@ -25,6 +25,9 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 	if defaults != nil {
 		manifest = *defaults
 	}
+	if manifest.ToolName == "" {
+		manifest.ToolName = AllToolNames[0]
+	}
 	if manifest.SourceUrl == "" {
 		// Detect repository URL through Git
 		if commitInfo, err := vcs.GetCommitInfo(); err == nil {
@@ -97,6 +100,7 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 	categoryPrompt := &survey.Select{
 		Message: "Category:",
 		Options: types.AllCategoryNames,
+		Default: manifest.Category,
 	}
 	if err := survey.AskOne(categoryPrompt, &manifest.Category); err != nil {
 		return nil, err
@@ -108,6 +112,7 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 		subcategoryPrompt := &survey.Select{
 			Message: "Subcategory:",
 			Options: subcategories,
+			Default: manifest.Subcategory,
 		}
 		if err := survey.AskOne(subcategoryPrompt, &manifest.Subcategory); err != nil {
 			return nil, err

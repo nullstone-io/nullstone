@@ -11,7 +11,7 @@ type Outputs struct {
 	ServiceName       string             `ns:"service_name"`
 	Deployer          gcp.ServiceAccount `ns:"deployer"`
 	MainContainerName string             `ns:"main_container_name,optional"`
-	JobName           string             `ns:"job_name,optional"`
+	JobId             string             `ns:"job_id,optional"`
 }
 
 func (o *Outputs) InitializeCreds(source outputs.RetrieverSource, ws *nstypes.Workspace) {
