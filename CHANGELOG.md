@@ -1,4 +1,4 @@
-# 0.0.161 (Unreleased)
+# 0.0.161 (Feb 09, 2026)
 * Added support for EKS services and jobs.
 * Changed `nullstone push` to emit the artifact version to stdout.
 * Added `nullstone pull` command to download an artifact by `--version` for an application workspace.
