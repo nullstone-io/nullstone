@@ -31,9 +31,11 @@ func Select(ctx context.Context, cfg api.Config, workspace Manifest, runConfig t
 		}
 	}
 
+	fmt.Printf("Writing backend file (%s)...\n", backendFilename)
 	if err := WriteBackendTf(cfg, workspace.WorkspaceUid, backendFilename); err != nil {
 		return fmt.Errorf("error writing terraform backend file: %w", err)
 	}
+	fmt.Printf("Configuring nullstone active workspace in %s...\n", activeWorkspaceFilename)
 	if err := workspace.WriteToFile(activeWorkspaceFilename); err != nil {
 		return fmt.Errorf("error writing active workspace file: %w", err)
 	}
@@ -53,11 +55,13 @@ func Select(ctx context.Context, cfg api.Config, workspace Manifest, runConfig t
 		ApiConfig:        cfg,
 	}
 	if capGenerator.ShouldGenerate() {
+		fmt.Println()
 		fmt.Printf("Generating %q from %q\n", capGenerator.TargetFilename, capGenerator.TemplateFilename)
 		if err := capGenerator.Generate(runConfig); err != nil {
 			return fmt.Errorf("Could not generate %q: %w", capGenerator.TargetFilename, err)
 		}
 	}
+	fmt.Println()
 
 	if err := Init(ctx, toolName); err != nil {
 		fallbackMessage := `Unable to initialize terraform.
