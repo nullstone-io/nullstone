@@ -41,7 +41,7 @@ var AppsList = &cli.Command{
 
 			if c.IsSet("detail") {
 				appDetails := make([]string, len(allApps)+1)
-				appDetails[0] = "ID|Name|Reference|Category|Stack|Framework"
+				appDetails[0] = "ID|Name|Reference|Stack|Framework"
 				for i, app := range allApps {
 					stack, err := client.Stacks().Get(ctx, app.StackId, false)
 					if err != nil {
