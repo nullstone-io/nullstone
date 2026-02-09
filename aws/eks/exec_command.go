@@ -1,15 +1,15 @@
-package gke
+package eks
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/nullstone-io/deployment-sdk/gcp/gke"
+	"github.com/nullstone-io/deployment-sdk/aws/eks"
 	"gopkg.in/nullstone-io/nullstone.v0/k8s"
 )
 
 func ExecCommand(ctx context.Context, infra Outputs, pod, container string, cmd []string, opts *k8s.ExecOptions) error {
-	cfg, err := gke.CreateKubeConfig(ctx, infra.ClusterNamespace, infra.Deployer)
+	cfg, err := eks.CreateKubeConfig(ctx, infra.ClusterNamespace, infra.Deployer)
 	if err != nil {
 		return fmt.Errorf("error creating kube config: %w", err)
 	}

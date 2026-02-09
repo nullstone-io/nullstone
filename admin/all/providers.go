@@ -6,6 +6,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/aws/beanstalk"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ec2"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/eks"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/cloudfunctions"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/cloudrun"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/gke"
@@ -46,6 +47,13 @@ var (
 		Provider:    "aws",
 		Platform:    "s3",
 		Subplatform: "",
+	}
+	eksContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppContainer),
+		Provider:    "aws",
+		Platform:    "k8s",
+		Subplatform: "eks",
 	}
 	gkeContract = types.ModuleContractName{
 		Category:    string(types.CategoryApp),
@@ -89,6 +97,10 @@ var (
 		s3SiteContract: admin.Provider{
 			NewStatuser: nil,
 			NewRemoter:  nil,
+		},
+		eksContract: admin.Provider{
+			NewStatuser: nil,
+			NewRemoter:  eks.NewRemoter,
 		},
 		gkeContract: admin.Provider{
 			NewStatuser: nil,
