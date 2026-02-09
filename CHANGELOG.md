@@ -9,6 +9,7 @@
 * Fixed packaging of nullstone modules with `--include` on Windows.
 * Fixed `nullstone modules generate` to pre-fill answers based on existing module manifest.
 * Added `--manifest-only` flag to `nullstone modules generate` to only generate the module manifest file.
+* Fixed `nullstone run` when running Cloud Run jobs.
 
 # 0.0.160 (Feb 09, 2026)
 * Fixed nil panic when performing `nullstone run` with `--env-var`.
