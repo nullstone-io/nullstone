@@ -11,6 +11,13 @@ var AppVersionFlag = &cli.StringFlag{
 		If not provided, it will default to the commit sha of the repo for the current directory.`,
 }
 
+var AppVersionRequiredFlag = &cli.StringFlag{
+	Name: "version",
+	Usage: `Provide a label for your deployment.
+		If not provided, it will default to the commit sha of the repo for the current directory.`,
+	Required: true,
+}
+
 func DetectAppVersion(c *cli.Context) string {
 	version := c.String("version")
 	if version == "" {
