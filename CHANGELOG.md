@@ -7,6 +7,7 @@
 * Added `SourceUrl` to module to allow users to link to the source code of the module.
 * Updated `nullstone workspaces select` to detect tool name from module manifest when initializing (e.g. `terraform init`, `tofu init`).
 * Fixed packaging of nullstone modules with `--include` on Windows.
+* Fixed `nullstone modules generate` to pre-fill answers based on existing module manifest.
 
 # 0.0.160 (Feb 09, 2026)
 * Fixed nil panic when performing `nullstone run` with `--env-var`.
