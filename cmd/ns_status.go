@@ -3,9 +3,9 @@ package cmd
 import (
 	"context"
 	"fmt"
+
 	"github.com/nullstone-io/deployment-sdk/app"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
@@ -21,34 +21,29 @@ type NsStatus struct {
 
 func (s NsStatus) GetAppWorkspaceInfo(application *types.Application, env *types.Environment) (AppWorkspaceInfo, error) {
 	ctx := context.TODO()
+	apiClient := api.Client{Config: s.Config}
+	infraDetails, err := apiClient.WorkspaceInfraDetails().Get(ctx, application.StackId, application.Id, env.Id, false)
+	if err != nil {
+		return AppWorkspaceInfo{}, err
+	} else if infraDetails == nil {
+		return AppWorkspaceInfo{}, fmt.Errorf("Application Workspace (%s/%s) does not exist.", application.Name, env.Name)
+	}
+
 	awi := AppWorkspaceInfo{
 		AppDetails: app.Details{
-			App: application,
-			Env: env,
+			App:             application,
+			Env:             env,
+			Workspace:       &infraDetails.Workspace,
+			WorkspaceConfig: &infraDetails.WorkspaceConfig,
+			Module:          &infraDetails.Module,
 		},
 		Status:  types.WorkspaceStatusNotProvisioned,
 		Version: "not-deployed",
 	}
 
-	module, err := find.Module(ctx, s.Config, awi.AppDetails.App.ModuleSource)
-	if err != nil {
-		return awi, err
-	} else if module == nil {
-		return awi, fmt.Errorf("can't find app module %s", awi.AppDetails.App.ModuleSource)
-	}
-	awi.AppDetails.Module = module
+	awi.Status = s.calcInfraStatus(awi.AppDetails.Workspace)
 
-	client := api.Client{Config: s.Config}
-	workspace, err := client.Workspaces().Get(ctx, application.StackId, application.Id, env.Id)
-	if err != nil {
-		return awi, err
-	} else if workspace == nil {
-		return awi, nil
-	}
-	awi.AppDetails.Workspace = workspace
-	awi.Status = s.calcInfraStatus(workspace)
-
-	appEnv, err := client.AppEnvs().Get(ctx, application.StackId, application.Id, env.Name)
+	appEnv, err := apiClient.AppEnvs().Get(ctx, application.StackId, application.Id, env.Name)
 	if err != nil {
 		return awi, err
 	} else if appEnv != nil {

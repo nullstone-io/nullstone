@@ -3,11 +3,10 @@ package cmd
 import (
 	"context"
 	"fmt"
+
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"gopkg.in/nullstone-io/go-api-client.v0/find"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
 var Apps = &cli.Command{
@@ -42,19 +41,13 @@ var AppsList = &cli.Command{
 
 			if c.IsSet("detail") {
 				appDetails := make([]string, len(allApps)+1)
-				appDetails[0] = "ID|Name|Reference|Category|Type|Module|Stack|Framework"
+				appDetails[0] = "ID|Name|Reference|Category|Stack|Framework"
 				for i, app := range allApps {
-					var appCategory types.CategoryName
-					var appType string
-					if appModule, err := find.Module(ctx, cfg, app.ModuleSource); err == nil {
-						appCategory = appModule.Category
-						appType = appModule.Type
-					}
 					stack, err := client.Stacks().Get(ctx, app.StackId, false)
 					if err != nil {
 						return fmt.Errorf("error looking for stack %q: %w", app.StackId, err)
 					}
-					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s|%s|%s|%s", app.Id, app.Name, app.Reference, appCategory, appType, app.ModuleSource, stack.Name, app.Framework)
+					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s", app.Id, app.Name, app.Reference, stack.Name, app.Framework)
 				}
 				fmt.Println(columnize.Format(appDetails, columnize.DefaultConfig()))
 			} else {

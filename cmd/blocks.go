@@ -55,15 +55,9 @@ var BlocksList = &cli.Command{
 
 			if c.IsSet("detail") {
 				appDetails := make([]string, len(allBlocks)+1)
-				appDetails[0] = "ID|Type|Name|Reference|Category|Module Type|Module|Stack"
+				appDetails[0] = "ID|Type|Name|Reference|Stack"
 				for i, block := range allBlocks {
-					var blockCategory types.CategoryName
-					var blockType string
-					if blockModule, err := find.Module(ctx, cfg, block.ModuleSource); err == nil {
-						blockCategory = blockModule.Category
-						blockType = blockModule.Type
-					}
-					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s|%s|%s|%s", block.Id, block.Type, block.Name, block.Reference, blockCategory, blockType, block.ModuleSource, stackName)
+					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s", block.Id, block.Type, block.Name, block.Reference, stackName)
 				}
 				fmt.Println(columnize.Format(appDetails, columnize.DefaultConfig()))
 			} else {
@@ -135,14 +129,11 @@ var BlocksNew = &cli.Command{
 			}
 
 			block := &types.Block{
-				OrgName:             cfg.OrgName,
-				StackId:             stack.Id,
-				Type:                blockTypeFromModuleCategory(module.Category),
-				Name:                name,
-				Repo:                "",
-				ModuleSource:        moduleSource,
-				ModuleSourceVersion: "latest",
-				Connections:         connections,
+				OrgName: cfg.OrgName,
+				StackId: stack.Id,
+				Type:    blockTypeFromModuleCategory(module.Category),
+				Name:    name,
+				Repo:    "",
 			}
 			if strings.HasPrefix(string(module.Category), "app") {
 				app := &types.Application{Block: *block}
@@ -155,7 +146,14 @@ var BlocksNew = &cli.Command{
 					fmt.Println("unable to create app")
 				}
 			} else {
-				input := api.CreateBlockInput{Block: *block}
+				input := api.CreateBlockInput{
+					Block: *block,
+					Template: &types.WorkspaceTemplateConfig{
+						Module:           moduleSource,
+						ModuleConstraint: "latest",
+						Connections:      connections,
+					},
+				}
 				if newBlock, err := client.Blocks().Create(ctx, stack.Id, input); err != nil {
 					return err
 				} else if newBlock != nil {
