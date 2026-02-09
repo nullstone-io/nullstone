@@ -43,11 +43,15 @@ var ModulesGenerate = &cli.Command{
 		"You will be asked a series of questions in order to collect the information needed to describe a Nullstone module. " +
 		"Optionally, you can also register the module in the Nullstone registry by passing the `--register` flag.",
 	Usage:     "Generate new module manifest (and optionally register)",
-	UsageText: "nullstone modules generate [--register]",
+	UsageText: "nullstone modules generate [--register] [--manifest-only]",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:  "register",
 			Usage: "Register the module in the Nullstone registry after generating the manifest file.",
+		},
+		&cli.BoolFlag{
+			Name:  "manifest-only",
+			Usage: "Only generate the module manifest file, do not register or generate Terraform.",
 		},
 	},
 	Action: func(c *cli.Context) error {
@@ -63,6 +67,10 @@ var ModulesGenerate = &cli.Command{
 				return err
 			}
 			fmt.Printf("generated module manifest file to %s\n", moduleManifestFilename)
+
+			if c.IsSet("manifest-only") {
+				return nil
+			}
 
 			if err := modules.Generate(manifest); err != nil {
 				return err

@@ -8,6 +8,7 @@
 * Updated `nullstone workspaces select` to detect tool name from module manifest when initializing (e.g. `terraform init`, `tofu init`).
 * Fixed packaging of nullstone modules with `--include` on Windows.
 * Fixed `nullstone modules generate` to pre-fill answers based on existing module manifest.
+* Added `--manifest-only` flag to `nullstone modules generate` to only generate the module manifest file.
 
 # 0.0.160 (Feb 09, 2026)
 * Fixed nil panic when performing `nullstone run` with `--env-var`.
