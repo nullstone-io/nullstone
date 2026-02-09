@@ -382,8 +382,8 @@ github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f h1:y5//uYreIhSUg3J1GEMiLbxo1LJaP8RfCpH6pymGZus=
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f/go.mod h1:ZdcZmHo+o7JKHSa8/e818NopupXU1YMK5fe1lsApnBw=
-github.com/nullstone-io/deployment-sdk v0.0.0-20260204173150-35dca3be751c h1:yHEQMGiq6gSJPqheiwF3NMTIW03RpJ+mc/puWw/tFDs=
-github.com/nullstone-io/deployment-sdk v0.0.0-20260204173150-35dca3be751c/go.mod h1:DzRJIfInQJ+Babjm+r5mGQrJYgLcUShtfFvObA9lQXw=
+github.com/nullstone-io/deployment-sdk v0.0.0-20260209214342-e148cc6ab28a h1:ICKHCdNBlcXwzmj6rpxs06P5+50xXhyDpF81/slgTY8=
+github.com/nullstone-io/deployment-sdk v0.0.0-20260209214342-e148cc6ab28a/go.mod h1:djeiFHPqZZNoMAh27GU6vmCC59tX7B8Z8nzjnROEaLE=
 github.com/nullstone-io/iac v0.0.0-20260107210755-6abbd01ce754 h1:dh6K1Avm9A/x9UrkKpQyoPagIYhMxoeAwQLKPKQStzc=
 github.com/nullstone-io/iac v0.0.0-20260107210755-6abbd01ce754/go.mod h1:4Vy8Kl85eYAskEPtz0LfHW4xfld6wSwZAebPZs4Rr7I=
 github.com/nullstone-io/module v0.2.10 h1:wCKrlyxyH9XQW5HliW/V6qNsDgUQxUCcWL60Ojlz+2U=
@@ -607,8 +607,8 @@ gopkg.in/evanphx/json-patch.v4 v4.13.0 h1:czT3CmqEaQ1aanPc5SdlgQrrEIb8w/wwCvWWnf
 gopkg.in/evanphx/json-patch.v4 v4.13.0/go.mod h1:p8EYWUEYMpynmqDbY58zCKCFZw8pRWMG4EsWvDvM72M=
 gopkg.in/inf.v0 v0.9.1 h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
 gopkg.in/inf.v0 v0.9.1/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260205173303-6aedaab91a46 h1:K5xgojmhmhqkIIRsX4uNQs9Da1GJY4x5nuU8BIqRwGo=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260205173303-6aedaab91a46/go.mod h1:mIeSQ6e1XLKybecEA9/z4TTOtZ9Auw5lUl6ogGMT4iA=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260209212858-e55cbde912b7 h1:C0AViKmmvzEmx0wQpyWFsqkyagJ0O0Z+9fDpAtmim1g=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260209212858-e55cbde912b7/go.mod h1:mIeSQ6e1XLKybecEA9/z4TTOtZ9Auw5lUl6ogGMT4iA=
 gopkg.in/warnings.v0 v0.1.2 h1:wFXVbFY8DY5/xOe1ECiWdKCzZlxgshcYVNkBHstARME=
 gopkg.in/warnings.v0 v0.1.2/go.mod h1:jksf8JmL6Qr/oQM2OXTHunEvvTAsrWBLb6OOjuVWRNI=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
