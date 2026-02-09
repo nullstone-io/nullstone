@@ -3,14 +3,17 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
+	"sync"
+
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/modules"
 	"gopkg.in/nullstone-io/nullstone.v0/tfconfig"
 	"gopkg.in/nullstone-io/nullstone.v0/workspaces"
-	"sync"
 )
 
 var Workspaces = &cli.Command{
@@ -21,6 +24,10 @@ var Workspaces = &cli.Command{
 		WorkspacesSelect,
 	},
 }
+
+const (
+	DefaultToolName = "terraform"
+)
 
 var WorkspacesSelect = &cli.Command{
 	Name:        "select",
@@ -43,6 +50,8 @@ var WorkspacesSelect = &cli.Command{
 	Action: func(c *cli.Context) error {
 		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
+			toolName := detectModuleToolName()
+
 			if !tfconfig.IsCredsConfigured(cfg) {
 				if err := tfconfig.ConfigCreds(ctx, cfg); err != nil {
 					fmt.Printf("Warning: unable to configure Terraform-based credentials with Nullstone servers: %s\n", err)
@@ -83,7 +92,7 @@ var WorkspacesSelect = &cli.Command{
 
 			runConfig, err := workspaces.GetRunConfig(ctx, cfg, targetWorkspace)
 			if err != nil {
-				return fmt.Errorf("could not retreive current workspace configuration: %w", err)
+				return fmt.Errorf("could not retrieve current workspace configuration: %w", err)
 			}
 			manualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, runConfig)
 			if err != nil {
@@ -99,10 +108,22 @@ var WorkspacesSelect = &cli.Command{
 			}
 
 			return CancellableAction(func(ctx context.Context) error {
-				return workspaces.Select(ctx, cfg, targetWorkspace, runConfig)
+				return workspaces.Select(ctx, cfg, targetWorkspace, runConfig, toolName)
 			})
 		})
 	},
+}
+
+func detectModuleToolName() string {
+	manifest, err := modules.ManifestFromFile(moduleManifestFilename)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "[warning]error reading module manifest (%s): %s\n", moduleManifestFilename, err)
+		return DefaultToolName
+	}
+	if manifest.ToolName != "" {
+		return manifest.ToolName
+	}
+	return DefaultToolName
 }
 
 func surveyMissingConnections(ctx context.Context, cfg api.Config, sourceStackName string, runConfig types.RunConfig) (types.Connections, error) {

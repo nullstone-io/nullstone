@@ -3,14 +3,15 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
+	"path"
+	"strings"
+
 	"github.com/urfave/cli/v2"
 	"golang.org/x/mod/semver"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/modules"
 	"gopkg.in/nullstone-io/nullstone.v0/vcs"
-	"os"
-	"path"
-	"strings"
 )
 
 var (
@@ -163,7 +164,7 @@ var ModulesPublish = &cli.Command{
 			}
 
 			// Package module files into tar.gz
-			tarballFilename, err := modules.Package(manifest, version, includes)
+			tarballFilename, err := modules.Package(manifest, version, append(includes, manifest.Includes...))
 			if err != nil {
 				return err
 			}
@@ -204,7 +205,7 @@ var ModulesPackage = &cli.Command{
 			return err
 		}
 
-		tarballFilename, err := modules.Package(manifest, "", includes)
+		tarballFilename, err := modules.Package(manifest, "", append(includes, manifest.Includes...))
 		if err == nil {
 			fmt.Printf("created module package %q\n", tarballFilename)
 		}

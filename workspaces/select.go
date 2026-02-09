@@ -17,7 +17,7 @@ var (
 	activeWorkspaceFilename = path.Join(".nullstone", "active-workspace.yml")
 )
 
-func Select(ctx context.Context, cfg api.Config, workspace Manifest, runConfig types.RunConfig) error {
+func Select(ctx context.Context, cfg api.Config, workspace Manifest, runConfig types.RunConfig, toolName string) error {
 	repo := git.RepoFromDir(".")
 	if repo != nil {
 		// Add gitignores for __backend__.tf and .nullstone/active-workspace.yml
@@ -59,7 +59,7 @@ func Select(ctx context.Context, cfg api.Config, workspace Manifest, runConfig t
 		}
 	}
 
-	if err := Init(ctx); err != nil {
+	if err := Init(ctx, toolName); err != nil {
 		fallbackMessage := `Unable to initialize terraform.
 Reset .terraform/ directory and run 'terraform init'.`
 		fmt.Println(fallbackMessage)

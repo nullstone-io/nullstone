@@ -62,7 +62,7 @@ var Push = func(providers app.Providers) *cli.Command {
 				if err := push(ctx, osWriters, pusher, source, info); err != nil {
 					return err
 				}
-				fmt.Fprintf(osWriters.Stdout(), info.EffectiveVersion)
+				fmt.Fprint(osWriters.Stdout(), info.EffectiveVersion)
 				return nil
 			})
 		},
