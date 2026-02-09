@@ -57,6 +57,9 @@ var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Comma
 
 				rawEnvVars := c.StringSlice(RunEnvVarFlag.Name)
 				var envVars map[string]string
+				if len(rawEnvVars) > 0 {
+					envVars = make(map[string]string)
+				}
 				for _, raw := range rawEnvVars {
 					before, after, ok := strings.Cut(raw, "=")
 					if !ok {

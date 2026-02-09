@@ -1,3 +1,6 @@
+# 0.0.160 (Feb 09, 2026)
+* Fixed nil panic when performing `nullstone run` with `--env-var`.
+
 # 0.0.159 (Jan 28, 2026)
 * Fixed `--env-var` flag not overriding `--env`.
 
