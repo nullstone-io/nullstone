@@ -59,10 +59,11 @@ func AppWorkspaceAction(c *cli.Context, fn AppWorkspaceFn) error {
 
 		return CancellableAction(func(ctx context.Context) error {
 			return fn(ctx, cfg, app.Details{
-				App:       &application,
-				Env:       &infraDetails.Env,
-				Workspace: &infraDetails.Workspace,
-				Module:    &infraDetails.Module,
+				App:             &application,
+				Env:             &infraDetails.Env,
+				Workspace:       &infraDetails.Workspace,
+				WorkspaceConfig: &infraDetails.WorkspaceConfig,
+				Module:          &infraDetails.Module,
 			})
 		})
 	})

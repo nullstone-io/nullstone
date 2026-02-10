@@ -1,3 +1,6 @@
+# 0.0.163 (Feb 10, 2026)
+* Fixed missing connections when running app workspace commands.
+
 # 0.0.162 (Feb 09, 2026)
 * Fixed panic if application is not found by name.
 
