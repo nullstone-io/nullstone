@@ -1,3 +1,6 @@
+# 0.0.162 (Feb 09, 2026)
+* Fixed panic if application is not found by name.
+
 # 0.0.161 (Feb 09, 2026)
 * Added support for EKS services and jobs.
 * Changed `nullstone push` to emit the artifact version to stdout.
