@@ -33,6 +33,8 @@ func AppWorkspaceAction(c *cli.Context, fn AppWorkspaceFn) error {
 			application, err := find.App(ctx, apiClient.Config, appName, "")
 			if err != nil {
 				return fmt.Errorf("error finding application: %w", err)
+			} else if application == nil {
+				return fmt.Errorf("application does not exist")
 			}
 			stack, err := apiClient.Stacks().Get(ctx, application.StackId, false)
 			if err != nil {
