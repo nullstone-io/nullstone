@@ -1,26 +1,26 @@
 {
-    "version": "0.0.162",
+    "version": "0.0.163",
     "architecture": {
         "32bit": {
-            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.162/nullstone_0.0.162_windows_386.tar.gz",
+            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.163/nullstone_0.0.163_windows_386.tar.gz",
             "bin": [
                 "nullstone.exe"
             ],
-            "hash": "cb8f01a9296063c2fe2b6e7f9deb34cc09ae9189242e02e94f398d01b9fe0801"
+            "hash": "913bb03f392edca6bbbc9aabccd18673a045c60b2c1273e614c6b4f66485446a"
         },
         "64bit": {
-            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.162/nullstone_0.0.162_windows_amd64.tar.gz",
+            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.163/nullstone_0.0.163_windows_amd64.tar.gz",
             "bin": [
                 "nullstone.exe"
             ],
-            "hash": "4bce88a4032f0fec03a0f4e615d43e6670cb174835c973bb83044cfada3ee39f"
+            "hash": "45977ea88804507f8208d617312ab3932e530cd1c585096cf279ebf88e356a93"
         },
         "arm64": {
-            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.162/nullstone_0.0.162_windows_arm64.tar.gz",
+            "url": "https://github.com/nullstone-io/nullstone/releases/download/v0.0.163/nullstone_0.0.163_windows_arm64.tar.gz",
             "bin": [
                 "nullstone.exe"
             ],
-            "hash": "7e46d0e841c0c1405c2975eaad860891ae61c210a3cf847a2b1f76d99dd6812c"
+            "hash": "3578d258cc7a10270cf44a73b950f9f190d7c620c381fdfe190b3f255265a8cc"
         }
     },
     "homepage": "https://nullstone.io",
