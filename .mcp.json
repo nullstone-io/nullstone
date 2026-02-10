@@ -1,0 +1,6 @@
+{
+  "nullstone": {
+    "command": "nullstone",
+    "args": ["mcp-server"]
+  }
+}
