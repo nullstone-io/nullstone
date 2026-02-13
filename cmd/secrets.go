@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
@@ -125,7 +126,8 @@ var SecretsCreate = &cli.Command{
 				return fmt.Errorf("error creating secret: %w", err)
 			}
 
-			fmt.Printf("created secret %q\n", secret.Identity.Id())
+			fmt.Fprintln(os.Stderr, "Created secret. To use in an app's env var, paste the following text as the env var's value.")
+			fmt.Printf("{{ secret(%s) }}\n", secret.Identity.Id())
 			return nil
 		})
 	},
@@ -181,7 +183,8 @@ var SecretsUpdate = &cli.Command{
 				return fmt.Errorf("error updating secret: %w", err)
 			}
 
-			fmt.Printf("updated secret %q\n", secret.Identity.Id())
+			fmt.Fprintln(os.Stderr, "Updated secret. To use in an app's env var, paste the following text as the env var's value.")
+			fmt.Printf("{{ secret(%s) }}\n", secret.Identity.Id())
 			return nil
 		})
 	},
