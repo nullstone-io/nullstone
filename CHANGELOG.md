@@ -1,3 +1,9 @@
+# 0.0.164 (Feb 13, 2026)
+* Added `secrets` command group to manage secrets in a Nullstone environment.
+* Added `secrets list` command to list secrets in the cloud platform connected to that environment.
+* Added `secrets create` command to create a secret in the cloud platform connected to that environment.
+* Added `secrets update` command to update a secret in the cloud platform connected to that environment.
+
 # 0.0.163 (Feb 10, 2026)
 * Fixed missing connections when running app workspace commands.
 
