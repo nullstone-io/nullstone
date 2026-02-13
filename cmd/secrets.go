@@ -125,7 +125,7 @@ var SecretsCreate = &cli.Command{
 				return fmt.Errorf("error creating secret: %w", err)
 			}
 
-			fmt.Printf("created secret %q\n", secret.Identity.Name)
+			fmt.Printf("created secret %q\n", secret.Identity.Id())
 			return nil
 		})
 	},
@@ -181,7 +181,7 @@ var SecretsUpdate = &cli.Command{
 				return fmt.Errorf("error updating secret: %w", err)
 			}
 
-			fmt.Printf("updated secret %q\n", secret.Identity.Name)
+			fmt.Printf("updated secret %q\n", secret.Identity.Id())
 			return nil
 		})
 	},
