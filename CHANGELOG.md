@@ -3,6 +3,7 @@
 * Added `secrets list` command to list secrets in the cloud platform connected to that environment.
 * Added `secrets create` command to create a secret in the cloud platform connected to that environment.
 * Added `secrets update` command to update a secret in the cloud platform connected to that environment.
+* Fixed `nullstone push` for GCP GCS Static Site when pushing an assets directory.
 
 # 0.0.163 (Feb 10, 2026)
 * Fixed missing connections when running app workspace commands.
