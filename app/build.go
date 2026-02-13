@@ -31,6 +31,7 @@ func Build() *cli.App {
 		cmd.SetOrg,
 		cmd.Stacks,
 		cmd.Envs,
+		cmd.Secrets,
 		cmd.Apps,
 		cmd.Blocks,
 		cmd.Modules,

@@ -21,7 +21,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/crypto v0.47.0
 	golang.org/x/sync v0.19.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260209212858-e55cbde912b7
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260213040708-c776dab7c2ce
 	k8s.io/api v0.35.0
 	k8s.io/apimachinery v0.35.0
 	k8s.io/client-go v0.35.0
@@ -160,6 +160,7 @@ require (
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/gnostic-models v0.7.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.11 // indirect
 	github.com/googleapis/gax-go/v2 v2.16.0 // indirect
