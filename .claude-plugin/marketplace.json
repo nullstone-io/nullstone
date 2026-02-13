@@ -1,0 +1,15 @@
+{
+  "name": "nullstone",
+  "description": "Nullstone CLI plugin for AI-assisted infrastructure management",
+  "owner": {
+    "name": "Nullstone"
+  },
+  "plugins": [
+    {
+      "name": "nullstone",
+      "source": ".",
+      "description": "Manage infrastructure, applications, and deployments on the Nullstone platform via MCP",
+      "keywords": ["infrastructure", "deployment", "nullstone", "terraform", "devops"]
+    }
+  ]
+}

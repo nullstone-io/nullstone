@@ -50,6 +50,7 @@ func Build() *cli.App {
 		cmd.Ssh(adminProviders),
 		cmd.Run(appProviders, adminProviders),
 		cmd.Profile,
+		cmd.McpServer,
 	}
 	sort.Sort(cli.CommandsByName(cliApp.Commands))
 

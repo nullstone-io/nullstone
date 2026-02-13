@@ -1,0 +1,10 @@
+{
+  "name": "nullstone",
+  "description": "Manage infrastructure, applications, and deployments on the Nullstone platform via MCP",
+  "version": "1.0.0",
+  "author": {
+    "name": "Nullstone"
+  },
+  "repository": "https://github.com/nullstone-io/nullstone",
+  "keywords": ["infrastructure", "deployment", "nullstone", "terraform", "devops"]
+}
