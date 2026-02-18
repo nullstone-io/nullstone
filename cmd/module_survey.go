@@ -100,7 +100,9 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 	categoryPrompt := &survey.Select{
 		Message: "Category:",
 		Options: types.AllCategoryNames,
-		Default: manifest.Category,
+	}
+	if manifest.Category != "" {
+		categoryPrompt.Default = manifest.Category
 	}
 	if err := survey.AskOne(categoryPrompt, &manifest.Category); err != nil {
 		return nil, err
@@ -113,6 +115,9 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 			Message: "Subcategory:",
 			Options: subcategories,
 			Default: manifest.Subcategory,
+		}
+		if manifest.Subcategory != "" {
+			subcategoryPrompt.Default = manifest.Subcategory
 		}
 		if err := survey.AskOne(subcategoryPrompt, &manifest.Subcategory); err != nil {
 			return nil, err

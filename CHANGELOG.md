@@ -1,3 +1,6 @@
+# 0.0.165 (Feb 18, 2026)
+* Fixed `modules generate` from failing during prompt.
+
 # 0.0.164 (Feb 13, 2026)
 * Added `secrets` command group to manage secrets in a Nullstone environment.
 * Added `secrets list` command to list secrets in the cloud platform connected to that environment.
