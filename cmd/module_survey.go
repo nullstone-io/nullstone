@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -100,7 +101,9 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 	categoryPrompt := &survey.Select{
 		Message: "Category:",
 		Options: types.AllCategoryNames,
-		Default: manifest.Category,
+	}
+	if manifest.Category != "" && slices.Contains(types.AllCategoryNames, manifest.Category) {
+		categoryPrompt.Default = manifest.Category
 	}
 	if err := survey.AskOne(categoryPrompt, &manifest.Category); err != nil {
 		return nil, err
@@ -112,7 +115,9 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 		subcategoryPrompt := &survey.Select{
 			Message: "Subcategory:",
 			Options: subcategories,
-			Default: manifest.Subcategory,
+		}
+		if manifest.Subcategory != "" && slices.Contains(subcategories, manifest.Subcategory) {
+			subcategoryPrompt.Default = manifest.Subcategory
 		}
 		if err := survey.AskOne(subcategoryPrompt, &manifest.Subcategory); err != nil {
 			return nil, err
@@ -147,10 +152,16 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 		"aws",
 		"gcp",
 	}
+	defaultProviderTypes := make([]string, 0)
+	for _, cur := range manifest.ProviderTypes {
+		if slices.Contains(allProviderTypes, cur) {
+			defaultProviderTypes = append(defaultProviderTypes, cur)
+		}
+	}
 	providerTypesPrompt := &survey.MultiSelect{
 		Message: "Provider Types:",
 		Options: allProviderTypes,
-		Default: manifest.ProviderTypes,
+		Default: defaultProviderTypes,
 	}
 	providerTypes := make([]string, 0)
 	if err := survey.AskOne(providerTypesPrompt, &providerTypes); err != nil {
