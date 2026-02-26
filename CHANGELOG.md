@@ -1,5 +1,6 @@
 # 0.0.166 (Feb 26, 2026)
 * Added `modules list` command to list modules in a Nullstone organization.
+* Fixed `nullstone run` usage text to properly show command args syntax (`[-- command [args...]]`).
 
 # 0.0.165 (Feb 18, 2026)
 * Fixed `modules generate` from failing during prompt.
