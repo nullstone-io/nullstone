@@ -15,6 +15,7 @@ var Apps = &cli.Command{
 	UsageText: "nullstone apps [subcommand]",
 	Subcommands: []*cli.Command{
 		AppsList,
+		AppsCapabilities,
 	},
 }
 

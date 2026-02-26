@@ -153,7 +153,6 @@ var ModulesList = &cli.Command{
 	},
 }
 
-
 var ModulesGenerate = &cli.Command{
 	Name: "generate",
 	Description: "Generates a nullstone manifest file for your module in the current directory. " +

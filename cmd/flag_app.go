@@ -10,6 +10,13 @@ var AppFlag = &cli.StringFlag{
 	// Required: true,
 }
 
+var RequiredAppFlag = &cli.StringFlag{
+	Name:     "app",
+	Usage:    "Name of the app to use for this operation",
+	EnvVars:  []string{"NULLSTONE_APP"},
+	Required: true,
+}
+
 func GetApp(c *cli.Context) string {
 	appName := c.String(AppFlag.Name)
 	// TODO: Drop parsing of first command arg as app once fully deprecated
