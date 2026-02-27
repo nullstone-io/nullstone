@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/nullstone-io/iac/yaml"
@@ -32,11 +33,17 @@ var AppsCapabilitiesList = &cli.Command{
 		StackRequiredFlag,
 		RequiredAppFlag,
 		EnvOptionalFlag,
+		&cli.BoolFlag{
+			Name:    "detail",
+			Aliases: []string{"d"},
+			Usage:   "Use this flag to show more details about each capability",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
 			client := api.Client{Config: cfg}
+			detail := c.Bool("detail")
 
 			app, env, err := AppOrAppWorkspace(c, cfg)
 			if err != nil {
@@ -55,12 +62,18 @@ var AppsCapabilitiesList = &cli.Command{
 					return nil
 				}
 
-				rows := make([]string, len(caps)+1)
-				rows[0] = "Name|Module|Module Version"
-				for i, cur := range caps {
-					rows[i+1] = fmt.Sprintf("%s|%s|%s", cur.Name, cur.Source, cur.SourceVersion)
+				if detail {
+					rows := make([]string, len(caps)+1)
+					rows[0] = "Name|Module|Module Version|Connections"
+					for i, cur := range caps {
+						rows[i+1] = fmt.Sprintf("%s|%s|%s|%s", cur.Name, cur.Source, cur.SourceVersion, formatCapabilityConnections(cur.Connections))
+					}
+					fmt.Println(columnize.Format(rows, columnize.DefaultConfig()))
+				} else {
+					for _, cur := range caps {
+						fmt.Println(cur.Name)
+					}
 				}
-				fmt.Println(columnize.Format(rows, columnize.DefaultConfig()))
 			} else {
 				// List capabilities from the workspace template
 				wt, err := client.WorkspaceTemplates().Get(ctx, app.StackId, app.Id)
@@ -71,12 +84,18 @@ var AppsCapabilitiesList = &cli.Command{
 					return nil
 				}
 
-				rows := make([]string, len(wt.Config.Capabilities)+1)
-				rows[0] = "Name|Module|Module Constraint"
-				for i, cur := range wt.Config.Capabilities {
-					rows[i+1] = fmt.Sprintf("%s|%s|%s", cur.Name, cur.Module, cur.ModuleConstraint)
+				if detail {
+					rows := make([]string, len(wt.Config.Capabilities)+1)
+					rows[0] = "Name|Module|Module Constraint|Connections"
+					for i, cur := range wt.Config.Capabilities {
+						rows[i+1] = fmt.Sprintf("%s|%s|%s|%s", cur.Name, cur.Module, cur.ModuleConstraint, formatTemplateConnections(cur.Connections))
+					}
+					fmt.Println(columnize.Format(rows, columnize.DefaultConfig()))
+				} else {
+					for _, cur := range wt.Config.Capabilities {
+						fmt.Println(cur.Name)
+					}
 				}
-				fmt.Println(columnize.Format(rows, columnize.DefaultConfig()))
 			}
 
 			return nil
@@ -123,12 +142,12 @@ var AppsCapabilitiesCreate = &cli.Command{
 
 			connections := types.ConnectionTargets{}
 			for _, cur := range connectionSlice {
-				name, raw, ok := strings.Cut(cur, "=")
+				connName, raw, ok := strings.Cut(cur, "=")
 				if !ok {
 					return fmt.Errorf("invalid --connection format, expected <name>=<value>")
 				}
 				constraint := yaml.ParseConnectionConstraint(raw)
-				connections[name] = types.ConnectionTarget{
+				connections[connName] = types.ConnectionTarget{
 					StackName: constraint.StackName,
 					BlockName: constraint.BlockName,
 					EnvName:   constraint.EnvName,
@@ -226,4 +245,59 @@ var AppsCapabilitiesRemove = &cli.Command{
 			return nil
 		})
 	},
+}
+
+// formatCapabilityConnections renders a Connections map (from a CapabilityConfig) as
+// a comma-separated list of "name->target" pairs, e.g. "network->my-network, cluster->my-cluster".
+func formatCapabilityConnections(connections types.Connections) string {
+	if len(connections) == 0 {
+		return ""
+	}
+	pairs := make([]string, 0, len(connections))
+	for name, conn := range connections {
+		target := conn.EffectiveTarget
+		if target == nil {
+			target = conn.DesiredTarget
+		}
+		pairs = append(pairs, fmt.Sprintf("%s->%s", name, formatConnectionTarget(target)))
+	}
+	sort.Strings(pairs)
+	return strings.Join(pairs, ", ")
+}
+
+// formatTemplateConnections renders a ConnectionTargets map (from a WorkspaceCapabilityTemplateConfig)
+// as a comma-separated list of "name->target" pairs.
+func formatTemplateConnections(connections types.ConnectionTargets) string {
+	if len(connections) == 0 {
+		return ""
+	}
+	pairs := make([]string, 0, len(connections))
+	for name, target := range connections {
+		t := target
+		pairs = append(pairs, fmt.Sprintf("%s->%s", name, formatConnectionTarget(&t)))
+	}
+	sort.Strings(pairs)
+	return strings.Join(pairs, ", ")
+}
+
+// formatConnectionTarget returns the most succinct human-readable form of a ConnectionTarget:
+//
+//	stack.env.block  (cross-stack, cross-env)
+//	stack.block      (cross-stack, same-env)
+//	block            (same-stack, same-env)
+func formatConnectionTarget(t *types.ConnectionTarget) string {
+	if t == nil {
+		return "(none)"
+	}
+	block := t.BlockName
+	if block == "" {
+		return "(none)"
+	}
+	if t.StackName != "" && t.EnvName != "" {
+		return fmt.Sprintf("%s.%s.%s", t.StackName, t.EnvName, block)
+	}
+	if t.StackName != "" {
+		return fmt.Sprintf("%s.%s", t.StackName, block)
+	}
+	return block
 }
