@@ -1,9 +1,12 @@
 package git
 
 import (
-	"github.com/go-git/go-git/v5"
+	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
+
+	"github.com/go-git/go-git/v5"
 )
 
 func GetVcsUrl(repo *git.Repository) (*url.URL, error) {
@@ -23,10 +26,35 @@ func GetVcsUrl(repo *git.Repository) (*url.URL, error) {
 		return nil, nil
 	}
 
-	clean := strings.TrimSuffix(urls[0], ".git")
-	if strings.HasPrefix(urls[0], "git@github.com:") {
-		clean = strings.Replace(urls[0], "git@github.com:", "https://github.com/", 1)
+	clean, err := ParseRemote(urls[0])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing remote url %q: %w", urls[0], err)
+	}
+	clean.Path = strings.TrimSuffix(clean.Path, ".git")
+	return clean, nil
+}
+
+var scpLike = regexp.MustCompile(`^([^@]+@)?([^:]+):(.+)$`)
+
+// ParseRemote parses a remote URL into a url.URL
+// This converts standard URL formats and SCP-style formats into a URL format
+// This does not resolve host aliases (e.g. github-brad-sickles -> github.com)
+func ParseRemote(raw string) (*url.URL, error) {
+	// --- Case 1: Standard URL ---
+	if strings.Contains(raw, "://") {
+		return url.Parse(raw)
 	}
 
-	return url.Parse(clean)
+	// --- Case 2: SCP-style ---
+	if m := scpLike.FindStringSubmatch(raw); m != nil {
+		user := strings.TrimSuffix(m[1], "@")
+		return &url.URL{
+			Scheme: "git",
+			User:   url.User(user),
+			Host:   m[2],
+			Path:   m[3],
+		}, nil
+	}
+
+	return nil, fmt.Errorf("remote url format is not supported")
 }
