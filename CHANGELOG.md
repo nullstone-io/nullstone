@@ -1,4 +1,4 @@
-# 0.0.166 (Feb 26, 2026)
+# 0.0.166 (Feb 27, 2026)
 * Added `modules list` command to list modules in a Nullstone organization.
 * Fixed `nullstone run` usage text to properly show command args syntax (`[-- command [args...]]`).
 * Added `apps capabilities list` command to list capabilities in the app's template or app workspace.
