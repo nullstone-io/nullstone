@@ -4,6 +4,7 @@
 * Added `apps capabilities list` command to list capabilities in the app's template or app workspace.
 * Added `apps capabilities create` command to create capability in the app's template or app workspace.
 * Added `apps capabilities remove` command to remove capability in the app's template or app workspace.
+* Fixed parsing of remote URLs when using host aliases (e.g. `github-username` -> `github.com`).
 
 # 0.0.165 (Feb 18, 2026)
 * Fixed `modules generate` from failing during prompt.
