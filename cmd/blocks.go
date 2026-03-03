@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/ryanuber/columnize"
@@ -92,6 +93,22 @@ var BlocksNew = &cli.Command{
 			Name:  "connection",
 			Usage: "Specify any connections that this block will have to other blocks. Use the connection name as the key, and the connected block name as the value. Example: --connection network=network0",
 		},
+		&cli.StringFlag{
+			Name: "dns-template",
+			Usage: `Specify a template for the dns name portion of the subdomain.
+This is a template that allows you to add "{{ NULLSTONE_ENV }}" and "{{ NULLSTONE_ORG }}" in template.
+In production, the "{{ NULLSTONE_ENV }}" will be omitted to create a vanity subdomain.
+
+Nullstone will interpolate the template to create a subdomain: "<dns-name>.<domain-name>".
+
+If you want to create a ".nullstone.app" subdomain using an "autogen" or "nullstone-subdomain" module, set this to "{{ random() }}".
+
+For a subdomain on your custom domain, set this to something like "api.{{ NULLSTONE_ENV }}".
+- "dev" env => api.dev.example.com
+- "prod" env => api.example.com
+`,
+			Required: false,
+		},
 	},
 	Action: func(c *cli.Context) error {
 		return ProfileAction(c, func(cfg api.Config) error {
@@ -154,6 +171,19 @@ var BlocksNew = &cli.Command{
 						Connections:      connections,
 					},
 				}
+				if block.Type == string(types.BlockTypeSubdomain) {
+					dnsTemplate := c.String("dns-template")
+					if dnsTemplate == "" {
+						if isNullstoneSubdomainModule(module) {
+							dnsTemplate = "{{ random() }}"
+							fmt.Fprintf(os.Stderr, "--dns-template was not specified; defaulting to \"{{ random() }}\" for a nullstone.app subdomain")
+						} else {
+							return fmt.Errorf("--dns-template is required when creating a Subdomain block")
+						}
+					}
+					input.Template.SubdomainNameTemplate = dnsTemplate
+				}
+
 				if newBlock, err := client.Blocks().Create(ctx, stack.Id, input); err != nil {
 					return err
 				} else if newBlock != nil {
@@ -215,4 +245,14 @@ func validateConnections(moduleVersion *types.ModuleVersion, connections map[str
 	}
 
 	return nil
+}
+
+func isNullstoneSubdomainModule(module *types.Module) bool {
+	latest := module.LatestVersion
+	if latest == nil {
+		return false
+	}
+	_, hasDomain := latest.Manifest.Connections["domain"]
+	_, hasSubdomain := latest.Manifest.Connections["subdomain"]
+	return !hasDomain && !hasSubdomain
 }

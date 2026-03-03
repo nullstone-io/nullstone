@@ -1,3 +1,6 @@
+# 0.0.167 (Mar 02, 2026)
+* Added `--dns-template` flag to `blocks new` command that is required when creating subdomains. 
+
 # 0.0.166 (Feb 27, 2026)
 * Added `modules list` command to list modules in a Nullstone organization.
 * Fixed `nullstone run` usage text to properly show command args syntax (`[-- command [args...]]`).
