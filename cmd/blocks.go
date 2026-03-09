@@ -150,47 +150,38 @@ For a subdomain on your custom domain, set this to something like "api.{{ NULLST
 				StackId: stack.Id,
 				Type:    blockTypeFromModuleCategory(module.Category),
 				Name:    name,
-				Repo:    "",
 			}
-			if strings.HasPrefix(string(module.Category), "app") {
-				app := &types.Application{Block: *block}
-				app.Framework = "other"
-				if newApp, err := client.Apps().Create(ctx, stack.Id, app); err != nil {
-					return err
-				} else if newApp != nil {
-					fmt.Printf("created %s app\n", newApp.Name)
-				} else {
-					fmt.Println("unable to create app")
-				}
-			} else {
-				input := api.CreateBlockInput{
-					Block: *block,
-					Template: &types.WorkspaceTemplateConfig{
-						Module:           moduleSource,
-						ModuleConstraint: "latest",
-						Connections:      connections,
-					},
-				}
-				if block.Type == string(types.BlockTypeSubdomain) {
-					dnsTemplate := c.String("dns-template")
-					if dnsTemplate == "" {
-						if isNullstoneSubdomainModule(module) {
-							dnsTemplate = "{{ random() }}"
-							fmt.Fprintf(os.Stderr, "--dns-template was not specified; defaulting to \"{{ random() }}\" for a nullstone.app subdomain")
-						} else {
-							return fmt.Errorf("--dns-template is required when creating a Subdomain block")
-						}
+			input := api.CreateBlockInput{
+				Block: *block,
+				Template: &types.WorkspaceTemplateConfig{
+					Module:           moduleSource,
+					ModuleConstraint: "latest",
+					Connections:      connections,
+				},
+			}
+			switch types.BlockType(block.Type) {
+			case types.BlockTypeApplication:
+				input.Repo = ""
+				input.Framework = "other"
+			case types.BlockTypeSubdomain:
+				dnsTemplate := c.String("dns-template")
+				if dnsTemplate == "" {
+					if isNullstoneSubdomainModule(module) {
+						dnsTemplate = "{{ random() }}"
+						fmt.Fprintf(os.Stderr, "--dns-template was not specified; defaulting to \"{{ random() }}\" for a nullstone.app subdomain")
+					} else {
+						return fmt.Errorf("--dns-template is required when creating a Subdomain block")
 					}
-					input.Template.SubdomainNameTemplate = dnsTemplate
 				}
+				input.Template.SubdomainNameTemplate = dnsTemplate
+			}
 
-				if newBlock, err := client.Blocks().Create(ctx, stack.Id, input); err != nil {
-					return err
-				} else if newBlock != nil {
-					fmt.Printf("created %q block\n", newBlock.Name)
-				} else {
-					fmt.Println("unable to create block")
-				}
+			if newBlock, err := client.Blocks().Create(ctx, stack.Id, input); err != nil {
+				return err
+			} else if newBlock != nil {
+				fmt.Printf("created %q block\n", newBlock.Name)
+			} else {
+				fmt.Println("unable to create block")
 			}
 			return nil
 		})
