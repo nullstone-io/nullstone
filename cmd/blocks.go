@@ -145,10 +145,15 @@ For a subdomain on your custom domain, set this to something like "api.{{ NULLST
 				return err
 			}
 
+			blockType, err := blockTypeFromModuleCategory(module.Category)
+			if err != nil {
+				return err
+			}
+
 			block := &types.Block{
 				OrgName: cfg.OrgName,
 				StackId: stack.Id,
-				Type:    blockTypeFromModuleCategory(module.Category),
+				Type:    string(blockType),
 				Name:    name,
 			}
 			input := api.CreateBlockInput{
@@ -188,15 +193,28 @@ For a subdomain on your custom domain, set this to something like "api.{{ NULLST
 	},
 }
 
-func blockTypeFromModuleCategory(categoryName types.CategoryName) string {
-	category := string(categoryName)
-	if strings.HasPrefix(category, "app/") {
-		return "Application"
+func blockTypeFromModuleCategory(categoryName types.CategoryName) (types.BlockType, error) {
+	switch categoryName {
+	case types.CategoryApp:
+		return types.BlockTypeApplication, nil
+	case types.CategoryCapability:
+		return types.BlockTypeBlock, fmt.Errorf("A capability module cannot be created as a standalone block. It must be attached as a capability to an application.")
+	case types.CategoryDatastore:
+		return types.BlockTypeDatastore, nil
+	case types.CategoryIngress:
+		return types.BlockTypeIngress, nil
+	case types.CategorySubdomain:
+		return types.BlockTypeSubdomain, nil
+	case types.CategoryDomain:
+		return types.BlockTypeDomain, nil
+	case types.CategoryCluster:
+		return types.BlockTypeCluster, nil
+	case types.CategoryClusterNamespace:
+		return types.BlockTypeClusterNamespace, nil
+	case types.CategoryNetwork:
+		return types.BlockTypeNetwork, nil
 	}
-	if strings.HasPrefix(category, "capability/") {
-		return "Block"
-	}
-	return strings.Title(category)
+	return types.BlockTypeBlock, nil
 }
 
 func mapConnectionsToTargets(cfg api.Config, stack *types.Stack, mappings []string) (map[string]types.ConnectionTarget, error) {
