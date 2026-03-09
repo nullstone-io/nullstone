@@ -1,3 +1,6 @@
+# 0.0.168 (Mar 09, 2026)
+* Fixed creation of applications through `blocks new` command.
+
 # 0.0.167 (Mar 02, 2026)
 * Added `--dns-template` flag to `blocks new` command that is required when creating subdomains. 
 

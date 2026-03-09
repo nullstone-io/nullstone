@@ -145,67 +145,76 @@ For a subdomain on your custom domain, set this to something like "api.{{ NULLST
 				return err
 			}
 
+			blockType, err := blockTypeFromModuleCategory(module.Category)
+			if err != nil {
+				return err
+			}
+
 			block := &types.Block{
 				OrgName: cfg.OrgName,
 				StackId: stack.Id,
-				Type:    blockTypeFromModuleCategory(module.Category),
+				Type:    string(blockType),
 				Name:    name,
-				Repo:    "",
 			}
-			if strings.HasPrefix(string(module.Category), "app") {
-				app := &types.Application{Block: *block}
-				app.Framework = "other"
-				if newApp, err := client.Apps().Create(ctx, stack.Id, app); err != nil {
-					return err
-				} else if newApp != nil {
-					fmt.Printf("created %s app\n", newApp.Name)
-				} else {
-					fmt.Println("unable to create app")
-				}
-			} else {
-				input := api.CreateBlockInput{
-					Block: *block,
-					Template: &types.WorkspaceTemplateConfig{
-						Module:           moduleSource,
-						ModuleConstraint: "latest",
-						Connections:      connections,
-					},
-				}
-				if block.Type == string(types.BlockTypeSubdomain) {
-					dnsTemplate := c.String("dns-template")
-					if dnsTemplate == "" {
-						if isNullstoneSubdomainModule(module) {
-							dnsTemplate = "{{ random() }}"
-							fmt.Fprintf(os.Stderr, "--dns-template was not specified; defaulting to \"{{ random() }}\" for a nullstone.app subdomain")
-						} else {
-							return fmt.Errorf("--dns-template is required when creating a Subdomain block")
-						}
+			input := api.CreateBlockInput{
+				Block: *block,
+				Template: &types.WorkspaceTemplateConfig{
+					Module:           moduleSource,
+					ModuleConstraint: "latest",
+					Connections:      connections,
+				},
+			}
+			switch types.BlockType(block.Type) {
+			case types.BlockTypeApplication:
+				input.Repo = ""
+				input.Framework = "other"
+			case types.BlockTypeSubdomain:
+				dnsTemplate := c.String("dns-template")
+				if dnsTemplate == "" {
+					if isNullstoneSubdomainModule(module) {
+						dnsTemplate = "{{ random() }}"
+						fmt.Fprintf(os.Stderr, "--dns-template was not specified; defaulting to \"{{ random() }}\" for a nullstone.app subdomain")
+					} else {
+						return fmt.Errorf("--dns-template is required when creating a Subdomain block")
 					}
-					input.Template.SubdomainNameTemplate = dnsTemplate
 				}
+				input.Template.SubdomainNameTemplate = dnsTemplate
+			}
 
-				if newBlock, err := client.Blocks().Create(ctx, stack.Id, input); err != nil {
-					return err
-				} else if newBlock != nil {
-					fmt.Printf("created %q block\n", newBlock.Name)
-				} else {
-					fmt.Println("unable to create block")
-				}
+			if newBlock, err := client.Blocks().Create(ctx, stack.Id, input); err != nil {
+				return err
+			} else if newBlock != nil {
+				fmt.Printf("created %q block\n", newBlock.Name)
+			} else {
+				fmt.Println("unable to create block")
 			}
 			return nil
 		})
 	},
 }
 
-func blockTypeFromModuleCategory(categoryName types.CategoryName) string {
-	category := string(categoryName)
-	if strings.HasPrefix(category, "app/") {
-		return "Application"
+func blockTypeFromModuleCategory(categoryName types.CategoryName) (types.BlockType, error) {
+	switch categoryName {
+	case types.CategoryApp:
+		return types.BlockTypeApplication, nil
+	case types.CategoryCapability:
+		return types.BlockTypeBlock, fmt.Errorf("A capability module cannot be created as a standalone block. It must be attached as a capability to an application.")
+	case types.CategoryDatastore:
+		return types.BlockTypeDatastore, nil
+	case types.CategoryIngress:
+		return types.BlockTypeIngress, nil
+	case types.CategorySubdomain:
+		return types.BlockTypeSubdomain, nil
+	case types.CategoryDomain:
+		return types.BlockTypeDomain, nil
+	case types.CategoryCluster:
+		return types.BlockTypeCluster, nil
+	case types.CategoryClusterNamespace:
+		return types.BlockTypeClusterNamespace, nil
+	case types.CategoryNetwork:
+		return types.BlockTypeNetwork, nil
 	}
-	if strings.HasPrefix(category, "capability/") {
-		return "Block"
-	}
-	return strings.Title(category)
+	return types.BlockTypeBlock, nil
 }
 
 func mapConnectionsToTargets(cfg api.Config, stack *types.Stack, mappings []string) (map[string]types.ConnectionTarget, error) {
