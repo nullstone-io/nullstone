@@ -7,6 +7,11 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ec2"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/eks"
+	"gopkg.in/nullstone-io/nullstone.v0/azure/aca"
+	"gopkg.in/nullstone-io/nullstone.v0/azure/aks"
+	"gopkg.in/nullstone-io/nullstone.v0/azure/appservice"
+	azurefunctions "gopkg.in/nullstone-io/nullstone.v0/azure/functions"
+	"gopkg.in/nullstone-io/nullstone.v0/azure/vm"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/cloudfunctions"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/cloudrun"
 	"gopkg.in/nullstone-io/nullstone.v0/gcp/gke"
@@ -76,6 +81,41 @@ var (
 		Platform:    "cloudfunctions",
 		Subplatform: "",
 	}
+	acaContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppContainer),
+		Provider:    "azure",
+		Platform:    "aca",
+		Subplatform: "*",
+	}
+	aksContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppContainer),
+		Provider:    "azure",
+		Platform:    "k8s",
+		Subplatform: "aks",
+	}
+	azureVmContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppServer),
+		Provider:    "azure",
+		Platform:    "vm",
+		Subplatform: "*",
+	}
+	appServiceContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppServer),
+		Provider:    "azure",
+		Platform:    "appservice",
+		Subplatform: "*",
+	}
+	azureFunctionsContract = types.ModuleContractName{
+		Category:    string(types.CategoryApp),
+		Subcategory: string(types.SubcategoryAppServerless),
+		Provider:    "azure",
+		Platform:    "functions",
+		Subplatform: "*",
+	}
 
 	Providers = admin.Providers{
 		ecsContract: admin.Provider{
@@ -113,6 +153,26 @@ var (
 		cloudFunctionsContract: admin.Provider{
 			NewStatuser: nil,
 			NewRemoter:  cloudfunctions.NewRemoter,
+		},
+		acaContract: admin.Provider{
+			NewStatuser: aca.NewStatuser,
+			NewRemoter:  aca.NewRemoter,
+		},
+		aksContract: admin.Provider{
+			NewStatuser: nil,
+			NewRemoter:  aks.NewRemoter,
+		},
+		azureVmContract: admin.Provider{
+			NewStatuser: nil,
+			NewRemoter:  vm.NewRemoter,
+		},
+		appServiceContract: admin.Provider{
+			NewStatuser: nil,
+			NewRemoter:  appservice.NewRemoter,
+		},
+		azureFunctionsContract: admin.Provider{
+			NewStatuser: nil,
+			NewRemoter:  azurefunctions.NewRemoter,
 		},
 	}
 )
