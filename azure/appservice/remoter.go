@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
@@ -54,7 +55,7 @@ func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string
 
 // kuduExecCommand executes a command via the Kudu command API
 func (r Remoter) kuduExecCommand(ctx context.Context, cmd []string) error {
-	token, err := r.Infra.Deployer.GetToken(ctx)
+	token, err := r.Infra.Remoter.GetToken(ctx, policy.TokenRequestOptions{})
 	if err != nil {
 		return fmt.Errorf("error getting Azure token: %w", err)
 	}
@@ -77,7 +78,7 @@ func (r Remoter) kuduExecCommand(ctx context.Context, cmd []string) error {
 	if err != nil {
 		return fmt.Errorf("error creating exec request: %w", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+token.Token)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)

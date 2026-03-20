@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 )
 
 const armBaseURL = "https://management.azure.com"
@@ -15,7 +17,7 @@ const armBaseURL = "https://management.azure.com"
 // RunCommand executes a command on an Azure VM using the Run Command API
 // POST /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Compute/virtualMachines/{vmName}/runCommand
 func RunCommand(ctx context.Context, infra Outputs, cmd []string) error {
-	token, err := infra.Deployer.GetToken(ctx)
+	token, err := infra.Remoter.GetToken(ctx, policy.TokenRequestOptions{})
 	if err != nil {
 		return fmt.Errorf("error getting Azure token: %w", err)
 	}
@@ -39,7 +41,7 @@ func RunCommand(ctx context.Context, infra Outputs, cmd []string) error {
 	if err != nil {
 		return fmt.Errorf("error creating run command request: %w", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+token.Token)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -99,7 +101,7 @@ func pollAsyncOperation(ctx context.Context, infra Outputs, asyncURL string) err
 		case <-time.After(5 * time.Second):
 		}
 
-		token, err := infra.Deployer.GetToken(ctx)
+		token, err := infra.Remoter.GetToken(ctx, policy.TokenRequestOptions{})
 		if err != nil {
 			return fmt.Errorf("error getting Azure token: %w", err)
 		}
@@ -108,7 +110,7 @@ func pollAsyncOperation(ctx context.Context, infra Outputs, asyncURL string) err
 		if err != nil {
 			return fmt.Errorf("error creating poll request: %w", err)
 		}
-		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Authorization", "Bearer "+token.Token)
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
@@ -116,7 +118,7 @@ func pollAsyncOperation(ctx context.Context, infra Outputs, asyncURL string) err
 		}
 
 		var status struct {
-			Status     string           `json:"status"`
+			Status     string            `json:"status"`
 			Properties *runCommandResult `json:"properties"`
 		}
 		if err := json.NewDecoder(resp.Body).Decode(&status); err != nil {

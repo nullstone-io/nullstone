@@ -3,8 +3,8 @@ package aks
 import (
 	"context"
 
+	"github.com/nullstone-io/deployment-sdk/azure"
 	"github.com/nullstone-io/deployment-sdk/k8s"
-	"gopkg.in/nullstone-io/nullstone.v0/azure"
 	"k8s.io/client-go/rest"
 )
 

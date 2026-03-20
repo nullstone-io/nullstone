@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 )
 
 const (
@@ -22,7 +24,7 @@ func StartBastionSsh(ctx context.Context, infra Outputs, username string) error 
 		return err
 	}
 
-	token, err := infra.Deployer.GetToken(ctx)
+	token, err := infra.Remoter.GetToken(ctx, policy.TokenRequestOptions{})
 	if err != nil {
 		return fmt.Errorf("error getting Azure token: %w", err)
 	}
@@ -43,7 +45,7 @@ func StartBastionSsh(ctx context.Context, infra Outputs, username string) error 
 
 	// Set the access token so the az CLI uses it instead of requiring a separate login
 	env := os.Environ()
-	env = append(env, "AZURE_ACCESS_TOKEN="+token)
+	env = append(env, "AZURE_ACCESS_TOKEN="+token.Token)
 
 	ctx = context.Background() // Ignore signal cancellations on the context
 	cmd := exec.CommandContext(ctx, azPath, args...)

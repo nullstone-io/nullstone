@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
+	"github.com/nullstone-io/deployment-sdk/azure"
 	"github.com/nullstone-io/deployment-sdk/k8s"
-	"gopkg.in/nullstone-io/nullstone.v0/azure"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
@@ -17,11 +18,11 @@ type PrincipalAuth struct {
 }
 
 func (a PrincipalAuth) AuthInfo(ctx context.Context) (clientcmdapi.AuthInfo, error) {
-	token, err := a.GetToken(ctx)
+	token, err := a.GetToken(ctx, policy.TokenRequestOptions{})
 	if err != nil {
 		return clientcmdapi.AuthInfo{}, fmt.Errorf("error retrieving kubernetes access token from Azure: %w", err)
 	}
 	return clientcmdapi.AuthInfo{
-		Token: token,
+		Token: token.Token,
 	}, nil
 }

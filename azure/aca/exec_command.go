@@ -7,12 +7,14 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 )
 
 // ExecCommand executes a command in a running Container App replica using the
 // Azure Container Apps exec API
 func ExecCommand(ctx context.Context, infra Outputs, container string, cmd []string) error {
-	token, err := infra.Deployer.GetToken(ctx)
+	token, err := infra.Remoter.GetToken(ctx, policy.TokenRequestOptions{})
 	if err != nil {
 		return fmt.Errorf("error getting Azure token: %w", err)
 	}
@@ -45,7 +47,7 @@ func ExecCommand(ctx context.Context, infra Outputs, container string, cmd []str
 	if err != nil {
 		return fmt.Errorf("error creating exec request: %w", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+token.Token)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)

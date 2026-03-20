@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 )
 
 const armBaseURL = "https://management.azure.com"
@@ -21,14 +23,14 @@ type replicaListResponse struct {
 }
 
 type replicaResource struct {
-	Name       string                   `json:"name"`
+	Name       string                    `json:"name"`
 	Properties replicaResourceProperties `json:"properties"`
 }
 
 type replicaResourceProperties struct {
-	CreatedTime  string              `json:"createdTime"`
-	RunningState string              `json:"runningState"`
-	Containers   []replicaContainer  `json:"containers"`
+	CreatedTime  string             `json:"createdTime"`
+	RunningState string             `json:"runningState"`
+	Containers   []replicaContainer `json:"containers"`
 }
 
 type replicaContainer struct {
@@ -38,13 +40,13 @@ type replicaContainer struct {
 
 // GetReplicas retrieves the list of replicas for a Container App
 func GetReplicas(ctx context.Context, infra Outputs) ([]Replica, error) {
-	token, err := infra.Deployer.GetToken(ctx)
+	token, err := infra.Statuser.GetToken(ctx, policy.TokenRequestOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error getting Azure token: %w", err)
 	}
 
 	url := fmt.Sprintf("%s/subscriptions/%s/resourceGroups/%s/providers/Microsoft.App/containerApps/%s/replicas?api-version=2024-03-01",
-		armBaseURL, infra.Deployer.TenantId, infra.ResourceGroup, infra.ContainerAppName)
+		armBaseURL, infra.Statuser.TenantId, infra.ResourceGroup, infra.ContainerAppName)
 
 	// The subscription ID is not directly in Outputs — the ARM API URL is constructed using
 	// the resource group which implicitly scopes to the subscription.
@@ -57,7 +59,7 @@ func GetReplicas(ctx context.Context, infra Outputs) ([]Replica, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+token.Token)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

@@ -80,7 +80,7 @@ func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string
 		MainContainerName: r.Infra.MainContainerName,
 		JobDefinitionName: r.Infra.JobDefinitionName,
 		NewConfigFn: func(ctx context.Context) (*rest.Config, error) {
-			return CreateKubeConfig(ctx, r.Infra.ClusterNamespace, r.Infra.Deployer)
+			return CreateKubeConfig(ctx, r.Infra.ClusterNamespace, r.Infra.Runner)
 		},
 		Out:    r.OsWriters.Stdout(),
 		ErrOut: r.OsWriters.Stderr(),

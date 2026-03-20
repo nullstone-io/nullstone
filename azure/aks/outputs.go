@@ -4,10 +4,10 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/nullstone-io/deployment-sdk/azure"
 	"github.com/nullstone-io/deployment-sdk/k8s"
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	nstypes "gopkg.in/nullstone-io/go-api-client.v0/types"
-	"gopkg.in/nullstone-io/nullstone.v0/azure"
 	apimachineryschema "k8s.io/apimachinery/pkg/runtime/schema"
 	restclient "k8s.io/client-go/rest"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -16,7 +16,8 @@ import (
 type Outputs struct {
 	ServiceNamespace  string          `ns:"service_namespace"`
 	ServiceName       string          `ns:"service_name"`
-	Deployer          azure.Principal `ns:"deployer,optional"`
+	Runner            azure.Principal `ns:"deployer,optional"`
+	Remoter           azure.Principal `ns:"deployer,optional"`
 	MainContainerName string          `ns:"main_container_name,optional"`
 	// JobDefinitionName is only specified for a job/task
 	// It refers to a Kubernetes ConfigMap containing the job definition in the "template" field
@@ -26,8 +27,8 @@ type Outputs struct {
 }
 
 func (o *Outputs) InitializeCreds(source outputs.RetrieverSource, ws *nstypes.Workspace) {
-	factory := azure.NewTokenProviderFactory(source, ws.StackId, ws.Uid)
-	o.Deployer.RemoteTokenProvider = factory("deployer")
+	o.Runner.InitializeCreds(source, ws, nstypes.AutomationPurposeRun, "adminer", "deployer")
+	o.Remoter.InitializeCreds(source, ws, nstypes.AutomationPurposeExecRemote, "adminer", "deployer")
 }
 
 type ClusterNamespaceOutputs struct {

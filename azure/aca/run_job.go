@@ -9,12 +9,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/nullstone-io/deployment-sdk/logging"
 )
 
 // RunJob starts a Container Apps Job execution and monitors it until completion
 func RunJob(ctx context.Context, osWriters logging.OsWriters, infra Outputs, cmd []string, envVars map[string]string) error {
-	token, err := infra.Deployer.GetToken(ctx)
+	token, err := infra.Runner.GetToken(ctx, policy.TokenRequestOptions{})
 	if err != nil {
 		return fmt.Errorf("error getting Azure token: %w", err)
 	}
@@ -61,7 +62,7 @@ func RunJob(ctx context.Context, osWriters logging.OsWriters, infra Outputs, cmd
 	if err != nil {
 		return fmt.Errorf("error creating job start request: %w", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", "Bearer "+token.Token)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -99,7 +100,7 @@ func pollJobExecution(ctx context.Context, osWriters logging.OsWriters, infra Ou
 		case <-time.After(5 * time.Second):
 		}
 
-		token, err := infra.Deployer.GetToken(ctx)
+		token, err := infra.Runner.GetToken(ctx, policy.TokenRequestOptions{})
 		if err != nil {
 			return fmt.Errorf("error getting Azure token: %w", err)
 		}
@@ -111,7 +112,7 @@ func pollJobExecution(ctx context.Context, osWriters logging.OsWriters, infra Ou
 		if err != nil {
 			return fmt.Errorf("error creating execution status request: %w", err)
 		}
-		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Authorization", "Bearer "+token.Token)
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {

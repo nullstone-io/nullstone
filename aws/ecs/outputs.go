@@ -9,21 +9,25 @@ import (
 )
 
 type Outputs struct {
-	Region             string     `ns:"region"`
-	ServiceName        string     `ns:"service_name"`
-	TaskArn            string     `ns:"task_arn"`
-	MainContainerName  string     `ns:"main_container_name,optional"`
-	Deployer           nsaws.User `ns:"deployer,optional"`
-	AppSecurityGroupId string     `ns:"app_security_group_id"`
-	LaunchType         string     `ns:"launch_type,optional"`
+	Region             string            `ns:"region"`
+	ServiceName        string            `ns:"service_name"`
+	TaskArn            string            `ns:"task_arn"`
+	MainContainerName  string            `ns:"main_container_name,optional"`
+	Runner             nsaws.IamIdentity `ns:"deployer,optional"`
+	Remoter            nsaws.IamIdentity `ns:"deployer,optional"`
+	Statuser           nsaws.IamIdentity `ns:"deployer,optional"`
+	AppSecurityGroupId string            `ns:"app_security_group_id"`
+	LaunchType         string            `ns:"launch_type,optional"`
 
 	Cluster          ClusterOutputs          `ns:",connectionContract:cluster/aws/ecs:*,optional"`
 	ClusterNamespace ClusterNamespaceOutputs `ns:",connectionContract:cluster-namespace/aws/ecs:*,optional"`
 }
 
 func (o *Outputs) InitializeCreds(source outputs.RetrieverSource, ws *nstypes.Workspace) {
-	credsFactory := creds.NewProviderFactory(source, ws.StackId, ws.Uid)
-	o.Deployer.RemoteProvider = credsFactory("adminer", "deployer")
+	credsFactory := creds.NewProviderFactory(source, ws.StackId, ws.BlockId, ws.EnvId)
+	o.Runner.RemoteProvider = credsFactory("adminer", "deployer")
+	o.Remoter.RemoteProvider = credsFactory("adminer", "deployer")
+	o.Statuser.RemoteProvider = credsFactory("adminer", "deployer")
 }
 
 func (o *Outputs) ClusterArn() string {

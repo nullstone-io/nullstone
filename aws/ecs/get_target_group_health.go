@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"context"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
 	elbv2types "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
@@ -9,7 +10,7 @@ import (
 )
 
 func GetTargetGroupHealth(ctx context.Context, infra Outputs, targetGroupArn string) ([]elbv2types.TargetHealthDescription, error) {
-	elbClient := elasticloadbalancingv2.NewFromConfig(nsaws.NewConfig(infra.Deployer, infra.Region))
+	elbClient := elasticloadbalancingv2.NewFromConfig(nsaws.NewConfig(infra.Statuser, infra.Region))
 	out, err := elbClient.DescribeTargetHealth(ctx, &elasticloadbalancingv2.DescribeTargetHealthInput{
 		TargetGroupArn: aws.String(targetGroupArn),
 	})

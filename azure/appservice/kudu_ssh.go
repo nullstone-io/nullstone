@@ -8,6 +8,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/gorilla/websocket"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"golang.org/x/term"
@@ -16,7 +17,7 @@ import (
 // KuduSsh establishes an interactive SSH session to an Azure App Service container
 // via the Kudu websocket endpoint (wss://{app}.scm.azurewebsites.net/webssh/host).
 func KuduSsh(ctx context.Context, infra Outputs, osWriters logging.OsWriters) error {
-	token, err := infra.Deployer.GetToken(ctx)
+	token, err := infra.Remoter.GetToken(ctx, policy.TokenRequestOptions{})
 	if err != nil {
 		return fmt.Errorf("error getting Azure token: %w", err)
 	}
@@ -24,7 +25,7 @@ func KuduSsh(ctx context.Context, infra Outputs, osWriters logging.OsWriters) er
 	wsURL := fmt.Sprintf("wss://%s.scm.azurewebsites.net/webssh/host", infra.SiteName)
 
 	headers := http.Header{}
-	headers.Set("Authorization", "Bearer "+token)
+	headers.Set("Authorization", "Bearer "+token.Token)
 
 	dialer := websocket.DefaultDialer
 	conn, _, err := dialer.DialContext(ctx, wsURL, headers)

@@ -9,11 +9,13 @@ import (
 
 type Outputs struct {
 	ServiceName       string             `ns:"service_name"`
-	Deployer          gcp.ServiceAccount `ns:"deployer"`
+	Runner            gcp.ServiceAccount `ns:"deployer,optional"`
+	Remoter           gcp.ServiceAccount `ns:"deployer,optional"`
 	MainContainerName string             `ns:"main_container_name,optional"`
 	JobId             string             `ns:"job_id,optional"`
 }
 
 func (o *Outputs) InitializeCreds(source outputs.RetrieverSource, ws *nstypes.Workspace) {
-	o.Deployer.RemoteTokenSourcer = creds.NewTokenSourcer(source, ws.StackId, ws.Uid, "deployer")
+	o.Runner.RemoteTokenSourcer = creds.NewTokenSourcer(source, ws.StackId, ws.BlockId, ws.EnvId, nstypes.AutomationPurposeRun, "deployer")
+	o.Remoter.RemoteTokenSourcer = creds.NewTokenSourcer(source, ws.StackId, ws.BlockId, ws.EnvId, nstypes.AutomationPurposeExecRemote, "deployer")
 }

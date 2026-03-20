@@ -60,7 +60,7 @@ func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string
 	runner := JobRunner{
 		JobId:             r.Infra.JobId,
 		MainContainerName: r.Infra.MainContainerName,
-		Adminer:           r.Infra.Deployer,
+		Adminer:           r.Infra.Runner,
 	}
 	return runner.Run(ctx, options, cmd, envVars)
 }
