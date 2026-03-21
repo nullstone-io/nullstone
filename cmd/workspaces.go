@@ -69,18 +69,17 @@ var WorkspacesSelect = &cli.Command{
 				return err
 			}
 
-			// TODO: Add support for capability testing --> workspaces.Manifest.CapabilityName
-
 			targetWorkspace := workspaces.Manifest{
-				OrgName:     cfg.OrgName,
-				StackId:     sbe.Stack.Id,
-				StackName:   sbe.Stack.Name,
-				BlockId:     sbe.Block.Id,
-				BlockName:   sbe.Block.Name,
-				BlockRef:    sbe.Block.Reference,
-				EnvId:       sbe.Env.Id,
-				EnvName:     sbe.Env.Name,
-				Connections: workspaces.ManifestConnections{},
+				OrgName:      cfg.OrgName,
+				StackId:      sbe.Stack.Id,
+				StackName:    sbe.Stack.Name,
+				BlockId:      sbe.Block.Id,
+				BlockName:    sbe.Block.Name,
+				BlockRef:     sbe.Block.Reference,
+				EnvId:        sbe.Env.Id,
+				EnvName:      sbe.Env.Name,
+				Connections:  workspaces.ManifestConnections{},
+				Capabilities: workspaces.ManifestCapabilities{},
 			}
 			workspace, err := client.Workspaces().Get(ctx, targetWorkspace.StackId, targetWorkspace.BlockId, targetWorkspace.EnvId)
 			if err != nil {
@@ -94,7 +93,9 @@ var WorkspacesSelect = &cli.Command{
 			if err != nil {
 				return fmt.Errorf("could not retrieve current workspace configuration: %w", err)
 			}
-			manualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, runConfig)
+
+			// Survey missing app-level connections
+			manualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, "", runConfig.Connections)
 			if err != nil {
 				return err
 			}
@@ -105,6 +106,26 @@ var WorkspacesSelect = &cli.Command{
 					BlockName: conn.EffectiveTarget.BlockName,
 					EnvId:     conn.EffectiveTarget.EnvId,
 				}
+			}
+
+			// Survey missing capability connections
+			for _, cap := range runConfig.Capabilities {
+				capManualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, cap.Name, cap.Connections)
+				if err != nil {
+					return err
+				}
+				mc := workspaces.ManifestCapability{
+					Connections: workspaces.ManifestConnections{},
+				}
+				for name, conn := range capManualConnections {
+					mc.Connections[name] = workspaces.ManifestConnectionTarget{
+						StackId:   conn.EffectiveTarget.StackId,
+						BlockId:   conn.EffectiveTarget.BlockId,
+						BlockName: conn.EffectiveTarget.BlockName,
+						EnvId:     conn.EffectiveTarget.EnvId,
+					}
+				}
+				targetWorkspace.Capabilities[cap.Name] = mc
 			}
 
 			return CancellableAction(func(ctx context.Context) error {
@@ -126,14 +147,18 @@ func detectModuleToolName() string {
 	return DefaultToolName
 }
 
-func surveyMissingConnections(ctx context.Context, cfg api.Config, sourceStackName string, runConfig types.RunConfig) (types.Connections, error) {
+func surveyMissingConnections(ctx context.Context, cfg api.Config, sourceStackName string, capabilityName string, conns types.Connections) (types.Connections, error) {
 	initialPrompt := &sync.Once{}
 	connections := types.Connections{}
-	for name, conn := range runConfig.Connections {
+	for name, conn := range conns {
 		// Let's ask the user if the connection has no reference
 		if conn.EffectiveTarget == nil || conn.EffectiveTarget.BlockId < 1 {
 			initialPrompt.Do(func() {
-				fmt.Println("There are connections in this module that do not have a target set.")
+				if capabilityName != "" {
+					fmt.Printf("There are connections in capability %q that do not have a target set.\n", capabilityName)
+				} else {
+					fmt.Println("There are connections in this module that do not have a target set.")
+				}
 				fmt.Println("Type the block name for each connection to configure the connection locally.")
 			})
 			ct, err := surveyMissingConnection(ctx, cfg, sourceStackName, name, conn)

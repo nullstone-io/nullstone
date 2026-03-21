@@ -1,9 +1,10 @@
 package workspaces
 
 import (
-	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Manifest struct {
@@ -27,6 +28,14 @@ type Manifest struct {
 
 	CapabilityName string `json:"capabilityName,omitempty" yaml:"capability_name,omitempty"`
 
+	Connections ManifestConnections `json:"connections" yaml:"connections"`
+
+	Capabilities ManifestCapabilities `json:"capabilities,omitempty" yaml:"capabilities,omitempty"`
+}
+
+type ManifestCapabilities map[string]ManifestCapability
+
+type ManifestCapability struct {
 	Connections ManifestConnections `json:"connections" yaml:"connections"`
 }
 
