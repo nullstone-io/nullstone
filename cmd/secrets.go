@@ -3,7 +3,9 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
@@ -137,7 +139,7 @@ var SecretsUpdate = &cli.Command{
 	Name:        "update",
 	Description: "Updates an existing secret in the given stack and environment.",
 	Usage:       "Update a secret",
-	UsageText:   "nullstone secrets update --stack=<stack-name> --env=<env-name> --name=<secret-name> --value=<secret-value>",
+	UsageText:   "nullstone secrets update --stack=<stack-name> --env=<env-name> --name=<secret-name> --value=<secret-value>\n\nUse --value=- to read the secret value from stdin.",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		EnvFlag,
@@ -148,7 +150,7 @@ var SecretsUpdate = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:     "value",
-			Usage:    "The new value of the secret",
+			Usage:    "The new value of the secret. Use - to read from stdin.",
 			Required: true,
 		},
 	},
@@ -160,6 +162,14 @@ var SecretsUpdate = &cli.Command{
 			envName := c.String(EnvFlag.Name)
 			secretName := c.String("name")
 			secretValue := c.String("value")
+
+			if secretValue == "-" {
+				data, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("error reading secret value from stdin: %w", err)
+				}
+				secretValue = strings.TrimSuffix(string(data), "\n")
+			}
 
 			stack, err := find.Stack(ctx, cfg, stackName)
 			if err != nil {
