@@ -1,3 +1,7 @@
+# 0.0.169 (Unreleased)
+* Added Azure platform support.
+* Added support for reading secret value via stdin (`--value=-`) in `nullstone secrets create|update` command.
+
 # 0.0.168 (Mar 09, 2026)
 * Fixed creation of applications through `blocks new` command.
 
