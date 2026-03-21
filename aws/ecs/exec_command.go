@@ -2,9 +2,10 @@ package ecs
 
 import (
 	"context"
+	"strings"
+
 	nsaws "github.com/nullstone-io/deployment-sdk/aws"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ssm"
-	"strings"
 )
 
 func ExecCommand(ctx context.Context, infra Outputs, taskId string, containerName string, cmd []string, parameters map[string][]string) error {
@@ -16,7 +17,7 @@ func ExecCommand(ctx context.Context, infra Outputs, taskId string, containerNam
 	if len(cmd) == 0 {
 		cmd = []string{"/bin/sh"}
 	}
-	awsConfig := nsaws.NewConfig(infra.Deployer, region)
+	awsConfig := nsaws.NewConfig(infra.Remoter, region)
 
 	return ssm.StartEcsSession(ctx, awsConfig, region, cluster, taskId, containerName, strings.Join(cmd, " "), parameters)
 }

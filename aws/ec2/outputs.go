@@ -9,14 +9,14 @@ import (
 )
 
 type Outputs struct {
-	Region     string     `ns:"region"`
-	InstanceId string     `ns:"instance_id"`
-	Adminer    nsaws.User `ns:"adminer,optional"`
+	Region     string            `ns:"region"`
+	InstanceId string            `ns:"instance_id"`
+	Adminer    nsaws.IamIdentity `ns:"adminer,optional"`
 }
 
 func (o *Outputs) InitializeCreds(source outputs.RetrieverSource, ws *types.Workspace) {
-	credsFactory := creds.NewProviderFactory(source, ws.StackId, ws.Uid)
-	o.Adminer.RemoteProvider = credsFactory("adminer")
+	credsFactory := creds.NewProviderFactory(source, ws.StackId, ws.BlockId, ws.EnvId)
+	o.Adminer.RemoteProvider = credsFactory(types.AutomationPurposeExecRemote, "adminer")
 }
 
 func (o *Outputs) AdminerConfig() aws.Config {

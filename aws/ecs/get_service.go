@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"context"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	ecstypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
@@ -9,7 +10,7 @@ import (
 )
 
 func GetService(ctx context.Context, infra Outputs) (*ecstypes.Service, error) {
-	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(infra.Deployer, infra.Region))
+	ecsClient := ecs.NewFromConfig(nsaws.NewConfig(infra.Statuser, infra.Region))
 	out, err := ecsClient.DescribeServices(ctx, &ecs.DescribeServicesInput{
 		Services: []string{infra.ServiceName},
 		Cluster:  aws.String(infra.ClusterArn()),

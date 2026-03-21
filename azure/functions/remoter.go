@@ -1,4 +1,4 @@
-package cloudrun
+package functions
 
 import (
 	"context"
@@ -35,32 +35,13 @@ type Remoter struct {
 }
 
 func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
-	if r.Infra.ServiceName == "" {
-		return fmt.Errorf("cannot `exec` unless you have a long-running service, use `run` for a job/task")
-	}
-
-	// TODO: Implement
-	return nil
+	return fmt.Errorf("cannot `exec` into an Azure Function")
 }
 
 func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
-	if r.Infra.ServiceName == "" {
-		return fmt.Errorf("cannot `ssh` unless you have a long-running service, use `run` for a job/task")
-	}
-
-	// TODO: Implement
-	return nil
+	return fmt.Errorf("cannot `ssh` into an Azure Function")
 }
 
 func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string, envVars map[string]string) error {
-	if r.Infra.ServiceName != "" {
-		return fmt.Errorf("cannot use `run` for a long-running service, use `exec` instead")
-	}
-
-	runner := JobRunner{
-		JobId:             r.Infra.JobId,
-		MainContainerName: r.Infra.MainContainerName,
-		Adminer:           r.Infra.Runner,
-	}
-	return runner.Run(ctx, options, cmd, envVars)
+	return fmt.Errorf("`run` is not supported for Azure Functions")
 }

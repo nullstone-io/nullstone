@@ -9,10 +9,11 @@ import (
 )
 
 type Outputs struct {
-	ServiceNamespace  string     `ns:"service_namespace"`
-	ServiceName       string     `ns:"service_name"`
-	Deployer          nsaws.User `ns:"deployer,optional"`
-	MainContainerName string     `ns:"main_container_name,optional"`
+	ServiceNamespace  string            `ns:"service_namespace"`
+	ServiceName       string            `ns:"service_name"`
+	Runner            nsaws.IamIdentity `ns:"deployer,optional"`
+	Remoter           nsaws.IamIdentity `ns:"deployer,optional"`
+	MainContainerName string            `ns:"main_container_name,optional"`
 	// JobDefinitionName is only specified for a job/task
 	// It refers to a Kubernetes ConfigMap containing the job definition in the "template" field
 	JobDefinitionName string `ns:"job_definition_name,optional"`
@@ -21,6 +22,7 @@ type Outputs struct {
 }
 
 func (o *Outputs) InitializeCreds(source outputs.RetrieverSource, ws *nstypes.Workspace) {
-	credsFactory := creds.NewProviderFactory(source, ws.StackId, ws.Uid)
-	o.Deployer.RemoteProvider = credsFactory("deployer")
+	credsFactory := creds.NewProviderFactory(source, ws.StackId, ws.BlockId, ws.EnvId)
+	o.Runner.RemoteProvider = credsFactory(nstypes.AutomationPurposeRun, "deployer")
+	o.Remoter.RemoteProvider = credsFactory(nstypes.AutomationPurposeExecRemote, "deployer")
 }

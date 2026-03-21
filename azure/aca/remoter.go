@@ -1,4 +1,4 @@
-package cloudrun
+package aca
 
 import (
 	"context"
@@ -35,32 +35,34 @@ type Remoter struct {
 }
 
 func (r Remoter) Exec(ctx context.Context, options admin.RemoteOptions, cmd []string) error {
-	if r.Infra.ServiceName == "" {
-		return fmt.Errorf("cannot `exec` unless you have a long-running service, use `run` for a job/task")
+	if r.Infra.ContainerAppName == "" {
+		return fmt.Errorf("cannot `exec` unless you have a long-running container app, use `run` for a job")
+	}
+	if len(options.PortForwards) > 0 {
+		return fmt.Errorf("Azure Container Apps does not support port forwarding")
 	}
 
-	// TODO: Implement
-	return nil
+	return ExecCommand(ctx, r.Infra, options.Container, cmd)
 }
 
 func (r Remoter) Ssh(ctx context.Context, options admin.RemoteOptions) error {
-	if r.Infra.ServiceName == "" {
-		return fmt.Errorf("cannot `ssh` unless you have a long-running service, use `run` for a job/task")
+	if r.Infra.ContainerAppName == "" {
+		return fmt.Errorf("cannot `ssh` unless you have a long-running container app")
+	}
+	if len(options.PortForwards) > 0 {
+		return fmt.Errorf("Azure Container Apps does not support port forwarding")
 	}
 
-	// TODO: Implement
-	return nil
+	return ExecCommand(ctx, r.Infra, options.Container, []string{"/bin/sh"})
 }
 
 func (r Remoter) Run(ctx context.Context, options admin.RunOptions, cmd []string, envVars map[string]string) error {
-	if r.Infra.ServiceName != "" {
-		return fmt.Errorf("cannot use `run` for a long-running service, use `exec` instead")
+	if r.Infra.ContainerAppName != "" {
+		return fmt.Errorf("cannot use `run` with a long-running container app, use `exec` instead")
+	}
+	if r.Infra.JobName == "" {
+		return fmt.Errorf("no job name configured for this application")
 	}
 
-	runner := JobRunner{
-		JobId:             r.Infra.JobId,
-		MainContainerName: r.Infra.MainContainerName,
-		Adminer:           r.Infra.Runner,
-	}
-	return runner.Run(ctx, options, cmd, envVars)
+	return RunJob(ctx, r.OsWriters, r.Infra, cmd, envVars)
 }

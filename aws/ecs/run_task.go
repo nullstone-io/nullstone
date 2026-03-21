@@ -20,7 +20,7 @@ const DefaultWatchInterval = 1 * time.Second
 
 func RunTask(ctx context.Context, infra Outputs, containerName, username string, cmd []string, envVars map[string]string, logStreamer app.LogStreamer, logEmitter app.LogEmitter) error {
 	region := infra.Region
-	awsConfig := nsaws.NewConfig(infra.Deployer, region)
+	awsConfig := nsaws.NewConfig(infra.Runner, region)
 	ecsClient := ecs.NewFromConfig(awsConfig)
 
 	latestArn, err := getTaskDefArn(ctx, ecsClient, infra.TaskArn)

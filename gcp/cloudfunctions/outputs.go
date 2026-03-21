@@ -8,10 +8,10 @@ import (
 )
 
 type Outputs struct {
-	Deployer     gcp.ServiceAccount `ns:"deployer"`
+	Runner       gcp.ServiceAccount `ns:"deployer,optional"`
 	FunctionName string             `ns:"function_name"`
 }
 
 func (o *Outputs) InitializeCreds(source outputs.RetrieverSource, ws *nstypes.Workspace) {
-	o.Deployer.RemoteTokenSourcer = creds.NewTokenSourcer(source, ws.StackId, ws.Uid, "deployer")
+	o.Runner.RemoteTokenSourcer = creds.NewTokenSourcer(source, ws.StackId, ws.BlockId, ws.EnvId, nstypes.AutomationPurposeRun, "deployer")
 }

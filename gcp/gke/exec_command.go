@@ -9,7 +9,7 @@ import (
 )
 
 func ExecCommand(ctx context.Context, infra Outputs, pod, container string, cmd []string, opts *k8s.ExecOptions) error {
-	cfg, err := gke.CreateKubeConfig(ctx, infra.ClusterNamespace, infra.Deployer)
+	cfg, err := gke.CreateKubeConfig(ctx, infra.ClusterNamespace, infra.Remoter)
 	if err != nil {
 		return fmt.Errorf("error creating kube config: %w", err)
 	}
