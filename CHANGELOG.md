@@ -1,4 +1,4 @@
-# 0.0.169 (Unreleased)
+# 0.0.169 (Mar 22, 2026)
 * Added Azure platform support.
 * Added support for reading secret value via stdin (`--value=-`) in `nullstone secrets create|update` command.
 * `workspaces select` configures capability connections in `.nullstone/active-workspace.yml`.
