@@ -1,3 +1,6 @@
+# 0.0.170 (Unreleased)
+* Added support for multiple stacks to `iac test`.
+
 # 0.0.169 (Mar 22, 2026)
 * Added Azure platform support.
 * Added support for reading secret value via stdin (`--value=-`) in `nullstone secrets create|update` command.

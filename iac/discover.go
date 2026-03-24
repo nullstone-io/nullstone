@@ -2,13 +2,15 @@ package iac
 
 import (
 	"fmt"
+	"io"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/mitchellh/colorstring"
 	"github.com/nullstone-io/iac"
 	"gopkg.in/nullstone-io/nullstone.v0/git"
-	"io"
-	"net/url"
-	"path/filepath"
-	"strings"
 )
 
 var (
@@ -19,8 +21,8 @@ var (
 	}
 )
 
-func Discover(dir string, w io.Writer) (*iac.ConfigFiles, error) {
-	pmr, err := parseIacFiles(dir)
+func Discover(dir string, stackName string, w io.Writer) (*iac.ConfigFiles, error) {
+	pmr, err := parseIacFiles(dir, stackName)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +45,11 @@ func Discover(dir string, w io.Writer) (*iac.ConfigFiles, error) {
 	return pmr, nil
 }
 
-func parseIacFiles(dir string) (*iac.ConfigFiles, error) {
+const (
+	defaultRepoConfigDirectory = ".nullstone"
+)
+
+func parseIacFiles(dir string, stackName string) (*iac.ConfigFiles, error) {
 	rootDir, repo, err := git.GetRootDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("error looking for repository root directory: %w", err)
@@ -60,7 +66,17 @@ func parseIacFiles(dir string) (*iac.ConfigFiles, error) {
 	}
 
 	repoName := strings.TrimPrefix(repoUrl.Path, "/")
-	pmr, err := iac.ParseConfigDir(repoUrl.String(), repoName, filepath.Join(rootDir, ".nullstone"))
+
+	// Determine config directory: check for stack-scoped directory first, fall back to flat .nullstone/
+	configDir := filepath.Join(rootDir, defaultRepoConfigDirectory)
+	if stackName != "" {
+		stackDir := filepath.Join(rootDir, defaultRepoConfigDirectory, "stacks", stackName)
+		if info, err := os.Stat(stackDir); err == nil && info.IsDir() {
+			configDir = stackDir
+		}
+	}
+
+	pmr, err := iac.ParseConfigDir(repoUrl.String(), repoName, configDir)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing nullstone IaC files: %w", err)
 	}

@@ -57,7 +57,7 @@ var IacTest = &cli.Command{
 				}
 
 				stdout := os.Stdout
-				pmr, err := iac2.Discover(curDir, stdout)
+				pmr, err := iac2.Discover(curDir, stackName, stdout)
 				if err != nil {
 					return err
 				}
