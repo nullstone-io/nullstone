@@ -1,4 +1,4 @@
-# 0.0.170 (Unreleased)
+# 0.0.170 (Mar 26, 2026)
 * Added support for multiple stacks to `iac test`.
 
 # 0.0.169 (Mar 22, 2026)
