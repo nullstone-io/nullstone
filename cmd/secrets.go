@@ -105,6 +105,14 @@ var SecretsCreate = &cli.Command{
 			secretName := c.String("name")
 			secretValue := c.String("value")
 
+			if secretValue == "-" {
+				data, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("error reading secret value from stdin: %w", err)
+				}
+				secretValue = strings.TrimSuffix(string(data), "\n")
+			}
+
 			stack, err := find.Stack(ctx, cfg, stackName)
 			if err != nil {
 				return fmt.Errorf("error retrieving stack: %w", err)
