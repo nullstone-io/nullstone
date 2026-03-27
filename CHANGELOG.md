@@ -1,3 +1,6 @@
+# 0.0.171 (Mar 27, 2026)
+* Added support for reading secret value via stdin (`--value=-`) in `nullstone secrets create` command.
+
 # 0.0.170 (Mar 26, 2026)
 * Added support for multiple stacks to `iac test`.
 
