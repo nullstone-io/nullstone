@@ -43,7 +43,6 @@ var Launch = func(providers app.Providers) *cli.Command {
 				if skipPush {
 					fmt.Fprintln(osWriters.Stderr(), "App artifact already exists. Skipped push.")
 					fmt.Fprintln(osWriters.Stderr(), "")
-					return nil
 				} else {
 					if err := recordArtifact(ctx, osWriters, cfg, appDetails, info); err != nil {
 						return err
