@@ -1,3 +1,6 @@
+# 0.0.172 (Mar 28, 2026)
+* When running `launch`, always deploy even if an artifact already exists.
+
 # 0.0.171 (Mar 27, 2026)
 * Added support for reading secret value via stdin (`--value=-`) in `nullstone secrets create` command.
 
