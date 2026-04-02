@@ -29,7 +29,8 @@ func PerformRun(ctx context.Context, cfg api.Config, logger *log.Logger, input P
 	logger.SetPrefix("    ")
 	defer logger.SetPrefix("")
 
-	result, err := api_runs.Create(ctx, cfg, input.Workspace, input.CommitSha, input.IsApproved, time.Now(), input.IsDestroy, "")
+	latestUpdateAt := time.Now().Add(time.Second)
+	result, err := api_runs.Create(ctx, cfg, input.Workspace, input.CommitSha, input.IsApproved, latestUpdateAt, input.IsDestroy, "")
 	if err != nil {
 		return fmt.Errorf("error creating run: %w", err)
 	} else if result == nil {
