@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -55,6 +57,7 @@ var Apply = func() *cli.Command {
 				val := c.Bool("auto-approve")
 				autoApprove = &val
 			}
+			logger := log.New(os.Stderr, "", 0)
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				// Publish phase
@@ -63,7 +66,7 @@ var Apply = func() *cli.Command {
 					if input.Version == "" {
 						input.Version = "next-build"
 					}
-					output, err := modules.Publish(ctx, cfg, input)
+					output, err := modules.Publish(ctx, cfg, logger, input)
 					if err != nil {
 						return cli.Exit(fmt.Sprintf("publish failed: %s", err), 3)
 					}

@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"slices"
@@ -249,8 +250,9 @@ var ModulesPublish = &cli.Command{
 		return ProfileAction(c, func(cfg api.Config) error {
 			version := c.String("version")
 			includes := c.StringSlice("include")
+			logger := log.New(os.Stderr, "", 0)
 
-			output, err := modules.Publish(ctx, cfg, modules.PublishInput{
+			output, err := modules.Publish(ctx, cfg, logger, modules.PublishInput{
 				Version:  version,
 				Includes: includes,
 			})
@@ -273,17 +275,17 @@ var ModulesPackage = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		includes := c.StringSlice("include")
+		logger := log.New(os.Stderr, "", 0)
 
 		// Read module name from manifest
+		logger.Println(fmt.Sprintf("Reading module manifest file %q", moduleManifestFilename))
 		manifest, err := modules.ManifestFromFile(moduleManifestFilename)
 		if err != nil {
 			return err
 		}
+		logger.Println()
 
-		tarballFilename, err := modules.Package(manifest, "", append(includes, manifest.Includes...))
-		if err == nil {
-			fmt.Printf("created module package %q\n", tarballFilename)
-		}
+		_, err = modules.Package(logger, manifest, "", append(includes, manifest.Includes...))
 		return err
 	},
 }

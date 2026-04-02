@@ -3,10 +3,13 @@ package modules
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"strings"
+	"time"
 
+	"github.com/mitchellh/colorstring"
 	"golang.org/x/mod/semver"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -32,11 +35,13 @@ type PublishOutput struct {
 // Publish packages and publishes a module from the current working directory.
 // It reads the manifest from .nullstone/module.yml, resolves the version,
 // packages the module files, and uploads to the registry.
-func Publish(ctx context.Context, cfg api.Config, input PublishInput) (*PublishOutput, error) {
+func Publish(ctx context.Context, cfg api.Config, logger *log.Logger, input PublishInput) (*PublishOutput, error) {
+	logger.Println(fmt.Sprintf("Reading module manifest file %q", manifestFilename))
 	manifest, err := ManifestFromFile(manifestFilename)
 	if err != nil {
 		return nil, err
 	}
+	logger.Println()
 
 	version := input.Version
 
@@ -56,7 +61,8 @@ func Publish(ctx context.Context, cfg api.Config, input PublishInput) (*PublishO
 		if err != nil || commitSha == "" {
 			return nil, fmt.Errorf("using next-build requires a git repository with a commit: %w", err)
 		}
-		version = fmt.Sprintf("%s+%s", version, commitSha)
+		timestamp := time.Now().Unix()
+		version = fmt.Sprintf("%s+%s.%d", version, commitSha, timestamp)
 	}
 
 	version = strings.TrimPrefix(version, "v")
@@ -66,12 +72,13 @@ func Publish(ctx context.Context, cfg api.Config, input PublishInput) (*PublishO
 
 	// Package module files into tar.gz
 	allIncludes := append(input.Includes, manifest.Includes...)
-	tarballFilename, err := Package(manifest, version, allIncludes)
+	tarballFilename, err := Package(logger, manifest, version, allIncludes)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Fprintf(os.Stderr, "Created module package %q\n", tarballFilename)
+	logger.Println()
 
+	logger.Println("Publishing module...")
 	// Open tarball to publish
 	tarball, err := os.Open(tarballFilename)
 	if err != nil {
@@ -83,7 +90,8 @@ func Publish(ctx context.Context, cfg api.Config, input PublishInput) (*PublishO
 	if err := client.ModuleVersions().Create(ctx, manifest.OrgName, manifest.Name, manifest.ToolName, version, tarball); err != nil {
 		return nil, err
 	}
-	fmt.Fprintf(os.Stderr, "Published %s/%s@%s\n", manifest.OrgName, manifest.Name, version)
+	colorstring.Fprintln(logger.Writer(), fmt.Sprintf("[green]Published %s/%s@%s", manifest.OrgName, manifest.Name, version))
+	logger.Println()
 
 	return &PublishOutput{
 		Version:  version,

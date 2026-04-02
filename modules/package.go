@@ -2,6 +2,9 @@ package modules
 
 import (
 	"fmt"
+	"log"
+
+	"github.com/mitchellh/colorstring"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/artifacts"
 )
@@ -19,7 +22,7 @@ var (
 	}
 )
 
-func Package(manifest *types.ModuleManifest, version string, addlFiles []string) (string, error) {
+func Package(logger *log.Logger, manifest *types.ModuleManifest, version string, addlFiles []string) (string, error) {
 	excludeFn := func(entry artifacts.GlobEntry) bool {
 		_, ok := excludes[entry.Path]
 		return ok
@@ -29,6 +32,14 @@ func Package(manifest *types.ModuleManifest, version string, addlFiles []string)
 	if version != "" {
 		tarballFilename = fmt.Sprintf("%s-%s.tar.gz", manifest.Name, version)
 	}
+	logger.Println(fmt.Sprintf("Packaging module into %q...", tarballFilename))
 	allPatterns := append(moduleFilePatterns, addlFiles...)
-	return tarballFilename, artifacts.PackageModule(".", tarballFilename, allPatterns, excludeFn)
+	logger.SetPrefix("    ")
+	err := artifacts.PackageModule(logger, ".", tarballFilename, allPatterns, excludeFn)
+	logger.SetPrefix("")
+	if err != nil {
+		return tarballFilename, err
+	}
+	colorstring.Fprintln(logger.Writer(), "[green]Packaged module")
+	return tarballFilename, nil
 }
