@@ -27,6 +27,8 @@ $ nullstone apply [--stack=<stack-name>] --block=<block-name> --env=<env-name> [
 | `--auto-approve` | Skip any approvals and apply the changes immediately. This requires proper permissions in the stack. |  |
 | `--var` | Set variables values for the apply. This can be used to override variables defined in the module. |  |
 | `--module-version` | The version of the module to apply. |  |
+| `--publish` | Package and publish the module in the current directory before running the apply. The module version is automatically set to a build version (`0.0.0-<short-sha>`). |  |
+| `--async` | Trigger the run and exit immediately, printing a dashboard link instead of streaming logs. Without `--auto-approve`, only a plan is triggered and apply requires manual approval in the dashboard. |  |
 
 
 ## apps list

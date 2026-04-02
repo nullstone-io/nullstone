@@ -2,10 +2,13 @@ package cmd
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/modules"
 	"gopkg.in/nullstone-io/nullstone.v0/runs"
 )
 
@@ -36,12 +39,17 @@ var Apply = func() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "module-version",
-				Usage: "The version of the module to apply. If not specified, Nullstone will use the last execution.",
+				Usage: "The version of the module to apply. When used with `--publish`, this specifies the version to publish (supports semver, `next-patch`, and `next-build`).",
+			},
+			&cli.BoolFlag{
+				Name:  "publish",
+				Usage: "Package and publish the module in the current directory before running the apply. Uses `next-build` for the version by default, or the value of `--module-version` if specified.",
 			},
 		},
 		Action: func(c *cli.Context) error {
 			varFlags := c.StringSlice("var")
 			moduleVersion := c.String("module-version")
+			publish := c.Bool("publish")
 			var autoApprove *bool
 			if c.IsSet("auto-approve") {
 				val := c.Bool("auto-approve")
@@ -49,6 +57,20 @@ var Apply = func() *cli.Command {
 			}
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
+				// Publish phase
+				if publish {
+					input := modules.PublishInput{Version: moduleVersion}
+					if input.Version == "" {
+						input.Version = "next-build"
+					}
+					output, err := modules.Publish(ctx, cfg, input)
+					if err != nil {
+						return cli.Exit(fmt.Sprintf("publish failed: %s", err), 3)
+					}
+					// Use the published version for the run
+					moduleVersion = output.Version
+				}
+
 				if moduleVersion != "" {
 					input := api.UpdateWorkspaceModuleInput{ModuleVersion: moduleVersion}
 					err := runs.SetModuleVersion(ctx, cfg, workspace, input)
@@ -70,7 +92,24 @@ var Apply = func() *cli.Command {
 					BlockType:  types.BlockType(block.Type),
 					StreamLogs: c.IsSet("wait"),
 				}
-				return PerformRun(ctx, cfg, input)
+				err = PerformRun(ctx, cfg, input)
+
+				if err == nil {
+					return nil
+				}
+
+				// Map run errors to specific exit codes
+				if errors.Is(err, runs.ErrRunDisapproved) {
+					return nil
+				}
+				var runErr *runs.RunFailedError
+				if errors.As(err, &runErr) {
+					if runErr.Phase == "apply" {
+						return cli.Exit(fmt.Sprintf("apply failed: %s", runErr.StatusMessage), 2)
+					}
+					return cli.Exit(fmt.Sprintf("plan failed: %s", runErr.StatusMessage), 1)
+				}
+				return err
 			})
 		},
 	}

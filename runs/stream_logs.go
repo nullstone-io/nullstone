@@ -18,6 +18,19 @@ var (
 	ErrRunDisapproved = errors.New("run was disapproved")
 )
 
+// RunFailedError is returned when a run reaches a terminal failure status.
+// It includes the run's phase and status for callers that need to distinguish
+// between plan failures and apply failures.
+type RunFailedError struct {
+	Phase         string
+	Status        string
+	StatusMessage string
+}
+
+func (e *RunFailedError) Error() string {
+	return fmt.Sprintf("run failed to complete (%s): %s", e.Status, e.StatusMessage)
+}
+
 // StreamLogs streams the logs from the server over a websocket
 // The logs are emitted to stdout
 func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, newRun *types.Run) error {
@@ -50,7 +63,11 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 					return ErrRunDisapproved
 				}
 				if run.Status != types.RunStatusCompleted {
-					return fmt.Errorf("Run failed to complete (%s): %s", run.Status, run.StatusMessage)
+					return &RunFailedError{
+						Phase:         run.Phase,
+						Status:        run.Status,
+						StatusMessage: run.StatusMessage,
+					}
 				}
 				return nil
 			}
