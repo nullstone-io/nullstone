@@ -26,9 +26,8 @@ $ nullstone apply [--stack=<stack-name>] --block=<block-name> --env=<env-name> [
 | `--wait, -w` | Wait for the apply to complete and stream the Terraform logs to the console. |  |
 | `--auto-approve` | Skip any approvals and apply the changes immediately. This requires proper permissions in the stack. |  |
 | `--var` | Set variables values for the apply. This can be used to override variables defined in the module. |  |
-| `--module-version` | The version of the module to apply. |  |
-| `--publish` | Package and publish the module in the current directory before running the apply. The module version is automatically set to a build version (`0.0.0-<short-sha>`). |  |
-| `--async` | Trigger the run and exit immediately, printing a dashboard link instead of streaming logs. Without `--auto-approve`, only a plan is triggered and apply requires manual approval in the dashboard. |  |
+| `--module-version` | The version of the module to apply. When used with `--publish`, this specifies the version to publish (supports semver, `next-patch`, and `next-build`). |  |
+| `--publish` | Package and publish the module in the current directory before running the apply. Uses `next-build` for the version by default, or the value of `--module-version` if specified. |  |
 
 
 ## apps list
@@ -44,6 +43,14 @@ $ nullstone apps list
 | --- | --- | --- |
 | `--detail, -d` | Use this flag to show the details for each application |  |
 
+
+## apps capabilities
+
+
+#### Usage
+```shell
+$ nullstone apps capabilities [subcommand]
+```
 
 ## blocks list
 Shows a list of the blocks for the given stack. Set the `--detail` flag to show more details about each block.
@@ -75,6 +82,7 @@ $ nullstone blocks new --name=<name> --stack=<stack> --module=<module> [--connec
 | `--name` | Provide a name for this new block | required |
 | `--module` | Specify the unique name of the module to use for this block. Example: nullstone/aws-network | required |
 | `--connection` | Specify any connections that this block will have to other blocks. Use the connection name as the key, and the connected block name as the value. Example: --connection network=network0 |  |
+| `--dns-template` | Specify a template for the dns name portion of the subdomain.This is a template that allows you to add "{{ NULLSTONE_ENV }}" and "{{ NULLSTONE_ORG }}" in template.In production, the "{{ NULLSTONE_ENV }}" will be omitted to create a vanity subdomain.Nullstone will interpolate the template to create a subdomain: "`dns-name`.`domain-name`".If you want to create a ".nullstone.app" subdomain using an "autogen" or "nullstone-subdomain" module, set this to "{{ random() }}".For a subdomain on your custom domain, set this to something like "api.{{ NULLSTONE_ENV }}".- "dev" env =` api.dev.example.com- "prod" env =` api.example.com |  |
 
 
 ## configure
@@ -282,18 +290,47 @@ $ nullstone logs [--stack=<stack-name>] --app=<app-name> --env=<env-name> [optio
 | `--tail, -t` | Set tail to watch log events and emit as they are reported.       Use --interval to control how often to query log events.       This is off by default. Unless this option is provided, this command will exit as soon as current log events are emitted. |  |
 
 
+## mcp-server
+Start an MCP (Model Context Protocol) server that exposes Nullstone CLI commands as tools for AI assistants. Communicates over stdio.
+
+#### Usage
+```shell
+$ nullstone mcp-server
+```
+
 ## modules generate
 Generates a nullstone manifest file for your module in the current directory. You will be asked a series of questions in order to collect the information needed to describe a Nullstone module. Optionally, you can also register the module in the Nullstone registry by passing the `--register` flag.
 
 #### Usage
 ```shell
-$ nullstone modules generate [--register]
+$ nullstone modules generate [--register] [--manifest-only]
 ```
 
 #### Options
 | Option | Description | |
 | --- | --- | --- |
 | `--register` | Register the module in the Nullstone registry after generating the manifest file. |  |
+| `--manifest-only` | Only generate the module manifest file, do not register or generate Terraform. |  |
+
+
+## modules list
+Shows a list of modules in the Nullstone registry for the current organization.
+
+#### Usage
+```shell
+$ nullstone modules list
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--detailed` | Use this flag to show detailed information for each module |  |
+| `--name` | Filter modules whose name contains this value |  |
+| `--category` | Filter modules by category. Known values: app, capability, datastore, ingress, subdomain, domain, cluster, cluster-namespace, network, block |  |
+| `--subcategory` | Filter modules by subcategory. Known values — app: container, serverless, static-site, server; capability: ingress, datastores, secrets, sidecars, events, telemetry |  |
+| `--provider` | Filter modules by provider type. Known values: aws, gcp, azure |  |
+| `--platform` | Filter modules by platform |  |
+| `--subplatform` | Filter modules by subplatform |  |
 
 
 ## modules register
@@ -379,7 +416,7 @@ $ nullstone profile
 ```
 
 ## push
-Upload (push) an artifact containing the source for your application. Specify a semver version to associate with the artifact. The version specified can be used in the deploy command to select this artifact.
+Upload (push) an artifact containing the source for your application. Specify a semver version to associate with the artifact. The version specified can be used in the deploy command to select this artifact. By default, this command does nothing if an artifact with the same version already exists. Use --unique to force push with a unique version.
 
 #### Usage
 ```shell
@@ -394,6 +431,76 @@ $ nullstone push [--stack=<stack-name>] --app=<app-name> --env=<env-name> [optio
 | `--env` | Name of the environment to use for this operation |  |
 | `--source` | The source artifact to push that contains your application's build.		For a container, specify the name of the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.		For a serverless zip application, specify the .zip archive to push.		For a static site, specify the directory to push. | required |
 | `--version` | Provide a label for your deployment.		If not provided, it will default to the commit sha of the repo for the current directory. |  |
+| `--unique` | Use this to *always* push the artifact with a unique version. If the input version already exists, an incrementing `-`count`` suffix is added. |  |
+
+
+## run
+Starts a new container/serverless for the given Nullstone job/task. 
+
+#### Usage
+```shell
+$ nullstone run [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options] [-- command [args...]]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
+| `--app` | Name of the app to use for this operation |  |
+| `--env` | Name of the environment to use for this operation | required |
+| `--container` | Select a specific container within a task or pod.        If using sidecars, this allows you to connect to other containers besides the primary application container. |  |
+| `--env-var, -e` | Pass environment variables to the job/task. You can use this flag multiple times to specify multiple environment variables. For each environment variable, use `NAME`=`value`.This is supported for AWS ECS/Fargate jobs, GCP Cloud Run jobs, and Kubernetes jobs. |  |
+
+
+## secrets list
+Shows a list of secrets in the cloud platform that is configured for the given stack and environment.
+
+#### Usage
+```shell
+$ nullstone secrets list --stack=<stack-name> --env=<env-name>
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+
+
+## secrets create
+Creates a new secret in the given stack and environment.
+
+#### Usage
+```shell
+$ nullstone secrets create --stack=<stack-name> --env=<env-name> --name=<secret-name> --value=<secret-value>
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+| `--name` | The name of the secret to create | required |
+| `--value` | The value of the secret | required |
+
+
+## secrets update
+Updates an existing secret in the given stack and environment.
+
+#### Usage
+```shell
+$ nullstone secrets update --stack=<stack-name> --env=<env-name> --name=<secret-name> --value=<secret-value>
+
+Use --value=- to read the secret value from stdin.
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+| `--name` | The name of the secret to update | required |
+| `--value` | The new value of the secret. Use - to read from stdin. | required |
 
 
 ## set-org
