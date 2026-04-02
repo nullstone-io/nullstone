@@ -42,9 +42,11 @@ func StreamLogs(ctx context.Context, cfg api.Config, logger *log.Logger, workspa
 	innerCtx, cancelFn := context.WithCancel(ctx)
 	defer cancelFn()
 
-	logger.Println("Waiting for run logs...")
+	logger.Println("Streaming run logs...")
+	logger.Println()
+	logger.Println()
 	client := api.Client{Config: cfg}
-	msgs, err := client.RunLogs().Watch(innerCtx, workspace.StackId, newRun.Uid, ws.RetryInfinite(2*time.Second))
+	msgs, err := client.RunLogs().Watch(innerCtx, workspace.StackId, newRun.Uid, ws.RetryInfinite(1*time.Second))
 	if err != nil {
 		return err
 	}
@@ -60,22 +62,7 @@ func StreamLogs(ctx context.Context, cfg api.Config, logger *log.Logger, workspa
 			}
 		case run := <-runCh:
 			if types.IsTerminalRunStatus(run.Status) {
-				// A completed run finishes successfully
-				// Any other terminal status returns an error (causing a non-zero exit code for failed runs)
-				if run.Status == types.RunStatusDisapproved {
-					colorstring.Fprintln(logger.Writer(), "[yellow] Run disapproved")
-					return ErrRunDisapproved
-				}
-				if run.Status != types.RunStatusCompleted {
-					colorstring.Fprintln(logger.Writer(), "[red] Run failed")
-					return &RunFailedError{
-						Phase:         run.Phase,
-						Status:        run.Status,
-						StatusMessage: run.StatusMessage,
-					}
-				}
-				colorstring.Fprintln(logger.Writer(), "[green] Run completed")
-				return nil
+				return drainAndFinalize(ctx, logger, msgs, run)
 			}
 			if run.Status == types.RunStatusNeedsApproval {
 				printApprovalMsg.Do(func() {
@@ -84,6 +71,44 @@ func StreamLogs(ctx context.Context, cfg api.Config, logger *log.Logger, workspa
 					logger.Println(fmt.Sprintf("URL: %s", app_urls.GetRun(cfg, workspace, run)))
 				})
 			}
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+// drainAndFinalize drains remaining log messages after a run reaches a terminal status.
+// It waits until 1.1s passes with no new log content before returning the final result.
+func drainAndFinalize(ctx context.Context, logger *log.Logger, msgs <-chan types.Message, run types.Run) error {
+	flushTimeout := 1100 * time.Millisecond
+	timer := time.NewTimer(flushTimeout)
+	defer timer.Stop()
+	for {
+		select {
+		case msg := <-msgs:
+			if msg.Type != "error" {
+				fmt.Fprint(os.Stdout, msg.Content)
+			}
+			if !timer.Stop() {
+				<-timer.C
+			}
+			timer.Reset(flushTimeout)
+		case <-timer.C:
+			logger.Println()
+			if run.Status == types.RunStatusDisapproved {
+				colorstring.Fprintln(logger.Writer(), "[yellow]Run disapproved")
+				return ErrRunDisapproved
+			}
+			if run.Status != types.RunStatusCompleted {
+				colorstring.Fprintln(logger.Writer(), "[red]Run failed")
+				return &RunFailedError{
+					Phase:         run.Phase,
+					Status:        run.Status,
+					StatusMessage: run.StatusMessage,
+				}
+			}
+			colorstring.Fprintln(logger.Writer(), "[green]Run completed")
+			return nil
 		case <-ctx.Done():
 			return nil
 		}
