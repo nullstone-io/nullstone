@@ -277,12 +277,15 @@ var ModulesPackage = &cli.Command{
 		includes := c.StringSlice("include")
 		logger := log.New(os.Stderr, "", 0)
 
-		// Read module name from manifest
+		// Read the module metadata from manifest
 		logger.Println(fmt.Sprintf("Reading module manifest file %q", moduleManifestFilename))
 		manifest, err := modules.ManifestFromFile(moduleManifestFilename)
 		if err != nil {
 			return err
 		}
+		logger.SetPrefix("    ")
+		modules.WriteManifestToLogger(*manifest, logger)
+		logger.SetPrefix("")
 		logger.Println()
 
 		_, err = modules.Package(logger, manifest, "", append(includes, manifest.Includes...))

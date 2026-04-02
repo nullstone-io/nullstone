@@ -41,6 +41,9 @@ func Publish(ctx context.Context, cfg api.Config, logger *log.Logger, input Publ
 	if err != nil {
 		return nil, err
 	}
+	logger.SetPrefix("    ")
+	WriteManifestToLogger(*manifest, logger)
+	logger.SetPrefix("")
 	logger.Println()
 
 	version := input.Version

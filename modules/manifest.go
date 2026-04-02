@@ -2,10 +2,13 @@ package modules
 
 import (
 	"fmt"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
-	"gopkg.in/yaml.v3"
+	"log"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/yaml.v3"
 )
 
 func ManifestFromFile(filename string) (*types.ModuleManifest, error) {
@@ -37,4 +40,28 @@ func WriteManifestToFile(m types.ModuleManifest, filename string) error {
 	encoder := yaml.NewEncoder(file)
 	defer encoder.Close()
 	return encoder.Encode(m)
+}
+
+func WriteManifestToLogger(manifest types.ModuleManifest, logger *log.Logger) {
+	url := manifest.SourceUrl
+	if url == "" {
+		url = "<not configured>"
+	}
+	subcategory := ""
+	if manifest.Subcategory != "" {
+		subcategory = fmt.Sprintf(":%s", manifest.Subcategory)
+	}
+	provider := "*"
+	if len(manifest.ProviderTypes) > 0 {
+		provider = strings.Join(manifest.ProviderTypes, ",")
+	}
+	subplatform := ""
+	if manifest.Subplatform != "" {
+		subplatform = fmt.Sprintf(":%s", manifest.Subplatform)
+	}
+
+	logger.Println(fmt.Sprintf("Module: %s/%s", manifest.OrgName, manifest.Name))
+	logger.Println(fmt.Sprintf("URL: %s", manifest.SourceUrl))
+	logger.Println(fmt.Sprintf("Contract: %s%s/%s/%s%s", manifest.Category, subcategory, provider, manifest.Platform, subplatform))
+	logger.Println(fmt.Sprintf("Tool: %s", manifest.ToolName))
 }
