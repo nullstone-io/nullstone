@@ -3,6 +3,7 @@ package artifacts
 import (
 	"archive/tar"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -11,7 +12,7 @@ import (
 // 'filename' allows a developer to specify where to write the tar.gz
 // 'patterns' allows a developer to specify which file patterns are included in the tar.gz
 // This is more effective than the built-in tar command because it won't fail if a pattern doesn't match any files
-func PackageModule(dir, filename string, patterns []string, excludeFn func(entry GlobEntry) bool) error {
+func PackageModule(logger *log.Logger, dir, filename string, patterns []string, excludeFn func(entry GlobEntry) bool) error {
 	targzFile, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("error creating module package: %w", err)
@@ -31,10 +32,10 @@ func PackageModule(dir, filename string, patterns []string, excludeFn func(entry
 		}
 		if excludeFn != nil && excludeFn(entry) {
 			// Skip files that match exclude function
-			fmt.Fprintf(os.Stderr, "excluding %q\n", entry.Path)
+			logger.Println(fmt.Sprintf("excluding %q", entry.Path))
 			return nil
 		} else {
-			fmt.Fprintf(os.Stderr, "packaging %q\n", entry.Path)
+			logger.Println(fmt.Sprintf("packaging %q", entry.Path))
 		}
 		relPath, err := filepath.Rel(dir, entry.Path)
 		if err != nil {

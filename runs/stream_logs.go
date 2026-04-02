@@ -4,31 +4,49 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"sync"
+	"time"
+
 	"github.com/google/uuid"
+	"github.com/mitchellh/colorstring"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/go-api-client.v0/ws"
 	"gopkg.in/nullstone-io/nullstone.v0/app_urls"
-	"os"
-	"sync"
-	"time"
 )
 
 var (
 	ErrRunDisapproved = errors.New("run was disapproved")
 )
 
+// RunFailedError is returned when a run reaches a terminal failure status.
+// It includes the run's phase and status for callers that need to distinguish
+// between plan failures and apply failures.
+type RunFailedError struct {
+	Phase         string
+	Status        string
+	StatusMessage string
+}
+
+func (e *RunFailedError) Error() string {
+	return fmt.Sprintf("run failed to complete (%s): %s", e.Status, e.StatusMessage)
+}
+
 // StreamLogs streams the logs from the server over a websocket
 // The logs are emitted to stdout
-func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, newRun *types.Run) error {
+func StreamLogs(ctx context.Context, cfg api.Config, logger *log.Logger, workspace types.Workspace, newRun *types.Run) error {
 	// ctx already contains cancellation for Ctrl+C
 	// innerCtx will allow us to cancel when the run reaches a terminal status
 	innerCtx, cancelFn := context.WithCancel(ctx)
 	defer cancelFn()
 
-	fmt.Fprintln(os.Stdout, "Waiting for run logs...")
+	logger.Println("Streaming run logs...")
+	logger.Println()
+	logger.Println()
 	client := api.Client{Config: cfg}
-	msgs, err := client.RunLogs().Watch(innerCtx, workspace.StackId, newRun.Uid, ws.RetryInfinite(2*time.Second))
+	msgs, err := client.RunLogs().Watch(innerCtx, workspace.StackId, newRun.Uid, ws.RetryInfinite(1*time.Second))
 	if err != nil {
 		return err
 	}
@@ -44,23 +62,53 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 			}
 		case run := <-runCh:
 			if types.IsTerminalRunStatus(run.Status) {
-				// A completed run finishes successfully
-				// Any other terminal status returns an error (causing a non-zero exit code for failed runs)
-				if run.Status == types.RunStatusDisapproved {
-					return ErrRunDisapproved
-				}
-				if run.Status != types.RunStatusCompleted {
-					return fmt.Errorf("Run failed to complete (%s): %s", run.Status, run.StatusMessage)
-				}
-				return nil
+				return drainAndFinalize(ctx, logger, msgs, run)
 			}
 			if run.Status == types.RunStatusNeedsApproval {
 				printApprovalMsg.Do(func() {
-					fmt.Fprintln(os.Stdout, "Nullstone requires approval before applying infrastructure changes.")
-					fmt.Fprintln(os.Stdout, "Visit the infrastructure logs in a browser to approve/reject.")
-					fmt.Fprintln(os.Stdout, app_urls.GetRun(cfg, workspace, run))
+					logger.Println("Nullstone requires approval before applying infrastructure changes.")
+					logger.Println("Visit the infrastructure logs in a browser to approve/reject.")
+					logger.Println(fmt.Sprintf("URL: %s", app_urls.GetRun(cfg, workspace, run)))
 				})
 			}
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+// drainAndFinalize drains remaining log messages after a run reaches a terminal status.
+// It waits until 1.1s passes with no new log content before returning the final result.
+func drainAndFinalize(ctx context.Context, logger *log.Logger, msgs <-chan types.Message, run types.Run) error {
+	flushTimeout := 1100 * time.Millisecond
+	timer := time.NewTimer(flushTimeout)
+	defer timer.Stop()
+	for {
+		select {
+		case msg := <-msgs:
+			if msg.Type != "error" {
+				fmt.Fprint(os.Stdout, msg.Content)
+			}
+			if !timer.Stop() {
+				<-timer.C
+			}
+			timer.Reset(flushTimeout)
+		case <-timer.C:
+			logger.Println()
+			if run.Status == types.RunStatusDisapproved {
+				colorstring.Fprintln(logger.Writer(), "[yellow]Run disapproved")
+				return ErrRunDisapproved
+			}
+			if run.Status != types.RunStatusCompleted {
+				colorstring.Fprintln(logger.Writer(), "[red]Run failed")
+				return &RunFailedError{
+					Phase:         run.Phase,
+					Status:        run.Status,
+					StatusMessage: run.StatusMessage,
+				}
+			}
+			colorstring.Fprintln(logger.Writer(), "[green]Run completed")
+			return nil
 		case <-ctx.Done():
 			return nil
 		}

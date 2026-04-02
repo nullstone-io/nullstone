@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"slices"
@@ -10,10 +11,8 @@ import (
 
 	"github.com/ryanuber/columnize"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/mod/semver"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/modules"
-	"gopkg.in/nullstone-io/nullstone.v0/vcs"
 )
 
 var (
@@ -251,62 +250,16 @@ var ModulesPublish = &cli.Command{
 		return ProfileAction(c, func(cfg api.Config) error {
 			version := c.String("version")
 			includes := c.StringSlice("include")
+			logger := log.New(os.Stderr, "", 0)
 
-			// Read module name from manifest
-			manifest, err := modules.ManifestFromFile(moduleManifestFilename)
+			output, err := modules.Publish(ctx, cfg, logger, modules.PublishInput{
+				Version:  version,
+				Includes: includes,
+			})
 			if err != nil {
 				return err
 			}
-
-			// If user specifies --version=next-patch,
-			//   we are going to bump the patch automatically from the latest
-			if version == "next-patch" {
-				version, err = modules.NextPatch(ctx, cfg, manifest)
-				if err != nil {
-					return err
-				}
-			}
-			// If user specifies --version=next-build,
-			//   we are going to bump the patch and use the short git commit sha as +build in the semver
-			if version == "next-build" {
-				version, err = modules.NextPatch(ctx, cfg, manifest)
-				if err != nil {
-					return err
-				}
-				var commitSha string
-				if hash, err := vcs.GetCurrentCommitSha(); err == nil && len(hash) >= 7 {
-					commitSha = hash[0:7]
-				} else {
-					return fmt.Errorf("Using --version=next-build requires a git repository with a commit. Cannot find commit SHA: %w", err)
-				}
-				version = fmt.Sprintf("%s+%s", version, commitSha)
-			}
-
-			version = strings.TrimPrefix(version, "v")
-			if isValid := semver.IsValid(fmt.Sprintf("v%s", version)); !isValid {
-				return fmt.Errorf("version %q is not a valid semver", version)
-			}
-
-			// Package module files into tar.gz
-			tarballFilename, err := modules.Package(manifest, version, append(includes, manifest.Includes...))
-			if err != nil {
-				return err
-			}
-			fmt.Fprintf(os.Stderr, "Created module package %q\n", tarballFilename)
-
-			// Open tarball to publish
-			tarball, err := os.Open(tarballFilename)
-			if err != nil {
-				return err
-			}
-			defer tarball.Close()
-
-			client := api.Client{Config: cfg}
-			if err := client.ModuleVersions().Create(ctx, manifest.OrgName, manifest.Name, manifest.ToolName, version, tarball); err != nil {
-				return err
-			}
-			fmt.Fprintf(os.Stderr, "Published %s/%s@%s\n", manifest.OrgName, manifest.Name, version)
-			fmt.Fprintln(os.Stdout, version)
+			fmt.Fprintln(os.Stdout, output.Version)
 			return nil
 		})
 	},
@@ -322,17 +275,20 @@ var ModulesPackage = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		includes := c.StringSlice("include")
+		logger := log.New(os.Stderr, "", 0)
 
-		// Read module name from manifest
+		// Read the module metadata from manifest
+		logger.Println(fmt.Sprintf("Reading module manifest file %q", moduleManifestFilename))
 		manifest, err := modules.ManifestFromFile(moduleManifestFilename)
 		if err != nil {
 			return err
 		}
+		logger.SetPrefix("    ")
+		modules.WriteManifestToLogger(*manifest, logger)
+		logger.SetPrefix("")
+		logger.Println()
 
-		tarballFilename, err := modules.Package(manifest, "", append(includes, manifest.Includes...))
-		if err == nil {
-			fmt.Printf("created module package %q\n", tarballFilename)
-		}
+		_, err = modules.Package(logger, manifest, "", append(includes, manifest.Includes...))
 		return err
 	},
 }

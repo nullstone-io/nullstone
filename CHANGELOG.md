@@ -1,3 +1,8 @@
+# 0.0.173 (Apr 02, 2026)
+* Added `--publish` flag to `apply` command to package and publish the module in the current directory before running the apply.
+* Fixed "Workspace out of changes" errors that periodically occur.
+* Fixed streaming of infra logs when performing `plan`|`apply`|`up` commands.
+
 # 0.0.172 (Mar 28, 2026)
 * When running `launch`, always deploy even if an artifact already exists.
 
