@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"context"
+	"log"
+	"os"
 
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
@@ -36,6 +38,7 @@ var Plan = func() *cli.Command {
 		Action: func(c *cli.Context) error {
 			varFlags := c.StringSlice("var")
 			moduleVersion := c.String("module-version")
+			logger := log.New(os.Stderr, "", 0)
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				if moduleVersion != "" {
@@ -60,7 +63,7 @@ var Plan = func() *cli.Command {
 					BlockType:  types.BlockType(block.Type),
 					StreamLogs: c.IsSet("wait"),
 				}
-				return PerformRun(ctx, cfg, input)
+				return PerformRun(ctx, cfg, logger, input)
 			})
 		},
 	}

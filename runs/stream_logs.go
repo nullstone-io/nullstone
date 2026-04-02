@@ -4,14 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"sync"
+	"time"
+
 	"github.com/google/uuid"
+	"github.com/mitchellh/colorstring"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/go-api-client.v0/ws"
 	"gopkg.in/nullstone-io/nullstone.v0/app_urls"
-	"os"
-	"sync"
-	"time"
 )
 
 var (
@@ -33,13 +36,13 @@ func (e *RunFailedError) Error() string {
 
 // StreamLogs streams the logs from the server over a websocket
 // The logs are emitted to stdout
-func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, newRun *types.Run) error {
+func StreamLogs(ctx context.Context, cfg api.Config, logger *log.Logger, workspace types.Workspace, newRun *types.Run) error {
 	// ctx already contains cancellation for Ctrl+C
 	// innerCtx will allow us to cancel when the run reaches a terminal status
 	innerCtx, cancelFn := context.WithCancel(ctx)
 	defer cancelFn()
 
-	fmt.Fprintln(os.Stdout, "Waiting for run logs...")
+	logger.Println("Waiting for run logs...")
 	client := api.Client{Config: cfg}
 	msgs, err := client.RunLogs().Watch(innerCtx, workspace.StackId, newRun.Uid, ws.RetryInfinite(2*time.Second))
 	if err != nil {
@@ -60,22 +63,25 @@ func StreamLogs(ctx context.Context, cfg api.Config, workspace types.Workspace, 
 				// A completed run finishes successfully
 				// Any other terminal status returns an error (causing a non-zero exit code for failed runs)
 				if run.Status == types.RunStatusDisapproved {
+					colorstring.Fprintln(logger.Writer(), "[yellow] Run disapproved")
 					return ErrRunDisapproved
 				}
 				if run.Status != types.RunStatusCompleted {
+					colorstring.Fprintln(logger.Writer(), "[red] Run failed")
 					return &RunFailedError{
 						Phase:         run.Phase,
 						Status:        run.Status,
 						StatusMessage: run.StatusMessage,
 					}
 				}
+				colorstring.Fprintln(logger.Writer(), "[green] Run completed")
 				return nil
 			}
 			if run.Status == types.RunStatusNeedsApproval {
 				printApprovalMsg.Do(func() {
-					fmt.Fprintln(os.Stdout, "Nullstone requires approval before applying infrastructure changes.")
-					fmt.Fprintln(os.Stdout, "Visit the infrastructure logs in a browser to approve/reject.")
-					fmt.Fprintln(os.Stdout, app_urls.GetRun(cfg, workspace, run))
+					logger.Println("Nullstone requires approval before applying infrastructure changes.")
+					logger.Println("Visit the infrastructure logs in a browser to approve/reject.")
+					logger.Println(fmt.Sprintf("URL: %s", app_urls.GetRun(cfg, workspace, run)))
 				})
 			}
 		case <-ctx.Done():

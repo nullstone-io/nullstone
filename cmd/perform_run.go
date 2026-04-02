@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
+	"log"
 	"time"
 
+	"github.com/mitchellh/colorstring"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	api_runs "gopkg.in/nullstone-io/go-api-client.v0/runs"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -23,7 +24,11 @@ type PerformRunInput struct {
 	StreamLogs bool
 }
 
-func PerformRun(ctx context.Context, cfg api.Config, input PerformRunInput) error {
+func PerformRun(ctx context.Context, cfg api.Config, logger *log.Logger, input PerformRunInput) error {
+	logger.Println("Performing run...")
+	logger.SetPrefix("    ")
+	defer logger.SetPrefix("")
+
 	result, err := api_runs.Create(ctx, cfg, input.Workspace, input.CommitSha, input.IsApproved, time.Now(), input.IsDestroy, "")
 	if err != nil {
 		return fmt.Errorf("error creating run: %w", err)
@@ -38,26 +43,27 @@ func PerformRun(ctx context.Context, cfg api.Config, input PerformRunInput) erro
 		if pw == nil {
 			return fmt.Errorf("no primary workflow found")
 		}
-		fmt.Fprintf(os.Stdout, "created workflow run (id = %d)\n", pw.Id)
-		fmt.Fprintln(os.Stdout, app_urls.GetWorkspaceWorkflow(cfg, *pw, input.BlockType == types.BlockTypeApplication))
+		logger.Println("Created workflow run")
+		logger.Println(fmt.Sprintf("URL: %s", app_urls.GetWorkspaceWorkflow(cfg, *pw, input.BlockType == types.BlockTypeApplication)))
 		if newRun, err = waitForWorkspaceWorkflowRun(ctx, cfg, *pw); err != nil {
 			return fmt.Errorf("error waiting for workflow run: %w", err)
 		}
 	} else if result.Run != nil {
 		newRun = *result.Run
-		fmt.Fprintf(os.Stdout, "created run %q\n", newRun.Uid)
-		fmt.Fprintln(os.Stdout, app_urls.GetRun(cfg, input.Workspace, newRun))
+		logger.Println("Created run")
+		logger.Println(fmt.Sprintf("URL: %s", app_urls.GetRun(cfg, input.Workspace, newRun)))
 	} else {
 		return fmt.Errorf("run was not created")
 	}
 
 	if input.StreamLogs {
-		err := runs.StreamLogs(ctx, cfg, input.Workspace, &newRun)
+		err := runs.StreamLogs(ctx, cfg, logger, input.Workspace, &newRun)
 		if errors.Is(err, runs.ErrRunDisapproved) {
 			// Disapproved plans are expected, return no error
 			return nil
 		}
 		return err
 	}
+	colorstring.Fprintln(logger.Writer(), "[green]Run started")
 	return nil
 }

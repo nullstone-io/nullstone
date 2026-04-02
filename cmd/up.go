@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"context"
-	"fmt"
+	"log"
+	"os"
+
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -31,10 +33,11 @@ var Up = func() *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			varFlags := c.StringSlice("var")
+			logger := log.New(os.Stderr, "", 0)
 
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
 				if workspace.Status == types.WorkspaceStatusProvisioned {
-					fmt.Println("workspace is already provisioned")
+					logger.Println("Workspace is already provisioned. Skipping infra apply.")
 					return nil
 				}
 
@@ -52,7 +55,7 @@ var Up = func() *cli.Command {
 					BlockType:  types.BlockType(block.Type),
 					StreamLogs: c.IsSet("wait"),
 				}
-				return PerformRun(ctx, cfg, input)
+				return PerformRun(ctx, cfg, logger, input)
 			})
 		},
 	}

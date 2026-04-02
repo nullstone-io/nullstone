@@ -95,24 +95,21 @@ var Apply = func() *cli.Command {
 					BlockType:  types.BlockType(block.Type),
 					StreamLogs: c.IsSet("wait"),
 				}
-				err = PerformRun(ctx, cfg, input)
-
-				if err == nil {
-					return nil
-				}
-
-				// Map run errors to specific exit codes
-				if errors.Is(err, runs.ErrRunDisapproved) {
-					return nil
-				}
-				var runErr *runs.RunFailedError
-				if errors.As(err, &runErr) {
-					if runErr.Phase == "apply" {
-						return cli.Exit(fmt.Sprintf("apply failed: %s", runErr.StatusMessage), 2)
+				if err := PerformRun(ctx, cfg, logger, input); err != nil {
+					// Map run errors to specific exit codes
+					if errors.Is(err, runs.ErrRunDisapproved) {
+						return nil
 					}
-					return cli.Exit(fmt.Sprintf("plan failed: %s", runErr.StatusMessage), 1)
+					var runErr *runs.RunFailedError
+					if errors.As(err, &runErr) {
+						if runErr.Phase == "apply" {
+							return cli.Exit(fmt.Sprintf("apply failed: %s", runErr.StatusMessage), 2)
+						}
+						return cli.Exit(fmt.Sprintf("plan failed: %s", runErr.StatusMessage), 1)
+					}
+					return err
 				}
-				return err
+				return nil
 			})
 		},
 	}
