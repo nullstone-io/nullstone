@@ -1,3 +1,7 @@
+# 0.0.174 (Apr 24, 2026)
+* Added `modules describe` CLI command to get info about a module.
+* Added `modules find` CLI command to find modules by taxonomy, name, and/or contributor filters.
+
 # 0.0.173 (Apr 02, 2026)
 * Added `--publish` flag to `apply` command to package and publish the module in the current directory before running the apply.
 * Fixed "Workspace out of changes" errors that periodically occur.

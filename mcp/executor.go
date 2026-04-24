@@ -123,6 +123,8 @@ func toolNameToSubcommands(toolName string) []string {
 		"modules_register":  {"modules", "register"},
 		"modules_publish":   {"modules", "publish"},
 		"modules_package":   {"modules", "package"},
+		"modules_describe":  {"modules", "describe"},
+		"modules_find":      {"modules", "find"},
 	}
 
 	if cmds, ok := mapping[toolName]; ok {
@@ -139,6 +141,8 @@ func toolPositionalArgs(toolName string) []string {
 	switch toolName {
 	case "set_org":
 		return []string{"org_name"}
+	case "modules_describe":
+		return []string{"module"}
 	default:
 		return nil
 	}

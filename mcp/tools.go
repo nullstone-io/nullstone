@@ -16,6 +16,8 @@ func AllTools() []mcp.Tool {
 		statusTool(),
 		profileTool(),
 		logsTool(),
+		modulesDescribeTool(),
+		modulesFindTool(),
 
 		// Create/modify
 		stacksNewTool(),
@@ -586,6 +588,59 @@ func iacGenerateTool() mcp.Tool {
 }
 
 // --- Module tools ---
+
+func modulesDescribeTool() mcp.Tool {
+	return mcp.NewTool("modules_describe",
+		withGlobalParams(
+			mcp.WithDescription("Fetch metadata for a module and one of its versions. The `module` argument accepts `[<org>/]<name>[@<version>]`. If org is omitted, the current organization is used. If version is omitted, the latest published version is described."),
+			mcp.WithReadOnlyHintAnnotation(true),
+			mcp.WithString("module",
+				mcp.Required(),
+				mcp.Description("Module reference as `[<org>/]<name>[@<version>]`, e.g. `nullstone/aws-network` or `nullstone/aws-network@1.2.3`."),
+			),
+			mcp.WithString("version",
+				mcp.Description("Module version. Cannot be combined with `@<version>` in the `module` argument. Defaults to the latest published version."),
+			),
+			mcp.WithString("format",
+				mcp.Description("Output format. One of: json (default), pretty."),
+			),
+		)...,
+	)
+}
+
+func modulesFindTool() mcp.Tool {
+	return mcp.NewTool("modules_find",
+		withGlobalParams(
+			mcp.WithDescription("Search the entire Nullstone module registry. All filters are optional. Use this to discover modules across Nullstone-official, your org, and community contributors."),
+			mcp.WithReadOnlyHintAnnotation(true),
+			mcp.WithString("category",
+				mcp.Description("Filter by category. Known values: app, capability, datastore, ingress, subdomain, domain, cluster, cluster-namespace, network, block."),
+			),
+			mcp.WithString("subcategory",
+				mcp.Description("Filter by subcategory. Requires category."),
+			),
+			mcp.WithString("provider",
+				mcp.Description("Filter by provider type. Known values: aws, gcp, azure."),
+			),
+			mcp.WithString("platform",
+				mcp.Description("Filter by platform."),
+			),
+			mcp.WithString("subplatform",
+				mcp.Description("Filter by subplatform. Requires platform."),
+			),
+			mcp.WithString("name",
+				mcp.Description("Fuzzy match modules by name."),
+			),
+			mcp.WithArray("contributor",
+				mcp.Description("Filter by contributor. Provide one or more of: nullstone-official, my-org, community, all. Defaults to [nullstone-official, my-org]."),
+				mcp.WithStringItems(),
+			),
+			mcp.WithString("format",
+				mcp.Description("Output format. One of: table (default), json."),
+			),
+		)...,
+	)
+}
 
 func modulesRegisterTool() mcp.Tool {
 	return mcp.NewTool("modules_register",

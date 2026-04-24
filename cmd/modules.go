@@ -33,6 +33,8 @@ var Modules = &cli.Command{
 	Subcommands: []*cli.Command{
 		ModulesGenerate,
 		ModulesList,
+		ModulesFind,
+		ModulesDescribe,
 		ModulesRegister,
 		ModulesPublish,
 		ModulesPackage,
@@ -40,10 +42,12 @@ var Modules = &cli.Command{
 }
 
 var ModulesList = &cli.Command{
-	Name:        "list",
-	Description: "Shows a list of modules in the Nullstone registry for the current organization.",
-	Usage:       "List modules",
-	UsageText:   "nullstone modules list",
+	Name: "list",
+	Description: "Lists the modules owned by the current organization. " +
+		"Intended for module contributors managing their org's registry. " +
+		"To search the entire Nullstone registry (Nullstone-official, community, etc.), use `nullstone modules find`.",
+	Usage:     "List modules owned by the current organization",
+	UsageText: "nullstone modules list",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:  "detailed",
