@@ -13,7 +13,7 @@ require (
 	github.com/go-git/go-git/v5 v5.18.0
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
 	github.com/gosuri/uilive v0.0.4
-	github.com/mark3labs/mcp-go v0.48.0
+	github.com/mark3labs/mcp-go v0.49.0
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nullstone-io/deployment-sdk v0.0.0-20260417143846-28f8b72fcabd
 	github.com/nullstone-io/iac v0.0.0-20260317183057-fc7502d3a659
