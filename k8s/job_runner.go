@@ -123,7 +123,6 @@ func (r JobRunner) monitorJob(ctx context.Context, client *kubernetes.Clientset,
 		return nil
 	})
 	eg.Go(func() error {
-		defer cancel()
 		for {
 			// check status of job
 			containerStatus, err := r.getJobContainerStatus(ctx, client, jobName)
