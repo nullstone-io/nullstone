@@ -1,5 +1,6 @@
 # 0.0.175 (May 04, 2026)
 * Added `--pod`, `--pod-template-hash`, and `--job` flags to `nullstone logs` command to filter logs.
+* Upgraded kubernetes libraries to `v0.36.0`.
 
 # 0.0.174 (Apr 24, 2026)
 * Added `modules describe` CLI command to get info about a module.
