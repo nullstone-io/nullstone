@@ -413,8 +413,8 @@ github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
 github.com/nullstone-io/deployment-sdk v0.0.0-20260502142512-1b78e4e56f0e h1:aExFpqpBlxF3O3+Wiha/h+FLq/CNpOXJvMDvdimQtIM=
 github.com/nullstone-io/deployment-sdk v0.0.0-20260502142512-1b78e4e56f0e/go.mod h1:kJs1YzKG2TiDadXiRs6AD9IEuR+ftaoyB5I6zxSkRjg=
-github.com/nullstone-io/iac v0.0.0-20260317183057-fc7502d3a659 h1:U9ys+LdIY0ZVXn4P8k5o/yvAVHrSYK7LqernGieixkA=
-github.com/nullstone-io/iac v0.0.0-20260317183057-fc7502d3a659/go.mod h1:OqsdC2BMmfz/oN9oWvYWopYkVNu3VdGEVfEaD47RzbU=
+github.com/nullstone-io/iac v0.0.0-20260501130703-a4b425d326de h1:1+ejy4X9qLPfOjUnnfxkOrVHADECKuwlkITIhpbExVs=
+github.com/nullstone-io/iac v0.0.0-20260501130703-a4b425d326de/go.mod h1:ZU7lClPnJGb+5HK2mGLYu4wdIUQwXY9U46z+ibgwDgM=
 github.com/nullstone-io/module v0.2.10 h1:wCKrlyxyH9XQW5HliW/V6qNsDgUQxUCcWL60Ojlz+2U=
 github.com/nullstone-io/module v0.2.10/go.mod h1:btQiO0giVWDvvaQ7CLnPmuPPakJc55lAr8OlE1LK6hg=
 github.com/onsi/ginkgo/v2 v2.28.1 h1:S4hj+HbZp40fNKuLUQOYLDgZLwNUVn19N3Atb98NCyI=
@@ -642,8 +642,8 @@ gopkg.in/evanphx/json-patch.v4 v4.13.0 h1:czT3CmqEaQ1aanPc5SdlgQrrEIb8w/wwCvWWnf
 gopkg.in/evanphx/json-patch.v4 v4.13.0/go.mod h1:p8EYWUEYMpynmqDbY58zCKCFZw8pRWMG4EsWvDvM72M=
 gopkg.in/inf.v0 v0.9.1 h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
 gopkg.in/inf.v0 v0.9.1/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260424183812-f221aacd1df3 h1:2cY2ggs8Ca6cKWYyAeTuuPRdB/L/lqJkUZLZSfOCP0Q=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260424183812-f221aacd1df3/go.mod h1:6EH2Rk2Scf4FkoPkYr8XsgBX+FVQO2zseFxryatrG0Y=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260502151742-4dc62a93d9a3 h1:hCLSncRYCcBWV2yXazvrHNgrSRACexjXJqliipiAJzI=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260502151742-4dc62a93d9a3/go.mod h1:6EH2Rk2Scf4FkoPkYr8XsgBX+FVQO2zseFxryatrG0Y=
 gopkg.in/warnings.v0 v0.1.2 h1:wFXVbFY8DY5/xOe1ECiWdKCzZlxgshcYVNkBHstARME=
 gopkg.in/warnings.v0 v0.1.2/go.mod h1:jksf8JmL6Qr/oQM2OXTHunEvvTAsrWBLb6OOjuVWRNI=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
