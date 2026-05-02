@@ -15,7 +15,7 @@ require (
 	github.com/gosuri/uilive v0.0.4
 	github.com/mark3labs/mcp-go v0.48.0
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
-	github.com/nullstone-io/deployment-sdk v0.0.0-20260417143846-28f8b72fcabd
+	github.com/nullstone-io/deployment-sdk v0.0.0-20260502142512-1b78e4e56f0e
 	github.com/nullstone-io/iac v0.0.0-20260317183057-fc7502d3a659
 	github.com/nullstone-io/module v0.2.10
 	github.com/ryanuber/columnize v2.1.2+incompatible

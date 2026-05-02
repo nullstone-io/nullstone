@@ -110,7 +110,7 @@ func (r JobRunner) monitorJob(ctx context.Context, client *kubernetes.Clientset,
 			StartTime:          &absoluteTime,
 			WatchInterval:      time.Duration(0), // this makes sure the log stream doesn't exit until the context is cancelled
 			Emitter:            options.LogEmitter,
-			Selector:           &selector,
+			Selectors:          []string{selector},
 			CancelFlushTimeout: &DefaultCancelFlushTimeout,
 			StopFlushTimeout:   &DefaultStopFlushTimeout,
 		}

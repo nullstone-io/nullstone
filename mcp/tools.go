@@ -632,7 +632,7 @@ func modulesFindTool() mcp.Tool {
 				mcp.Description("Fuzzy match modules by name."),
 			),
 			mcp.WithArray("contributor",
-				mcp.Description("Filter by contributor. Provide one or more of: nullstone-official, my-org, community, all. Defaults to [nullstone-official, my-org]."),
+				mcp.Description("Filter by contributor. Provide one or more of: nullstone-official, my-org, community. Defaults to [nullstone-official, my-org]."),
 				mcp.WithStringItems(),
 			),
 			mcp.WithString("format",

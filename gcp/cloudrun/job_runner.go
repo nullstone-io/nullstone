@@ -40,7 +40,7 @@ func (r JobRunner) Run(ctx context.Context, options admin.RunOptions, cmd []stri
 			StartTime:     &absoluteTime,
 			WatchInterval: time.Duration(0), // this makes sure the log stream doesn't exist until the context is canceled
 			Emitter:       options.LogEmitter,
-			Selector:      &executionFilter,
+			Selectors:     []string{executionFilter},
 		}
 		if err := options.LogStreamer.Stream(ctx, logStreamOptions); err != nil {
 			if errors.Is(err, context.Canceled) {
