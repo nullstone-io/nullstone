@@ -1,3 +1,8 @@
+# 0.0.175 (May 04, 2026)
+* Added filter support for `nullstone logs` for GKE/EKS apps. (`--pod-template-hash`, `--pod`, `--job`).
+* Added filter support for `nullstone logs` for ECS/Fargate apps. (`--deployment`, `--task`, `--job`).
+* Upgraded kubernetes libraries to `v0.36.0`.
+
 # 0.0.174 (Apr 24, 2026)
 * Added `modules describe` CLI command to get info about a module.
 * Added `modules find` CLI command to find modules by taxonomy, name, and/or contributor filters.

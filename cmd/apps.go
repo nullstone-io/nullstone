@@ -46,7 +46,7 @@ var AppsList = &cli.Command{
 				for i, app := range allApps {
 					stack, err := client.Stacks().Get(ctx, app.StackId, false)
 					if err != nil {
-						return fmt.Errorf("error looking for stack %q: %w", app.StackId, err)
+						return fmt.Errorf("error looking for stack %d: %w", app.StackId, err)
 					}
 					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s", app.Id, app.Name, app.Reference, stack.Name, app.Framework)
 				}
