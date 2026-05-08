@@ -51,11 +51,21 @@ var Apply = func() *cli.Command {
 				Name:  "app-version",
 				Usage: "Force a specific app version to be used during the apply. Only valid for application blocks.",
 			},
+			&cli.StringFlag{
+				Name:  "if",
+				Usage: "Only create the run when the condition is met. Supported: `any-changes` (skip if there are no unapplied workspace changes).",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			varFlags := c.StringSlice("var")
 			moduleVersion := c.String("module-version")
 			publish := c.Bool("publish")
+			condition := c.String("if")
+			switch condition {
+			case "", "any-changes":
+			default:
+				return cli.Exit(fmt.Sprintf("unsupported value for --if: %q (supported: any-changes)", condition), 1)
+			}
 			var autoApprove *bool
 			if c.IsSet("auto-approve") {
 				val := c.Bool("auto-approve")
@@ -108,6 +118,7 @@ var Apply = func() *cli.Command {
 					IsDestroy:  false,
 					BlockType:  types.BlockType(block.Type),
 					StreamLogs: c.IsSet("wait"),
+					Condition:  condition,
 				}
 				if err := PerformRun(ctx, cfg, logger, input); err != nil {
 					// Map run errors to specific exit codes

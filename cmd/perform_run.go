@@ -23,6 +23,9 @@ type PerformRunInput struct {
 	IsDestroy  bool
 	BlockType  types.BlockType
 	StreamLogs bool
+	// Condition is an optional server-side condition for creating the run.
+	// "" = always create. "any-changes" = skip when no unapplied workspace changes exist.
+	Condition string
 }
 
 func PerformRun(ctx context.Context, cfg api.Config, logger *log.Logger, input PerformRunInput) error {
@@ -31,11 +34,14 @@ func PerformRun(ctx context.Context, cfg api.Config, logger *log.Logger, input P
 	defer logger.SetPrefix("")
 
 	latestUpdateAt := time.Now().Add(time.Second)
-	result, err := api_runs.Create(ctx, cfg, input.Workspace, input.CommitSha, input.IsApproved, latestUpdateAt, input.IsDestroy, "", input.AppVersion)
+	result, err := api_runs.Create(ctx, cfg, input.Workspace, input.CommitSha, input.IsApproved, latestUpdateAt, input.IsDestroy, "", nil, input.Condition)
 	if err != nil {
 		return fmt.Errorf("error creating run: %w", err)
 	} else if result == nil {
 		return fmt.Errorf("unable to create run")
+	} else if result.Skipped {
+		logger.Println("no workspace changes — skipping apply")
+		return nil
 	}
 
 	var newRun types.Run
