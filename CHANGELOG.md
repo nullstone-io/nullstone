@@ -1,3 +1,6 @@
+# 0.0.176 (May 07, 2026)
+* Added `--app-version` to `nullstone apply` command to update the app's deployed version during apply.
+
 # 0.0.175 (May 04, 2026)
 * Added filter support for `nullstone logs` for GKE/EKS apps. (`--pod-template-hash`, `--pod`, `--job`).
 * Added filter support for `nullstone logs` for ECS/Fargate apps. (`--deployment`, `--task`, `--job`).
