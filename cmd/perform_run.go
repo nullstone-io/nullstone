@@ -18,6 +18,7 @@ import (
 type PerformRunInput struct {
 	Workspace  types.Workspace
 	CommitSha  string
+	AppVersion *string
 	IsApproved *bool
 	IsDestroy  bool
 	BlockType  types.BlockType
@@ -30,7 +31,7 @@ func PerformRun(ctx context.Context, cfg api.Config, logger *log.Logger, input P
 	defer logger.SetPrefix("")
 
 	latestUpdateAt := time.Now().Add(time.Second)
-	result, err := api_runs.Create(ctx, cfg, input.Workspace, input.CommitSha, input.IsApproved, latestUpdateAt, input.IsDestroy, "")
+	result, err := api_runs.Create(ctx, cfg, input.Workspace, input.CommitSha, input.IsApproved, latestUpdateAt, input.IsDestroy, "", input.AppVersion)
 	if err != nil {
 		return fmt.Errorf("error creating run: %w", err)
 	} else if result == nil {
