@@ -1,3 +1,6 @@
+# 0.0.177 (May 09, 2026)
+* Added `nullstone iac sync` command that performs `test` then synchronizes IaC files in repo with Nullstone.
+
 # 0.0.176 (May 07, 2026)
 * Added `--app-version` to `nullstone apply` command to update the app's deployed version during apply.
 * Added `--if` to `nullstone apply` command to skip creating a run if there are no outstanding changes to the workspace configuration.

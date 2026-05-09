@@ -49,6 +49,26 @@ const (
 	defaultRepoConfigDirectory = ".nullstone"
 )
 
+// hasYamlFile returns true when dir exists and contains at least one .yml/.yaml file
+// (subdirectories don't count). An empty directory or one with only non-YAML siblings
+// behaves the same as a missing directory — the caller falls back to flat .nullstone/.
+func hasYamlFile(dir string) bool {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return false
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		switch filepath.Ext(entry.Name()) {
+		case ".yml", ".yaml":
+			return true
+		}
+	}
+	return false
+}
+
 func parseIacFiles(dir string, stackName string) (*iac.ConfigFiles, error) {
 	rootDir, repo, err := git.GetRootDir(dir)
 	if err != nil {
@@ -67,11 +87,14 @@ func parseIacFiles(dir string, stackName string) (*iac.ConfigFiles, error) {
 
 	repoName := strings.TrimPrefix(repoUrl.Path, "/")
 
-	// Determine config directory: check for stack-scoped directory first, fall back to flat .nullstone/
+	// Determine config directory: prefer stack-scoped IaC if any YAML lives there, fall back
+	// to flat .nullstone/. This must mirror enigma's webhook fetcher (hasStackConfigDir in
+	// enigma/engine/activities/fetch_iac_config_files.go) so that detached-mode payloads
+	// match what a webhook-triggered sync would have produced.
 	configDir := filepath.Join(rootDir, defaultRepoConfigDirectory)
 	if stackName != "" {
 		stackDir := filepath.Join(rootDir, defaultRepoConfigDirectory, "stacks", stackName)
-		if info, err := os.Stat(stackDir); err == nil && info.IsDir() {
+		if hasYamlFile(stackDir) {
 			configDir = stackDir
 		}
 	}
