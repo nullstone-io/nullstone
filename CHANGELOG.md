@@ -1,4 +1,4 @@
-# 0.0.177 (Unreleased)
+# 0.0.177 (May 09, 2026)
 * Added `nullstone iac sync` command that performs `test` then synchronizes IaC files in repo with Nullstone.
 
 # 0.0.176 (May 07, 2026)
