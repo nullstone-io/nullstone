@@ -23,7 +23,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/crypto v0.50.0
 	golang.org/x/sync v0.20.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260508184209-701ba027b204
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260509002540-45b1d4542e78
 	k8s.io/api v0.36.0
 	k8s.io/apimachinery v0.36.0
 	k8s.io/client-go v0.36.0
@@ -257,5 +257,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.4.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
-
-replace gopkg.in/nullstone-io/go-api-client.v0 => ../go-api-client
