@@ -1,3 +1,7 @@
+# 0.0.178 (May 11, 2026)
+* Changed commands to use "git" CLI as a fallback to the git library when retrieving commit info or repo info.
+* Fixed environment type missing when using `nullstone envs new`.
+
 # 0.0.177 (May 09, 2026)
 * Added `nullstone iac sync` command that performs `test` then synchronizes IaC files in repo with Nullstone.
 

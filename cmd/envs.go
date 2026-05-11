@@ -294,6 +294,7 @@ func createPipelineEnv(client api.Client, stackId int64, name, providerName, reg
 
 	env, err := client.Environments().Create(ctx, stackId, &types.Environment{
 		Name:           name,
+		Type:           types.EnvTypePipeline,
 		ProviderConfig: pc,
 	})
 	if err != nil {
