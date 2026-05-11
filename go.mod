@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	cloud.google.com/go/run v1.19.0
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.21.1
-	github.com/aws/aws-sdk-go-v2 v1.41.6
+	github.com/aws/aws-sdk-go-v2 v1.41.7
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.78.1
 	github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.34.3
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.54.11
@@ -114,7 +114,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.30.16 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.20 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.42.0 // indirect
-	github.com/aws/smithy-go v1.25.0 // indirect
+	github.com/aws/smithy-go v1.25.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
