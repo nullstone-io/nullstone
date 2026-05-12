@@ -1,3 +1,6 @@
+# 0.0.179 (May 12, 2026)
+* Added `--if=checksum-changed` to `nullstone modules publish` to publish only when file contents change.
+
 # 0.0.178 (May 11, 2026)
 * Changed commands to use "git" CLI as a fallback to the git library when retrieving commit info or repo info.
 * Fixed environment type missing when using `nullstone envs new`.

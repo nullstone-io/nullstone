@@ -237,7 +237,7 @@ var ModulesPublish = &cli.Command{
 	Name:        "publish",
 	Description: "Publishes a new version for a module in the Nullstone registry. Provide a specific semver version using the `--version` parameter.",
 	Usage:       "Package and publish new version of a module",
-	UsageText:   "nullstone modules publish --version=<version>",
+	UsageText:   "nullstone modules publish --version=<version> [--if=checksum-changed]",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "version",
@@ -247,6 +247,10 @@ var ModulesPublish = &cli.Command{
 'next-build': Uses the latest version and appends +<build> using the short Git commit SHA. (Fails if not in a Git repository)`,
 			Required: true,
 		},
+		&cli.StringFlag{
+			Name:  "if",
+			Usage: "Only publish when the condition is met. Supported: `checksum-changed` (skip when the packaged tarball matches the latest published version).",
+		},
 		includeFlag,
 	},
 	Action: func(c *cli.Context) error {
@@ -254,11 +258,18 @@ var ModulesPublish = &cli.Command{
 		return ProfileAction(c, func(cfg api.Config) error {
 			version := c.String("version")
 			includes := c.StringSlice("include")
+			condition := c.String("if")
+			switch condition {
+			case "", modules.ConditionChecksumChanged:
+			default:
+				return cli.Exit(fmt.Sprintf("invalid --if value %q (supported: checksum-changed)", condition), 1)
+			}
 			logger := log.New(os.Stderr, "", 0)
 
 			output, err := modules.Publish(ctx, cfg, logger, modules.PublishInput{
-				Version:  version,
-				Includes: includes,
+				Version:   version,
+				Includes:  includes,
+				Condition: condition,
 			})
 			if err != nil {
 				return err
@@ -292,7 +303,7 @@ var ModulesPackage = &cli.Command{
 		logger.SetPrefix("")
 		logger.Println()
 
-		_, err = modules.Package(logger, manifest, "", append(includes, manifest.Includes...))
+		_, _, err = modules.Package(logger, manifest, "", append(includes, manifest.Includes...))
 		return err
 	},
 }
