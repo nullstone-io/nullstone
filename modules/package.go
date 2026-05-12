@@ -3,6 +3,7 @@ package modules
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/mitchellh/colorstring"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -22,7 +23,10 @@ var (
 	}
 )
 
-func Package(logger *log.Logger, manifest *types.ModuleManifest, version string, addlFiles []string) (string, error) {
+// Package writes the module tarball into the current working directory and returns
+// the filename plus a content-digest checksum (see HashArchiveContents) suitable
+// for comparison against a previously published version.
+func Package(logger *log.Logger, manifest *types.ModuleManifest, version string, addlFiles []string) (string, string, error) {
 	excludeFn := func(entry artifacts.GlobEntry) bool {
 		_, ok := excludes[entry.Path]
 		return ok
@@ -38,8 +42,17 @@ func Package(logger *log.Logger, manifest *types.ModuleManifest, version string,
 	err := artifacts.PackageModule(logger, ".", tarballFilename, allPatterns, excludeFn)
 	logger.SetPrefix("")
 	if err != nil {
-		return tarballFilename, err
+		return tarballFilename, "", err
 	}
 	colorstring.Fprintln(logger.Writer(), "[green]Packaged module")
-	return tarballFilename, nil
+
+	data, err := os.ReadFile(tarballFilename)
+	if err != nil {
+		return tarballFilename, "", fmt.Errorf("reading packaged tarball for checksum: %w", err)
+	}
+	checksum, err := HashArchiveContents(data, ".tar.gz")
+	if err != nil {
+		return tarballFilename, "", fmt.Errorf("computing tarball checksum: %w", err)
+	}
+	return tarballFilename, checksum, nil
 }

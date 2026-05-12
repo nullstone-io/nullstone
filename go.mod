@@ -21,9 +21,9 @@ require (
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v2 v2.27.7
-	golang.org/x/crypto v0.50.0
+	golang.org/x/crypto v0.51.0
 	golang.org/x/sync v0.20.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260509010547-8729a7bdf2fd
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260512152858-7f71cbdd1813
 	k8s.io/api v0.36.0
 	k8s.io/apimachinery v0.36.0
 	k8s.io/client-go v0.36.0
@@ -59,11 +59,11 @@ require (
 	github.com/tmccombs/hcl2json v0.6.9 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/zclconf/go-cty v1.18.1 // indirect
-	golang.org/x/mod v0.35.0
-	golang.org/x/net v0.53.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/term v0.42.0
-	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/mod v0.36.0
+	golang.org/x/net v0.54.0 // indirect
+	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/term v0.43.0
+	golang.org/x/text v0.37.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -232,7 +232,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	golang.org/x/tools v0.44.0 // indirect
+	golang.org/x/tools v0.45.0 // indirect
 	google.golang.org/api v0.276.0 // indirect
 	google.golang.org/genproto v0.0.0-20260414002931-afd174a4e478 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260414002931-afd174a4e478 // indirect
