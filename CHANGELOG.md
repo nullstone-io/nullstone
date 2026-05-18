@@ -1,3 +1,6 @@
+# 0.0.180 (May 18, 2026)
+* Changed `nullstone push` command to emit logs to stderr so automation can read the calculated artifact version on stdout.
+
 # 0.0.179 (May 12, 2026)
 * Added `--if=checksum-changed` to `nullstone modules publish` to publish only when file contents change.
 
