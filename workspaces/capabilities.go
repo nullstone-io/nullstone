@@ -140,5 +140,9 @@ func (g CapabilitiesGenerator) resolveCapabilityMeta(cur types.CapabilityConfig)
 		meta.OutputNames = make([]string, 0)
 	}
 
+	if mv.Manifest.Variables != nil {
+		_, meta.NeedsAppInfra = mv.Manifest.Variables["app_infra"]
+	}
+
 	return meta, nil
 }

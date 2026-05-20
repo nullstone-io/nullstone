@@ -1,3 +1,6 @@
+# 0.0.182 (May 20, 2026)
+* Added NeedsAppInfra to capability metadata so that generating app modules conditionally adds `app_infra` var to the module.
+
 # 0.0.181 (May 20, 2026)
 * Added `--env-var` flag to `nullstone launch` and `nullstone deploy` commands to set environment variables for new deployments.
 
