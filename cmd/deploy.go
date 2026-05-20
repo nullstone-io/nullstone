@@ -32,6 +32,7 @@ var Deploy = func(providers app.Providers) *cli.Command {
 			AppFlag,
 			OldEnvFlag,
 			AppVersionFlag,
+			EnvVarFlag,
 			waitFlag,
 		},
 		Action: func(c *cli.Context) error {
@@ -44,8 +45,13 @@ var Deploy = func(providers app.Providers) *cli.Command {
 					return err
 				}
 
+				envVars, err := ParseEnvVars(c)
+				if err != nil {
+					return err
+				}
+
 				fmt.Fprintln(osWriters.Stderr(), "Creating deploy...")
-				result, err := CreateDeploy(cfg, appDetails, info)
+				result, err := CreateDeploy(cfg, appDetails, info, envVars)
 				if err != nil {
 					return err
 				}
