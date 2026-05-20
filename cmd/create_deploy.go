@@ -10,7 +10,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/artifacts"
 )
 
-func CreateDeploy(nsConfig api.Config, appDetails app.Details, info artifacts.VersionInfo) (*api.DeployCreateResult, error) {
+func CreateDeploy(nsConfig api.Config, appDetails app.Details, info artifacts.VersionInfo, envVars map[string]string) (*api.DeployCreateResult, error) {
 	ctx := context.TODO()
 	client := api.Client{Config: nsConfig}
 	payload := api.DeployCreatePayload{
@@ -18,6 +18,7 @@ func CreateDeploy(nsConfig api.Config, appDetails app.Details, info artifacts.Ve
 		Version:        info.EffectiveVersion,
 		CommitSha:      info.CommitInfo.CommitSha,
 		AutomationTool: detectAutomationTool(),
+		EnvVars:        envVars,
 	}
 	result, err := client.Deploys().Create(ctx, appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id, payload)
 	if err != nil {

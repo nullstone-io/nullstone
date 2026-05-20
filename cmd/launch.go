@@ -23,12 +23,18 @@ var Launch = func(providers app.Providers) *cli.Command {
 			OldEnvFlag,
 			AppSourceFlag,
 			AppVersionFlag,
+			EnvVarFlag,
 		},
 		Action: func(c *cli.Context) error {
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
 				osWriters := CliOsWriters{Context: c}
 				stderr := osWriters.Stderr()
 				source := c.String(AppSourceFlag.Name)
+
+				envVars, err := ParseEnvVars(c)
+				if err != nil {
+					return err
+				}
 
 				pusher, err := getPusher(providers, cfg, appDetails)
 				if err != nil {
@@ -53,7 +59,7 @@ var Launch = func(providers app.Providers) *cli.Command {
 				}
 
 				fmt.Fprintln(stderr, "Creating deploy...")
-				result, err := CreateDeploy(cfg, appDetails, info)
+				result, err := CreateDeploy(cfg, appDetails, info, envVars)
 				if err != nil {
 					return err
 				}

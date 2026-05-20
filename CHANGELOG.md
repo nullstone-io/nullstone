@@ -1,3 +1,6 @@
+# 0.0.181 (May 20, 2026)
+* Added `--env-var` flag to `nullstone launch` and `nullstone deploy` commands to set environment variables for new deployments.
+
 # 0.0.180 (May 18, 2026)
 * Changed `nullstone push` command to emit logs to stderr so automation can read the calculated artifact version on stdout.
 
