@@ -12,6 +12,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/nullstone-io/module/config"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/artifacts"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
@@ -133,16 +134,30 @@ func (g CapabilitiesGenerator) resolveCapabilityMeta(cur types.CapabilityConfig)
 	if err != nil {
 		return nil, err
 	}
+
 	meta.OutputNames = slices.Collect(maps.Keys(mv.Manifest.Outputs))
-	// env + secrets don't show up in the manifest outputs; we should always include them
-	meta.OutputNames = append(meta.OutputNames, "env", "secrets")
+	// env + secrets don't show up in the manifest outputs; should we include them?
+	if envVarsMapHas(mv.Manifest.EnvVariables, false) {
+		meta.OutputNames = append(meta.OutputNames, "env")
+	}
+	if envVarsMapHas(mv.Manifest.EnvVariables, true) {
+		meta.OutputNames = append(meta.OutputNames, "secrets")
+	}
 	if meta.OutputNames == nil {
 		meta.OutputNames = make([]string, 0)
 	}
-
 	if mv.Manifest.Variables != nil {
 		_, meta.NeedsAppInfra = mv.Manifest.Variables["app_infra"]
 	}
 
 	return meta, nil
+}
+
+func envVarsMapHas(envVars map[string]config.EnvVariable, checkSensitive bool) bool {
+	for _, v := range envVars {
+		if v.Sensitive == checkSensitive {
+			return true
+		}
+	}
+	return false
 }
