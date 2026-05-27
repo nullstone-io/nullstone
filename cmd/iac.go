@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/nullstone-io/iac"
 	"github.com/urfave/cli/v2"
@@ -78,14 +79,48 @@ var IacTest = &cli.Command{
 	},
 }
 
+// waitDuration backs the --wait flag. A bare `--wait` (the std flag parser calls Set("true")
+// because IsBoolFlag reports true) means "wait with the default timeout"; `--wait=5m` parses a
+// Go duration. Implementing IsBoolFlag is what lets the parser accept the bare form without
+// consuming the following argument.
+type waitDuration struct {
+	set      bool
+	duration time.Duration
+}
+
+func (w *waitDuration) Set(v string) error {
+	w.set = true
+	if v == "" || v == "true" {
+		w.duration = time.Minute
+		return nil
+	}
+	d, err := time.ParseDuration(v)
+	if err != nil {
+		return fmt.Errorf("invalid --wait duration %q: %w", v, err)
+	}
+	w.duration = d
+	return nil
+}
+func (w *waitDuration) String() string   { return w.duration.String() }
+func (w *waitDuration) IsBoolFlag() bool { return true }
+
+// iacSyncWaitFlag is declared separately so the Action can read the parsed *waitDuration back
+// via c.Generic. -w is intentionally not aliased here; `nullstone deploy` already owns it.
+var iacSyncWaitFlag = &cli.GenericFlag{
+	Name:  "wait",
+	Value: &waitDuration{duration: time.Minute},
+	Usage: "Wait for the IaC sync to finish, streaming status to stderr. Bare --wait uses a 1m timeout; --wait=<dur> (e.g. 5m) sets a custom timeout. Exit code reflects the result (0 success, 1 failed, 2 cancelled, 3 timeout).",
+}
+
 var IacSync = &cli.Command{
 	Name:        "sync",
 	Description: "Sync IaC configuration to a Nullstone environment and optionally trigger infra updates.",
 	Usage:       "Sync Nullstone IaC",
-	UsageText:   "nullstone iac sync --stack=<stack> --env=<env> [--auto-plan] [--auto-apply] [--from-git]",
+	UsageText:   "nullstone iac sync --stack=<stack> --env=<env> [--auto-plan] [--auto-apply] [--from-git] [--wait[=<dur>]]",
 	Flags: []cli.Flag{
 		StackFlag,
 		EnvFlag,
+		iacSyncWaitFlag,
 		&cli.BoolFlag{
 			Name:  "auto-plan",
 			Usage: "Queue an infra-update Run on each workspace where IaC changes are detected. The Run is left pending approval.",
@@ -123,6 +158,7 @@ var IacSync = &cli.Command{
 					return fmt.Errorf("cannot retrieve Nullstone IaC files: %w", err)
 				}
 				stdout := os.Stdout
+				stderr := os.Stderr
 
 				// Run the same Discover → Process → Test pipeline as `nullstone iac test`
 				// so the user gets immediate feedback if the IaC files are invalid.
@@ -179,9 +215,14 @@ var IacSync = &cli.Command{
 				if len(payload.YamlConfigFiles) == 0 {
 					mode = "git-fetch"
 				}
-				fmt.Fprintf(stdout, "Triggered IaC sync (intent workflow %d, %s) for %s/%s%s\n",
+				fmt.Fprintf(stderr, "Triggered IaC sync (intent workflow %d, %s) for %s/%s%s\n",
 					wf.Id, mode, stackName, envName, shaSuffix)
-				return nil
+
+				wd := c.Generic(iacSyncWaitFlag.Name).(*waitDuration)
+				if !wd.set {
+					return nil
+				}
+				return waitForIacSync(ctx, cfg, stderr, *wf, wd.duration)
 			})
 		})
 	},
