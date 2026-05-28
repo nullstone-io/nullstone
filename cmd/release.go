@@ -58,15 +58,15 @@ var Release = func(providers app.Providers) *cli.Command {
 				}
 
 				payload := api.ReleaseCreatePayload{
-					IsApproved: autoApprove,
+					AutomationTool: detectAutomationTool(),
+					IsApproved:     autoApprove,
 					Apps: []api.ReleaseApp{
 						{
-							AppId:          appDetails.App.Id,
-							FromSource:     false,
-							Version:        info.EffectiveVersion,
-							CommitSha:      info.CommitInfo.CommitSha,
-							AutomationTool: detectAutomationTool(),
-							EnvVars:        envVars,
+							AppId:      appDetails.App.Id,
+							FromSource: false,
+							Version:    info.EffectiveVersion,
+							CommitSha:  info.CommitInfo.CommitSha,
+							EnvVars:    envVars,
 						},
 					},
 				}
