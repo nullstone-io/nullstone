@@ -58,17 +58,22 @@ var Release = func(providers app.Providers) *cli.Command {
 				}
 
 				payload := api.ReleaseCreatePayload{
-					FromSource:     false,
-					Version:        info.EffectiveVersion,
-					CommitSha:      info.CommitInfo.CommitSha,
-					AutomationTool: detectAutomationTool(),
-					EnvVars:        envVars,
-					IsApproved:     autoApprove,
+					IsApproved: autoApprove,
+					Apps: []api.ReleaseApp{
+						{
+							AppId:          appDetails.App.Id,
+							FromSource:     false,
+							Version:        info.EffectiveVersion,
+							CommitSha:      info.CommitInfo.CommitSha,
+							AutomationTool: detectAutomationTool(),
+							EnvVars:        envVars,
+						},
+					},
 				}
 
 				fmt.Fprintln(osWriters.Stderr(), "Creating release...")
 				client := api.Client{Config: cfg}
-				iw, err := client.Releases().Create(ctx, appDetails.App.StackId, appDetails.App.Id, appDetails.Env.Id, payload)
+				iw, err := client.Releases().Create(ctx, appDetails.App.StackId, appDetails.Env.Id, payload)
 				if err != nil {
 					return fmt.Errorf("error creating release: %w", err)
 				} else if iw == nil {
