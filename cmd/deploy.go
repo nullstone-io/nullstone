@@ -135,6 +135,9 @@ func streamDeployIntentLogs(ctx context.Context, osWriters logging.OsWriters, cf
 	} else if iw.Status == types.IntentWorkflowStatusCompleted {
 		colorstring.Fprintln(stderr, "[green]Deployment completed.[reset]")
 		return nil
+	} else if iw.Status == types.IntentWorkflowStatusNoOp {
+		colorstring.Fprintln(stderr, "[green]Nothing to release.[reset]")
+		return nil
 	}
 
 	colorstring.Fprintln(stderr, "[green]Deployment started.[reset]")

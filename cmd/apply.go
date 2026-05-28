@@ -48,10 +48,6 @@ var Apply = func() *cli.Command {
 				Usage: "Package and publish the module in the current directory before running the apply. Uses `next-build` for the version by default, or the value of `--module-version` if specified.",
 			},
 			&cli.StringFlag{
-				Name:  "app-version",
-				Usage: "Force a specific app version to be used during the apply. Only valid for application blocks.",
-			},
-			&cli.StringFlag{
 				Name:  "if",
 				Usage: "Only create the run when the condition is met. Supported: `any-changes` (skip if there are no unapplied workspace changes).",
 			},
@@ -101,19 +97,9 @@ var Apply = func() *cli.Command {
 					return err
 				}
 
-				var appVersion *string
-				if c.IsSet("app-version") {
-					if block.Type != string(types.BlockTypeApplication) {
-						return fmt.Errorf("--app-version is only valid for application blocks; %q is a %s block", block.Name, block.Type)
-					}
-					v := c.String("app-version")
-					appVersion = &v
-				}
-
 				input := PerformRunInput{
 					Workspace:  workspace,
 					CommitSha:  "",
-					AppVersion: appVersion,
 					IsApproved: autoApprove,
 					IsDestroy:  false,
 					BlockType:  types.BlockType(block.Type),
