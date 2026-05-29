@@ -28,6 +28,7 @@ $ nullstone apply [--stack=<stack-name>] --block=<block-name> --env=<env-name> [
 | `--var` | Set variables values for the apply. This can be used to override variables defined in the module. |  |
 | `--module-version` | The version of the module to apply. When used with `--publish`, this specifies the version to publish (supports semver, `next-patch`, and `next-build`). |  |
 | `--publish` | Package and publish the module in the current directory before running the apply. Uses `next-build` for the version by default, or the value of `--module-version` if specified. |  |
+| `--if` | Only create the run when the condition is met. Supported: `any-changes` (skip if there are no unapplied workspace changes). |  |
 
 
 ## apps list
@@ -82,7 +83,7 @@ $ nullstone blocks new --name=<name> --stack=<stack> --module=<module> [--connec
 | `--name` | Provide a name for this new block | required |
 | `--module` | Specify the unique name of the module to use for this block. Example: nullstone/aws-network | required |
 | `--connection` | Specify any connections that this block will have to other blocks. Use the connection name as the key, and the connected block name as the value. Example: --connection network=network0 |  |
-| `--dns-template` | Specify a template for the dns name portion of the subdomain.This is a template that allows you to add "{{ NULLSTONE_ENV }}" and "{{ NULLSTONE_ORG }}" in template.In production, the "{{ NULLSTONE_ENV }}" will be omitted to create a vanity subdomain.Nullstone will interpolate the template to create a subdomain: "`dns-name`.`domain-name`".If you want to create a ".nullstone.app" subdomain using an "autogen" or "nullstone-subdomain" module, set this to "{{ random() }}".For a subdomain on your custom domain, set this to something like "api.{{ NULLSTONE_ENV }}".- "dev" env =` api.dev.example.com- "prod" env =` api.example.com |  |
+| `--dns-template` | Specify a template for the dns name portion of the subdomain.This is a template that allows you to add "<code v-pre>{{ NULLSTONE_ENV }}</code>" and "<code v-pre>{{ NULLSTONE_ORG }}</code>" in template.In production, the "<code v-pre>{{ NULLSTONE_ENV }}</code>" will be omitted to create a vanity subdomain.Nullstone will interpolate the template to create a subdomain: "`dns-name`.`domain-name`".If you want to create a ".nullstone.app" subdomain using an "autogen" or "nullstone-subdomain" module, set this to "<code v-pre>{{ random() }}</code>".For a subdomain on your custom domain, set this to something like "api.<code v-pre>{{ NULLSTONE_ENV }}</code>".- "dev" env =` api.dev.example.com- "prod" env =` api.example.com |  |
 
 
 ## configure
@@ -115,6 +116,7 @@ $ nullstone deploy [--stack=<stack-name>] --app=<app-name> --env=<env-name> [opt
 | `--app` | Name of the app to use for this operation |  |
 | `--env` | Name of the environment to use for this operation |  |
 | `--version` | Provide a label for your deployment.		If not provided, it will default to the commit sha of the repo for the current directory. |  |
+| `--env-var, -e` | Set an additional environment variable on the app for this deployment in the form KEY=VALUE.		Can be specified multiple times. Values may reference other --env-var values or standard env vars		(e.g. NULLSTONE_VERSION) using <code v-pre>{{ VAR }}</code>, but cannot reference secrets.		These env vars apply to this deployment only; a subsequent infra run or deploy may overwrite them. |  |
 | `--wait, -w` | Wait for the deploy to complete and stream the logs to the console. |  |
 
 
@@ -252,6 +254,24 @@ $ nullstone iac --stack=<stack> --env=<env> --app=<app>
 | `--block` | Name of the block to use for this operation |  |
 
 
+## iac sync
+Sync IaC configuration to a Nullstone environment and optionally trigger infra updates.
+
+#### Usage
+```shell
+$ nullstone iac sync --stack=<stack> --env=<env> [--auto-plan] [--auto-apply] [--from-git] [--wait[=<dur>]]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
+| `--env` | Name of the environment to use for this operation | required |
+| `--auto-plan` | Queue an infra-update Run on each workspace where IaC changes are detected. The Run is left pending approval. |  |
+| `--auto-apply` | Auto-approve any infra-update Run created by the sync. Implies --auto-plan. |  |
+| `--from-git` | Force the server to fetch IaC files from the connected GitHub repo at the resolved commit SHA. By default the local files (already discovered by this command) are submitted in the request payload. |  |
+
+
 ## launch
 This command will first upload (push) an artifact containing the source for your application. Then it will deploy it to the given environment and tail the logs for the deployment.This command is the same as running `nullstone push` followed by `nullstone deploy -w`.
 
@@ -268,6 +288,7 @@ $ nullstone launch [--stack=<stack-name>] --app=<app-name> --env=<env-name> [opt
 | `--env` | Name of the environment to use for this operation |  |
 | `--source` | The source artifact to push that contains your application's build.		For a container, specify the name of the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.		For a serverless zip application, specify the .zip archive to push.		For a static site, specify the directory to push. | required |
 | `--version` | Provide a label for your deployment.		If not provided, it will default to the commit sha of the repo for the current directory. |  |
+| `--env-var, -e` | Set an additional environment variable on the app for this deployment in the form KEY=VALUE.		Can be specified multiple times. Values may reference other --env-var values or standard env vars		(e.g. NULLSTONE_VERSION) using <code v-pre>{{ VAR }}</code>, but cannot reference secrets.		These env vars apply to this deployment only; a subsequent infra run or deploy may overwrite them. |  |
 
 
 ## logs
@@ -288,6 +309,11 @@ $ nullstone logs [--stack=<stack-name>] --app=<app-name> --env=<env-name> [optio
 | `--end-time, -e` |        Emit log events that occur before the specified end-time.        This is a golang duration relative to the time the command is issued.       Examples: '5s' (5 seconds ago), '1m' (1 minute ago), '24h' (24 hours ago)       |  |
 | `--interval` | Set --interval to a golang duration to control how often to pull new log events.       This will do nothing unless --tail is set. The default is '1s' (1 second).       |  |
 | `--tail, -t` | Set tail to watch log events and emit as they are reported.       Use --interval to control how often to query log events.       This is off by default. Unless this option is provided, this command will exit as soon as current log events are emitted. |  |
+| `--pod` | Restrict logs to a single pod by name (Kubernetes only). |  |
+| `--job` | Restrict logs to a single Kubernetes job by name (adds `job-name=`value`` to the selector) or a single ECS task by ID. |  |
+| `--pod-template-hash` | Restrict logs to a single ReplicaSet revision (adds `pod-template-hash=`value`` to the selector). |  |
+| `--task` | Restrict logs to a single ECS task by ID. |  |
+| `--deployment` | Restrict logs to a single ECS deployment by ID; logs from all tasks under the deployment are included. |  |
 
 
 ## mcp-server
@@ -314,7 +340,7 @@ $ nullstone modules generate [--register] [--manifest-only]
 
 
 ## modules list
-Shows a list of modules in the Nullstone registry for the current organization.
+Lists the modules owned by the current organization. Intended for module contributors managing their org's registry. To search the entire Nullstone registry (Nullstone-official, community, etc.), use `nullstone modules find`.
 
 #### Usage
 ```shell
@@ -333,6 +359,42 @@ $ nullstone modules list
 | `--subplatform` | Filter modules by subplatform |  |
 
 
+## modules find
+Search the entire Nullstone module registry across Nullstone-official, your org, and community modules. To list modules owned by your organization, use `nullstone modules list`. When `--contributor` is not specified, results include Nullstone-official and your organization's modules.
+
+#### Usage
+```shell
+$ nullstone modules find [--category=<category>] [--subcategory=<subcategory>] [--provider=<provider>] [--platform=<platform>] [--subplatform=<subplatform>] [--name=<name>] [--contributor=<contributor>]... [--format=table|json]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--category` | Filter modules by category. Known values: app, capability, datastore, ingress, subdomain, domain, cluster, cluster-namespace, network, block |  |
+| `--subcategory` | Filter modules by subcategory. Requires --category. Known values — app: container, serverless, static-site, server; capability: ingress, datastores, secrets, sidecars, events, telemetry |  |
+| `--provider` | Filter modules by provider type. Known values: aws, gcp, azure |  |
+| `--platform` | Filter modules by platform |  |
+| `--subplatform` | Filter modules by subplatform. Requires --platform. |  |
+| `--name` | Fuzzy match modules by name |  |
+| `--contributor` | Filter by contributor. Repeat the flag to include multiple. Allowed values: nullstone-official, my-org, community. Defaults to nullstone-official,my-org. |  |
+| `--format` | Output format. One of: table (default), json |  |
+
+
+## modules describe
+Fetches metadata for a module and one of its versions. The positional argument accepts `[<org>/]<name>[@<version>]`. If the organization is omitted, the current organization is used. If a version is specified via `@<version>`, the `--version` flag must not also be set. When no version is provided, the latest published version is described.
+
+#### Usage
+```shell
+$ nullstone modules describe [<org>/]<name>[@<version>] [--version=<version>] [--format=json|pretty]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--version, -v` | Module version to describe. Defaults to the latest published version. Cannot be combined with `@`version`` in the positional argument. |  |
+| `--format` | Output format. One of: json (default), pretty |  |
+
+
 ## modules register
 Registers a module in the Nullstone registry. The information in .nullstone/module.yml will be used as the details for the new module.
 
@@ -346,13 +408,14 @@ Publishes a new version for a module in the Nullstone registry. Provide a specif
 
 #### Usage
 ```shell
-$ nullstone modules publish --version=<version>
+$ nullstone modules publish --version=<version> [--if=checksum-changed]
 ```
 
 #### Options
 | Option | Description | |
 | --- | --- | --- |
 | `--version, -v` | Specify a semver version for the module.'next-patch': Uses a version that bumps the patch component of the latest module version.'next-build': Uses the latest version and appends +`build` using the short Git commit SHA. (Fails if not in a Git repository) | required |
+| `--if` | Only publish when the condition is met. Supported: `checksum-changed` (skip when the packaged tarball matches the latest published version). |  |
 | `--include` | Specify additional file patterns to package. By default, this command includes *.tf, *.tf.tmpl, and 'README.md'. Use this flag to package additional modules and files needed for applies. This supports file globbing detailed at https://pkg.go.dev/path/filepath#Glob |  |
 
 
@@ -432,6 +495,26 @@ $ nullstone push [--stack=<stack-name>] --app=<app-name> --env=<env-name> [optio
 | `--source` | The source artifact to push that contains your application's build.		For a container, specify the name of the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.		For a serverless zip application, specify the .zip archive to push.		For a static site, specify the directory to push. | required |
 | `--version` | Provide a label for your deployment.		If not provided, it will default to the commit sha of the repo for the current directory. |  |
 | `--unique` | Use this to *always* push the artifact with a unique version. If the input version already exists, an incrementing `-`count`` suffix is added. |  |
+
+
+## release
+Make your infra and app code live through a single workflow. Nullstone runs an infra-update when there are outstanding workspace changes and a deploy for the resolved app version, picking the optimal, most reliable path.
+
+#### Usage
+```shell
+$ nullstone release [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
+| `--app` | Name of the app to use for this operation |  |
+| `--env` | Name of the environment to use for this operation |  |
+| `--version` | Provide a label for your deployment.		If not provided, it will default to the commit sha of the repo for the current directory. |  |
+| `--env-var, -e` | Set an additional environment variable on the app for this deployment in the form KEY=VALUE.		Can be specified multiple times. Values may reference other --env-var values or standard env vars		(e.g. NULLSTONE_VERSION) using <code v-pre>{{ VAR }}</code>, but cannot reference secrets.		These env vars apply to this deployment only; a subsequent infra run or deploy may overwrite them. |  |
+| `--auto-approve` | Skip any approvals on the infra-update. This requires proper permissions in the stack. |  |
+| `--wait, -w` | Wait for the release to complete and stream the logs to the console. |  |
 
 
 ## run

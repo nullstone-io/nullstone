@@ -19,6 +19,7 @@ test:
 
 docs:
 	go run ./docs/main.go
+	cp ./docs/CLI.md ../docs/src/getting-started/cli/docs.md
 
 upgrade-aws:
 	go get -u github.com/aws/aws-sdk-go-v2/...

@@ -1,5 +1,7 @@
-# 0.0.183 (May 27, 2026)
+# 0.0.183 (May 29, 2026)
 * Added `--wait` flag to `nullstone iac sync` to wait for iac sync to complete.
+* Added `nullstone release` command that runs infra-update and/or deploy through a single workflow, letting Nullstone pick the optimal path.
+* Removed `--app-version` from `nullstone apply` (it was never wired through); use `nullstone release` to make infra changes and a new app version live together.
 
 # 0.0.182 (May 20, 2026)
 * Added NeedsAppInfra to capability metadata so that generating app modules conditionally adds `app_infra` var to the module.

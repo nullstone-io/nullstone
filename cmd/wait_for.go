@@ -35,6 +35,8 @@ func waitForRunningIntentWorkflow(ctx context.Context, cfg api.Config, iw types.
 			return cur, nil
 		case types.IntentWorkflowStatusCompleted:
 			return cur, nil
+		case types.IntentWorkflowStatusNoOp:
+			return cur, nil
 		case types.IntentWorkflowStatusFailed:
 			return cur, fmt.Errorf("Deployment failed: %s", cur.StatusMessage)
 		case types.IntentWorkflowStatusCancelled:
@@ -61,6 +63,8 @@ func waitForCompletedIntentWorkflow(ctx context.Context, cfg api.Config, iw type
 	for {
 		switch cur.Status {
 		case types.IntentWorkflowStatusCompleted:
+			return cur, nil
+		case types.IntentWorkflowStatusNoOp:
 			return cur, nil
 		case types.IntentWorkflowStatusFailed:
 			return cur, fmt.Errorf("Deployment failed: %s", cur.StatusMessage)

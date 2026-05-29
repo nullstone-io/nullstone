@@ -18,7 +18,6 @@ import (
 type PerformRunInput struct {
 	Workspace  types.Workspace
 	CommitSha  string
-	AppVersion *string
 	IsApproved *bool
 	IsDestroy  bool
 	BlockType  types.BlockType
