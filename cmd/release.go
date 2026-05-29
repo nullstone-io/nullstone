@@ -7,6 +7,7 @@ import (
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
+	"gopkg.in/nullstone-io/nullstone.v0/app_urls"
 )
 
 var Release = func(providers app.Providers) *cli.Command {
@@ -81,6 +82,12 @@ var Release = func(providers app.Providers) *cli.Command {
 				}
 				fmt.Fprintln(osWriters.Stderr())
 
+				// Without --wait, print the workflow URL and return; with --wait, stream the logs.
+				if !wait {
+					fmt.Fprintln(osWriters.Stderr(), "Started release, view status here:")
+					fmt.Fprintln(osWriters.Stdout(), app_urls.GetIntentWorkflow(cfg, *iw))
+					return nil
+				}
 				return streamDeployIntentLogs(ctx, osWriters, cfg, appDetails, *iw, wait)
 			})
 		},
