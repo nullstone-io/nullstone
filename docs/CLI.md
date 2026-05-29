@@ -83,7 +83,7 @@ $ nullstone blocks new --name=<name> --stack=<stack> --module=<module> [--connec
 | `--name` | Provide a name for this new block | required |
 | `--module` | Specify the unique name of the module to use for this block. Example: nullstone/aws-network | required |
 | `--connection` | Specify any connections that this block will have to other blocks. Use the connection name as the key, and the connected block name as the value. Example: --connection network=network0 |  |
-| `--dns-template` | Specify a template for the dns name portion of the subdomain.This is a template that allows you to add "{{ NULLSTONE_ENV }}" and "{{ NULLSTONE_ORG }}" in template.In production, the "{{ NULLSTONE_ENV }}" will be omitted to create a vanity subdomain.Nullstone will interpolate the template to create a subdomain: "`dns-name`.`domain-name`".If you want to create a ".nullstone.app" subdomain using an "autogen" or "nullstone-subdomain" module, set this to "{{ random() }}".For a subdomain on your custom domain, set this to something like "api.{{ NULLSTONE_ENV }}".- "dev" env =` api.dev.example.com- "prod" env =` api.example.com |  |
+| `--dns-template` | Specify a template for the dns name portion of the subdomain.This is a template that allows you to add "<code v-pre>{{ NULLSTONE_ENV }}</code>" and "<code v-pre>{{ NULLSTONE_ORG }}</code>" in template.In production, the "<code v-pre>{{ NULLSTONE_ENV }}</code>" will be omitted to create a vanity subdomain.Nullstone will interpolate the template to create a subdomain: "`dns-name`.`domain-name`".If you want to create a ".nullstone.app" subdomain using an "autogen" or "nullstone-subdomain" module, set this to "<code v-pre>{{ random() }}</code>".For a subdomain on your custom domain, set this to something like "api.<code v-pre>{{ NULLSTONE_ENV }}</code>".- "dev" env =` api.dev.example.com- "prod" env =` api.example.com |  |
 
 
 ## configure
@@ -116,7 +116,7 @@ $ nullstone deploy [--stack=<stack-name>] --app=<app-name> --env=<env-name> [opt
 | `--app` | Name of the app to use for this operation |  |
 | `--env` | Name of the environment to use for this operation |  |
 | `--version` | Provide a label for your deployment.		If not provided, it will default to the commit sha of the repo for the current directory. |  |
-| `--env-var, -e` | Set an additional environment variable on the app for this deployment in the form KEY=VALUE.		Can be specified multiple times. Values may reference other --env-var values or standard env vars		(e.g. NULLSTONE_VERSION) using {{ VAR }}, but cannot reference secrets.		These env vars apply to this deployment only; a subsequent infra run or deploy may overwrite them. |  |
+| `--env-var, -e` | Set an additional environment variable on the app for this deployment in the form KEY=VALUE.		Can be specified multiple times. Values may reference other --env-var values or standard env vars		(e.g. NULLSTONE_VERSION) using <code v-pre>{{ VAR }}</code>, but cannot reference secrets.		These env vars apply to this deployment only; a subsequent infra run or deploy may overwrite them. |  |
 | `--wait, -w` | Wait for the deploy to complete and stream the logs to the console. |  |
 
 
@@ -288,7 +288,7 @@ $ nullstone launch [--stack=<stack-name>] --app=<app-name> --env=<env-name> [opt
 | `--env` | Name of the environment to use for this operation |  |
 | `--source` | The source artifact to push that contains your application's build.		For a container, specify the name of the docker image to push. This follows the same syntax as 'docker push NAME[:TAG]'.		For a serverless zip application, specify the .zip archive to push.		For a static site, specify the directory to push. | required |
 | `--version` | Provide a label for your deployment.		If not provided, it will default to the commit sha of the repo for the current directory. |  |
-| `--env-var, -e` | Set an additional environment variable on the app for this deployment in the form KEY=VALUE.		Can be specified multiple times. Values may reference other --env-var values or standard env vars		(e.g. NULLSTONE_VERSION) using {{ VAR }}, but cannot reference secrets.		These env vars apply to this deployment only; a subsequent infra run or deploy may overwrite them. |  |
+| `--env-var, -e` | Set an additional environment variable on the app for this deployment in the form KEY=VALUE.		Can be specified multiple times. Values may reference other --env-var values or standard env vars		(e.g. NULLSTONE_VERSION) using <code v-pre>{{ VAR }}</code>, but cannot reference secrets.		These env vars apply to this deployment only; a subsequent infra run or deploy may overwrite them. |  |
 
 
 ## logs
@@ -512,7 +512,7 @@ $ nullstone release [--stack=<stack-name>] --app=<app-name> --env=<env-name> [op
 | `--app` | Name of the app to use for this operation |  |
 | `--env` | Name of the environment to use for this operation |  |
 | `--version` | Provide a label for your deployment.		If not provided, it will default to the commit sha of the repo for the current directory. |  |
-| `--env-var, -e` | Set an additional environment variable on the app for this deployment in the form KEY=VALUE.		Can be specified multiple times. Values may reference other --env-var values or standard env vars		(e.g. NULLSTONE_VERSION) using {{ VAR }}, but cannot reference secrets.		These env vars apply to this deployment only; a subsequent infra run or deploy may overwrite them. |  |
+| `--env-var, -e` | Set an additional environment variable on the app for this deployment in the form KEY=VALUE.		Can be specified multiple times. Values may reference other --env-var values or standard env vars		(e.g. NULLSTONE_VERSION) using <code v-pre>{{ VAR }}</code>, but cannot reference secrets.		These env vars apply to this deployment only; a subsequent infra run or deploy may overwrite them. |  |
 | `--auto-approve` | Skip any approvals on the infra-update. This requires proper permissions in the stack. |  |
 | `--wait, -w` | Wait for the release to complete and stream the logs to the console. |  |
 

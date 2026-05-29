@@ -6,8 +6,19 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/app"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 )
+
+// vueInterpolation matches Mustache-style "{{ ... }}" sequences that the
+// VitePress compiler would otherwise try to evaluate as Vue interpolation.
+var vueInterpolation = regexp.MustCompile(`\{\{[^}]*\}\}`)
+
+// escapeVueInterpolation wraps any "{{ ... }}" sequences in <code v-pre>...</code>
+// so the docs site renders them literally instead of failing to compile them.
+func escapeVueInterpolation(s string) string {
+	return vueInterpolation.ReplaceAllString(s, "<code v-pre>$0</code>")
+}
 
 func main() {
 	log.Println("Generating CLI docs...")
@@ -43,7 +54,7 @@ func formatUsageText(usageText string) string {
 	result := strings.Replace(usageText, "\n", "", -1)
 	result = strings.Replace(result, "<", "`", -1)
 	result = strings.Replace(result, ">", "`", -1)
-	return result
+	return escapeVueInterpolation(result)
 }
 
 func formatFlagName(name string, aliases []string) string {
@@ -64,7 +75,7 @@ func outputCommandDescription(f *os.File, name string, description string) {
 	if name == "version" {
 		f.WriteString("Prints the version of the CLI.\n\n")
 	} else {
-		f.WriteString(description + "\n\n")
+		f.WriteString(escapeVueInterpolation(description) + "\n\n")
 	}
 }
 
