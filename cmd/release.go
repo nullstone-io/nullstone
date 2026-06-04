@@ -72,7 +72,8 @@ var Release = func(providers app.Providers) *cli.Command {
 					},
 				}
 
-				fmt.Fprintln(osWriters.Stderr(), "Creating release...")
+				stderr := osWriters.Stderr()
+				fmt.Fprintln(stderr, "Creating release...")
 				client := api.Client{Config: cfg}
 				iw, err := client.Releases().Create(ctx, appDetails.App.StackId, appDetails.Env.Id, payload)
 				if err != nil {
@@ -80,12 +81,13 @@ var Release = func(providers app.Providers) *cli.Command {
 				} else if iw == nil {
 					return fmt.Errorf("unable to create release")
 				}
-				fmt.Fprintln(osWriters.Stderr())
+				fmt.Fprintln(stderr)
 
-				// Without --wait, print the workflow URL and return; with --wait, stream the logs.
+				fmt.Fprintln(stderr, "Created release and started workflow, view status here:")
+				fmt.Fprintln(stderr, app_urls.GetIntentWorkflow(cfg, *iw))
+				fmt.Fprintln(stderr, "")
+
 				if !wait {
-					fmt.Fprintln(osWriters.Stderr(), "Started release, view status here:")
-					fmt.Fprintln(osWriters.Stdout(), app_urls.GetIntentWorkflow(cfg, *iw))
 					return nil
 				}
 				return streamDeployIntentLogs(ctx, osWriters, cfg, appDetails, *iw, wait)
