@@ -1,3 +1,6 @@
+# 0.0.184 (Jun 04, 2026)
+* Adjusted `nullstone release` and `nullstone deploy` to wait for deployment before streaming deploy logs.
+
 # 0.0.183 (May 29, 2026)
 * Added `--wait` flag to `nullstone iac sync` to wait for iac sync to complete.
 * Added `nullstone release` command that runs infra-update and/or deploy through a single workflow, letting Nullstone pick the optimal path.
