@@ -126,7 +126,6 @@ func streamDeployLogs(ctx context.Context, osWriters logging.OsWriters, cfg api.
 
 func streamDeployIntentLogs(ctx context.Context, osWriters logging.OsWriters, cfg api.Config, appDetails app.Details, iw types.IntentWorkflow, wait bool) error {
 	_, stderr := osWriters.Stdout(), osWriters.Stderr()
-	client := api.Client{Config: cfg}
 
 	fmt.Fprintln(stderr, "Starting deployment...")
 	var err error
@@ -159,12 +158,12 @@ func streamDeployIntentLogs(ctx context.Context, osWriters logging.OsWriters, cf
 		return err
 	}
 
-	activities, err := client.WorkspaceWorkflows().GetActivities(ctx, wflow.StackId, wflow.BlockId, wflow.EnvId, wflow.Id)
+	// A release flips the intent workflow to "running" before the deploy row is created, so we wait
+	// for the deploy to appear rather than reading activities once and racing its creation.
+	deploy, err := waitForDeployActivity(ctx, cfg, iw, wflow)
 	if err != nil {
-		return fmt.Errorf("unable to find deployment: %w", err)
-	} else if activities == nil || activities.Deploy == nil {
-		return fmt.Errorf("deployment is missing")
+		return err
 	}
 
-	return streamDeployLogs(ctx, osWriters, cfg, *activities.Deploy, wait)
+	return streamDeployLogs(ctx, osWriters, cfg, *deploy, wait)
 }

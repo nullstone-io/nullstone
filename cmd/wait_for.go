@@ -50,6 +50,117 @@ func waitForRunningIntentWorkflow(ctx context.Context, cfg api.Config, iw types.
 	}
 }
 
+// isTerminalIntentWorkflow reports whether an intent workflow has reached a state where no further
+// work (and therefore no deploy) will be produced.
+func isTerminalIntentWorkflow(status types.IntentWorkflowStatus) bool {
+	switch status {
+	case types.IntentWorkflowStatusCompleted,
+		types.IntentWorkflowStatusFailed,
+		types.IntentWorkflowStatusCancelled,
+		types.IntentWorkflowStatusNoOp:
+		return true
+	}
+	return false
+}
+
+// waitForDeployActivity waits for the deploy belonging to wflow to be created and returns it.
+//
+// A release flips its intent workflow to "running" before the deploy row exists (the deploy is
+// created later, inside the workspace workflow execution), so reading activities the instant we see
+// "running" races the deploy's creation. This resolves when one of three things happens:
+//  1. the deploy activity appears -> returned
+//  2. the user cancels (ctx) -> context.Canceled (main.go maps this to a clean exit)
+//  3. the intent workflow reaches a terminal status without ever producing a deploy -> error
+//
+// The deploy arrives on the workspace workflow stream while the terminal signal arrives on the intent
+// workflow stream; because those are independent connections, we re-check activities before declaring
+// the deploy missing so a deploy created in the same flush as the terminal status isn't lost.
+func waitForDeployActivity(ctx context.Context, cfg api.Config, iw types.IntentWorkflow, wflow types.WorkspaceWorkflow) (*types.Deploy, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	client := api.Client{Config: cfg}
+
+	// Fast path: the deploy may already exist (created before, or just as, the intent went running).
+	if deploy, err := getDeployActivity(ctx, client, wflow); err != nil {
+		return nil, err
+	} else if deploy != nil {
+		return deploy, nil
+	}
+
+	// Watch the workspace workflow for the deploy and the intent workflow for a terminal status.
+	_, wwCh, err := client.WorkspaceWorkflows().WatchGet(ctx, wflow.StackId, wflow.BlockId, wflow.EnvId, wflow.Id, ws.RetryInfinite(time.Second))
+	if err != nil {
+		return nil, fmt.Errorf("error waiting for deployment: %w", err)
+	}
+	initialIw, iwCh, err := client.IntentWorkflows().WatchGet(ctx, iw.StackId, iw.Id, ws.RetryInfinite(time.Second))
+	if err != nil {
+		return nil, fmt.Errorf("error waiting for deployment: %w", err)
+	}
+
+	// Re-check now that we're subscribed: a deploy created between the fast-path check and our
+	// subscription wouldn't appear on the stream (the hydrate snapshot carries no deploy).
+	if deploy, err := getDeployActivity(ctx, client, wflow); err != nil {
+		return nil, err
+	} else if deploy != nil {
+		return deploy, nil
+	}
+
+	// The intent workflow may already be terminal (e.g. a no-op release) by the time we connect.
+	if initialIw != nil && isTerminalIntentWorkflow(initialIw.Status) {
+		return deployOrMissing(ctx, client, wflow)
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, context.Canceled
+		case so, ok := <-wwCh:
+			if !ok {
+				return nil, context.Canceled
+			}
+			if so.Err != nil {
+				return nil, fmt.Errorf("error waiting for deployment: %w", so.Err)
+			}
+			if so.Object.Deploy != nil {
+				return so.Object.Deploy, nil
+			}
+		case so, ok := <-iwCh:
+			if !ok {
+				return nil, context.Canceled
+			}
+			if so.Err != nil {
+				return nil, fmt.Errorf("error waiting for deployment: %w", so.Err)
+			}
+			if so.Object.Status != nil && isTerminalIntentWorkflow(*so.Object.Status) {
+				return deployOrMissing(ctx, client, wflow)
+			}
+		}
+	}
+}
+
+// getDeployActivity fetches the deploy attached to wflow, returning nil if one hasn't been created yet.
+func getDeployActivity(ctx context.Context, client api.Client, wflow types.WorkspaceWorkflow) (*types.Deploy, error) {
+	activities, err := client.WorkspaceWorkflows().GetActivities(ctx, wflow.StackId, wflow.BlockId, wflow.EnvId, wflow.Id)
+	if err != nil {
+		return nil, fmt.Errorf("unable to find deployment: %w", err)
+	}
+	if activities == nil {
+		return nil, nil
+	}
+	return activities.Deploy, nil
+}
+
+// deployOrMissing re-checks activities one last time (closing the cross-stream race) and reports the
+// deploy if it landed, otherwise the canonical "deployment is missing" error.
+func deployOrMissing(ctx context.Context, client api.Client, wflow types.WorkspaceWorkflow) (*types.Deploy, error) {
+	if deploy, err := getDeployActivity(ctx, client, wflow); err != nil {
+		return nil, err
+	} else if deploy != nil {
+		return deploy, nil
+	}
+	return nil, fmt.Errorf("deployment is missing")
+}
+
 func waitForCompletedIntentWorkflow(ctx context.Context, cfg api.Config, iw types.IntentWorkflow) (types.IntentWorkflow, error) {
 	client := api.Client{Config: cfg}
 	intentWorkflow, ch, err := client.IntentWorkflows().WatchGet(ctx, iw.StackId, iw.Id, ws.RetryInfinite(time.Second))
