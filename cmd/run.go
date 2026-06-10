@@ -56,10 +56,7 @@ var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Comma
 				}
 
 				rawEnvVars := c.StringSlice(RunEnvVarFlag.Name)
-				var envVars map[string]string
-				if len(rawEnvVars) > 0 {
-					envVars = make(map[string]string)
-				}
+				envVars := make(map[string]string)
 				for _, raw := range rawEnvVars {
 					before, after, ok := strings.Cut(raw, "=")
 					if !ok {
@@ -67,6 +64,8 @@ var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Comma
 					}
 					envVars[before] = after
 				}
+				envVars["NULLSTONE_TRIGGER"] = "manual"
+				envVars["NULLSTONE_TRIGGER_NAME"] = user.Name
 
 				source := outputs.ApiRetrieverSource{Config: cfg}
 				osWriters := logging.StandardOsWriters{}
