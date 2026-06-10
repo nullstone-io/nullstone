@@ -12,7 +12,7 @@ import (
 // Pull downloads the artifact from an authenticated registry configured against an app/container
 var Pull = func(providers app.Providers) *cli.Command {
 	return &cli.Command{
-		Name:        "push",
+		Name:        "pull",
 		Description: "Download (pull) an artifact containing the source for your application. --version is required to identify which artifact to pull.",
 		Usage:       "Pull artifact",
 		UsageText:   "nullstone pull [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]",
