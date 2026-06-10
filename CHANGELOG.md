@@ -1,3 +1,6 @@
+# 0.0.185 (Jun 10, 2026)
+* Added `NULLSTONE_TRIGGER=manual` and `NULLSTONE_TRIGGER_NAME=<user-name>` env vars to job when performing `nullstone run`.
+
 # 0.0.184 (Jun 04, 2026)
 * Adjusted `nullstone release` and `nullstone deploy` to wait for deployment before streaming deploy logs.
 
