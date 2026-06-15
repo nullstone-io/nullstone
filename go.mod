@@ -59,7 +59,7 @@ require (
 	github.com/tmccombs/hcl2json v0.6.9 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/zclconf/go-cty v1.18.1 // indirect
-	golang.org/x/mod v0.36.0
+	golang.org/x/mod v0.37.0
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/term v0.43.0
