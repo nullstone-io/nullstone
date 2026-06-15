@@ -5,7 +5,7 @@ go 1.26.3
 require (
 	cloud.google.com/go/run v1.21.0
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.22.0
-	github.com/aws/aws-sdk-go-v2 v1.41.12
+	github.com/aws/aws-sdk-go-v2 v1.42.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.82.3
 	github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.35.3
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.55.3
