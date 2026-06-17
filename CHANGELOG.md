@@ -1,5 +1,6 @@
-# 0.0.186 (Unreleased)
+# 0.0.186 (Jun 17, 2026)
 * Added `nullstone pull` command that pulls artifacts instead of pushing.
+* Fixed env vars missing from `nullstone run` job when no command is specified.
 
 # 0.0.185 (Jun 10, 2026)
 * Added `NULLSTONE_TRIGGER=manual` and `NULLSTONE_TRIGGER_NAME=<user-name>` env vars to job when performing `nullstone run`.
