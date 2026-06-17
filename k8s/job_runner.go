@@ -173,7 +173,7 @@ func (r JobRunner) getJobContainerStatus(ctx context.Context, client *kubernetes
 func (r JobRunner) overrideMainContainerCommand(podTemplateSpec corev1.PodTemplateSpec, cmd []string, envVars map[string]string) corev1.PodTemplateSpec {
 	for i, container := range podTemplateSpec.Spec.Containers {
 		if container.Name == r.MainContainerName {
-			if len(cmd) < 1 {
+			if len(cmd) > 0 {
 				container.Command = cmd
 			}
 			r.overrideEnvVars(&container, envVars)
