@@ -7,6 +7,10 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
+// ConditionMissing is the only supported value for the register --if gate.
+// When set, registration is skipped if the module already exists.
+const ConditionMissing = "missing"
+
 func Register(ctx context.Context, cfg api.Config, manifest *types.ModuleManifest) (*types.Module, error) {
 	input := api.CreateModuleInput{
 		Name:          manifest.Name,
