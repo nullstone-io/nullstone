@@ -15,7 +15,7 @@ require (
 	github.com/gosuri/uilive v0.0.4
 	github.com/mark3labs/mcp-go v0.54.1
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
-	github.com/nullstone-io/deployment-sdk v0.0.0-20260618215841-736880bf796a
+	github.com/nullstone-io/deployment-sdk v0.0.0-20260619023558-576814dc8293
 	github.com/nullstone-io/iac v0.0.0-20260501130703-a4b425d326de
 	github.com/nullstone-io/module v0.2.10
 	github.com/ryanuber/columnize v2.1.2+incompatible
@@ -99,7 +99,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.32.25 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.24 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.29 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.22.28 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager v0.2.11 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.29 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.29 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.30 // indirect
