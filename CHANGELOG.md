@@ -1,3 +1,7 @@
+# 0.0.187 (Jun 18, 2026)
+* Added `--if=missing` to `nullstone modules register` (alias `new`) to register only when the module does not already exist.
+* Fixed getting status of gke jobs where no job executions were returned.
+
 # 0.0.186 (Jun 17, 2026)
 * Added `nullstone pull` command that pulls artifacts instead of pushing.
 * Fixed env vars missing from `nullstone run` job when no command is specified.

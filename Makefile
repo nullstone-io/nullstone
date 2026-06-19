@@ -23,3 +23,9 @@ docs:
 
 upgrade-aws:
 	go get -u github.com/aws/aws-sdk-go-v2/...
+
+upgrade-gcp:
+	go get -u cloud.google.com/...
+
+upgrade-k8s:
+	go get -u k8s.io/...

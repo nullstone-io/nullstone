@@ -212,15 +212,47 @@ var ModulesRegister = &cli.Command{
 	Name:        "register",
 	Description: "Registers a module in the Nullstone registry. The information in .nullstone/module.yml will be used as the details for the new module.",
 	Usage:       "Register module from .nullstone/module.yml",
-	UsageText:   "nullstone modules register",
-	Flags:       []cli.Flag{},
-	Aliases:     []string{"new"},
+	UsageText:   "nullstone modules register [--if=missing]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:  "if",
+			Usage: "Only register when the condition is met. Supported: `missing` (skip when the module already exists).",
+		},
+	},
+	Aliases: []string{"new"},
 	Action: func(c *cli.Context) error {
 		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
+			condition := c.String("if")
+			switch condition {
+			case "", modules.ConditionMissing:
+			default:
+				return cli.Exit(fmt.Sprintf("invalid --if value %q (supported: missing)", condition), 1)
+			}
+
 			manifest, err := modules.ManifestFromFile(moduleManifestFilename)
 			if err != nil {
 				return err
+			}
+
+			if condition == modules.ConditionMissing {
+				orgName := manifest.OrgName
+				if orgName == "" {
+					orgName = cfg.OrgName
+				}
+				if orgName == "" {
+					return ErrMissingOrg
+				}
+
+				client := api.Client{Config: cfg}
+				existing, err := client.Modules().Get(ctx, orgName, manifest.Name)
+				if err != nil {
+					return fmt.Errorf("error retrieving module: %w", err)
+				}
+				if existing != nil {
+					fmt.Fprintf(os.Stderr, "module %s/%s already exists\n", orgName, manifest.Name)
+					return nil
+				}
 			}
 
 			module, err := modules.Register(ctx, cfg, manifest)
