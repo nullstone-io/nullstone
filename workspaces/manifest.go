@@ -22,6 +22,12 @@ type Manifest struct {
 
 	WorkspaceUid string `json:"workspaceUid" yaml:"workspace_uid"`
 
+	// ClassificationLevel is the workspace's data-classification sensitivity slug
+	// (e.g. "customer-content"); empty when unclassified. Only the level is
+	// threaded (Q6 — level-only tagging); the provider computes the composite
+	// cloud-tag value from this slug.
+	ClassificationLevel string `json:"classificationLevel,omitempty" yaml:"classification_level,omitempty"`
+
 	// CapabilityId
 	// Deprecated
 	CapabilityId int64 `json:"capabilityId,omitempty" yaml:"capability_id,omitempty"`

@@ -93,6 +93,7 @@ var WorkspacesSelect = &cli.Command{
 			if err != nil {
 				return fmt.Errorf("could not retrieve current workspace configuration: %w", err)
 			}
+			targetWorkspace.ClassificationLevel = string(runConfig.Metadata.DataClassification)
 
 			// Survey missing app-level connections
 			manualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, "", runConfig.Connections)
