@@ -56,9 +56,9 @@ var BlocksList = &cli.Command{
 
 			if c.IsSet("detail") {
 				appDetails := make([]string, len(allBlocks)+1)
-				appDetails[0] = "ID|Type|Name|Reference|Stack"
+				appDetails[0] = "ID|Type|Name|Reference|Stack|Classification"
 				for i, block := range allBlocks {
-					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s", block.Id, block.Type, block.Name, block.Reference, stackName)
+					appDetails[i+1] = fmt.Sprintf("%d|%s|%s|%s|%s|%s", block.Id, block.Type, block.Name, block.Reference, stackName, blockClassification(ctx, client, stack.Id, block.Id))
 				}
 				fmt.Println(columnize.Format(appDetails, columnize.DefaultConfig()))
 			} else {
@@ -191,6 +191,20 @@ For a subdomain on your custom domain, set this to something like "api.{{ NULLST
 			return nil
 		})
 	},
+}
+
+// blockClassification fetches a block's workspace-template data-classification
+// level for display. Returns "unclassified" when absent or on error (the column
+// is informational and should never fail a list).
+func blockClassification(ctx context.Context, client api.Client, stackId, blockId int64) string {
+	tmpl, err := client.WorkspaceTemplates().Get(ctx, stackId, blockId)
+	if err != nil || tmpl == nil {
+		return "unclassified"
+	}
+	if level := tmpl.Config.Metadata.DataClassification; level != "" {
+		return string(level)
+	}
+	return "unclassified"
 }
 
 func blockTypeFromModuleCategory(categoryName types.CategoryName) (types.BlockType, error) {
