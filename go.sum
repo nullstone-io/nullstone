@@ -369,8 +369,8 @@ github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de h1:9TO3cAIGXtEhn
 github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de/go.mod h1:zAbeS9B/r2mtpb6U+EI2rYA5OAXxsYw6wTamcNW+zcE=
 github.com/lithammer/dedent v1.1.0 h1:VNzHMVCBNG1j0fh3OrsFRkVUwStdDArbgBWoPAffktY=
 github.com/lithammer/dedent v1.1.0/go.mod h1:jrXYCQtgg0nJiN+StA2KgR7w6CiQNv9Fd/Z9BP0jIOc=
-github.com/mark3labs/mcp-go v0.55.0 h1:lJfz2aoctiwK+sI991+uIYwmKNIBciI+O7zsyDsa4U8=
-github.com/mark3labs/mcp-go v0.55.0/go.mod h1:+8WclSK1ZUweCP3hvktSji8n8ABG/95QaEkeVE/Uwas=
+github.com/mark3labs/mcp-go v0.55.1 h1:GLYqNm9qdMGPhCtK4g1t1y1vhAPfayOBuaibDi4mrSA=
+github.com/mark3labs/mcp-go v0.55.1/go.mod h1:+8WclSK1ZUweCP3hvktSji8n8ABG/95QaEkeVE/Uwas=
 github.com/mattn/go-colorable v0.1.2/go.mod h1:U0ppj6V5qS13XJ6of8GYAs25YV2eR4EVcfRqFIhoBtE=
 github.com/mattn/go-colorable v0.1.14 h1:9A9LHSqF/7dyVVX6g0U9cwm9pG3kP9gSzcuIPHPsaIE=
 github.com/mattn/go-colorable v0.1.14/go.mod h1:6LmQG8QLFO4G5z1gPvYEzlUgJ2wF+stgPZH1UqBm1s8=
@@ -415,8 +415,8 @@ github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
 github.com/nullstone-io/deployment-sdk v0.0.0-20260619023902-91f178bca04f h1:m+Xf2yqyj5JZBVy5BLRUbtbIJM/e31Dbbj2YtIlzAgU=
 github.com/nullstone-io/deployment-sdk v0.0.0-20260619023902-91f178bca04f/go.mod h1:W6jyE2iho4omvtm5HpANuQwrTwDBnKnO/0BitH8GF64=
-github.com/nullstone-io/iac v0.0.0-20260622224557-ac2aa2bec6fe h1:VcKI9zo6Lkt7/2Wqi53MNfAV/gPvV/PVV4m8bAqDwlc=
-github.com/nullstone-io/iac v0.0.0-20260622224557-ac2aa2bec6fe/go.mod h1:dkUP4ICy8n/sxxnMTEKuv7ggdbkxNEwhod9/ppAzggs=
+github.com/nullstone-io/iac v0.0.0-20260625144952-cc7ab715d048 h1:+h/3pJ34XuCjEDmfHMtcUGEZKTkThhoh751QyZkhF/0=
+github.com/nullstone-io/iac v0.0.0-20260625144952-cc7ab715d048/go.mod h1:2g3cg5RQMIiegKC8WNaVHBZNnI28PcPLTei7BP1b9hs=
 github.com/nullstone-io/module v0.2.10 h1:wCKrlyxyH9XQW5HliW/V6qNsDgUQxUCcWL60Ojlz+2U=
 github.com/nullstone-io/module v0.2.10/go.mod h1:btQiO0giVWDvvaQ7CLnPmuPPakJc55lAr8OlE1LK6hg=
 github.com/onsi/ginkgo/v2 v2.28.1 h1:S4hj+HbZp40fNKuLUQOYLDgZLwNUVn19N3Atb98NCyI=
@@ -647,8 +647,8 @@ gopkg.in/evanphx/json-patch.v4 v4.13.0 h1:czT3CmqEaQ1aanPc5SdlgQrrEIb8w/wwCvWWnf
 gopkg.in/evanphx/json-patch.v4 v4.13.0/go.mod h1:p8EYWUEYMpynmqDbY58zCKCFZw8pRWMG4EsWvDvM72M=
 gopkg.in/inf.v0 v0.9.1 h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
 gopkg.in/inf.v0 v0.9.1/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260622221049-cc34b037aee6 h1:a3TeiunbS2DTsPtF23cy9RYzVOGd11Fhsi6R36LI2UU=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260622221049-cc34b037aee6/go.mod h1:iVTYLExhq09ettC9tNrWJ3B7FS4mj/eUfmrit0XLxHc=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260625144847-ddd254c97c1a h1:Vpmg3Khp/8VgbPPwnpfdSnTaeI2N/idRnooNrPrgSHY=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260625144847-ddd254c97c1a/go.mod h1:iVTYLExhq09ettC9tNrWJ3B7FS4mj/eUfmrit0XLxHc=
 gopkg.in/warnings.v0 v0.1.2 h1:wFXVbFY8DY5/xOe1ECiWdKCzZlxgshcYVNkBHstARME=
 gopkg.in/warnings.v0 v0.1.2/go.mod h1:jksf8JmL6Qr/oQM2OXTHunEvvTAsrWBLb6OOjuVWRNI=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=

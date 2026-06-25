@@ -1,3 +1,8 @@
+# 0.0.189 (Jun 25, 2026)
+* Improved `iac test` diffs to expand capability variables.
+* Improved `iac test` diffs to compare lists/maps better.
+* Fixed `iac test` to not show diffs between float and int values.
+
 # 0.0.188 (Jun 24, 2026)
 * Added `DataClassification` to workspaces. (support in `workspaces select` and IaC test/sync)
 

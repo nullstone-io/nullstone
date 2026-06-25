@@ -13,17 +13,17 @@ require (
 	github.com/go-git/go-git/v5 v5.19.1
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
 	github.com/gosuri/uilive v0.0.4
-	github.com/mark3labs/mcp-go v0.55.0
+	github.com/mark3labs/mcp-go v0.55.1
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nullstone-io/deployment-sdk v0.0.0-20260619023902-91f178bca04f
-	github.com/nullstone-io/iac v0.0.0-20260622224557-ac2aa2bec6fe
+	github.com/nullstone-io/iac v0.0.0-20260625144952-cc7ab715d048
 	github.com/nullstone-io/module v0.2.10
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/crypto v0.53.0
 	golang.org/x/sync v0.21.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260622221049-cc34b037aee6
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260625144847-ddd254c97c1a
 	k8s.io/api v0.36.2
 	k8s.io/apimachinery v0.36.2
 	k8s.io/client-go v0.36.2
