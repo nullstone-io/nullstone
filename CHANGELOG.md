@@ -1,3 +1,6 @@
+# 0.0.190 (Jun 25, 2026)
+* Added app support for Google Cloud Composer (Managed Airflow).
+
 # 0.0.189 (Jun 25, 2026)
 * Improved `iac test` diffs to expand capability variables.
 * Improved `iac test` diffs to compare lists/maps better.
