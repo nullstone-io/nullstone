@@ -15,7 +15,7 @@ require (
 	github.com/gosuri/uilive v0.0.4
 	github.com/mark3labs/mcp-go v0.55.1
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
-	github.com/nullstone-io/deployment-sdk v0.0.0-20260626013250-0749913da47a
+	github.com/nullstone-io/deployment-sdk v0.0.0-20260713174142-fde98105dfb7
 	github.com/nullstone-io/iac v0.0.0-20260625144952-cc7ab715d048
 	github.com/nullstone-io/module v0.2.10
 	github.com/ryanuber/columnize v2.1.2+incompatible
@@ -23,7 +23,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/crypto v0.53.0
 	golang.org/x/sync v0.21.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260625144847-ddd254c97c1a
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260713142524-4ef720e14350
 	k8s.io/api v0.36.2
 	k8s.io/apimachinery v0.36.2
 	k8s.io/client-go v0.36.2

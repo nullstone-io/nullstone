@@ -1,3 +1,6 @@
+# 0.0.191 (Jul 13, 2026)
+* Fixed GCP composer deployer updating environment variables.
+
 # 0.0.190 (Jun 25, 2026)
 * Added app support for Google Cloud Composer (Managed Airflow).
 
