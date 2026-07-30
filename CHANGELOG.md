@@ -1,4 +1,5 @@
 # 0.0.192 (Jul 30, 2026)
+* Added support for `nullstone run` for AWS Lambda apps.
 * Fixed `nullstone exec` panic when workspace is not supported.
  
 # 0.0.191 (Jul 13, 2026)
