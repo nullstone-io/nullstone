@@ -3,6 +3,8 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
 	"github.com/nullstone-io/deployment-sdk/outputs"
@@ -10,7 +12,6 @@ import (
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
 	"gopkg.in/nullstone-io/nullstone.v0/config"
-	"strings"
 )
 
 var Ssh = func(providers admin.Providers) *cli.Command {
@@ -51,7 +52,7 @@ var Ssh = func(providers admin.Providers) *cli.Command {
 				} else if remoter == nil {
 					module := appDetails.Module
 					platform := strings.TrimSuffix(fmt.Sprintf("%s:%s", module.Platform, module.Subplatform), ":")
-					return fmt.Errorf("The Nullstone CLI does not currently support the ssh command for the %q application. (Module = %s/%s, App Category = app/%s, Platform = %s)",
+					return fmt.Errorf("The Nullstone CLI does not currently support the `ssh` command for the %q application. (Module = %s/%s, App Category = app/%s, Platform = %s)",
 						appDetails.App.Name, module.OrgName, module.Name, module.Subcategory, platform)
 				}
 				options := admin.RemoteOptions{

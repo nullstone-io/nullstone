@@ -7,6 +7,7 @@ import (
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ec2"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/ecs"
 	"gopkg.in/nullstone-io/nullstone.v0/aws/eks"
+	"gopkg.in/nullstone-io/nullstone.v0/aws/lambda"
 	"gopkg.in/nullstone-io/nullstone.v0/azure/aca"
 	"gopkg.in/nullstone-io/nullstone.v0/azure/aks"
 	"gopkg.in/nullstone-io/nullstone.v0/azure/appservice"
@@ -132,7 +133,7 @@ var (
 		},
 		lambdaContract: admin.Provider{
 			NewStatuser: nil,
-			NewRemoter:  nil, // TODO: lambda.NewRemoter,
+			NewRemoter:  lambda.NewRemoter,
 		},
 		s3SiteContract: admin.Provider{
 			NewStatuser: nil,

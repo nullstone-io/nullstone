@@ -22,9 +22,22 @@ type RemoteOptions struct {
 	LogEmitter   app.LogEmitter
 }
 
+const (
+	// TriggerEnvVar identifies how the job/task was started
+	TriggerEnvVar = "NULLSTONE_TRIGGER"
+	// TriggerNameEnvVar identifies who started the job/task
+	TriggerNameEnvVar = "NULLSTONE_TRIGGER_NAME"
+
+	// TriggerManual is the trigger for a job/task started through the CLI
+	TriggerManual = "manual"
+)
+
 type RunOptions struct {
 	// Container represents the specific container name to execute against in the k8s pod/ecs task
-	Container   string
+	Container string
+	// Payload contains the input event for providers that invoke a function instead of running a command
+	// This is only supported for AWS Lambda
+	Payload     []byte
 	Username    string
 	LogStreamer app.LogStreamer
 	LogEmitter  app.LogEmitter

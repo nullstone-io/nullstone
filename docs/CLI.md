@@ -400,8 +400,14 @@ Registers a module in the Nullstone registry. The information in .nullstone/modu
 
 #### Usage
 ```shell
-$ nullstone modules register
+$ nullstone modules register [--if=missing]
 ```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--if` | Only register when the condition is met. Supported: `missing` (skip when the module already exists). |  |
+
 
 ## modules publish
 Publishes a new version for a module in the Nullstone registry. Provide a specific semver version using the `--version` parameter.
@@ -478,6 +484,23 @@ $ nullstone plan [--stack=<stack-name>] --block=<block-name> --env=<env-name> [o
 $ nullstone profile
 ```
 
+## pull
+Download (pull) an artifact containing the source for your application. --version is required to identify which artifact to pull.
+
+#### Usage
+```shell
+$ nullstone pull [--stack=<stack-name>] --app=<app-name> --env=<env-name> [options]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
+| `--app` | Name of the app to use for this operation |  |
+| `--env` | Name of the environment to use for this operation | required |
+| `--version` | Provide a label for your deployment.		If not provided, it will default to the commit sha of the repo for the current directory. | required |
+
+
 ## push
 Upload (push) an artifact containing the source for your application. Specify a semver version to associate with the artifact. The version specified can be used in the deploy command to select this artifact. By default, this command does nothing if an artifact with the same version already exists. Use --unique to force push with a unique version.
 
@@ -532,7 +555,8 @@ $ nullstone run [--stack=<stack-name>] --app=<app-name> --env=<env-name> [option
 | `--app` | Name of the app to use for this operation |  |
 | `--env` | Name of the environment to use for this operation | required |
 | `--container` | Select a specific container within a task or pod.        If using sidecars, this allows you to connect to other containers besides the primary application container. |  |
-| `--env-var, -e` | Pass environment variables to the job/task. You can use this flag multiple times to specify multiple environment variables. For each environment variable, use `NAME`=`value`.This is supported for AWS ECS/Fargate jobs, GCP Cloud Run jobs, and Kubernetes jobs. |  |
+| `--env-var, -e` | Pass environment variables to the job/task. You can use this flag multiple times to specify multiple environment variables. For each environment variable, use `NAME`=`value`.This is supported for AWS ECS/Fargate jobs, GCP Cloud Run jobs, and Kubernetes jobs.This is not supported for AWS Lambda; a lambda function's environment variables are configured at deploy time.Use --payload to send input to a lambda function. |  |
+| `--payload` | Pass an input event to the function.Use '@filename' to read the payload from a file, or '-' to read the payload from stdin.The payload must be a valid JSON document.This is supported for AWS Lambda functions. |  |
 
 
 ## secrets list
