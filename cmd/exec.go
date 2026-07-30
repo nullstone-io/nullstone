@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/cristalhq/jwt/v3"
 	"github.com/nullstone-io/deployment-sdk/app"
 	"github.com/nullstone-io/deployment-sdk/logging"
@@ -11,7 +14,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/nullstone.v0/admin"
-	"os"
 )
 
 var Exec = func(appProviders app.Providers, providers admin.Providers) *cli.Command {
@@ -55,6 +57,11 @@ var Exec = func(appProviders app.Providers, providers admin.Providers) *cli.Comm
 				remoter, err := providers.FindRemoter(ctx, logging.StandardOsWriters{}, source, appDetails)
 				if err != nil {
 					return err
+				} else if remoter == nil {
+					module := appDetails.Module
+					platform := strings.TrimSuffix(fmt.Sprintf("%s:%s", module.Platform, module.Subplatform), ":")
+					return fmt.Errorf("The Nullstone CLI does not currently support the `exec` command for the %q application. (Module = %s/%s, App Category = app/%s, Platform = %s)",
+						appDetails.App.Name, module.OrgName, module.Name, module.Subcategory, platform)
 				}
 				options := admin.RemoteOptions{
 					Instance:    c.String("instance"),

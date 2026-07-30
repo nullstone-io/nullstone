@@ -78,15 +78,17 @@ var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Comma
 				remoter, err := providers.FindRemoter(ctx, osWriters, source, appDetails)
 				if err != nil {
 					return err
+				} else if remoter == nil {
+					module := appDetails.Module
+					platform := strings.TrimSuffix(fmt.Sprintf("%s:%s", module.Platform, module.Subplatform), ":")
+					return fmt.Errorf("The Nullstone CLI does not currently support the `run` command for the %q application. (Module = %s/%s, App Category = app/%s, Platform = %s)",
+						appDetails.App.Name, module.OrgName, module.Name, module.Subcategory, platform)
 				}
 				options := admin.RunOptions{
 					Container:   c.String(ContainerFlag.Name),
 					Username:    user.Name,
 					LogStreamer: logStreamer,
 					LogEmitter:  app.NewWriterLogEmitter(os.Stdout),
-				}
-				if remoter == nil {
-					return fmt.Errorf("run is not supported for this workspace")
 				}
 				return remoter.Run(ctx, options, cmd, envVars)
 			})
