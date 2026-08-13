@@ -211,6 +211,34 @@ $ nullstone envs new --name=<name> --stack=<stack> [--provider=<provider>] [--pr
 | `--provider` | Select the name of the provider to use for this environment. When creating a preview environment, this parameter will not be used. |  |
 | `--region` | Select which region to launch infrastructure for this environment. Defaults to us-east-1 for AWS and us-east1 for GCP. |  |
 | `--zone` | For GCP, select the zone to launch infrastructure for this environment. Defaults to us-east1b |  |
+| `--description` | Describe what this environment is for. |  |
+| `--tag` | Set a tag on the environment in the form KEY=VALUE.		Can be specified multiple times. An empty value (--tag claim=) sets the tag to an empty		string, which is not the same as removing it -- use --remove-tag for that. |  |
+
+
+## envs update
+Updates an existing environment. Only the attributes you pass are changed; everything
+else is left alone.
+
+Tags are applied as a per-key patch, so --tag adds or updates a single key and --remove-tag
+deletes one, both without disturbing the environment's other tags. Setting a tag to an empty
+value (--tag claim=) keeps the key with an empty value, which is not the same as removing it.
+
+#### Usage
+```shell
+$ nullstone envs update --stack=<stack> --env=<env> [--name=<name>] [--description=<text>] [--tag KEY=VALUE] [--remove-tag KEY]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+| `--name` | Rename the environment. |  |
+| `--description` | Describe what this environment is for. Pass an empty value to clear it. |  |
+| `--prod` | Mark this environment as production. Cannot be combined with --non-prod. |  |
+| `--non-prod` | Mark this environment as non-production. Cannot be combined with --prod. |  |
+| `--tag` | Set a tag on the environment in the form KEY=VALUE.		Can be specified multiple times. An empty value (--tag claim=) sets the tag to an empty		string, which is not the same as removing it -- use --remove-tag for that. |  |
+| `--remove-tag` | Remove a tag from the environment by key. Can be specified multiple times.		Removing a key that isn't set is not an error. |  |
 
 
 ## envs delete
