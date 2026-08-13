@@ -29,6 +29,7 @@ var Envs = &cli.Command{
 	Subcommands: []*cli.Command{
 		EnvsList,
 		EnvsNew,
+		EnvsUpdate,
 		EnvsDelete,
 		EnvsUp,
 		EnvsDown,
@@ -135,10 +136,21 @@ var EnvsNew = &cli.Command{
 			Name:  "zone",
 			Usage: fmt.Sprintf("For GCP, select the zone to launch infrastructure for this environment. Defaults to %s", gcpDefaultZone),
 		},
+		&cli.StringFlag{
+			Name:  "description",
+			Usage: "Describe what this environment is for.",
+		},
+		EnvSetTagFlag,
 	},
 	Action: func(c *cli.Context) error {
 		ctx := context.TODO()
 		return ProfileAction(c, func(cfg api.Config) error {
+			// Parse tags before the API call so a malformed --tag doesn't create an env.
+			tags, err := ParseEnvTagSets(c)
+			if err != nil {
+				return err
+			}
+
 			client := api.Client{Config: cfg}
 			name := c.String("name")
 			stackName := c.String("stack")
@@ -154,12 +166,15 @@ var EnvsNew = &cli.Command{
 				return fmt.Errorf("stack %q does not exist", stackName)
 			}
 
-			name = sanitizeEnvName(name)
-			if preview {
-				return createPreviewEnv(client, stack.Id, name)
-			} else {
-				return createPipelineEnv(client, stack.Id, name, providerName, region, zone)
+			input := api.CreateEnvironmentInput{Name: sanitizeEnvName(name), Tags: tags}
+			if description := c.String("description"); description != "" {
+				input.Metadata = &types.EnvironmentMetadata{Description: description}
 			}
+
+			if preview {
+				return createPreviewEnv(client, stack.Id, input)
+			}
+			return createPipelineEnv(client, stack.Id, input, providerName, region, zone)
 		})
 	},
 }
@@ -264,7 +279,7 @@ var EnvsDelete = &cli.Command{
 	},
 }
 
-func createPipelineEnv(client api.Client, stackId int64, name, providerName, region, zone string) error {
+func createPipelineEnv(client api.Client, stackId int64, input api.CreateEnvironmentInput, providerName, region, zone string) error {
 	ctx := context.TODO()
 
 	if providerName == "" {
@@ -301,11 +316,9 @@ func createPipelineEnv(client api.Client, stackId int64, name, providerName, reg
 		return fmt.Errorf("CLI does not support provider type %q yet", provider.ProviderType)
 	}
 
-	env, err := client.Environments().Create(ctx, stackId, &types.Environment{
-		Name:           name,
-		Type:           types.EnvTypePipeline,
-		ProviderConfig: pc,
-	})
+	input.Type = types.EnvTypePipeline
+	input.ProviderConfig = &pc
+	env, err := client.Environments().Create(ctx, stackId, input)
 	if err != nil {
 		return fmt.Errorf("error creating environment: %w", err)
 	}
@@ -315,14 +328,10 @@ func createPipelineEnv(client api.Client, stackId int64, name, providerName, reg
 	return nil
 }
 
-func createPreviewEnv(client api.Client, stackId int64, name string) error {
+func createPreviewEnv(client api.Client, stackId int64, input api.CreateEnvironmentInput) error {
 	ctx := context.TODO()
-	env, err := client.Environments().Create(ctx, stackId, &types.Environment{
-		OrgName: client.Config.OrgName,
-		StackId: stackId,
-		Name:    name,
-		Type:    types.EnvTypePreview,
-	})
+	input.Type = types.EnvTypePreview
+	env, err := client.Environments().Create(ctx, stackId, input)
 	if err != nil {
 		return fmt.Errorf("error creating preview environment: %w", err)
 	} else if env == nil {

@@ -18,8 +18,10 @@ var EnvTypeFlag = &cli.StringSliceFlag{
 		Can be specified multiple times to show more than one type.`,
 }
 
-// EnvTagFlag filters by the open user tag keyspace on an environment.
-var EnvTagFlag = &cli.StringSliceFlag{
+// EnvTagFilterFlag filters by the open user tag keyspace on an environment. Note its
+// empty-value semantics differ from the write-side --tag in flag_env_tags.go: here an
+// empty value means "unset or empty", there it sets the tag to the empty string.
+var EnvTagFilterFlag = &cli.StringSliceFlag{
 	Name: "tag",
 	Usage: `Only show environments whose tags match KEY=VALUE.
 		Can be specified multiple times; an environment must match every tag given.
@@ -46,7 +48,7 @@ var EnvNameFlag = &cli.StringFlag{
 // EnvFilterFlags is the full set, for a command that wants all of them.
 var EnvFilterFlags = []cli.Flag{
 	EnvTypeFlag,
-	EnvTagFlag,
+	EnvTagFilterFlag,
 	EnvProdFlag,
 	EnvNonProdFlag,
 	EnvNameFlag,
@@ -89,7 +91,7 @@ func ParseEnvFilters(c *cli.Context) (EnvFilters, error) {
 		filters.Types = append(filters.Types, envType)
 	}
 
-	if raw := c.StringSlice(EnvTagFlag.Name); len(raw) > 0 {
+	if raw := c.StringSlice(EnvTagFilterFlag.Name); len(raw) > 0 {
 		filters.Tags = make(map[string]string, len(raw))
 		for _, kvp := range raw {
 			tokens := strings.SplitN(kvp, "=", 2)
