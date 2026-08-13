@@ -40,13 +40,28 @@ func main() {
 	f.WriteString("- options\n\n")
 
 	for _, command := range cliApp.Commands {
-		if len(command.Subcommands) > 0 {
-			for _, subcommand := range command.Subcommands {
-				outputCommandDocs(f, &command.Name, subcommand)
-			}
-		} else {
-			outputCommandDocs(f, nil, command)
-		}
+		outputCommandTree(f, "", command)
+	}
+}
+
+// outputCommandTree documents a command and everything below it. A command group with
+// subcommands is documented too -- it carries its own description -- so nested groups
+// like `envs apps` don't lose their leaves.
+func outputCommandTree(f *os.File, prefix string, command *cli.Command) {
+	name := command.Name
+	if prefix != "" {
+		name = fmt.Sprintf("%s %s", prefix, command.Name)
+	}
+	if len(command.Subcommands) == 0 {
+		outputCommandDocs(f, name, command)
+		return
+	}
+	// A top-level group with no description of its own adds nothing but a stub heading.
+	if prefix != "" || command.Description != "" {
+		outputCommandDocs(f, name, command)
+	}
+	for _, subcommand := range command.Subcommands {
+		outputCommandTree(f, name, subcommand)
 	}
 }
 
@@ -112,11 +127,7 @@ func outputCommandOptions(f *os.File, flags []cli.Flag) {
 	}
 }
 
-func outputCommandDocs(f *os.File, prefix *string, command *cli.Command) {
-	name := command.Name
-	if prefix != nil {
-		name = fmt.Sprintf("%s %s", *prefix, name)
-	}
+func outputCommandDocs(f *os.File, name string, command *cli.Command) {
 	log.Printf("Generating docs for %s", name)
 	f.WriteString(fmt.Sprintf("## %s\n", name))
 	outputCommandDescription(f, name, command.Description)
