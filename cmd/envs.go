@@ -57,41 +57,33 @@ var Envs = &cli.Command{
 		EnvsDelete,
 		EnvsUp,
 		EnvsDown,
+		EnvsApps,
 	},
 }
 
 var EnvsList = &cli.Command{
 	Name: "list",
-	Description: "Shows a list of the environments for the given stack. " +
-		"Set the `--detail` flag to show more details about each environment. " +
-		"Set the `--type` flag to only show environments of a single type.",
+	Description: `Shows a list of the environments for the given stack. Set the ` + "`--detail`" + ` flag to show more details about each environment.
+Filters can be combined: an environment must satisfy every flag given, and repeating --type widens the match.`,
 	Usage:     "List environments",
-	UsageText: "nullstone envs list --stack=<stack-name> [--type=<env-type>]",
-	Flags: []cli.Flag{
+	UsageText: "nullstone envs list --stack=<stack-name> [--type=<type>] [--tag KEY=VALUE] [--name=<pattern>]",
+	Flags: append([]cli.Flag{
 		StackRequiredFlag,
 		&cli.BoolFlag{
 			Name:    "detail",
 			Aliases: []string{"d"},
 			Usage:   "Use this flag to show more details about each environment",
 		},
-		&cli.StringFlag{
-			Name:  "type",
-			Usage: fmt.Sprintf("Filter environments by type. One of: %s", strings.Join(envTypeNames(), ", ")),
-		},
-	},
+	}, EnvFilterFlags...),
 	Action: func(c *cli.Context) error {
 		ctx := context.TODO()
-
-		var envTypeFilter *types.EnvironmentType
-		if c.IsSet("type") {
-			envType, err := parseEnvType(c.String("type"))
+		return ProfileAction(c, func(cfg api.Config) error {
+			// Parse filters before fetching so bad input fails fast.
+			filters, err := ParseEnvFilters(c)
 			if err != nil {
 				return err
 			}
-			envTypeFilter = &envType
-		}
 
-		return ProfileAction(c, func(cfg api.Config) error {
 			stackName := c.String(StackRequiredFlag.Name)
 			stack, err := find.Stack(ctx, cfg, stackName)
 			if err != nil {
@@ -105,15 +97,7 @@ var EnvsList = &cli.Command{
 			if err != nil {
 				return fmt.Errorf("error listing environments: %w", err)
 			}
-			if envTypeFilter != nil {
-				filtered := make([]*types.Environment, 0, len(envs))
-				for _, env := range envs {
-					if env.Type == *envTypeFilter {
-						filtered = append(filtered, env)
-					}
-				}
-				envs = filtered
-			}
+			envs = filters.Apply(envs)
 			sort.SliceStable(envs, func(i, j int) bool {
 				var first int
 				if envs[i].PipelineOrder == nil {
@@ -130,7 +114,7 @@ var EnvsList = &cli.Command{
 				return first < second
 			})
 
-			if c.IsSet("detail") {
+			if c.Bool("detail") {
 				envDetails := make([]string, len(envs)+1)
 				envDetails[0] = "ID|Name|Type"
 				for i, env := range envs {
@@ -186,7 +170,7 @@ var EnvsNew = &cli.Command{
 			providerName := c.String("provider")
 			region := c.String("region")
 			zone := c.String("zone")
-			preview := c.IsSet("preview")
+			preview := c.Bool("preview")
 
 			stack, err := client.StacksByName().Get(ctx, stackName)
 			if err != nil {
@@ -256,7 +240,7 @@ var EnvsDelete = &cli.Command{
 			client := api.Client{Config: cfg}
 			stackName := c.String("stack")
 			envName := c.String("env")
-			force := c.IsSet("force")
+			force := c.Bool("force")
 
 			stack, err := client.StacksByName().Get(ctx, stackName)
 			if err != nil {
