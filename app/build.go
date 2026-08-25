@@ -14,6 +14,10 @@ func Build() *cli.App {
 
 	cliApp := cli.NewApp()
 	cliApp.EnableBashCompletion = true
+	// KEY=VALUE flags like --env-var and --var carry values that may contain commas (e.g. JSON);
+	// without this, urfave/cli splits every slice flag value on "," (issue #673).
+	// Flags that accept comma-separated values (--contributor) split in their own parser.
+	cliApp.DisableSliceFlagSeparator = true
 	cliApp.Flags = []cli.Flag{
 		cmd.ProfileFlag,
 		cmd.OrgFlag,

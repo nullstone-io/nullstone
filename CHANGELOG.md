@@ -1,3 +1,6 @@
+# 0.0.193 (Aug 25, 2026)
+* Fixed `--env-var` and `--var` values containing commas being split into fragments. ([#673](https://github.com/nullstone-io/nullstone/issues/673))
+
 # 0.0.192 (Jul 30, 2026)
 * Added support for `nullstone run` for AWS Lambda apps.
 * Fixed `nullstone exec` panic when workspace is not supported.
