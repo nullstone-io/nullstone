@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"flag"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,16 +8,24 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// parseEnvVars runs args through urfave/cli the same way a real invocation does,
-// so the tests cover the StringSliceFlag parsing path (where comma-splitting
-// happens), not just ParseEnvVars.
+// parseEnvVars runs args through urfave/cli the same way a real invocation does
+// The tests cover the StringSliceFlag parsing path (where comma-splitting would happen), not just ParseEnvVars.
+// DisableSliceFlagSeparator mirrors app.Build (it is app-global config, applied during App.Setup).
 func parseEnvVars(t *testing.T, args ...string) (map[string]string, error) {
 	t.Helper()
 
-	set := flag.NewFlagSet("deploy", flag.ContinueOnError)
-	require.NoError(t, EnvVarFlag.Apply(set))
-	require.NoError(t, set.Parse(args))
-	return ParseEnvVars(cli.NewContext(cli.NewApp(), set, nil))
+	var envVars map[string]string
+	var parseErr error
+	cliApp := &cli.App{
+		DisableSliceFlagSeparator: true,
+		Flags:                     []cli.Flag{EnvVarFlag},
+		Action: func(c *cli.Context) error {
+			envVars, parseErr = ParseEnvVars(c)
+			return nil
+		},
+	}
+	require.NoError(t, cliApp.Run(append([]string{"deploy"}, args...)))
+	return envVars, parseErr
 }
 
 func TestParseEnvVars(t *testing.T) {
@@ -55,10 +62,9 @@ func TestParseEnvVars(t *testing.T) {
 	})
 }
 
-// Issue #673: StringSliceFlag splits values on commas before ParseEnvVars runs,
-// corrupting any value that legitimately contains a comma (JSON, CSV lists,
-// connection strings). These tests assert the correct behavior and fail until
-// the comma-splitting is disabled for --env-var.
+// Issue #673: StringSliceFlag used to split values on commas before ParseEnvVars
+// ran, corrupting any value that legitimately contains a comma (JSON, CSV lists,
+// connection strings). DisableSliceFlagSeparator keeps such values intact.
 func TestParseEnvVars_ValuesWithCommas(t *testing.T) {
 	t.Run("a plain value containing commas is kept intact", func(t *testing.T) {
 		envVars, err := parseEnvVars(t, "--env-var", "HOSTS=a.example.com,b.example.com")

@@ -131,20 +131,24 @@ func parseContributors(raw []string) ([]types.Contributor, error) {
 		valid[string(c)] = c
 	}
 	out := make([]types.Contributor, 0, len(raw))
-	for _, r := range raw {
-		r = strings.TrimSpace(r)
-		if r == "" {
-			continue
-		}
-		v, ok := valid[r]
-		if !ok {
-			allowed := make([]string, 0, len(types.AllContributors))
-			for _, c := range types.AllContributors {
-				allowed = append(allowed, string(c))
+	for _, entry := range raw {
+		// The app disables urfave/cli's comma-splitting of slice flags, so accept
+		// the comma-separated form here (e.g. --contributor nullstone-official,my-org).
+		for _, r := range strings.Split(entry, ",") {
+			r = strings.TrimSpace(r)
+			if r == "" {
+				continue
 			}
-			return nil, fmt.Errorf("invalid --contributor %q: must be one of %s", r, strings.Join(allowed, ", "))
+			v, ok := valid[r]
+			if !ok {
+				allowed := make([]string, 0, len(types.AllContributors))
+				for _, c := range types.AllContributors {
+					allowed = append(allowed, string(c))
+				}
+				return nil, fmt.Errorf("invalid --contributor %q: must be one of %s", r, strings.Join(allowed, ", "))
+			}
+			out = append(out, v)
 		}
-		out = append(out, v)
 	}
 	return out, nil
 }
