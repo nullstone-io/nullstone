@@ -125,6 +125,24 @@ func (m *moduleSurvey) Ask(cfg api.Config, defaults *types.ModuleManifest) (*typ
 	}
 	manifest.Subcategory = strings.ToLower(manifest.Subcategory)
 
+	// App Type
+	if manifest.Category == string(types.CategoryApp) {
+		appTypePrompt := &survey.Select{
+			Message: "App Type:",
+			Options: types.AllAppTypeNames,
+			Help:    "'generic' apps deploy your own code; 'packaged' apps ship a ready-to-run application with no user code",
+			Default: string(types.AppTypeGeneric),
+		}
+		if manifest.AppType != "" && slices.Contains(types.AllAppTypeNames, manifest.AppType) {
+			appTypePrompt.Default = manifest.AppType
+		}
+		if err := survey.AskOne(appTypePrompt, &manifest.AppType); err != nil {
+			return nil, err
+		}
+	} else {
+		manifest.AppType = ""
+	}
+
 	// App Categories
 	if strings.HasPrefix(manifest.Category, "capability") {
 		// We are splitting category and subcategory

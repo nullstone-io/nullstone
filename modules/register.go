@@ -19,6 +19,7 @@ func Register(ctx context.Context, cfg api.Config, manifest *types.ModuleManifes
 		IsPublic:      manifest.IsPublic,
 		Category:      manifest.Category,
 		Subcategory:   manifest.Subcategory,
+		AppType:       manifest.AppType,
 		ProviderTypes: manifest.ProviderTypes,
 		Platform:      manifest.Platform,
 		Subplatform:   manifest.Subplatform,

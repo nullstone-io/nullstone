@@ -156,6 +156,9 @@ func writeModuleDescribePretty(w *os.File, out moduleDescribeOutput) {
 		category = fmt.Sprintf("%s/%s", category, m.Subcategory)
 	}
 	rows = append(rows, fmt.Sprintf("Category|%s", category))
+	if m.AppType != "" {
+		rows = append(rows, fmt.Sprintf("App Type|%s", m.AppType))
+	}
 	if len(m.ProviderTypes) > 0 {
 		rows = append(rows, fmt.Sprintf("Providers|%s", strings.Join(m.ProviderTypes, ", ")))
 	}
