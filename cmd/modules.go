@@ -66,6 +66,10 @@ var ModulesList = &cli.Command{
 			Usage: "Filter modules by subcategory. Known values — app: container, serverless, static-site, server; capability: ingress, datastores, secrets, sidecars, events, telemetry",
 		},
 		&cli.StringFlag{
+			Name:  "app-type",
+			Usage: "Filter app modules by app type. Known values: generic, packaged",
+		},
+		&cli.StringFlag{
 			Name:  "provider",
 			Usage: "Filter modules by provider type. Known values: aws, gcp, azure",
 		},
@@ -90,6 +94,7 @@ var ModulesList = &cli.Command{
 			nameFilter := c.String("name")
 			categoryFilter := c.String("category")
 			subcategoryFilter := c.String("subcategory")
+			appTypeFilter := c.String("app-type")
 			providerFilter := c.String("provider")
 			platformFilter := c.String("platform")
 			subplatformFilter := c.String("subplatform")
@@ -103,6 +108,9 @@ var ModulesList = &cli.Command{
 					continue
 				}
 				if subcategoryFilter != "" && string(module.Subcategory) != subcategoryFilter {
+					continue
+				}
+				if appTypeFilter != "" && string(module.AppType) != appTypeFilter {
 					continue
 				}
 				if providerFilter != "" && !slices.Contains(module.ProviderTypes, providerFilter) {

@@ -1,3 +1,8 @@
+# 0.0.194 (Aug 26, 2026)
+* Added `app_type` (`generic`|`packaged`) to module manifests to distinguish generic app patterns from packaged apps; `nullstone modules register` sends it to the registry.
+* Added an App Type prompt to `nullstone modules generate` for app modules.
+* Added `--app-type` filter to `nullstone modules find` and `nullstone modules list`; `nullstone modules describe` displays it.
+
 # 0.0.193 (Aug 25, 2026)
 * Fixed `--env-var` and `--var` values containing commas being split into fragments. ([#673](https://github.com/nullstone-io/nullstone/issues/673))
 

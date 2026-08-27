@@ -63,5 +63,8 @@ func WriteManifestToLogger(manifest types.ModuleManifest, logger *log.Logger) {
 	logger.Println(fmt.Sprintf("Module: %s/%s", manifest.OrgName, manifest.Name))
 	logger.Println(fmt.Sprintf("URL: %s", manifest.SourceUrl))
 	logger.Println(fmt.Sprintf("Contract: %s%s/%s/%s%s", manifest.Category, subcategory, provider, manifest.Platform, subplatform))
+	if manifest.AppType != "" {
+		logger.Println(fmt.Sprintf("App Type: %s", manifest.AppType))
+	}
 	logger.Println(fmt.Sprintf("Tool: %s", manifest.ToolName))
 }

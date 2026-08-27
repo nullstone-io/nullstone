@@ -19,7 +19,7 @@ var ModulesFind = &cli.Command{
 		"To list modules owned by your organization, use `nullstone modules list`. " +
 		"When `--contributor` is not specified, results include Nullstone-official and your organization's modules.",
 	Usage:     "Search the Nullstone module registry",
-	UsageText: "nullstone modules find [--category=<category>] [--subcategory=<subcategory>] [--provider=<provider>] [--platform=<platform>] [--subplatform=<subplatform>] [--name=<name>] [--contributor=<contributor>]... [--format=table|json]",
+	UsageText: "nullstone modules find [--category=<category>] [--subcategory=<subcategory>] [--app-type=<app-type>] [--provider=<provider>] [--platform=<platform>] [--subplatform=<subplatform>] [--name=<name>] [--contributor=<contributor>]... [--format=table|json]",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:  "category",
@@ -28,6 +28,10 @@ var ModulesFind = &cli.Command{
 		&cli.StringFlag{
 			Name:  "subcategory",
 			Usage: "Filter modules by subcategory. Requires --category. Known values — app: container, serverless, static-site, server; capability: ingress, datastores, secrets, sidecars, events, telemetry",
+		},
+		&cli.StringFlag{
+			Name:  "app-type",
+			Usage: "Filter app modules by app type. Known values: generic, packaged",
 		},
 		&cli.StringFlag{
 			Name:  "provider",
@@ -83,6 +87,10 @@ var ModulesFind = &cli.Command{
 		if c.IsSet("subcategory") {
 			v := c.String("subcategory")
 			input.Subcategory = &v
+		}
+		if c.IsSet("app-type") {
+			v := c.String("app-type")
+			input.AppType = &v
 		}
 		if c.IsSet("provider") {
 			v := c.String("provider")
