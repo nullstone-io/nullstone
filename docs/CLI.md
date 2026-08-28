@@ -354,6 +354,7 @@ $ nullstone modules list
 | `--name` | Filter modules whose name contains this value |  |
 | `--category` | Filter modules by category. Known values: app, capability, datastore, ingress, subdomain, domain, cluster, cluster-namespace, network, block |  |
 | `--subcategory` | Filter modules by subcategory. Known values — app: container, serverless, static-site, server; capability: ingress, datastores, secrets, sidecars, events, telemetry |  |
+| `--app-type` | Filter app modules by app type. Known values: generic, packaged |  |
 | `--provider` | Filter modules by provider type. Known values: aws, gcp, azure |  |
 | `--platform` | Filter modules by platform |  |
 | `--subplatform` | Filter modules by subplatform |  |
@@ -364,7 +365,7 @@ Search the entire Nullstone module registry across Nullstone-official, your org,
 
 #### Usage
 ```shell
-$ nullstone modules find [--category=<category>] [--subcategory=<subcategory>] [--provider=<provider>] [--platform=<platform>] [--subplatform=<subplatform>] [--name=<name>] [--contributor=<contributor>]... [--format=table|json]
+$ nullstone modules find [--category=<category>] [--subcategory=<subcategory>] [--app-type=<app-type>] [--provider=<provider>] [--platform=<platform>] [--subplatform=<subplatform>] [--name=<name>] [--contributor=<contributor>]... [--format=table|json]
 ```
 
 #### Options
@@ -372,6 +373,7 @@ $ nullstone modules find [--category=<category>] [--subcategory=<subcategory>] [
 | --- | --- | --- |
 | `--category` | Filter modules by category. Known values: app, capability, datastore, ingress, subdomain, domain, cluster, cluster-namespace, network, block |  |
 | `--subcategory` | Filter modules by subcategory. Requires --category. Known values — app: container, serverless, static-site, server; capability: ingress, datastores, secrets, sidecars, events, telemetry |  |
+| `--app-type` | Filter app modules by app type. Known values: generic, packaged |  |
 | `--provider` | Filter modules by provider type. Known values: aws, gcp, azure |  |
 | `--platform` | Filter modules by platform |  |
 | `--subplatform` | Filter modules by subplatform. Requires --platform. |  |
@@ -440,11 +442,11 @@ $ nullstone modules package
 
 
 ## outputs
-Print all the module outputs for a given block and environment. Provide the `--sensitive` flag to include sensitive outputs in the results. You must have proper permissions in order to use the `--sensitive` flag. For less information in an easier to read format, use the `--plain` flag.
+Print all the module outputs for a given block and environment. Provide the `--sensitive` flag to include sensitive outputs in the results. You must have proper permissions in order to use the `--sensitive` flag. For less information in an easier to read format, use the `--plain` flag. Use the `--field` flag to emit a single output value suitable for command substitution in scripts.
 
 #### Usage
 ```shell
-$ nullstone outputs [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]
+$ nullstone outputs [--stack=<stack-name>] --block=<block-name> --env=<env-name> [--field=<expression>] [options]
 ```
 
 #### Options
@@ -455,6 +457,7 @@ $ nullstone outputs [--stack=<stack-name>] --block=<block-name> --env=<env-name>
 | `--env` | Name of the environment to use for this operation | required |
 | `--sensitive` | Include sensitive outputs in the results |  |
 | `--plain` | Print less information about the outputs in a more readable format |  |
+| `--field` | Print a single output value using Terraform-style syntax (e.g. instance_id, endpoint.host, hosts[0], hosts["item1"]). Strings print raw; other values print as compact JSON. Takes precedence over --plain. |  |
 
 
 ## plan
