@@ -146,6 +146,9 @@ func outputsTool() mcp.Tool {
 			mcp.WithBoolean("plain",
 				mcp.Description("Return simplified key-value pairs without type metadata."),
 			),
+			mcp.WithString("field",
+				mcp.Description(`Emit a single output value using Terraform-style syntax (e.g. "instance_id", "endpoint.host", "hosts[0]", "hosts[\"item1\"]"). Strings are returned raw; other values as compact JSON. Takes precedence over plain.`),
+			),
 		)...,
 	)
 }

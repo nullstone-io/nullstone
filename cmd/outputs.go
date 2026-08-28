@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
@@ -13,9 +14,9 @@ import (
 var Outputs = func() *cli.Command {
 	return &cli.Command{
 		Name:        "outputs",
-		Description: "Print all the module outputs for a given block and environment. Provide the `--sensitive` flag to include sensitive outputs in the results. You must have proper permissions in order to use the `--sensitive` flag. For less information in an easier to read format, use the `--plain` flag.",
+		Description: "Print all the module outputs for a given block and environment. Provide the `--sensitive` flag to include sensitive outputs in the results. You must have proper permissions in order to use the `--sensitive` flag. For less information in an easier to read format, use the `--plain` flag. Use the `--field` flag to emit a single output value suitable for command substitution in scripts.",
 		Usage:       "Retrieve outputs",
-		UsageText:   "nullstone outputs [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
+		UsageText:   "nullstone outputs [--stack=<stack-name>] --block=<block-name> --env=<env-name> [--field=<expression>] [options]",
 		Flags: []cli.Flag{
 			StackFlag,
 			BlockFlag,
@@ -28,6 +29,10 @@ var Outputs = func() *cli.Command {
 				Name:  "plain",
 				Usage: "Print less information about the outputs in a more readable format",
 			},
+			&cli.StringFlag{
+				Name:  "field",
+				Usage: `Print a single output value using Terraform-style syntax (e.g. instance_id, endpoint.host, hosts[0], hosts["item1"]). Strings print raw; other values print as compact JSON. Takes precedence over --plain.`,
+			},
 		},
 		Action: func(c *cli.Context) error {
 			return BlockWorkspaceAction(c, func(ctx context.Context, cfg api.Config, stack types.Stack, block types.Block, env types.Environment, workspace types.Workspace) error {
@@ -36,6 +41,19 @@ var Outputs = func() *cli.Command {
 				outputs, err := client.WorkspaceOutputs().GetCurrent(ctx, stack.Id, workspace.Uid, showSensitive)
 				if err != nil {
 					return err
+				}
+
+				if c.IsSet("field") {
+					val, err := resolveOutputField(outputs, c.String("field"))
+					if err != nil {
+						return err
+					}
+					formatted, err := formatOutputValue(val)
+					if err != nil {
+						return err
+					}
+					fmt.Println(formatted)
+					return nil
 				}
 
 				for key, output := range outputs {
