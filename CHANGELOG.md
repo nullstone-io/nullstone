@@ -1,3 +1,6 @@
+# 0.0.195 (Aug 28, 2026)
+* Added `--field` to `nullstone outputs` to emit a single output value for command substitution; supports Terraform-style traversal (e.g. `endpoint.host`, `hosts[0]`).
+
 # 0.0.194 (Aug 26, 2026)
 * Added `app_type` (`generic`|`packaged`) to module manifests to distinguish generic app patterns from packaged apps; `nullstone modules register` sends it to the registry.
 * Added an App Type prompt to `nullstone modules generate` for app modules.
