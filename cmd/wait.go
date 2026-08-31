@@ -18,9 +18,9 @@ import (
 var (
 	WaitForFlag = &cli.StringFlag{
 		Name: "for",
-		Usage: `Configure the wait command to reach a specific status. 
-       Currently this supports --for=launched.
-       In the future, we will support --for=destroyed and --for=deployed`,
+		Usage: `Configure the wait command to reach a specific status.
+       Currently this supports --for=launched and --for=deployed.
+       In the future, we will support --for=destroyed`,
 	}
 	WaitTimeoutFlag = &cli.DurationFlag{
 		Name:  "timeout",
@@ -44,8 +44,9 @@ var Wait = func() *cli.Command {
 		Name: "wait",
 		Description: `Waits for a workspace to reach a specific status.
 This is helpful to wait for infrastructure to provision or an app to deploy.
-Currently, this supports --for=launched to wait for a workspace to provision.
-In the future, we will add --for=destroyed and --for=deployed.`,
+Currently, this supports --for=launched to wait for a workspace to provision
+and --for=deployed to wait for an app to deploy successfully.
+In the future, we will add --for=destroyed.`,
 		Usage:     "Wait for a block to launch, destroy, or deploy in an environment.",
 		UsageText: "nullstone wait [--stack=<stack-name>] --block=<block-name> --env=<env-name> [options]",
 		Flags: []cli.Flag{
@@ -72,6 +73,8 @@ In the future, we will add --for=destroyed and --for=deployed.`,
 				switch strings.ToLower(waitFor) {
 				case "launched":
 					return WaitForLaunch(ctx, osWriters, cfg, details, timeout, approvalTimeout)
+				case "deployed":
+					return WaitForDeployed(ctx, osWriters, cfg, details, timeout)
 				default:
 					return fmt.Errorf("The wait command does not support --for=%s", waitFor)
 				}

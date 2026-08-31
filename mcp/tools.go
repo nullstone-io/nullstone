@@ -413,7 +413,7 @@ func waitTool() mcp.Tool {
 				mcp.Description("Name of the environment."),
 			),
 			mcp.WithString("for",
-				mcp.Description("Status to wait for. Currently supported: 'launched'."),
+				mcp.Description("Status to wait for. Currently supported: 'launched', 'deployed'."),
 			),
 			mcp.WithString("timeout",
 				mcp.Description("Max wait time as a Go duration. Default: '1h'. Examples: '30m', '2h'."),
