@@ -22,6 +22,31 @@ var (
 	gcpDefaultZone   = "us-east1b"
 )
 
+// envTypesByName maps the flag-friendly name of an environment type to its API value
+var envTypesByName = map[string]types.EnvironmentType{
+	"pipeline":        types.EnvTypePipeline,
+	"preview":         types.EnvTypePreview,
+	"previews-shared": types.EnvTypePreviewsShared,
+	"global":          types.EnvTypeGlobal,
+}
+
+func envTypeNames() []string {
+	names := make([]string, 0, len(envTypesByName))
+	for name := range envTypesByName {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}
+
+func parseEnvType(raw string) (types.EnvironmentType, error) {
+	normalized := strings.ToLower(strings.TrimSpace(raw))
+	if envType, ok := envTypesByName[normalized]; ok {
+		return envType, nil
+	}
+	return "", fmt.Errorf("invalid --type %q: must be one of %s", raw, strings.Join(envTypeNames(), ", "))
+}
+
 var Envs = &cli.Command{
 	Name:      "envs",
 	Usage:     "View and modify environments",
@@ -36,10 +61,12 @@ var Envs = &cli.Command{
 }
 
 var EnvsList = &cli.Command{
-	Name:        "list",
-	Description: "Shows a list of the environments for the given stack. Set the `--detail` flag to show more details about each environment.",
-	Usage:       "List environments",
-	UsageText:   "nullstone envs list --stack=<stack-name>",
+	Name: "list",
+	Description: "Shows a list of the environments for the given stack. " +
+		"Set the `--detail` flag to show more details about each environment. " +
+		"Set the `--type` flag to only show environments of a single type.",
+	Usage:     "List environments",
+	UsageText: "nullstone envs list --stack=<stack-name> [--type=<env-type>]",
 	Flags: []cli.Flag{
 		StackRequiredFlag,
 		&cli.BoolFlag{
@@ -47,9 +74,23 @@ var EnvsList = &cli.Command{
 			Aliases: []string{"d"},
 			Usage:   "Use this flag to show more details about each environment",
 		},
+		&cli.StringFlag{
+			Name:  "type",
+			Usage: fmt.Sprintf("Filter environments by type. One of: %s", strings.Join(envTypeNames(), ", ")),
+		},
 	},
 	Action: func(c *cli.Context) error {
 		ctx := context.TODO()
+
+		var envTypeFilter *types.EnvironmentType
+		if c.IsSet("type") {
+			envType, err := parseEnvType(c.String("type"))
+			if err != nil {
+				return err
+			}
+			envTypeFilter = &envType
+		}
+
 		return ProfileAction(c, func(cfg api.Config) error {
 			stackName := c.String(StackRequiredFlag.Name)
 			stack, err := find.Stack(ctx, cfg, stackName)
@@ -63,6 +104,15 @@ var EnvsList = &cli.Command{
 			envs, err := client.Environments().List(ctx, stack.Id)
 			if err != nil {
 				return fmt.Errorf("error listing environments: %w", err)
+			}
+			if envTypeFilter != nil {
+				filtered := make([]*types.Environment, 0, len(envs))
+				for _, env := range envs {
+					if env.Type == *envTypeFilter {
+						filtered = append(filtered, env)
+					}
+				}
+				envs = filtered
 			}
 			sort.SliceStable(envs, func(i, j int) bool {
 				var first int
