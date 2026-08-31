@@ -121,11 +121,11 @@ $ nullstone deploy [--stack=<stack-name>] --app=<app-name> --env=<env-name> [opt
 
 
 ## envs list
-Shows a list of the environments for the given stack. Set the `--detail` flag to show more details about each environment.
+Shows a list of the environments for the given stack. Set the `--detail` flag to show more details about each environment. Set the `--type` flag to only show environments of a single type.
 
 #### Usage
 ```shell
-$ nullstone envs list --stack=<stack-name>
+$ nullstone envs list --stack=<stack-name> [--type=<env-type>]
 ```
 
 #### Options
@@ -133,6 +133,7 @@ $ nullstone envs list --stack=<stack-name>
 | --- | --- | --- |
 | `--stack` | Name of the stack to use for this operation | required |
 | `--detail, -d` | Use this flag to show more details about each environment |  |
+| `--type` | Filter environments by type. One of: global, pipeline, preview, previews-shared |  |
 
 
 ## envs new
@@ -477,6 +478,25 @@ $ nullstone plan [--stack=<stack-name>] --block=<block-name> --env=<env-name> [o
 | `--wait, -w` | Wait for the plan to complete and stream the Terraform logs to the console. |  |
 | `--var` | Set variables values for the plan. This can be used to override variables defined in the module. |  |
 | `--module-version` | Run a plan with a specific version of the module. |  |
+
+
+## preview-apps find
+Searches every stack in your organization for preview apps matching a repo and pull request.
+This is used in CI to discover the preview environment created for a pull request without knowing the stack or environment name up front.
+The results report the stack, environment, and application names, which can be fed into other commands such as `nullstone wait` and `nullstone run`.
+If no preview apps match, this command writes a message to stderr and exits with a non-zero status so CI can branch on the result.
+
+#### Usage
+```shell
+$ nullstone preview-apps find --repo=<repo> [--pull-request=<pull-request>] [--format=table|json]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--repo` | Filter preview apps by repository. Accepts either the repo name (e.g. acme/widgets) or the full repo URL. | required |
+| `--pull-request` | Filter preview apps by pull request. Accepts either the pull request number (e.g. 123) or the Nullstone pull request id. |  |
+| `--format` | Output format. One of: table (default), json |  |
 
 
 ## profile
