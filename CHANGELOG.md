@@ -1,3 +1,6 @@
+# 0.0.196 (Aug 31, 2026)
+* Added `--for=deployed` to `nullstone wait` to wait for an app to deploy successfully.
+
 # 0.0.195 (Aug 28, 2026)
 * Added `--field` to `nullstone outputs` to emit a single output value for command substitution; supports Terraform-style traversal (e.g. `endpoint.host`, `hosts[0]`).
 

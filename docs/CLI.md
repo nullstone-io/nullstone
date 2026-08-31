@@ -718,8 +718,9 @@ nullstone -v
 ## wait
 Waits for a workspace to reach a specific status.
 This is helpful to wait for infrastructure to provision or an app to deploy.
-Currently, this supports --for=launched to wait for a workspace to provision.
-In the future, we will add --for=destroyed and --for=deployed.
+Currently, this supports --for=launched to wait for a workspace to provision
+and --for=deployed to wait for an app to deploy successfully.
+In the future, we will add --for=destroyed.
 
 #### Usage
 ```shell
@@ -732,7 +733,7 @@ $ nullstone wait [--stack=<stack-name>] --block=<block-name> --env=<env-name> [o
 | `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
 | `--block` | Name of the block to use for this operation | required |
 | `--env` | Name of the environment to use for this operation | required |
-| `--for` | Configure the wait command to reach a specific status.        Currently this supports --for=launched.       In the future, we will support --for=destroyed and --for=deployed |  |
+| `--for` | Configure the wait command to reach a specific status.       Currently this supports --for=launched and --for=deployed.       In the future, we will support --for=destroyed |  |
 | `--timeout` | Set --timeout to a golang duration to control how long to wait for a status before cancelling.       The default is '1h' (1 hour).       |  |
 | `--approval-timeout` | Set --approval-timeout to a golang duration to control how long to wait for approval before cancelling.       If the workspace run never reaches "needs-approval", this has no effect.       The default is '15m' (15 minutes).       |  |
 
