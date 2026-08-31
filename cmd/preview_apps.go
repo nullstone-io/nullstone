@@ -40,13 +40,14 @@ type PreviewAppFound struct {
 
 var PreviewAppsFind = &cli.Command{
 	Name: "find",
-	Description: `Searches every stack in your organization for preview apps matching a repo and pull request.
-This is used in CI to discover the preview environment created for a pull request without knowing the stack or environment name up front.
+	Description: `Searches a stack for preview apps matching a repo and pull request.
+This is used in CI to discover the preview environment created for a pull request without knowing the environment name up front.
 The results report the stack, environment, and application names, which can be fed into other commands such as ` + "`nullstone wait`" + ` and ` + "`nullstone run`" + `.
 If no preview apps match, this command writes a message to stderr and exits with a non-zero status so CI can branch on the result.`,
 	Usage:     "Find preview apps by repo and pull request",
-	UsageText: `nullstone preview-apps find --repo=<repo> [--pull-request=<pull-request>] [--format=table|json]`,
+	UsageText: `nullstone preview-apps find --stack=<stack-name> --repo=<repo> [--pull-request=<pull-request>] [--format=table|json]`,
 	Flags: []cli.Flag{
+		StackRequiredFlag,
 		&cli.StringFlag{
 			Name:     "repo",
 			Usage:    "Filter preview apps by repository. Accepts either the repo name (e.g. acme/widgets) or the full repo URL.",
@@ -79,18 +80,20 @@ If no preview apps match, this command writes a message to stderr and exits with
 			input.PullRequest = pullRequest
 		}
 
+		stackName := c.String(StackRequiredFlag.Name)
+
 		return ProfileAction(c, func(cfg api.Config) error {
 			client := api.Client{Config: cfg}
-			previewApps, err := client.PreviewApps().Find(ctx, input)
+			previewApps, err := client.PreviewApps().FindByStackName(ctx, stackName, input)
 			if err != nil {
 				return fmt.Errorf("error searching preview apps: %w", err)
 			}
 
 			if len(previewApps) == 0 {
-				return fmt.Errorf("no preview apps found matching %s", describePreviewAppFilters(input))
+				return fmt.Errorf("no preview apps found in stack %q matching %s", stackName, describePreviewAppFilters(input))
 			}
 
-			found, err := decoratePreviewApps(ctx, client, previewApps)
+			found, err := decoratePreviewApps(ctx, client, stackName, previewApps)
 			if err != nil {
 				return err
 			}
@@ -125,24 +128,15 @@ func describePreviewAppFilters(input api.FindPreviewAppsInput) string {
 	return fmt.Sprintf("repo %q and pull request %d", input.Repo, *input.PullRequest)
 }
 
-// decoratePreviewApps resolves the stack, env, and app names for each preview app.
-// Each lookup is cached because many preview apps typically share a stack and env.
-func decoratePreviewApps(ctx context.Context, client api.Client, previewApps []types.PreviewApp) ([]PreviewAppFound, error) {
-	stackNames := map[int64]string{}
+// decoratePreviewApps resolves the env and app names for each preview app.
+// Every result comes from stackName, so only the env and app need looking up.
+// Each lookup is cached because many preview apps typically share an env.
+func decoratePreviewApps(ctx context.Context, client api.Client, stackName string, previewApps []types.PreviewApp) ([]PreviewAppFound, error) {
 	envNames := map[int64]string{}
 	appNames := map[int64]string{}
 
 	found := make([]PreviewAppFound, 0, len(previewApps))
 	for _, previewApp := range previewApps {
-		if _, ok := stackNames[previewApp.StackId]; !ok {
-			stack, err := client.Stacks().Get(ctx, previewApp.StackId, false)
-			if err != nil {
-				return nil, fmt.Errorf("error looking for stack %d: %w", previewApp.StackId, err)
-			} else if stack == nil {
-				return nil, fmt.Errorf("stack %d does not exist", previewApp.StackId)
-			}
-			stackNames[previewApp.StackId] = stack.Name
-		}
 		if _, ok := envNames[previewApp.EnvId]; !ok {
 			env, err := client.Environments().Get(ctx, previewApp.StackId, previewApp.EnvId, false)
 			if err != nil {
@@ -163,7 +157,7 @@ func decoratePreviewApps(ctx context.Context, client api.Client, previewApps []t
 		}
 
 		cur := PreviewAppFound{
-			Stack:         stackNames[previewApp.StackId],
+			Stack:         stackName,
 			StackId:       previewApp.StackId,
 			Env:           envNames[previewApp.EnvId],
 			EnvId:         previewApp.EnvId,
@@ -180,9 +174,6 @@ func decoratePreviewApps(ctx context.Context, client api.Client, previewApps []t
 	}
 
 	sort.SliceStable(found, func(i, j int) bool {
-		if found[i].Stack != found[j].Stack {
-			return found[i].Stack < found[j].Stack
-		}
 		if found[i].Env != found[j].Env {
 			return found[i].Env < found[j].Env
 		}

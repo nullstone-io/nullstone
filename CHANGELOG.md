@@ -1,6 +1,6 @@
 # 0.0.196 (Aug 31, 2026)
 * Added `--for=deployed` to `nullstone wait` to wait for an app to deploy successfully.
-* Added `nullstone preview-apps find` to search preview apps by `--repo` and `--pull-request`, so CI can discover the preview environment created for a pull request.
+* Added `nullstone preview-apps find` to search a stack's preview apps by `--repo` and `--pull-request`, so CI can discover the preview environment created for a pull request.
 * Added `--type` to `nullstone envs list` to filter environments by type (`preview`, `pipeline`, `global`, `previews-shared`).
 
 # 0.0.195 (Aug 28, 2026)

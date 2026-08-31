@@ -481,19 +481,20 @@ $ nullstone plan [--stack=<stack-name>] --block=<block-name> --env=<env-name> [o
 
 
 ## preview-apps find
-Searches every stack in your organization for preview apps matching a repo and pull request.
-This is used in CI to discover the preview environment created for a pull request without knowing the stack or environment name up front.
+Searches a stack for preview apps matching a repo and pull request.
+This is used in CI to discover the preview environment created for a pull request without knowing the environment name up front.
 The results report the stack, environment, and application names, which can be fed into other commands such as `nullstone wait` and `nullstone run`.
 If no preview apps match, this command writes a message to stderr and exits with a non-zero status so CI can branch on the result.
 
 #### Usage
 ```shell
-$ nullstone preview-apps find --repo=<repo> [--pull-request=<pull-request>] [--format=table|json]
+$ nullstone preview-apps find --stack=<stack-name> --repo=<repo> [--pull-request=<pull-request>] [--format=table|json]
 ```
 
 #### Options
 | Option | Description | |
 | --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
 | `--repo` | Filter preview apps by repository. Accepts either the repo name (e.g. acme/widgets) or the full repo URL. | required |
 | `--pull-request` | Filter preview apps by pull request. Accepts either the pull request number (e.g. 123) or the Nullstone pull request id. |  |
 | `--format` | Output format. One of: table (default), json |  |
