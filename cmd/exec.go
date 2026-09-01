@@ -38,13 +38,9 @@ var Exec = func(appProviders app.Providers, providers admin.Providers) *cli.Comm
 			}
 
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				client := api.Client{Config: cfg}
-				user, err := client.CurrentUser().Get(ctx)
+				username, err := getCurrentUsername(ctx, cfg)
 				if err != nil {
-					return fmt.Errorf("unable to fetch the current user")
-				}
-				if user == nil {
-					return fmt.Errorf("unable to load the current user info")
+					return err
 				}
 
 				source := outputs.ApiRetrieverSource{Config: cfg}
@@ -68,7 +64,7 @@ var Exec = func(appProviders app.Providers, providers admin.Providers) *cli.Comm
 					Task:        c.String("task"),
 					Pod:         c.String("pod"),
 					Container:   c.String("container"),
-					Username:    user.Name,
+					Username:    username,
 					LogStreamer: logStreamer,
 					LogEmitter:  app.NewWriterLogEmitter(os.Stdout),
 				}
