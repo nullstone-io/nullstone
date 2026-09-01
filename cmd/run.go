@@ -66,13 +66,9 @@ var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Comma
 			}
 
 			return AppWorkspaceAction(c, func(ctx context.Context, cfg api.Config, appDetails app.Details) error {
-				client := api.Client{Config: cfg}
-				user, err := client.CurrentUser().Get(ctx)
+				username, err := getCurrentUsername(ctx, cfg)
 				if err != nil {
-					return fmt.Errorf("unable to fetch the current user")
-				}
-				if user == nil {
-					return fmt.Errorf("unable to load the current user info")
+					return err
 				}
 
 				rawEnvVars := c.StringSlice(RunEnvVarFlag.Name)
@@ -85,7 +81,7 @@ var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Comma
 					envVars[before] = after
 				}
 				envVars[admin.TriggerEnvVar] = admin.TriggerManual
-				envVars[admin.TriggerNameEnvVar] = user.Name
+				envVars[admin.TriggerNameEnvVar] = username
 
 				source := outputs.ApiRetrieverSource{Config: cfg}
 				osWriters := logging.StandardOsWriters{}
@@ -107,7 +103,7 @@ var Run = func(appProviders app.Providers, providers admin.Providers) *cli.Comma
 				options := admin.RunOptions{
 					Container:   c.String(ContainerFlag.Name),
 					Payload:     payload,
-					Username:    user.Name,
+					Username:    username,
 					LogStreamer: logStreamer,
 					LogEmitter:  app.NewWriterLogEmitter(os.Stdout),
 				}

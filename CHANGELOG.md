@@ -1,3 +1,6 @@
+# 0.0.198 (Sep 1, 2026)
+* Fixed `nullstone run` and `nullstone exec` failing with "unable to fetch the current user" when authenticated with an organization API key; attribution falls back to `org-api-key`.
+
 # 0.0.197 (Aug 31, 2026)
 * Fixed errors occuring in `nullstone wait` command when listing workspace workflows.
 
