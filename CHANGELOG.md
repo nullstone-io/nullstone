@@ -1,3 +1,6 @@
+# 0.0.197 (Aug 31, 2026)
+* Fixed errors occuring in `nullstone wait` command when listing workspace workflows.
+
 # 0.0.196 (Aug 31, 2026)
 * Added `--for=deployed` to `nullstone wait` to wait for an app to deploy successfully.
 * Added `nullstone preview-apps find` to search a stack's preview apps by `--repo` and `--pull-request`, so CI can discover the preview environment created for a pull request.

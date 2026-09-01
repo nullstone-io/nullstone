@@ -51,7 +51,7 @@ func WaitForDeployed(ctx context.Context, osWriters logging.OsWriters, cfg api.C
 			lastDeploy = deploy
 		}
 
-		wflows, err := client.WorkspaceWorkflows().List(ctx, stackId, appId, envId, 1, 1)
+		wflows, _, err := client.WorkspaceWorkflows().List(ctx, stackId, appId, envId, 1, 1)
 		if err != nil {
 			return fmt.Errorf("error retrieving workspace workflows: %w", err)
 		}
