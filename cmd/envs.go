@@ -191,9 +191,15 @@ var EnvsNew = &cli.Command{
 				return fmt.Errorf("stack %q does not exist", stackName)
 			}
 
-			input := api.CreateEnvironmentInput{Name: sanitizeEnvName(name), Tags: tags}
-			if description := c.String("description"); description != "" {
-				input.Metadata = &types.EnvironmentMetadata{Description: description}
+			// orgName and stackId come from the path; the rest of the fields are server-assigned.
+			// Tags are sent whole here because there is nothing to clobber yet; after create,
+			// tag writes go through `envs update`, which patches per key.
+			input := &types.Environment{
+				OrgName:  client.Config.OrgName,
+				StackId:  stack.Id,
+				Name:     sanitizeEnvName(name),
+				Metadata: types.EnvironmentMetadata{Description: c.String("description")},
+				Tags:     tags,
 			}
 
 			if preview {
@@ -304,7 +310,7 @@ var EnvsDelete = &cli.Command{
 	},
 }
 
-func createPipelineEnv(client api.Client, stackId int64, input api.CreateEnvironmentInput, providerName, region, zone string) error {
+func createPipelineEnv(client api.Client, stackId int64, input *types.Environment, providerName, region, zone string) error {
 	ctx := context.TODO()
 
 	if providerName == "" {
@@ -342,7 +348,7 @@ func createPipelineEnv(client api.Client, stackId int64, input api.CreateEnviron
 	}
 
 	input.Type = types.EnvTypePipeline
-	input.ProviderConfig = &pc
+	input.ProviderConfig = pc
 	env, err := client.Environments().Create(ctx, stackId, input)
 	if err != nil {
 		return fmt.Errorf("error creating environment: %w", err)
@@ -353,7 +359,7 @@ func createPipelineEnv(client api.Client, stackId int64, input api.CreateEnviron
 	return nil
 }
 
-func createPreviewEnv(client api.Client, stackId int64, input api.CreateEnvironmentInput) error {
+func createPreviewEnv(client api.Client, stackId int64, input *types.Environment) error {
 	ctx := context.TODO()
 	input.Type = types.EnvTypePreview
 	env, err := client.Environments().Create(ctx, stackId, input)
