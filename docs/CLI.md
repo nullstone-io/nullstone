@@ -175,11 +175,11 @@ $ nullstone deploy [--stack=<stack-name>] --app=<app-name> --env=<env-name> [opt
 
 ## envs list
 Shows a list of the environments for the given stack. Set the `--detail` flag to show more details about each environment.
-Filters can be combined: an environment must satisfy every flag given, and repeating --type widens the match.
+Filters are applied by the API. They can be combined: an environment must satisfy every flag given, and repeating --type widens the match.
 
 #### Usage
 ```shell
-$ nullstone envs list --stack=<stack-name> [--type=<type>] [--tag KEY=VALUE] [--name=<pattern>]
+$ nullstone envs list --stack=<stack-name> [--type=<type>] [--tag KEY=VALUE] [--status=<status>] [--prod|--non-prod] [--name=<pattern>]
 ```
 
 #### Options
@@ -189,9 +189,10 @@ $ nullstone envs list --stack=<stack-name> [--type=<type>] [--tag KEY=VALUE] [--
 | `--detail, -d` | Use this flag to show more details about each environment |  |
 | `--type` | Only show environments of this type: pipeline, preview, previews-shared, or global.		Can be specified multiple times to show more than one type. |  |
 | `--tag` | Only show environments whose tags match KEY=VALUE.		Can be specified multiple times; an environment must match every tag given.		An empty value (--tag claim=) matches environments where the tag is unset, absent, or empty,		which is how you find environments that haven't been tagged yet. |  |
+| `--status` | Only show environments with this status: active (the default) or archived. |  |
 | `--prod` | Only show production environments. Cannot be combined with --non-prod. |  |
 | `--non-prod` | Only show non-production environments. Cannot be combined with --prod. |  |
-| `--name` | Only show environments matching this name. A pattern containing *, ? or [ is matched		as a glob against the whole name (--name='pr-*'); anything else matches as a substring. |  |
+| `--name` | Only show environments matching this name, case-insensitively. A pattern containing * or ?		is matched against the whole name (--name='pr-*'); anything else matches as a substring. |  |
 
 
 ## envs new

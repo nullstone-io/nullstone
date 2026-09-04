@@ -65,9 +65,9 @@ var Envs = &cli.Command{
 var EnvsList = &cli.Command{
 	Name: "list",
 	Description: `Shows a list of the environments for the given stack. Set the ` + "`--detail`" + ` flag to show more details about each environment.
-Filters can be combined: an environment must satisfy every flag given, and repeating --type widens the match.`,
+Filters are applied by the API. They can be combined: an environment must satisfy every flag given, and repeating --type widens the match.`,
 	Usage:     "List environments",
-	UsageText: "nullstone envs list --stack=<stack-name> [--type=<type>] [--tag KEY=VALUE] [--name=<pattern>]",
+	UsageText: "nullstone envs list --stack=<stack-name> [--type=<type>] [--tag KEY=VALUE] [--status=<status>] [--prod|--non-prod] [--name=<pattern>]",
 	Flags: append([]cli.Flag{
 		StackRequiredFlag,
 		&cli.BoolFlag{
@@ -94,11 +94,10 @@ Filters can be combined: an environment must satisfy every flag given, and repea
 			}
 
 			client := api.Client{Config: cfg}
-			envs, err := client.Environments().List(ctx, stack.Id)
+			envs, err := client.Environments().Find(ctx, stack.Id, filters)
 			if err != nil {
 				return fmt.Errorf("error listing environments: %w", err)
 			}
-			envs = filters.Apply(envs)
 			sort.SliceStable(envs, func(i, j int) bool {
 				var first int
 				if envs[i].PipelineOrder == nil {
