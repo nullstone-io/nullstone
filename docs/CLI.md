@@ -53,6 +53,59 @@ $ nullstone apps list
 $ nullstone apps capabilities [subcommand]
 ```
 
+## apps capabilities list
+Shows a list of capabilities for the given app. If --env is specified, lists capabilities for the app workspace. Otherwise, lists capabilities from the app's workspace template.
+
+#### Usage
+```shell
+$ nullstone apps capabilities list --stack=<stack> --app=<app> [--env=<env>]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--app` | Name of the app to use for this operation | required |
+| `--env` | Name of the environment to use for this operation |  |
+| `--detail, -d` | Use this flag to show more details about each capability |  |
+
+
+## apps capabilities create
+Adds a capability to an app. If --env is specified, adds the capability to that environment workspace. Otherwise, adds the capability to the app's workspace template.
+
+#### Usage
+```shell
+$ nullstone apps capabilities create --stack=<stack> --app=<app> [--env=<env>] --module=<module> [--connection=<connection>...]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--app` | Name of the app to use for this operation | required |
+| `--env` | Name of the environment to use for this operation |  |
+| `--name` | Specify the name of the capability to create. | required |
+| `--module` | Specify the unique name of the module to use for this capability. Example: nullstone/aws-s3-access | required |
+| `--connection` | Specify any connections that this capability will have to other blocks. Use the connection name as the key, and the connected block name as the value. Example: --connection network=network0 |  |
+
+
+## apps capabilities remove
+Removes a capability from an app. If --env is specified, removes the capability from that environment workspace. Otherwise, removes the capability from the app's workspace template.
+
+#### Usage
+```shell
+$ nullstone apps capabilities remove --stack=<stack> --app=<app> [--env=<env>] --name=<capability-name>
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--app` | Name of the app to use for this operation | required |
+| `--env` | Name of the environment to use for this operation |  |
+| `--name` | The name of the capability to remove | required |
+
+
 ## blocks list
 Shows a list of the blocks for the given stack. Set the `--detail` flag to show more details about each block.
 
@@ -121,11 +174,12 @@ $ nullstone deploy [--stack=<stack-name>] --app=<app-name> --env=<env-name> [opt
 
 
 ## envs list
-Shows a list of the environments for the given stack. Set the `--detail` flag to show more details about each environment. Set the `--type` flag to only show environments of a single type.
+Shows a list of the environments for the given stack. Set the `--detail` flag to show more details about each environment.
+Filters are applied by the API. They can be combined: an environment must satisfy every flag given, and repeating --type widens the match.
 
 #### Usage
 ```shell
-$ nullstone envs list --stack=<stack-name> [--type=<env-type>]
+$ nullstone envs list --stack=<stack-name> [--type=<type>] [--tag KEY=VALUE] [--status=<status>] [--prod|--non-prod] [--name=<pattern>]
 ```
 
 #### Options
@@ -133,7 +187,12 @@ $ nullstone envs list --stack=<stack-name> [--type=<env-type>]
 | --- | --- | --- |
 | `--stack` | Name of the stack to use for this operation | required |
 | `--detail, -d` | Use this flag to show more details about each environment |  |
-| `--type` | Filter environments by type. One of: global, pipeline, preview, previews-shared |  |
+| `--type` | Only show environments of this type: pipeline, preview, previews-shared, or global.		Can be specified multiple times to show more than one type. |  |
+| `--tag` | Only show environments whose tags match KEY=VALUE.		Can be specified multiple times; an environment must match every tag given.		An empty value (--tag claim=) matches environments where the tag is unset, absent, or empty,		which is how you find environments that haven't been tagged yet. |  |
+| `--status` | Only show environments with this status: active (the default) or archived. |  |
+| `--prod` | Only show production environments. Cannot be combined with --non-prod. |  |
+| `--non-prod` | Only show non-production environments. Cannot be combined with --prod. |  |
+| `--name` | Only show environments matching this name, case-insensitively. A pattern containing * or ?		is matched against the whole name (--name='pr-*'); anything else matches as a substring. |  |
 
 
 ## envs new
@@ -153,6 +212,34 @@ $ nullstone envs new --name=<name> --stack=<stack> [--provider=<provider>] [--pr
 | `--provider` | Select the name of the provider to use for this environment. When creating a preview environment, this parameter will not be used. |  |
 | `--region` | Select which region to launch infrastructure for this environment. Defaults to us-east-1 for AWS and us-east1 for GCP. |  |
 | `--zone` | For GCP, select the zone to launch infrastructure for this environment. Defaults to us-east1b |  |
+| `--description` | Describe what this environment is for. |  |
+| `--tag` | Set a tag on the environment in the form KEY=VALUE.		Can be specified multiple times. An empty value (--tag claim=) sets the tag to an empty		string, which is not the same as removing it -- use --remove-tag for that. |  |
+
+
+## envs update
+Updates an existing environment. Only the attributes you pass are changed; everything
+else is left alone.
+
+Tags are applied as a per-key patch, so --tag adds or updates a single key and --remove-tag
+deletes one, both without disturbing the environment's other tags. Setting a tag to an empty
+value (--tag claim=) keeps the key with an empty value, which is not the same as removing it.
+
+#### Usage
+```shell
+$ nullstone envs update --stack=<stack> --env=<env> [--name=<name>] [--description=<text>] [--tag KEY=VALUE] [--remove-tag KEY]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+| `--name` | Rename the environment. |  |
+| `--description` | Describe what this environment is for. Pass an empty value to clear it. |  |
+| `--prod` | Mark this environment as production. Cannot be combined with --non-prod. |  |
+| `--non-prod` | Mark this environment as non-production. Cannot be combined with --prod. |  |
+| `--tag` | Set a tag on the environment in the form KEY=VALUE.		Can be specified multiple times. An empty value (--tag claim=) sets the tag to an empty		string, which is not the same as removing it -- use --remove-tag for that. |  |
+| `--remove-tag` | Remove a tag from the environment by key. Can be specified multiple times.		Removing a key that isn't set is not an error. |  |
 
 
 ## envs delete
@@ -202,6 +289,53 @@ $ nullstone envs down --stack=<stack> --env=<env>
 | --- | --- | --- |
 | `--stack` | Name of the stack to use for this operation | required |
 | `--env` | Name of the environment to use for this operation | required |
+
+
+## envs apps
+View and modify the apps configured in a preview environment.
+
+In a preview environment an app is "enabled" by being present in the environment's preview app
+set, so `--disabled` removes an app from the environment rather than writing a field.
+
+#### Usage
+```shell
+$ nullstone envs apps [subcommand]
+```
+
+## envs apps list
+Shows each app configured in the given preview environment, with the repo and the branch or pull request it tracks.
+
+#### Usage
+```shell
+$ nullstone envs apps list --stack=<stack> --env=<env>
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+
+
+## envs apps set
+Updates every app already in the given preview environment that comes from --repo. Use --app
+to narrow to a single app. Apps from other repos are left untouched, and a --repo that matches
+nothing in the environment is an error rather than a no-op write.
+
+#### Usage
+```shell
+$ nullstone envs apps set --stack=<stack> --env=<env> --repo=<owner/name> [--branch=<branch>|--pull-request=<number>|--disabled]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Name of the stack to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+| `--repo` | Select every app in this environment that comes from this repo, e.g. --repo=nullstone-io/nullstone | required |
+| `--app` | Name of the app to use for this operation |  |
+| `--branch` | Track this branch. Cannot be combined with --pull-request; setting it clears any pull request. |  |
+| `--disabled` | Remove the matched apps from this environment instead of updating them. |  |
 
 
 ## exec

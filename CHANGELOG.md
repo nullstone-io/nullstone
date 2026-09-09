@@ -1,3 +1,11 @@
+# 0.0.199 (Sep 9, 2026)
+* Added `--tag`, `--status`, `--prod`/`--non-prod`, and `--name` filters to `nullstone envs list`; `--type` is now repeatable. Filtering happens in the API.
+* Added `nullstone envs update` to set an environment's description and tags (`--description`, `--tag KEY=VALUE`, `--remove-tag KEY`).
+* Added `--description` and `--tag` to `nullstone envs new`.
+* Added `nullstone envs apps list` and `nullstone envs apps set` to view and update the apps in a preview environment by `--repo` (`--branch`, `--pull-request`, `--disabled`).
+* Fixed `--detail=false`, `--preview=false`, and `--force=false` being treated as set.
+* Fixed CLI docs generation skipping nested subcommands.
+
 # 0.0.198 (Sep 1, 2026)
 * Fixed `nullstone run` and `nullstone exec` failing with "unable to fetch the current user" when authenticated with an organization API key; attribution falls back to `org-api-key`.
 
