@@ -1,3 +1,6 @@
+# 0.0.201 (Sep 11, 2026)
+* Added a presence form to `nullstone envs list --tag`: a bare key (`--tag claim`) matches environments that have the tag with any value. `--tag claim=` (unset or empty) is unchanged.
+
 # 0.0.200 (Sep 10, 2026)
 * Changed `nullstone iac test` to read blocks through the same IaC block definitions the Nullstone API uses for block sync.
 * Removed `is_shared` from `.nullstone/config.yml` parsing; sharing is managed in the Nullstone UI and the key was never applied.
