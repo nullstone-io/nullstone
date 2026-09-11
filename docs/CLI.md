@@ -188,7 +188,7 @@ $ nullstone envs list --stack=<stack-name> [--type=<type>] [--tag KEY=VALUE] [--
 | `--stack` | Name of the stack to use for this operation | required |
 | `--detail, -d` | Use this flag to show more details about each environment |  |
 | `--type` | Only show environments of this type: pipeline, preview, previews-shared, or global.		Can be specified multiple times to show more than one type. |  |
-| `--tag` | Only show environments whose tags match KEY=VALUE.		Can be specified multiple times; an environment must match every tag given.		An empty value (--tag claim=) matches environments where the tag is unset, absent, or empty,		which is how you find environments that haven't been tagged yet. |  |
+| `--tag` | Only show environments whose tags match KEY=VALUE.		Can be specified multiple times; an environment must match every tag given.		An empty value (--tag claim=) matches environments where the tag is unset, absent, or empty,		which is how you find environments that haven't been tagged yet.		A bare key (--tag claim) matches environments that have the tag with any value. |  |
 | `--status` | Only show environments with this status: active (the default) or archived. |  |
 | `--prod` | Only show production environments. Cannot be combined with --non-prod. |  |
 | `--non-prod` | Only show non-production environments. Cannot be combined with --prod. |  |
