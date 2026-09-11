@@ -25,7 +25,8 @@ var EnvTagFilterFlag = &cli.StringSliceFlag{
 	Usage: `Only show environments whose tags match KEY=VALUE.
 		Can be specified multiple times; an environment must match every tag given.
 		An empty value (--tag claim=) matches environments where the tag is unset, absent, or empty,
-		which is how you find environments that haven't been tagged yet.`,
+		which is how you find environments that haven't been tagged yet.
+		A bare key (--tag claim) matches environments that have the tag with any value.`,
 }
 
 var EnvStatusFlag = &cli.StringFlag{
@@ -79,11 +80,18 @@ func ParseEnvFilters(c *cli.Context) (api.FindEnvironmentsInput, error) {
 	}
 
 	if raw := c.StringSlice(EnvTagFilterFlag.Name); len(raw) > 0 {
-		filters.Tags = make(map[string]string, len(raw))
 		for _, kvp := range raw {
 			tokens := strings.SplitN(kvp, "=", 2)
-			if len(tokens) < 2 || tokens[0] == "" {
-				return filters, fmt.Errorf("invalid --tag %q: must be in the form KEY=VALUE", kvp)
+			if tokens[0] == "" {
+				return filters, fmt.Errorf("invalid --tag %q: must be in the form KEY=VALUE or KEY", kvp)
+			}
+			if len(tokens) < 2 {
+				// bare key: the tag must be present, any value
+				filters.HasTags = append(filters.HasTags, tokens[0])
+				continue
+			}
+			if filters.Tags == nil {
+				filters.Tags = make(map[string]string, len(raw))
 			}
 			filters.Tags[tokens[0]] = tokens[1]
 		}

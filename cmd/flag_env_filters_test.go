@@ -79,9 +79,17 @@ func TestParseEnvFilters_Tag(t *testing.T) {
 		assert.Equal(t, map[string]string{"expr": "a=b"}, filters.Tags)
 	})
 
+	// A bare key is the presence form: the tag must exist, with any value.
+	t.Run("a bare key asks for presence", func(t *testing.T) {
+		filters, err := parseFilters(t, "--tag", "claim", "--tag", "tier=gold", "--tag", "owner")
+		require.NoError(t, err)
+		assert.Equal(t, []string{"claim", "owner"}, filters.HasTags)
+		assert.Equal(t, map[string]string{"tier": "gold"}, filters.Tags)
+	})
+
 	// Same wording as --env-var so the two flags behave identically.
-	t.Run("malformed values error like --env-var", func(t *testing.T) {
-		for _, raw := range []string{"claim", "=value", ""} {
+	t.Run("an empty key errors like --env-var", func(t *testing.T) {
+		for _, raw := range []string{"=value", ""} {
 			_, err := parseFilters(t, "--tag", raw)
 			require.Error(t, err, raw)
 			assert.Contains(t, err.Error(), "must be in the form KEY=VALUE")
@@ -92,6 +100,7 @@ func TestParseEnvFilters_Tag(t *testing.T) {
 		filters, err := parseFilters(t)
 		require.NoError(t, err)
 		assert.Nil(t, filters.Tags)
+		assert.Nil(t, filters.HasTags)
 	})
 }
 
