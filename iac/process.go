@@ -20,10 +20,14 @@ func Process(ctx context.Context, cfg api.Config, curDir string, w io.Writer, st
 	resolver := core.NewApiResolver(apiClient, stack.Id, env.Id)
 
 	if pmr.Config != nil {
-		blocks := pmr.Config.ToBlocks(stack.OrgName, stack.Id)
+		// The dry run only needs the API shape of each block; nullfire's sync reads the same
+		// definitions and additionally honors whether is_shared was declared.
+		defs := pmr.Config.ToBlockDefinitions(stack.OrgName, stack.Id)
+		blocks := make([]types.Block, 0, len(defs))
 		blocksToCreate := map[string]types.Block{}
-		for _, cur := range blocks {
-			blocksToCreate[cur.Name] = cur
+		for _, def := range defs {
+			blocks = append(blocks, def.Block)
+			blocksToCreate[def.Block.Name] = def.Block
 		}
 		existing, err := apiClient.Blocks().List(ctx, stack.Id, false)
 		if err != nil {
