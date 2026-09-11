@@ -374,8 +374,8 @@ github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
 github.com/nullstone-io/deployment-sdk v0.0.0-20260806170602-34f20af1d76a h1:ASO/MTbxb/Qd0KWZStVAgjK9rNRqXlLuGyANWzBQk4c=
 github.com/nullstone-io/deployment-sdk v0.0.0-20260806170602-34f20af1d76a/go.mod h1:mZZsQv57iknivtPeKfDE9jsszvu3HOKbPcd/HobHJys=
-github.com/nullstone-io/iac v0.0.0-20260716145631-409e71430bb3 h1:V/z/Jjpg0XqILi4drxrRDeAie8L8PYLz3UVvpEjlvD8=
-github.com/nullstone-io/iac v0.0.0-20260716145631-409e71430bb3/go.mod h1:P+5N4HXTLVbAGmqlCnS9TSQD2N3VIVtHSvuM1axPxFU=
+github.com/nullstone-io/iac v0.0.0-20260911002157-ddfc80f7061e h1:9tdHveQ4BxP7JxHi39b3mg3vv3p3i6bzjXf1WfCVKjo=
+github.com/nullstone-io/iac v0.0.0-20260911002157-ddfc80f7061e/go.mod h1:P+5N4HXTLVbAGmqlCnS9TSQD2N3VIVtHSvuM1axPxFU=
 github.com/nullstone-io/module v0.2.11 h1:aTT/MXqmwvimbIGe7tbSKs11wUt/oROvcsNYfF+vytE=
 github.com/nullstone-io/module v0.2.11/go.mod h1:ZvBpQ0kXbgPD3NMnABRHGI+fM0VjpuMbS/ZzZrHOxVI=
 github.com/onsi/ginkgo/v2 v2.28.1 h1:S4hj+HbZp40fNKuLUQOYLDgZLwNUVn19N3Atb98NCyI=

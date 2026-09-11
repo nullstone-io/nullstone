@@ -1,3 +1,7 @@
+# 0.0.200 (Sep 10, 2026)
+* Changed `nullstone iac test` to read blocks through the same IaC block definitions the Nullstone API uses for block sync.
+* Removed `is_shared` from `.nullstone/config.yml` parsing; sharing is managed in the Nullstone UI and the key was never applied.
+
 # 0.0.199 (Sep 9, 2026)
 * Added `--tag`, `--status`, `--prod`/`--non-prod`, and `--name` filters to `nullstone envs list`; `--type` is now repeatable. Filtering happens in the API.
 * Added `nullstone envs update` to set an environment's description and tags (`--description`, `--tag KEY=VALUE`, `--remove-tag KEY`).
