@@ -17,7 +17,7 @@ require (
 	github.com/mark3labs/mcp-go v0.55.1
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nullstone-io/deployment-sdk v0.0.0-20260806170602-34f20af1d76a
-	github.com/nullstone-io/iac v0.0.0-20260911001826-b46aaa5fc83e
+	github.com/nullstone-io/iac v0.0.0-20260911002157-ddfc80f7061e
 	github.com/nullstone-io/module v0.2.11
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.11.1

@@ -382,6 +382,8 @@ github.com/nullstone-io/iac v0.0.0-20260911001227-1cd9f5a9d1ca h1:kQr6ItGkmXPVBO
 github.com/nullstone-io/iac v0.0.0-20260911001227-1cd9f5a9d1ca/go.mod h1:P+5N4HXTLVbAGmqlCnS9TSQD2N3VIVtHSvuM1axPxFU=
 github.com/nullstone-io/iac v0.0.0-20260911001826-b46aaa5fc83e h1:U3bufQh42U8ykUHd8blvhR7zSKI1sOlEnXIcmAw76EE=
 github.com/nullstone-io/iac v0.0.0-20260911001826-b46aaa5fc83e/go.mod h1:P+5N4HXTLVbAGmqlCnS9TSQD2N3VIVtHSvuM1axPxFU=
+github.com/nullstone-io/iac v0.0.0-20260911002157-ddfc80f7061e h1:9tdHveQ4BxP7JxHi39b3mg3vv3p3i6bzjXf1WfCVKjo=
+github.com/nullstone-io/iac v0.0.0-20260911002157-ddfc80f7061e/go.mod h1:P+5N4HXTLVbAGmqlCnS9TSQD2N3VIVtHSvuM1axPxFU=
 github.com/nullstone-io/module v0.2.11 h1:aTT/MXqmwvimbIGe7tbSKs11wUt/oROvcsNYfF+vytE=
 github.com/nullstone-io/module v0.2.11/go.mod h1:ZvBpQ0kXbgPD3NMnABRHGI+fM0VjpuMbS/ZzZrHOxVI=
 github.com/onsi/ginkgo/v2 v2.28.1 h1:S4hj+HbZp40fNKuLUQOYLDgZLwNUVn19N3Atb98NCyI=
