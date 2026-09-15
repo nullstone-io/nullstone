@@ -5,6 +5,7 @@
 * Changed `nullstone workspaces select` to sync the effective workspace configuration by default. This includes changes queued in the Nullstone UI that have not been applied yet; previously it used the configuration from the most recent run.
 * Added `--config=<effective|latest|current>` to `nullstone workspaces select` to choose which configuration to sync: `effective` (default), `latest` (last applied, run may still be in progress), or `current` (last finished run).
 * Fixed `nullstone workspaces select` writing only manually-entered connections to `.nullstone/active-workspace.yml`. Every resolved connection for the workspace and its capabilities is now written, so local `terraform plan` uses the selected configuration instead of falling back to the latest run.
+* Improved the connection prompts in `nullstone workspaces select`: each question now names the capability it belongs to, the header shows the capability module and version, and the connection contract is shown instead of the deprecated type.
 
 # 0.0.201 (Sep 11, 2026)
 * Added a presence form to `nullstone envs list --tag`: a bare key (`--tag claim`) matches environments that have the tag with any value. `--tag claim=` (unset or empty) is unchanged.

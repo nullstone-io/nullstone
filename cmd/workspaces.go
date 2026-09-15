@@ -109,7 +109,7 @@ var WorkspacesSelect = &cli.Command{
 			// Record every resolved app-level connection from the selected configuration,
 			// then survey the user for any that still have no target
 			targetWorkspace.Connections = workspaces.ManifestConnectionsFrom(config.Connections)
-			manualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, "", config.Connections)
+			manualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, connectionScope{}, config.Connections)
 			if err != nil {
 				return err
 			}
@@ -117,7 +117,8 @@ var WorkspacesSelect = &cli.Command{
 
 			// Same for each capability
 			for _, cap := range config.Capabilities {
-				capManualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, cap.Name, cap.Connections)
+				scope := connectionScope{CapabilityName: cap.Name, ModuleSource: cap.Source, ModuleVersion: cap.SourceVersion}
+				capManualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, scope, cap.Connections)
 				if err != nil {
 					return err
 				}
@@ -147,21 +148,64 @@ func detectModuleToolName() string {
 	return DefaultToolName
 }
 
-func surveyMissingConnections(ctx context.Context, cfg api.Config, sourceStackName string, capabilityName string, conns types.Connections) (types.Connections, error) {
+// connectionScope identifies where a surveyed connection lives so each prompt is unambiguous
+// A zero value means the connection belongs to the workspace's own module
+type connectionScope struct {
+	CapabilityName string
+	ModuleSource   string
+	ModuleVersion  string
+}
+
+func (s connectionScope) IsCapability() bool { return s.CapabilityName != "" }
+
+// Header is printed once before the first question in this scope
+func (s connectionScope) Header() string {
+	if !s.IsCapability() {
+		return "There are connections in this module that do not have a target set."
+	}
+	module := s.ModuleSource
+	if module != "" && s.ModuleVersion != "" {
+		module = fmt.Sprintf("%s@%s", module, s.ModuleVersion)
+	}
+	if module != "" {
+		return fmt.Sprintf("Capability %q (%s) has connections that do not have a target set.", s.CapabilityName, module)
+	}
+	return fmt.Sprintf("Capability %q has connections that do not have a target set.", s.CapabilityName)
+}
+
+// Prompt builds the question for a single connection, e.g.
+//
+//	[required] connection "network" (contract=network/aws/vpc):
+//	[optional] ingress → connection "cluster" (contract=cluster/aws/ecs:*):
+func (s connectionScope) Prompt(name string, conn types.Connection) string {
+	preface := "[required]"
+	if conn.Optional {
+		preface = "[optional]"
+	}
+	scope := ""
+	if s.IsCapability() {
+		scope = fmt.Sprintf("%s → ", s.CapabilityName)
+	}
+	schema := ""
+	if conn.Contract != "" {
+		schema = fmt.Sprintf(" (contract=%s)", conn.Contract)
+	} else if conn.Type != "" {
+		schema = fmt.Sprintf(" (type=%s)", conn.Type)
+	}
+	return fmt.Sprintf("%s %sconnection %q%s:", preface, scope, name, schema)
+}
+
+func surveyMissingConnections(ctx context.Context, cfg api.Config, sourceStackName string, scope connectionScope, conns types.Connections) (types.Connections, error) {
 	initialPrompt := &sync.Once{}
 	connections := types.Connections{}
 	for name, conn := range conns {
 		// Let's ask the user if the connection has no reference
 		if conn.EffectiveTarget == nil || conn.EffectiveTarget.BlockId < 1 {
 			initialPrompt.Do(func() {
-				if capabilityName != "" {
-					fmt.Printf("There are connections in capability %q that do not have a target set.\n", capabilityName)
-				} else {
-					fmt.Println("There are connections in this module that do not have a target set.")
-				}
+				fmt.Println(scope.Header())
 				fmt.Println("Type the block name for each connection to configure the connection locally.")
 			})
-			ct, err := surveyMissingConnection(ctx, cfg, sourceStackName, name, conn)
+			ct, err := surveyMissingConnection(ctx, cfg, sourceStackName, scope, name, conn)
 			if err != nil {
 				return nil, err
 			} else if ct != nil {
@@ -175,13 +219,9 @@ func surveyMissingConnections(ctx context.Context, cfg api.Config, sourceStackNa
 	return connections, nil
 }
 
-func surveyMissingConnection(ctx context.Context, cfg api.Config, sourceStackName, name string, conn types.Connection) (*types.ConnectionTarget, error) {
-	preface := "[required]"
-	if conn.Optional {
-		preface = "[optional]"
-	}
+func surveyMissingConnection(ctx context.Context, cfg api.Config, sourceStackName string, scope connectionScope, name string, conn types.Connection) (*types.ConnectionTarget, error) {
 	input := &survey.Input{
-		Message: fmt.Sprintf("%s connection %q (type=%s):", preface, name, conn.Type),
+		Message: scope.Prompt(name, conn),
 	}
 	for {
 		var answer string
