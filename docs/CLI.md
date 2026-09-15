@@ -394,7 +394,7 @@ Sync IaC configuration to a Nullstone environment and optionally trigger infra u
 
 #### Usage
 ```shell
-$ nullstone iac sync --stack=<stack> --env=<env> [--auto-plan] [--auto-apply] [--from-git] [--wait[=<dur>]]
+$ nullstone iac sync --stack=<stack> --env=<env> [--repo=<owner/name>] [--auto-plan] [--auto-apply] [--from-git] [--wait[=<dur>]]
 ```
 
 #### Options
@@ -402,6 +402,7 @@ $ nullstone iac sync --stack=<stack> --env=<env> [--auto-plan] [--auto-apply] [-
 | --- | --- | --- |
 | `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
 | `--env` | Name of the environment to use for this operation | required |
+| `--repo` | Source repository that owns the synced blocks, as `owner`/`name` or a repository URL (e.g. --repo=nullstone-io/nullstone). Defaults to the origin remote of the current git repository. |  |
 | `--auto-plan` | Queue an infra-update Run on each workspace where IaC changes are detected. The Run is left pending approval. |  |
 | `--auto-apply` | Auto-approve any infra-update Run created by the sync. Implies --auto-plan. |  |
 | `--from-git` | Force the server to fetch IaC files from the connected GitHub repo at the resolved commit SHA. By default the local files (already discovered by this command) are submitted in the request payload. |  |

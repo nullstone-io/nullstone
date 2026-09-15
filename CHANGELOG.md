@@ -1,3 +1,8 @@
+# 0.0.202 (Sep 15, 2026)
+* Added `--repo=<owner/name>` to `nullstone iac sync` for checkouts without git metadata (CI runners, exported trees).
+* Changed `nullstone iac sync` to require a source repository; it now errors instead of submitting a sync that could not update any block the repository already owns.
+* Fixed detection of the origin repository for scp-style remotes without a `git@` user (ssh host aliases, which are resolved through `ssh -G`), `ssh://`, `http://`, and `git://` remotes. Unparseable remotes no longer produce a malformed repository URL.
+
 # 0.0.201 (Sep 11, 2026)
 * Added a presence form to `nullstone envs list --tag`: a bare key (`--tag claim`) matches environments that have the tag with any value. `--tag claim=` (unset or empty) is unchanged.
 
