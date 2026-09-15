@@ -17,7 +17,7 @@ var (
 	activeWorkspaceFilename = path.Join(".nullstone", "active-workspace.yml")
 )
 
-func Select(ctx context.Context, cfg api.Config, workspace Manifest, runConfig types.RunConfig, toolName string) error {
+func Select(ctx context.Context, cfg api.Config, workspace Manifest, config types.WorkspaceConfig, toolName string) error {
 	repo := git.RepoFromDir(".")
 	if repo != nil {
 		// Add gitignores for __backend__.tf and .nullstone/active-workspace.yml
@@ -57,7 +57,7 @@ func Select(ctx context.Context, cfg api.Config, workspace Manifest, runConfig t
 	if capGenerator.ShouldGenerate() {
 		fmt.Println()
 		fmt.Printf("Generating %q from %q\n", capGenerator.TargetFilename, capGenerator.TemplateFilename)
-		if err := capGenerator.Generate(runConfig); err != nil {
+		if err := capGenerator.Generate(config); err != nil {
 			return fmt.Errorf("Could not generate %q: %w", capGenerator.TargetFilename, err)
 		}
 	}

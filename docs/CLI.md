@@ -899,7 +899,7 @@ Sync a given workspace's state with the current directory. Running this command 
 
 #### Usage
 ```shell
-$ nullstone workspaces select [--stack=<stack>] --block=<block> --env=<env>
+$ nullstone workspaces select [--stack=<stack>] --block=<block> --env=<env> [--config=<effective|latest|current>]
 ```
 
 #### Options
@@ -908,5 +908,6 @@ $ nullstone workspaces select [--stack=<stack>] --block=<block> --env=<env>
 | `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
 | `--block` | Name of the block to use for this operation | required |
 | `--env` | Name of the environment to use for this operation | required |
+| `--config` | Which workspace configuration to sync locally. `effective` (default) is the latest configuration including unapplied changes queued in the Nullstone UI. `latest` is the last applied configuration; its run may still be in progress. `current` is the configuration from the last finished run. |  |
 
 
