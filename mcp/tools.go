@@ -551,6 +551,9 @@ func workspacesSelectTool() mcp.Tool {
 				mcp.Required(),
 				mcp.Description("Name of the environment."),
 			),
+			mcp.WithString("config",
+				mcp.Description("Which workspace configuration to sync: 'effective' (default; latest including unapplied changes queued in the UI), 'latest' (last applied; its run may still be in progress), or 'current' (last finished run)."),
+			),
 		)...,
 	)
 }

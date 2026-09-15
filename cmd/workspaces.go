@@ -33,7 +33,7 @@ var WorkspacesSelect = &cli.Command{
 	Name:        "select",
 	Description: "Sync a given workspace's state with the current directory. Running this command will allow you to run terraform plans/applies locally against the selected workspace.",
 	Usage:       "Select workspace",
-	UsageText:   "nullstone workspaces select [--stack=<stack>] --block=<block> --env=<env>",
+	UsageText:   "nullstone workspaces select [--stack=<stack>] --block=<block> --env=<env> [--config=<effective|latest|current>]",
 	Flags: []cli.Flag{
 		StackFlag,
 		&cli.StringFlag{
@@ -46,9 +46,18 @@ var WorkspacesSelect = &cli.Command{
 			Usage:    `Name of the environment to use for this operation`,
 			Required: true,
 		},
+		&cli.StringFlag{
+			Name:  "config",
+			Usage: "Which workspace configuration to sync locally. `effective` (default) is the latest configuration including unapplied changes queued in the Nullstone UI. `latest` is the last applied configuration; its run may still be in progress. `current` is the configuration from the last finished run.",
+			Value: string(workspaces.ConfigSourceEffective),
+		},
 	},
 	Action: func(c *cli.Context) error {
 		ctx := context.TODO()
+		configSource, err := workspaces.ParseConfigSource(c.String("config"))
+		if err != nil {
+			return cli.Exit(err.Error(), 1)
+		}
 		return ProfileAction(c, func(cfg api.Config) error {
 			toolName := detectModuleToolName()
 
@@ -89,14 +98,15 @@ var WorkspacesSelect = &cli.Command{
 			}
 			targetWorkspace.WorkspaceUid = workspace.Uid.String()
 
-			runConfig, err := workspaces.GetRunConfig(ctx, cfg, targetWorkspace)
+			config, err := workspaces.GetWorkspaceConfig(ctx, cfg, targetWorkspace, configSource)
 			if err != nil {
-				return fmt.Errorf("could not retrieve current workspace configuration: %w", err)
+				return fmt.Errorf("could not retrieve %s workspace configuration: %w", configSource, err)
 			}
-			targetWorkspace.ClassificationLevel = string(runConfig.Metadata.DataClassification)
+			targetWorkspace.ClassificationLevel = string(config.Metadata.DataClassification)
+			fmt.Printf("Using %s workspace configuration\n", configSource)
 
 			// Survey missing app-level connections
-			manualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, "", runConfig.Connections)
+			manualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, "", config.Connections)
 			if err != nil {
 				return err
 			}
@@ -110,7 +120,7 @@ var WorkspacesSelect = &cli.Command{
 			}
 
 			// Survey missing capability connections
-			for _, cap := range runConfig.Capabilities {
+			for _, cap := range config.Capabilities {
 				capManualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, cap.Name, cap.Connections)
 				if err != nil {
 					return err
@@ -130,7 +140,7 @@ var WorkspacesSelect = &cli.Command{
 			}
 
 			return CancellableAction(func(ctx context.Context) error {
-				return workspaces.Select(ctx, cfg, targetWorkspace, runConfig, toolName)
+				return workspaces.Select(ctx, cfg, targetWorkspace, config, toolName)
 			})
 		})
 	},

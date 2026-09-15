@@ -56,8 +56,8 @@ func (g CapabilitiesGenerator) ShouldGenerate() bool {
 	return err == nil || !os.IsNotExist(err)
 }
 
-func (g CapabilitiesGenerator) Generate(runConfig types.RunConfig) error {
-	capabilities := runConfig.Capabilities
+func (g CapabilitiesGenerator) Generate(config types.WorkspaceConfig) error {
+	capabilities := config.Capabilities
 	var err error
 	if capabilities, err = g.backfillMeta(capabilities); err != nil {
 		return fmt.Errorf("error filling capability meta: %w", err)
