@@ -116,10 +116,11 @@ var IacSync = &cli.Command{
 	Name:        "sync",
 	Description: "Sync IaC configuration to a Nullstone environment and optionally trigger infra updates.",
 	Usage:       "Sync Nullstone IaC",
-	UsageText:   "nullstone iac sync --stack=<stack> --env=<env> [--auto-plan] [--auto-apply] [--from-git] [--wait[=<dur>]]",
+	UsageText:   "nullstone iac sync --stack=<stack> --env=<env> [--repo=<owner/name>] [--auto-plan] [--auto-apply] [--from-git] [--wait[=<dur>]]",
 	Flags: []cli.Flag{
 		StackFlag,
 		EnvFlag,
+		IacSyncRepoFlag,
 		iacSyncWaitFlag,
 		&cli.BoolFlag{
 			Name:  "auto-plan",
@@ -160,6 +161,20 @@ var IacSync = &cli.Command{
 				stdout := os.Stdout
 				stderr := os.Stderr
 
+				// Commit info comes from the local git repo. Most of it is advisory metadata
+				// (sha, branch, author), but the repository is what the sync runs for and the
+				// server requires it, so settle that before doing any local validation work.
+				commitInfo, err := vcs.GetCommitInfo()
+				if err != nil {
+					fmt.Fprintf(stderr, "warning: could not read git repo (%v); continuing without commit info\n", err)
+					commitInfo = types.CommitInfo{}
+				}
+				repo, err := resolveIacSyncRepo(c.String(IacSyncRepoFlag.Name), commitInfo)
+				if err != nil {
+					return err
+				}
+				commitInfo.Repository = repo
+
 				// Run the same Discover → Process → Test pipeline as `nullstone iac test`
 				// so the user gets immediate feedback if the IaC files are invalid.
 				// Bail out before hitting the API if validation fails.
@@ -172,15 +187,6 @@ var IacSync = &cli.Command{
 				}
 				if err := iac2.Test(ctx, cfg, stdout, *stack, *env, *pmr); err != nil {
 					return err
-				}
-
-				// Best-effort commit info from the local git repo. Non-git CWDs (CI workspaces,
-				// ephemeral runners) get an empty struct — that is fine; the server treats
-				// CommitInfo as advisory.
-				commitInfo, err := vcs.GetCommitInfo()
-				if err != nil {
-					fmt.Fprintf(stdout, "warning: could not read git repo (%v); continuing without commit info\n", err)
-					commitInfo = types.CommitInfo{}
 				}
 
 				autoApply := c.Bool("auto-apply")
@@ -215,8 +221,8 @@ var IacSync = &cli.Command{
 				if len(payload.YamlConfigFiles) == 0 {
 					mode = "git-fetch"
 				}
-				fmt.Fprintf(stderr, "Triggered IaC sync (intent workflow %d, %s) for %s/%s%s\n",
-					wf.Id, mode, stackName, envName, shaSuffix)
+				fmt.Fprintf(stderr, "Triggered IaC sync (intent workflow %d, %s) for %s/%s from %s/%s%s\n",
+					wf.Id, mode, stackName, envName, repo.Owner, repo.Name, shaSuffix)
 
 				wd := c.Generic(iacSyncWaitFlag.Name).(*waitDuration)
 				if !wd.set {

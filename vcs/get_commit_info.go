@@ -2,11 +2,13 @@ package vcs
 
 import (
 	"fmt"
-	"github.com/go-git/go-git/v5/config"
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"net/url"
 	"os/exec"
 	"strings"
+
+	"github.com/go-git/go-git/v5/config"
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
+	"gopkg.in/nullstone-io/nullstone.v0/git"
 )
 
 func GetCommitInfo() (types.CommitInfo, error) {
@@ -70,35 +72,78 @@ func getCommitInfoFromGoGit() (types.CommitInfo, error) {
 	return ci, nil
 }
 
+// extractApiRepository derives the repository from the origin remote's first url.
+// It accepts every form git does (scp-style with or without a user, ssh://, https://, http://,
+// git://) and resolves ssh host aliases, so `github-nullstone:acme/repo.git` yields the same
+// repository as `git@github.com:acme/repo.git`. Anything it cannot turn into a
+// host/owner/name is returned as the zero Repo: the caller decides whether a missing
+// repository matters, and a half-built one with a bogus url is worse than none.
 func extractApiRepository(cfg *config.RemoteConfig) types.Repo {
-	repo := types.Repo{}
-	if len(cfg.URLs) == 0 {
-		return repo
+	if cfg == nil || len(cfg.URLs) == 0 {
+		return types.Repo{}
+	}
+	return parseRemoteRepository(cfg.URLs[0], resolveSshHost)
+}
+
+// parseRemoteRepository is the pure part of extractApiRepository. resolveHost is consulted for
+// ssh remotes whose host does not look like a real hostname (no dot) so tests can stub it.
+func parseRemoteRepository(raw string, resolveHost func(alias string) string) types.Repo {
+	u, err := git.ParseRemote(strings.TrimSpace(raw))
+	if err != nil || u == nil {
+		return types.Repo{}
 	}
 
-	if strings.HasPrefix(cfg.URLs[0], "git@") {
-		// SSH format: git@github.com:org/repo.git
-		rest := strings.TrimSuffix(strings.TrimPrefix(cfg.URLs[0], "git@"), ".git")
-		parts := strings.SplitN(rest, ":", 2)
-		repo.Host = parts[0]
-		repoName := strings.SplitN(parts[1], "/", 2)
-		repo.Owner = repoName[0]
-		repo.Name = repoName[1]
-	} else if strings.HasPrefix(cfg.URLs[0], "https://") {
-		// HTTPS format: https://github.com/org/repo.git
-		u, err := url.Parse(strings.TrimSuffix(cfg.URLs[0], ".git"))
-		if err != nil {
-			return repo
+	host := u.Hostname()
+	if isSshRemote(u) && !strings.Contains(host, ".") && resolveHost != nil {
+		if resolved := resolveHost(host); resolved != "" {
+			host = resolved
 		}
-		repo.Host = u.Host
-		repoName := strings.SplitN(strings.TrimPrefix(u.Path, "/"), "/", 2)
-		repo.Owner = repoName[0]
-		repo.Name = repoName[1]
 	}
-	repo.Url = fmt.Sprintf("https://%s/%s/%s", repo.Host, repo.Owner, repo.Name)
-	repo.InferVcsProvider()
 
+	path := strings.TrimSuffix(strings.Trim(u.Path, "/"), ".git")
+	segments := strings.Split(path, "/")
+	if host == "" || len(segments) < 2 {
+		return types.Repo{}
+	}
+	owner := strings.Join(segments[:len(segments)-1], "/")
+	name := segments[len(segments)-1]
+	if owner == "" || name == "" {
+		return types.Repo{}
+	}
+
+	repo := types.Repo{
+		Host:  host,
+		Owner: owner,
+		Name:  name,
+		Url:   fmt.Sprintf("https://%s/%s/%s", host, owner, name),
+	}
+	repo.InferVcsProvider()
 	return repo
+}
+
+// isSshRemote reports whether the parsed remote goes over ssh: git.ParseRemote assigns the
+// "git" scheme to scp-style remotes, and ssh:// urls keep their own.
+func isSshRemote(u *url.URL) bool {
+	return u.Scheme == "git" || u.Scheme == "ssh" || u.Scheme == "git+ssh" || u.Scheme == "ssh+git"
+}
+
+// resolveSshHost asks ssh for the real hostname behind a Host alias from ~/.ssh/config.
+// It returns "" when ssh is unavailable or the alias resolves to itself.
+func resolveSshHost(alias string) string {
+	if _, err := exec.LookPath("ssh"); err != nil {
+		return ""
+	}
+	out, err := exec.Command("ssh", "-G", alias).Output()
+	if err != nil {
+		return ""
+	}
+	for _, line := range strings.Split(string(out), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) == 2 && fields[0] == "hostname" && fields[1] != alias {
+			return fields[1]
+		}
+	}
+	return ""
 }
 
 func getCommitInfoFromGitCLI() (types.CommitInfo, error) {
