@@ -4,6 +4,7 @@
 * Fixed detection of the origin repository for scp-style remotes without a `git@` user (ssh host aliases, which are resolved through `ssh -G`), `ssh://`, `http://`, and `git://` remotes. Unparseable remotes no longer produce a malformed repository URL.
 * Changed `nullstone workspaces select` to sync the effective workspace configuration by default. This includes changes queued in the Nullstone UI that have not been applied yet; previously it used the configuration from the most recent run.
 * Added `--config=<effective|latest|current>` to `nullstone workspaces select` to choose which configuration to sync: `effective` (default), `latest` (last applied, run may still be in progress), or `current` (last finished run).
+* Fixed `nullstone workspaces select` writing only manually-entered connections to `.nullstone/active-workspace.yml`. Every resolved connection for the workspace and its capabilities is now written, so local `terraform plan` uses the selected configuration instead of falling back to the latest run.
 
 # 0.0.201 (Sep 11, 2026)
 * Added a presence form to `nullstone envs list --tag`: a bare key (`--tag claim`) matches environments that have the tag with any value. `--tag claim=` (unset or empty) is unchanged.

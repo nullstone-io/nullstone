@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/yaml.v3"
 )
 
@@ -66,4 +67,24 @@ type ManifestConnectionTarget struct {
 	BlockId   int64  `json:"blockId" yaml:"block_id"`
 	BlockName string `json:"blockName" yaml:"block_name"`
 	EnvId     *int64 `json:"envId,omitempty" yaml:"env_id,omitempty"`
+}
+
+// ManifestConnectionsFrom converts resolved workspace connections into manifest targets
+// Connections without an effective target are skipped; the CLI surveys those from the user separately
+// terraform-provider-ns consults these local targets before falling back to the workspace's run config,
+// so every resolved connection must be written for local plans to see the selected configuration
+func ManifestConnectionsFrom(conns types.Connections) ManifestConnections {
+	result := ManifestConnections{}
+	for name, conn := range conns {
+		if conn.EffectiveTarget == nil || conn.EffectiveTarget.BlockId < 1 {
+			continue
+		}
+		result[name] = ManifestConnectionTarget{
+			StackId:   conn.EffectiveTarget.StackId,
+			BlockId:   conn.EffectiveTarget.BlockId,
+			BlockName: conn.EffectiveTarget.BlockName,
+			EnvId:     conn.EffectiveTarget.EnvId,
+		}
+	}
+	return result
 }

@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"maps"
 	"os"
 	"sync"
 
@@ -105,37 +106,25 @@ var WorkspacesSelect = &cli.Command{
 			targetWorkspace.ClassificationLevel = string(config.Metadata.DataClassification)
 			fmt.Printf("Using %s workspace configuration\n", configSource)
 
-			// Survey missing app-level connections
+			// Record every resolved app-level connection from the selected configuration,
+			// then survey the user for any that still have no target
+			targetWorkspace.Connections = workspaces.ManifestConnectionsFrom(config.Connections)
 			manualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, "", config.Connections)
 			if err != nil {
 				return err
 			}
-			for name, conn := range manualConnections {
-				targetWorkspace.Connections[name] = workspaces.ManifestConnectionTarget{
-					StackId:   conn.EffectiveTarget.StackId,
-					BlockId:   conn.EffectiveTarget.BlockId,
-					BlockName: conn.EffectiveTarget.BlockName,
-					EnvId:     conn.EffectiveTarget.EnvId,
-				}
-			}
+			maps.Copy(targetWorkspace.Connections, workspaces.ManifestConnectionsFrom(manualConnections))
 
-			// Survey missing capability connections
+			// Same for each capability
 			for _, cap := range config.Capabilities {
 				capManualConnections, err := surveyMissingConnections(ctx, cfg, targetWorkspace.StackName, cap.Name, cap.Connections)
 				if err != nil {
 					return err
 				}
 				mc := workspaces.ManifestCapability{
-					Connections: workspaces.ManifestConnections{},
+					Connections: workspaces.ManifestConnectionsFrom(cap.Connections),
 				}
-				for name, conn := range capManualConnections {
-					mc.Connections[name] = workspaces.ManifestConnectionTarget{
-						StackId:   conn.EffectiveTarget.StackId,
-						BlockId:   conn.EffectiveTarget.BlockId,
-						BlockName: conn.EffectiveTarget.BlockName,
-						EnvId:     conn.EffectiveTarget.EnvId,
-					}
-				}
+				maps.Copy(mc.Connections, workspaces.ManifestConnectionsFrom(capManualConnections))
 				targetWorkspace.Capabilities[cap.Name] = mc
 			}
 
