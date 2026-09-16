@@ -3,6 +3,7 @@ package iac
 import (
 	"fmt"
 	"io"
+	"reflect"
 	"slices"
 	"sort"
 	"strconv"
@@ -212,7 +213,7 @@ func emitMapDiffBody(w io.Writer, indent string, prev, next map[string]any) {
 			colorstring.Fprintf(w, "%s[red]- %s: %s[reset]\n", indent, k, variableValToString(pv))
 		case !pok && nok:
 			colorstring.Fprintf(w, "%s[green]+ %s: %s[reset]\n", indent, k, variableValToString(nv))
-		case variableValToString(pv) == variableValToString(nv):
+		case variableValuesEqual(pv, nv):
 			// unchanged - keep as context
 			colorstring.Fprintf(w, "%s  %s: %s\n", indent, k, variableValToString(pv))
 		default:
@@ -233,7 +234,7 @@ func emitListDiffBody(w io.Writer, indent string, prev, next []any) {
 			colorstring.Fprintf(w, "%s[red]- %s[reset]\n", indent, variableValToString(prev[i]))
 		case i >= len(prev):
 			colorstring.Fprintf(w, "%s[green]+ %s[reset]\n", indent, variableValToString(next[i]))
-		case variableValToString(prev[i]) == variableValToString(next[i]):
+		case variableValuesEqual(prev[i], next[i]):
 			// unchanged - keep as context
 			colorstring.Fprintf(w, "%s  %s\n", indent, variableValToString(prev[i]))
 		default:
@@ -270,6 +271,62 @@ func bothLists(a, b any) ([]any, []any, bool) {
 	al, aok := a.([]any)
 	bl, bok := b.([]any)
 	return al, bl, aok && bok
+}
+
+// scalarDiffStrings renders both sides of a scalar diff. When exactly one side is a string, the
+// string is quoted so a type-only change is visible: a number variable that was stored as "30"
+// and is now being set to 30 renders as `"30" => 30` instead of an identical-looking `30 => 30`.
+func scalarDiffStrings(prev, next any) (string, string) {
+	_, prevIsString := prev.(string)
+	_, nextIsString := next.(string)
+	if prev != nil && next != nil && prevIsString != nextIsString {
+		return quoteIfString(prev), quoteIfString(next)
+	}
+	return variableValToString(prev), variableValToString(next)
+}
+
+func quoteIfString(val any) string {
+	if s, ok := val.(string); ok {
+		return strconv.Quote(s)
+	}
+	return variableValToString(val)
+}
+
+// variableValuesEqual reports whether two variable values are the same for display purposes.
+// Numeric kinds are compared by value (float64(60) == int(60), since JSON-decoded values are
+// float64 while IaC values may be int), but a string is never equal to a number or bool, so a
+// type-only change is not mistaken for unchanged context.
+func variableValuesEqual(a, b any) bool {
+	if af, aok := numberToString(a); aok {
+		bf, bok := numberToString(b)
+		return bok && af == bf
+	}
+	switch av := a.(type) {
+	case map[string]any:
+		bv, ok := b.(map[string]any)
+		if !ok || len(av) != len(bv) {
+			return false
+		}
+		for k, x := range av {
+			y, ok := bv[k]
+			if !ok || !variableValuesEqual(x, y) {
+				return false
+			}
+		}
+		return true
+	case []any:
+		bv, ok := b.([]any)
+		if !ok || len(av) != len(bv) {
+			return false
+		}
+		for i := range av {
+			if !variableValuesEqual(av[i], bv[i]) {
+				return false
+			}
+		}
+		return true
+	}
+	return reflect.DeepEqual(a, b)
 }
 
 func sortedUnionKeys(a, b map[string]any) []string {
