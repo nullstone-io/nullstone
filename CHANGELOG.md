@@ -1,3 +1,6 @@
+# 0.0.203 (Sep 16, 2026)
+* Fixed `nullstone iac test` printing an identical-looking change (e.g. `30 => 30`) when a variable value only changes type. The string side is now quoted (`"30" => 30`), and string-vs-number members inside map and list values are reported as changes instead of unchanged context.
+
 # 0.0.202 (Sep 15, 2026)
 * Added `--repo=<owner/name>` to `nullstone iac sync` for checkouts without git metadata (CI runners, exported trees).
 * Changed `nullstone iac sync` to require a source repository; it now errors instead of submitting a sync that could not update any block the repository already owns.
