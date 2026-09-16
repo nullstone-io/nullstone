@@ -1,3 +1,6 @@
+# 0.0.204 (Sep 16, 2026)
+* Improved `nullstone iac sync --wait` when the sync fails because another repository owns a block or event: the failure now ends with links to the block and environment settings pages where a stack owner or architect can change the owning repository.
+
 # 0.0.203 (Sep 16, 2026)
 * Fixed `nullstone iac test` printing an identical-looking change (e.g. `30 => 30`) when a variable value only changes type. The string side is now quoted (`"30" => 30`), and string-vs-number members inside map and list values are reported as changes instead of unchanged context.
 
