@@ -224,7 +224,7 @@ func waitForIacSync(ctx context.Context, cfg api.Config, w io.Writer, iw types.I
 			fmt.Fprintln(w, "IaC sync completed successfully.")
 			return nil
 		case types.IntentWorkflowStatusFailed:
-			return cli.Exit(fmt.Sprintf("IaC sync failed: %s", cur.StatusMessage), 1)
+			return cli.Exit(iacSyncFailureMessage(ctx, cfg, cur), 1)
 		case types.IntentWorkflowStatusCancelled:
 			return cli.Exit("IaC sync was cancelled", 2)
 		}
