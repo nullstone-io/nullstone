@@ -30,11 +30,18 @@ func GetBlockIacOwnershipSettings(cfg api.Config, block types.Block) string {
 	return u.String()
 }
 
-// GetEnvIacOwnershipSettings links to the "IaC ownership" section of an env's settings page,
-// which lists the env's events and their owning repositories.
-func GetEnvIacOwnershipSettings(cfg api.Config, orgName string, stackId, envId int64) string {
+// GetEnvEventIacOwnership links to the "IaC ownership" section of an env event's edit page.
+func GetEnvEventIacOwnership(cfg api.Config, event types.EnvEvent) string {
 	u := GetBaseUrl(cfg)
-	u.Path = fmt.Sprintf("orgs/%s/stacks/%d/envs/%d/settings", orgName, stackId, envId)
+	u.Path = fmt.Sprintf("orgs/%s/stacks/%d/envs/%d/events/%s", event.OrgName, event.StackId, event.EnvId, event.Uid)
 	u.Fragment = "iac-ownership"
+	return u.String()
+}
+
+// GetEnvEvents links to an env's events list, the fallback when an event could not be looked
+// up by name.
+func GetEnvEvents(cfg api.Config, orgName string, stackId, envId int64) string {
+	u := GetBaseUrl(cfg)
+	u.Path = fmt.Sprintf("orgs/%s/stacks/%d/envs/%d/events", orgName, stackId, envId)
 	return u.String()
 }

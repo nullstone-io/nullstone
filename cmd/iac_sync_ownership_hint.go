@@ -13,19 +13,25 @@ import (
 // iacSyncOwnershipHint explains what to do when an IaC sync failed because the repository it
 // ran for does not own the blocks or events it defines: the recorded owner may be stale (the
 // owning repo was disconnected before a sync could release them), and a stack owner or
-// architect can change it from the settings pages linked here. The failure message itself is
-// printed unchanged; this is an extra paragraph after it. It returns "" for any other failure.
+// architect can change it from the "IaC ownership" section on each block's settings page or
+// each event's edit page. The failure message itself is printed unchanged; this is an extra
+// paragraph after it. It returns "" for any other failure.
 //
-// blocks is the stack's block list, used to turn conflicting block names into settings urls;
-// a name with no block (or a nil list when the lookup failed) is printed without a url.
-func iacSyncOwnershipHint(cfg api.Config, iw types.IntentWorkflow, blocks []types.Block) string {
+// blocks and events are the stack's blocks and the env's events, used to turn conflicting
+// names into urls; a name with no match (or a nil list when the lookup failed) gets a generic
+// pointer instead.
+func iacSyncOwnershipHint(cfg api.Config, iw types.IntentWorkflow, blocks []types.Block, events []types.EnvEvent) string {
 	conflict := types.MatchIacOwnershipConflict(iw.StatusMessage)
 	if conflict == nil {
 		return ""
 	}
-	byName := map[string]types.Block{}
+	blockByName := map[string]types.Block{}
 	for _, block := range blocks {
-		byName[block.Name] = block
+		blockByName[block.Name] = block
+	}
+	eventByName := map[string]types.EnvEvent{}
+	for _, event := range events {
+		eventByName[event.Name] = event
 	}
 
 	lines := []string{
@@ -33,28 +39,39 @@ func iacSyncOwnershipHint(cfg api.Config, iw types.IntentWorkflow, blocks []type
 		"a stack owner or architect can change the owning repository in the Nullstone UI:",
 	}
 	for _, name := range conflict.BlockNames() {
-		if block, ok := byName[name]; ok {
-			lines = append(lines, fmt.Sprintf("  %s: %s", name, app_urls.GetBlockIacOwnershipSettings(cfg, block)))
+		if block, ok := blockByName[name]; ok {
+			lines = append(lines, fmt.Sprintf("  block %s: %s", name, app_urls.GetBlockIacOwnershipSettings(cfg, block)))
 		} else {
-			lines = append(lines, fmt.Sprintf("  %s: block settings > IaC ownership", name))
+			lines = append(lines, fmt.Sprintf("  block %s: block settings > IaC ownership", name))
 		}
 	}
-	if names := conflict.EventNames(); len(names) > 0 {
-		lines = append(lines, fmt.Sprintf("  events (%s): %s", strings.Join(names, ", "),
-			app_urls.GetEnvIacOwnershipSettings(cfg, iw.OrgName, iw.StackId, iw.EnvId)))
+	for _, name := range conflict.EventNames() {
+		if event, ok := eventByName[name]; ok {
+			lines = append(lines, fmt.Sprintf("  event %s: %s", name, app_urls.GetEnvEventIacOwnership(cfg, event)))
+		} else {
+			lines = append(lines, fmt.Sprintf("  event %s: %s > edit > IaC ownership", name, app_urls.GetEnvEvents(cfg, iw.OrgName, iw.StackId, iw.EnvId)))
+		}
 	}
 	return strings.Join(lines, "\n")
 }
 
 // iacSyncFailureMessage is the exit message for a failed IaC sync: the workflow's status message
-// as-is, followed by the ownership hint when one applies. The block lookup is best effort; a
-// failure there only costs the per-block urls.
+// as-is, followed by the ownership hint when one applies. The block and event lookups are best
+// effort; a failure there only costs the per-item urls.
 func iacSyncFailureMessage(ctx context.Context, cfg api.Config, iw types.IntentWorkflow) string {
 	msg := fmt.Sprintf("IaC sync failed: %s", iw.StatusMessage)
-	if types.MatchIacOwnershipConflict(iw.StatusMessage) == nil {
+	conflict := types.MatchIacOwnershipConflict(iw.StatusMessage)
+	if conflict == nil {
 		return msg
 	}
 	client := api.Client{Config: cfg}
-	blocks, _ := client.Blocks().List(ctx, iw.StackId, false)
-	return msg + "\n\n" + iacSyncOwnershipHint(cfg, iw, blocks)
+	var blocks []types.Block
+	if len(conflict.Blocks) > 0 {
+		blocks, _ = client.Blocks().List(ctx, iw.StackId, false)
+	}
+	var events []types.EnvEvent
+	if len(conflict.Events) > 0 {
+		events, _ = client.EnvEvents().List(ctx, iw.StackId, iw.EnvId)
+	}
+	return msg + "\n\n" + iacSyncOwnershipHint(cfg, iw, blocks, events)
 }
