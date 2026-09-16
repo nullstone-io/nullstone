@@ -572,8 +572,8 @@ gopkg.in/evanphx/json-patch.v4 v4.13.0 h1:czT3CmqEaQ1aanPc5SdlgQrrEIb8w/wwCvWWnf
 gopkg.in/evanphx/json-patch.v4 v4.13.0/go.mod h1:p8EYWUEYMpynmqDbY58zCKCFZw8pRWMG4EsWvDvM72M=
 gopkg.in/inf.v0 v0.9.1 h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
 gopkg.in/inf.v0 v0.9.1/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260915165950-1cae8a80e6a4 h1:llkL4GBL8HZW+L+Z3SrukOC5aGlES0aTEZ8GoDzuINE=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260915165950-1cae8a80e6a4/go.mod h1:x8ZIKxEsL+/OU6/Jtspf1YtKXca41kOtwNw+GTZt7As=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260916151928-ef3040c8e200 h1:3Qs81gQ3J4S5Pd2q2HOqPIhMi1RVgFSBG0C0FWVGBaM=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260916151928-ef3040c8e200/go.mod h1:x8ZIKxEsL+/OU6/Jtspf1YtKXca41kOtwNw+GTZt7As=
 gopkg.in/warnings.v0 v0.1.2 h1:wFXVbFY8DY5/xOe1ECiWdKCzZlxgshcYVNkBHstARME=
 gopkg.in/warnings.v0 v0.1.2/go.mod h1:jksf8JmL6Qr/oQM2OXTHunEvvTAsrWBLb6OOjuVWRNI=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
