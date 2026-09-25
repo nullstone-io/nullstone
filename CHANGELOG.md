@@ -1,3 +1,7 @@
+# 0.0.205 (Sep 24, 2026)
+* Added `nullstone workflows list` to show the most recent workflows for a block in an environment, with `--active` to find the ones still in progress and `--status` to filter by status.
+* Added `nullstone workflows cancel <workflow-id>` to cancel an in-progress workflow. The workflow moves to `cancelling` right away; its run, build, and deploy stop, and a running terraform/opentofu or docker process is interrupted and killed after 5 minutes if it has not exited.
+
 # 0.0.204 (Sep 16, 2026)
 * Improved `nullstone iac sync --wait` when the sync fails because another repository owns a block or event: the failure now ends with links to the block and environment settings pages where a stack owner or architect can change the owning repository.
 
