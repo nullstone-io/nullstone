@@ -894,6 +894,49 @@ $ nullstone wait [--stack=<stack-name>] --block=<block-name> --env=<env-name> [o
 | `--approval-timeout` | Set --approval-timeout to a golang duration to control how long to wait for approval before cancelling.       If the workspace run never reaches "needs-approval", this has no effect.       The default is '15m' (15 minutes).       |  |
 
 
+## workflows list
+Shows the most recent workflows for a block in an environment, newest first.
+Each workflow bundles the infrastructure run, build, and deploy performed together (e.g. an "update-deploy").
+Use --active to find a workflow to cancel, or --status to filter by any set of statuses.
+
+#### Usage
+```shell
+$ nullstone workflows list [--stack=<stack-name>] --block=<block-name> --env=<env-name> [--active] [--status=<status>] [--limit=<n>]
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
+| `--block` | Name of the block to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+| `--active` | Only show workflows that are still in progress (queued, awaiting dependencies, needing approval, running, or cancelling). |  |
+| `--status` | Only show workflows with this status. Can be specified multiple times.       Statuses: queued, awaiting-dependencies, needs-approval, running, cancelling, completed, failed, cancelled |  |
+
+
+## workflows cancel
+Cancels an in-progress workflow for a block in an environment.
+Find the workflow ID with "nullstone workflows list --active".
+
+The workflow moves to "cancelling" immediately. A running terraform/opentofu or docker process is interrupted
+so it can stop cleanly; if it has not exited after the hard-stop timeout (5 minutes by default), it is killed.
+The workflow reaches "cancelled" once every run, build, and deploy it owns has stopped.
+A deploy whose rollout was already handed to the platform is not rolled back; Nullstone only stops watching it.
+Cancelling a workflow that already finished is a no-op.
+
+#### Usage
+```shell
+$ nullstone workflows cancel <workflow-id> [--stack=<stack-name>] --block=<block-name> --env=<env-name>
+```
+
+#### Options
+| Option | Description | |
+| --- | --- | --- |
+| `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
+| `--block` | Name of the block to use for this operation | required |
+| `--env` | Name of the environment to use for this operation | required |
+
+
 ## workspaces select
 Sync a given workspace's state with the current directory. Running this command will allow you to run terraform plans/applies locally against the selected workspace.
 
