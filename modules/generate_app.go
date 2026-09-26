@@ -165,21 +165,27 @@ locals {
   cap_env_prefixes = tomap({
     x = ""
   })
+  // cap_prefixes is a map indexed by capability name which points to the env_prefix in local.cap_modules
+  cap_prefixes = tomap({
+    x = ""
+  })
 
   capabilities = {
     env = [
       {
-        cap_tf_id = "x"
-        name      = ""
-        value     = ""
+        cap_tf_id  = "x"
+        capability = "x"
+        name       = ""
+        value      = ""
       }
     ]
 
     secrets = [
       {
-        cap_tf_id = "x"
-        name      = ""
-        value     = sensitive("")
+        cap_tf_id  = "x"
+        capability = "x"
+        name       = ""
+        value      = sensitive("")
       }
     ]
 
@@ -276,10 +282,14 @@ locals {
   cap_env_prefixes = {
     for mod in local.cap_modules : mod.tfId => mod.env_prefix
   }
+  // cap_prefixes is keyed by capability name for ns_env_layout / ns_env_values
+  cap_prefixes = {
+    for mod in local.cap_modules : mod.name => mod.env_prefix
+  }
 
   capabilities = {
     for outputName in local.capability_output_names : outputName => flatten([
-      for mod in local.cap_modules : [ for x in lookup(mod.outputs, outputName, []) : merge({ cap_tf_id = mod.tfId }, x) ] if contains(try(mod.meta.outputNames, []), outputName)
+      for mod in local.cap_modules : [ for x in lookup(mod.outputs, outputName, []) : merge({ cap_tf_id = mod.tfId, capability = mod.name }, x) ] if contains(try(mod.meta.outputNames, []), outputName)
     ])
   }
 }
