@@ -1,3 +1,6 @@
+# 0.0.206 (Sep 29, 2026)
+* Changed `nullstone workspaces select` to register the selected workspace with the Nullstone state backend after `init`, so that Nullstone can show platform data (such as environment variables) for a workspace that has only been applied locally. A failure to register prints a warning and does not fail the command.
+
 # 0.0.205 (Sep 24, 2026)
 * Added `nullstone workflows list` to show the most recent workflows for a block in an environment, with `--active` to find the ones still in progress and `--status` to filter by status.
 * Added `nullstone workflows cancel <workflow-id>` to cancel an in-progress workflow. The workflow moves to `cancelling` right away; its run, build, and deploy stop, and a running terraform/opentofu or docker process is interrupted and killed after 5 minutes if it has not exited.
