@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"path"
 	"strings"
 
@@ -69,5 +70,7 @@ Reset .terraform/ directory and run 'terraform init'.`
 		fmt.Println(fallbackMessage)
 		log.Println(err)
 	}
+	// Best effort: init has selected the state workspace, register what it stores state for
+	RegisterMapping(ctx, cfg, workspace, os.Stderr)
 	return nil
 }
