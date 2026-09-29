@@ -175,7 +175,7 @@ locals {
       {
         cap_tf_id  = "x"
         capability = "x"
-        name       = ""
+        name       = "EXAMPLE_ENV"
         value      = ""
       }
     ]
@@ -184,7 +184,7 @@ locals {
       {
         cap_tf_id  = "x"
         capability = "x"
-        name       = ""
+        name       = "EXAMPLE_SECRET"
         value      = sensitive("")
       }
     ]
