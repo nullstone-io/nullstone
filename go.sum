@@ -376,8 +376,8 @@ github.com/nullstone-io/deployment-sdk v0.0.0-20260918134614-6a3ea61e737a h1:Our
 github.com/nullstone-io/deployment-sdk v0.0.0-20260918134614-6a3ea61e737a/go.mod h1:hgFpPKzxd+CAc+BN4ZsBwoJol7bobdeWG1LnVcfjyS8=
 github.com/nullstone-io/iac v0.0.0-20260911002157-ddfc80f7061e h1:9tdHveQ4BxP7JxHi39b3mg3vv3p3i6bzjXf1WfCVKjo=
 github.com/nullstone-io/iac v0.0.0-20260911002157-ddfc80f7061e/go.mod h1:P+5N4HXTLVbAGmqlCnS9TSQD2N3VIVtHSvuM1axPxFU=
-github.com/nullstone-io/module v0.2.11 h1:aTT/MXqmwvimbIGe7tbSKs11wUt/oROvcsNYfF+vytE=
-github.com/nullstone-io/module v0.2.11/go.mod h1:ZvBpQ0kXbgPD3NMnABRHGI+fM0VjpuMbS/ZzZrHOxVI=
+github.com/nullstone-io/module v0.3.1 h1:w65+1+1HfGSoUwNj3V+j4IuN/GOeuR1AKJqEoLPCVgQ=
+github.com/nullstone-io/module v0.3.1/go.mod h1:ZvBpQ0kXbgPD3NMnABRHGI+fM0VjpuMbS/ZzZrHOxVI=
 github.com/onsi/ginkgo/v2 v2.28.1 h1:S4hj+HbZp40fNKuLUQOYLDgZLwNUVn19N3Atb98NCyI=
 github.com/onsi/ginkgo/v2 v2.28.1/go.mod h1:CLtbVInNckU3/+gC8LzkGUb9oF+e8W8TdUsxPwvdOgE=
 github.com/onsi/gomega v1.39.1 h1:1IJLAad4zjPn2PsnhH70V4DKRFlrCzGBNrNaru+Vf28=
@@ -573,8 +573,8 @@ gopkg.in/evanphx/json-patch.v4 v4.13.0 h1:czT3CmqEaQ1aanPc5SdlgQrrEIb8w/wwCvWWnf
 gopkg.in/evanphx/json-patch.v4 v4.13.0/go.mod h1:p8EYWUEYMpynmqDbY58zCKCFZw8pRWMG4EsWvDvM72M=
 gopkg.in/inf.v0 v0.9.1 h1:73M5CoZyi3ZLMOyDlQh031Cx6N9NDJ2Vvfl76EDAgDc=
 gopkg.in/inf.v0 v0.9.1/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260924202525-cc9f9704bacb h1:NPMRtAIWpsk5Zi1bwF+R2v/aw0Y1Wa3M82v2FpmBlRk=
-gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260924202525-cc9f9704bacb/go.mod h1:x8ZIKxEsL+/OU6/Jtspf1YtKXca41kOtwNw+GTZt7As=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260929142114-f37bae6bc4b7 h1:ThtgRfHTpLaIUp0Ab7j1KL4kn8pNydZjxHPhYnyMVUA=
+gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260929142114-f37bae6bc4b7/go.mod h1:ykVzSFDKmK3OulqZD+zr9O7qUjmgWcnsML9nuPj1W7o=
 gopkg.in/warnings.v0 v0.1.2 h1:wFXVbFY8DY5/xOe1ECiWdKCzZlxgshcYVNkBHstARME=
 gopkg.in/warnings.v0 v0.1.2/go.mod h1:jksf8JmL6Qr/oQM2OXTHunEvvTAsrWBLb6OOjuVWRNI=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
