@@ -1,8 +1,9 @@
 package modules
 
 import (
-	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"io/ioutil"
+
+	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
 
 type generateFunc func(manifest *types.ModuleManifest) error
@@ -12,8 +13,7 @@ var (
 	baseScaffoldTf     = `terraform {
   required_providers {
     ns = {
-      source  = "nullstone-io/ns"
-      version = "~> 0.13.0"
+      source = "nullstone-io/ns"
     }
   }
 }
