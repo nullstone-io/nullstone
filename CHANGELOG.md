@@ -1,3 +1,6 @@
+# 0.0.207 (Oct 2, 2026)
+* Updated `nullstone modules generate` for app modules: `env_vars.tf` now aggregates environment variables and secrets with the `ns_env_layout`, `ns_env_values`, and `ns_env_platform_data` data sources, so a generated module reports its environment to Nullstone. Set `local.env_platform` in the generated file to the module's runtime platform.
+
 # 0.0.206 (Sep 29, 2026)
 * Changed `nullstone workspaces select` to register the selected workspace with the Nullstone state backend after `init`, so that Nullstone can show platform data (such as environment variables) for a workspace that has only been applied locally. A failure to register prints a warning and does not fail the command.
 
