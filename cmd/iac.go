@@ -270,7 +270,7 @@ func readDiscoveredIacFiles(curDir string, pmr *iac.ConfigFiles) (map[string]str
 		// treats keys as opaque labels but downstream code compares against `.nullstone/...`
 		// strings produced by the GitHub-fetch path on Linux.
 		key = strings.ReplaceAll(key, string(filepath.Separator), "/")
-		raw, err := os.ReadFile(filename)
+		raw, err := os.ReadFile(filename) // #nosec G304 -- file supplied by the user on the command line
 		if err != nil {
 			return fmt.Errorf("error reading %s: %w", filename, err)
 		}

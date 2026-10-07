@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"gopkg.in/nullstone-io/go-api-client.v0"
-	"io/ioutil"
 	"os"
 	"strings"
+
+	"gopkg.in/nullstone-io/nullstone.v0/config"
 )
 
 var (
@@ -24,7 +25,7 @@ func IsCredsConfigured(cfg api.Config) bool {
 	}
 
 	hostname := getNullstoneHostname(cfg)
-	raw, err := ioutil.ReadFile(credsFilename)
+	raw, err := os.ReadFile(credsFilename) // #nosec G304 -- terraform credentials file at a well-known path
 	if err != nil {
 		return false
 	}
@@ -42,7 +43,9 @@ func ConfigCreds(ctx context.Context, cfg api.Config) error {
 		return err
 	}
 
-	file, err := os.OpenFile(credsFilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// Credentials files written by older CLI versions were created world-readable.
+	config.TightenPerms(credsFilename, 0600)
+	file, err := os.OpenFile(credsFilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600) // #nosec G304 -- terraform credentials file at a well-known path
 	if err != nil {
 		return err
 	}

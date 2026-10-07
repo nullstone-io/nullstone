@@ -1,7 +1,7 @@
 package modules
 
 import (
-	"io/ioutil"
+	"os"
 
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 )
@@ -59,5 +59,5 @@ func generateScaffold(manifest *types.ModuleManifest) error {
 }
 
 func generateFile(filename string, content string) error {
-	return ioutil.WriteFile(filename, []byte(content), 0644)
+	return os.WriteFile(filename, []byte(content), 0600)
 }

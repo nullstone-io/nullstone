@@ -116,7 +116,7 @@ func Publish(ctx context.Context, cfg api.Config, logger *log.Logger, input Publ
 
 	logger.Println("Publishing module...")
 	// Open tarball to publish
-	tarball, err := os.Open(tarballFilename)
+	tarball, err := os.Open(tarballFilename) // #nosec G304 -- module tarball supplied by the user
 	if err != nil {
 		return nil, err
 	}

@@ -127,7 +127,7 @@ func readRunPayload(raw string) ([]byte, error) {
 		return payload, nil
 	case strings.HasPrefix(raw, "@"):
 		filename := raw[1:]
-		payload, err := os.ReadFile(filename)
+		payload, err := os.ReadFile(filename) // #nosec G304 -- file supplied by the user on the command line
 		if err != nil {
 			return nil, fmt.Errorf("unable to read the payload from file (%s): %w", filename, err)
 		}

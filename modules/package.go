@@ -46,7 +46,7 @@ func Package(logger *log.Logger, manifest *types.ModuleManifest, version string,
 	}
 	colorstring.Fprintln(logger.Writer(), "[green]Packaged module")
 
-	data, err := os.ReadFile(tarballFilename)
+	data, err := os.ReadFile(tarballFilename) // #nosec G304 -- module tarball supplied by the user
 	if err != nil {
 		return tarballFilename, "", fmt.Errorf("reading packaged tarball for checksum: %w", err)
 	}

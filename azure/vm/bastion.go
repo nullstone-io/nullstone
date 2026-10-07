@@ -47,8 +47,8 @@ func StartBastionSsh(ctx context.Context, infra Outputs, username string) error 
 	env := os.Environ()
 	env = append(env, "AZURE_ACCESS_TOKEN="+token.Token)
 
-	ctx = context.Background() // Ignore signal cancellations on the context
-	cmd := exec.CommandContext(ctx, azPath, args...)
+	ctx = context.Background()                       // Ignore signal cancellations on the context
+	cmd := exec.CommandContext(ctx, azPath, args...) // #nosec G204 -- az resolved from PATH; args built by the CLI
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin

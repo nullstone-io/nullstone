@@ -33,7 +33,7 @@ func StartSession(ctx context.Context, session interface{}, target ssm.StartSess
 	}
 	ctx = context.Background() // Ignore signal cancellations on the context
 
-	cmd := exec.CommandContext(ctx, process, args...)
+	cmd := exec.CommandContext(ctx, process, args...) // #nosec G204 -- session-manager-plugin resolved from PATH; args built by the CLI
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin

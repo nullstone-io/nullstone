@@ -24,7 +24,7 @@ func Init(ctx context.Context, toolName string) error {
 		"-reconfigure",
 	}
 	fmt.Printf("Running `%s %s`\n", process, strings.Join(args, " "))
-	cmd := exec.CommandContext(ctx, process, args...)
+	cmd := exec.CommandContext(ctx, process, args...) // #nosec G204 -- terraform resolved from PATH; args built by the CLI
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin

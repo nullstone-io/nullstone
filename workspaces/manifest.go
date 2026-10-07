@@ -47,10 +47,10 @@ type ManifestCapability struct {
 }
 
 func (m Manifest) WriteToFile(filename string) error {
-	if err := os.MkdirAll(filepath.Dir(filename), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(filename), 0750); err != nil {
 		return err
 	}
-	file, err := os.Create(filename)
+	file, err := os.Create(filename) // #nosec G304 -- workspace manifest under the user's .nullstone dir
 	if err != nil {
 		return err
 	}

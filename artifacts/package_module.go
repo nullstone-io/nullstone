@@ -13,7 +13,7 @@ import (
 // 'patterns' allows a developer to specify which file patterns are included in the tar.gz
 // This is more effective than the built-in tar command because it won't fail if a pattern doesn't match any files
 func PackageModule(logger *log.Logger, dir, filename string, patterns []string, excludeFn func(entry GlobEntry) bool) error {
-	targzFile, err := os.Create(filename)
+	targzFile, err := os.Create(filename) // #nosec G304 -- output archive path supplied by the user
 	if err != nil {
 		return fmt.Errorf("error creating module package: %w", err)
 	}

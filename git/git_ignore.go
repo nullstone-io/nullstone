@@ -20,7 +20,7 @@ func FindGitIgnores(repo *git.Repository, patterns []string) (found []string, mi
 	}
 
 	filename := wt.Filesystem.Join(".gitignore")
-	file, err := os.Open(filename)
+	file, err := os.Open(filename) // #nosec G304 -- .gitignore in the user's repo
 	if err != nil {
 		return
 	}
@@ -50,7 +50,7 @@ func AddGitIgnores(repo *git.Repository, patterns []string) {
 	}
 
 	filename := wt.Filesystem.Join(".gitignore")
-	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644) // #nosec G302 G304 -- .gitignore in the user's repo must stay world-readable
 	if err != nil {
 		return
 	}
