@@ -16,7 +16,8 @@ func TestGenerate_App(t *testing.T) {
 
 	scaffold, err := os.ReadFile(scaffoldTfFilename)
 	require.NoError(t, err)
-	assert.Contains(t, string(scaffold), `version = "~> 0.13.0"`)
+	assert.Contains(t, string(scaffold), `source = "nullstone-io/ns"`)
+	assert.NotContains(t, string(scaffold), "version =", "generated modules must not pin the ns provider")
 
 	envVars, err := os.ReadFile(appEnvVarsTfFilename)
 	require.NoError(t, err)

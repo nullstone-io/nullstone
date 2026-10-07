@@ -1,5 +1,4 @@
 # 0.0.208 (Oct 7, 2026)
-* Fixed `nullstone modules generate` to pin the `ns` provider to `~> 0.13.0` in the generated `nullstone.tf`. Generated app modules use the `ns_env_layout`, `ns_env_values`, and `ns_env_platform_data` data sources, which require provider 0.13.0 or later.
 * Changed the CLI to create profile files (`~/.nullstone/<profile>/`), the API key, and the Terraform credentials file readable only by the owner (`0600`/`0700`). Existing files from older versions are tightened on next use.
 * Limited the module archive size that `nullstone modules publish` and `nullstone modules package` will hash to 512 MiB of uncompressed content.
 
