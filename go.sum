@@ -372,8 +372,8 @@ github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 h1:n6/
 github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00/go.mod h1:Pm3mSP3c5uWn86xMLZ5Sa7JB9GsEZySvHYXCTK4E9q4=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
-github.com/nullstone-io/deployment-sdk v0.0.0-20260918134614-6a3ea61e737a h1:OurmpQvDPh/sqsLM2PGfxtR3QCNSfYdvU1zZuOq965w=
-github.com/nullstone-io/deployment-sdk v0.0.0-20260918134614-6a3ea61e737a/go.mod h1:hgFpPKzxd+CAc+BN4ZsBwoJol7bobdeWG1LnVcfjyS8=
+github.com/nullstone-io/deployment-sdk v0.0.0-20261007145731-cd49c268fe2a h1:likr3F5NQTKX99DrBiQdxKLEpuiJ7H2TANK+esv5ABA=
+github.com/nullstone-io/deployment-sdk v0.0.0-20261007145731-cd49c268fe2a/go.mod h1:hgFpPKzxd+CAc+BN4ZsBwoJol7bobdeWG1LnVcfjyS8=
 github.com/nullstone-io/iac v0.0.0-20260911002157-ddfc80f7061e h1:9tdHveQ4BxP7JxHi39b3mg3vv3p3i6bzjXf1WfCVKjo=
 github.com/nullstone-io/iac v0.0.0-20260911002157-ddfc80f7061e/go.mod h1:P+5N4HXTLVbAGmqlCnS9TSQD2N3VIVtHSvuM1axPxFU=
 github.com/nullstone-io/module v0.3.1 h1:w65+1+1HfGSoUwNj3V+j4IuN/GOeuR1AKJqEoLPCVgQ=
