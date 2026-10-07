@@ -81,7 +81,7 @@ func (g CapabilitiesGenerator) Generate(config types.WorkspaceConfig) error {
 		return fmt.Errorf("error executing capabilities template: %w", err)
 	}
 
-	if err := os.WriteFile(g.TargetFilename, content.Bytes(), 0644); err != nil {
+	if err := os.WriteFile(g.TargetFilename, content.Bytes(), 0600); err != nil {
 		return fmt.Errorf("error writing %q: %s", g.TargetFilename, err)
 	}
 	return nil

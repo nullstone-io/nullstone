@@ -12,6 +12,10 @@ import (
 	"strings"
 )
 
+// MaxArchiveContentBytes caps the total uncompressed bytes HashArchiveContents will
+// read from one archive (CWE-409). 512 MiB is far above any real module package.
+const MaxArchiveContentBytes int64 = 512 << 20
+
 // HashArchiveContents returns a hex-encoded sha256 over a canonical digest of the
 // archive's regular file entries: for each file, sorted by name, the line
 // "<sha256(content)>  <name>\n" is fed into a running sha256.
@@ -45,6 +49,7 @@ func HashArchiveContents(data []byte, ext string) (string, error) {
 		sum  [sha256.Size]byte
 	}
 	var entries []entry
+	remaining := MaxArchiveContentBytes
 	for {
 		hdr, err := tr.Next()
 		if err == io.EOF {
@@ -57,7 +62,12 @@ func HashArchiveContents(data []byte, ext string) (string, error) {
 			continue
 		}
 		fh := sha256.New()
-		if _, err := io.Copy(fh, tr); err != nil {
+		n, err := io.Copy(fh, io.LimitReader(tr, remaining+1))
+		remaining -= n
+		if remaining < 0 {
+			return "", fmt.Errorf("archive exceeds the %d byte uncompressed limit", MaxArchiveContentBytes)
+		}
+		if err != nil {
 			return "", fmt.Errorf("hash %q: %w", hdr.Name, err)
 		}
 		var sum [sha256.Size]byte

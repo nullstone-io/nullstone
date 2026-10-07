@@ -32,7 +32,7 @@ func Execute(ctx context.Context, args []string) (*ExecuteResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, DefaultTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, binaryPath, args...)
+	cmd := exec.CommandContext(ctx, binaryPath, args...) // #nosec G204 -- re-executes this same binary (os.Args[0]) with MCP-supplied args
 
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout

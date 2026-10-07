@@ -1,3 +1,7 @@
+# 0.0.208 (Oct 7, 2026)
+* Changed the CLI to create profile files (`~/.nullstone/<profile>/`), the API key, and the Terraform credentials file readable only by the owner (`0600`/`0700`). Existing files from older versions are tightened on next use.
+* Limited the module archive size that `nullstone modules publish` and `nullstone modules package` will hash to 512 MiB of uncompressed content.
+
 # 0.0.207 (Oct 2, 2026)
 * Updated `nullstone modules generate` for app modules: `env_vars.tf` now aggregates environment variables and secrets with the `ns_env_layout`, `ns_env_values`, and `ns_env_platform_data` data sources, so a generated module reports its environment to Nullstone. Set `local.env_platform` in the generated file to the module's runtime platform.
 

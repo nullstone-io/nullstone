@@ -12,7 +12,7 @@ import (
 )
 
 func ManifestFromFile(filename string) (*types.ModuleManifest, error) {
-	file, err := os.Open(filename)
+	file, err := os.Open(filename) // #nosec G304 -- manifest file in the user's module dir
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, fmt.Errorf("module manifest file %q does not exist", filename)
@@ -29,10 +29,10 @@ func ManifestFromFile(filename string) (*types.ModuleManifest, error) {
 }
 
 func WriteManifestToFile(m types.ModuleManifest, filename string) error {
-	if err := os.MkdirAll(filepath.Dir(filename), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(filename), 0750); err != nil {
 		return err
 	}
-	file, err := os.Create(filename)
+	file, err := os.Create(filename) // #nosec G304 -- manifest file in the user's module dir
 	if err != nil {
 		return err
 	}
