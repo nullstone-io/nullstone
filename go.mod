@@ -17,14 +17,14 @@ require (
 	github.com/mark3labs/mcp-go v0.55.1
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nullstone-io/deployment-sdk v0.0.0-20261007145731-cd49c268fe2a
-	github.com/nullstone-io/iac v0.0.0-20260911002157-ddfc80f7061e
+	github.com/nullstone-io/iac v0.0.0-20261013131810-b916f8e0d611
 	github.com/nullstone-io/module v0.3.1
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/stretchr/testify v1.12.1
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/crypto v0.57.0
 	golang.org/x/sync v0.23.0
-	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20260929173059-6bbecdaf8ea3
+	gopkg.in/nullstone-io/go-api-client.v0 v0.0.0-20261013131729-0d25c7ea6561
 	k8s.io/api v0.36.2
 	k8s.io/apimachinery v0.36.2
 	k8s.io/client-go v0.36.2
