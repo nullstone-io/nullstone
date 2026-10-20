@@ -1,3 +1,7 @@
+# 0.0.209 (Oct 20, 2026)
+* Fixed `nullstone status` failing for ECS and Fargate task apps with `Service cannot be empty`. Task apps now report their executions: the summary shows running count, execution count, last run, and last result; the detail view lists each execution with start, stop, status, version, exit code, and failure reason.
+* Task execution history is read from the cluster's `<cluster>-executions` log group when the cluster module records it (aws-fargate 0.9.0, aws-ecs 0.4.0), so runs stay visible past ECS's one-hour retention of stopped tasks. Older cluster modules show live tasks only.
+
 # 0.0.208 (Oct 7, 2026)
 * Changed the CLI to create profile files (`~/.nullstone/<profile>/`), the API key, and the Terraform credentials file readable only by the owner (`0600`/`0700`). Existing files from older versions are tightened on next use.
 * Limited the module archive size that `nullstone modules publish` and `nullstone modules package` will hash to 512 MiB of uncompressed content.
