@@ -4,6 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	nsaws "github.com/nullstone-io/deployment-sdk/aws"
 	"github.com/nullstone-io/deployment-sdk/aws/creds"
+	sdkecs "github.com/nullstone-io/deployment-sdk/aws/ecs"
 	"github.com/nullstone-io/deployment-sdk/outputs"
 	nstypes "gopkg.in/nullstone-io/go-api-client.v0/types"
 )
@@ -56,15 +57,38 @@ func (o *Outputs) GetLaunchType() types.LaunchType {
 }
 
 type ClusterNamespaceOutputs struct {
-	ClusterArn string         `ns:"cluster_arn"`
-	Cluster    ClusterOutputs `ns:"connectionContract:cluster/aws/ecs:*,optional"`
+	ClusterArn             string         `ns:"cluster_arn"`
+	ExecutionsLogGroupName string         `ns:"executions_log_group_name,optional"`
+	Cluster                ClusterOutputs `ns:"connectionContract:cluster/aws/ecs:*,optional"`
 }
 
 type ClusterOutputs struct {
-	ClusterArn string         `ns:"cluster_arn"`
-	Network    NetworkOutputs `ns:"connectionContract:network/aws/*,optional"`
+	ClusterArn             string         `ns:"cluster_arn"`
+	ExecutionsLogGroupName string         `ns:"executions_log_group_name,optional"`
+	Network                NetworkOutputs `ns:"connectionContract:network/aws/*,optional"`
 }
 
 type NetworkOutputs struct {
 	PrivateSubnetIds []string `ns:"private_subnet_ids"`
+}
+
+// SdkOutputs maps these outputs onto the deployment-sdk's ECS outputs so the CLI can reuse its
+// status logic. The SDK's deployer identity is this CLI's statuser identity, so credentials keep
+// the "adminer" purpose the CLI already uses for status calls.
+func (o *Outputs) SdkOutputs() sdkecs.Outputs {
+	return sdkecs.Outputs{
+		Region:            o.Region,
+		ServiceName:       o.ServiceName,
+		TaskArn:           o.TaskArn,
+		MainContainerName: o.MainContainerName,
+		Deployer:          o.Statuser,
+		Cluster: sdkecs.ClusterOutputs{
+			ClusterArn:             o.Cluster.ClusterArn,
+			ExecutionsLogGroupName: o.Cluster.ExecutionsLogGroupName,
+		},
+		ClusterNamespace: sdkecs.ClusterNamespaceOutputs{
+			ClusterArn:             o.ClusterNamespace.ClusterArn,
+			ExecutionsLogGroupName: o.ClusterNamespace.ExecutionsLogGroupName,
+		},
+	}
 }
