@@ -1,3 +1,7 @@
+# 0.0.210 (Oct 22, 2026)
+* `nullstone iac sync` now reports the CI tool it runs under (GitHub Actions, CircleCI, GitLab, and others) so the sync is recorded as automation rather than manual. An environment whose settings disable manual IaC sync rejects a sync run by a person from their machine; the command prints the server's explanation and exits non-zero.
+* Fixed CI detection reporting every run with no CI variables as Codeship. `nullstone deploy`, `nullstone launch`, and `nullstone release` from a laptop are now recorded as manual.
+
 # 0.0.209 (Oct 20, 2026)
 * Fixed `nullstone status` failing for ECS and Fargate task apps with `Service cannot be empty`. Task apps now report their executions: the summary shows running count, execution count, last run, and last result; the detail view lists each execution with start, stop, status, version, exit code, and failure reason.
 * Task execution history is read from the cluster's `<cluster>-executions` log group when the cluster module records it (aws-fargate 0.9.0, aws-ecs 0.4.0), so runs stay visible past ECS's one-hour retention of stopped tasks. Older cluster modules show live tasks only.
