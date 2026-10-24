@@ -1,4 +1,4 @@
-# 0.0.210 (Oct 23, 2026)
+# 0.0.210 (Oct 24, 2026)
 * `nullstone iac sync` now reports the CI tool it runs under (GitHub Actions, CircleCI, GitLab, and others) so the sync is recorded as automation rather than manual. An environment whose settings disable manual IaC sync rejects a sync run by a person from their machine; the command prints the server's explanation and exits non-zero.
 * Fixed CI detection reporting every run with no CI variables as Codeship. `nullstone deploy`, `nullstone launch`, and `nullstone release` from a laptop are now recorded as manual.
 
