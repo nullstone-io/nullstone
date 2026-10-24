@@ -390,7 +390,7 @@ $ nullstone iac --stack=<stack> --env=<env> --app=<app>
 
 
 ## iac sync
-Sync IaC configuration to a Nullstone environment and optionally trigger infra updates.
+Sync IaC configuration to a Nullstone environment and optionally trigger infra updates. When run inside a CI tool (GitHub Actions, CircleCI, GitLab, ...) the sync is recorded as triggered by that tool; otherwise it is a manual sync. An environment whose settings disable manual IaC sync rejects a manual sync: push the change to the connected repository or run this command from CI instead.
 
 #### Usage
 ```shell
