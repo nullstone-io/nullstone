@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/nullstone-io/go-api-client.v0"
 	"gopkg.in/nullstone-io/go-api-client.v0/find"
+	"gopkg.in/nullstone-io/go-api-client.v0/response"
 	"gopkg.in/nullstone-io/go-api-client.v0/types"
 	"gopkg.in/nullstone-io/nullstone.v0/git"
 	iac2 "gopkg.in/nullstone-io/nullstone.v0/iac"
@@ -113,10 +115,12 @@ var iacSyncWaitFlag = &cli.GenericFlag{
 }
 
 var IacSync = &cli.Command{
-	Name:        "sync",
-	Description: "Sync IaC configuration to a Nullstone environment and optionally trigger infra updates.",
-	Usage:       "Sync Nullstone IaC",
-	UsageText:   "nullstone iac sync --stack=<stack> --env=<env> [--repo=<owner/name>] [--auto-plan] [--auto-apply] [--from-git] [--wait[=<dur>]]",
+	Name: "sync",
+	Description: "Sync IaC configuration to a Nullstone environment and optionally trigger infra updates. " +
+		"When run inside a CI tool (GitHub Actions, CircleCI, GitLab, ...) the sync is recorded as triggered by that tool; otherwise it is a manual sync. " +
+		"An environment whose settings disable manual IaC sync rejects a manual sync: push the change to the connected repository or run this command from CI instead.",
+	Usage:     "Sync Nullstone IaC",
+	UsageText: "nullstone iac sync --stack=<stack> --env=<env> [--repo=<owner/name>] [--auto-plan] [--auto-apply] [--from-git] [--wait[=<dur>]]",
 	Flags: []cli.Flag{
 		StackFlag,
 		EnvFlag,
@@ -194,6 +198,8 @@ var IacSync = &cli.Command{
 					AutoPlan:   c.Bool("auto-plan") || autoApply,
 					AutoApply:  autoApply,
 					CommitInfo: commitInfo,
+					// Lets the server tell a CI sync from a manual one (an env can disable the latter)
+					AutomationTool: detectAutomationTool(),
 				}
 
 				// Detached mode: submit the locally-discovered IaC files in the payload
@@ -211,6 +217,12 @@ var IacSync = &cli.Command{
 				client := api.Client{Config: cfg}
 				wf, err := client.IacSyncs().Trigger(ctx, stack.Id, env.Id, payload)
 				if err != nil {
+					// A governance rejection (403) is a complete explanation on its own; the
+					// client's generic "[Forbidden] unauthorized" would hide the server's message.
+					var forbidden response.UnauthorizedError
+					if errors.As(err, &forbidden) && forbidden.Type == api.ErrorTypeManualIacSyncDisabled {
+						return cli.Exit(forbidden.Message, 1)
+					}
 					return err
 				}
 				shaSuffix := ""

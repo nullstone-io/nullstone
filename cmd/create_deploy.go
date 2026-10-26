@@ -58,7 +58,7 @@ func detectAutomationTool() string {
 	if os.Getenv("TEAMCITY_VERSION") != "" {
 		return api.AutomationToolTeamCity
 	}
-	if os.Getenv("CI_NAME") != "codeship" {
+	if os.Getenv("CI_NAME") == "codeship" {
 		return api.AutomationToolCodeship
 	}
 	if os.Getenv("SEMAPHORE") != "" {
