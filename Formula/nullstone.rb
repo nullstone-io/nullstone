@@ -5,21 +5,21 @@
 class Nullstone < Formula
   desc "An internal developer platform running on your cloud"
   homepage "https://nullstone.io"
-  version "0.0.209"
+  version "0.0.210"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.209/nullstone_0.0.209_darwin_amd64.tar.gz"
-      sha256 "00b68236adaa5191a5f0375b178e40638f119e887bac9767a3a590aa39b700a8"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.210/nullstone_0.0.210_darwin_amd64.tar.gz"
+      sha256 "57f9334d1fe4dbc123fb15243c5b095f6710a536801c0526e8b2b44d551c54dd"
 
       define_method(:install) do
         bin.install "nullstone"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.209/nullstone_0.0.209_darwin_arm64.tar.gz"
-      sha256 "31db0882c0b35e1e2aeb6344b34043e79022a1e961697436f8cc9676f733efb9"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.210/nullstone_0.0.210_darwin_arm64.tar.gz"
+      sha256 "1f427448abee38531f3fcc8f4173257126b49d3abba90b140e877d81bb657a6c"
 
       define_method(:install) do
         bin.install "nullstone"
@@ -29,15 +29,15 @@ class Nullstone < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.209/nullstone_0.0.209_linux_amd64.tar.gz"
-      sha256 "186a5fc0cf49caf74b1a2408c444f9729225189350057b679917c52efc7a16d6"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.210/nullstone_0.0.210_linux_amd64.tar.gz"
+      sha256 "2bed5de14857ca1d6c74db7d599d16b155198ff711add2a7672872bee2842821"
       define_method(:install) do
         bin.install "nullstone"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.209/nullstone_0.0.209_linux_arm64.tar.gz"
-      sha256 "7895dab9346862fbdcb99f9a730da79ceb6619e295b01db66fee36c809f0bc82"
+      url "https://github.com/nullstone-io/nullstone/releases/download/v0.0.210/nullstone_0.0.210_linux_arm64.tar.gz"
+      sha256 "8149c40ffb31ccd4aadd3426efed57d4f885bc3506050170f6a86b5850b6f298"
       define_method(:install) do
         bin.install "nullstone"
       end
