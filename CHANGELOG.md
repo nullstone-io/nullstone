@@ -1,3 +1,9 @@
+# 0.0.211 (Nov 16, 2026)
+* `nullstone iac test` now reports the build config changes an IaC sync would write for each app that declares `build:` in `.nullstone/config.yml` or an overrides file. They are listed apart from workspace changes because a build config applies to the next build with no infra update.
+* `nullstone iac test` now fails validation when a `build:` setting would never be used: settings of a builder other than the one in effect, a `nullstone:` setting that the app's module does not read (for example `dockerfile` on a static site), and the `nullstone` builder on a zip module.
+* Fixed `nullstone envs apps set`, which failed after preview environments stopped storing a separate app list. `--branch` and `--pull-request` now set what the environment follows for the whole repo, so they can no longer be combined with `--app`.
+* Changed `nullstone envs apps set --disabled` to turn the matched apps off in the environment instead of removing them, and added `--enabled` to turn them back on.
+
 # 0.0.210 (Oct 24, 2026)
 * `nullstone iac sync` now reports the CI tool it runs under (GitHub Actions, CircleCI, GitLab, and others) so the sync is recorded as automation rather than manual. An environment whose settings disable manual IaC sync rejects a sync run by a person from their machine; the command prints the server's explanation and exits non-zero.
 * Fixed CI detection reporting every run with no CI variables as Codeship. `nullstone deploy`, `nullstone launch`, and `nullstone release` from a laptop are now recorded as manual.

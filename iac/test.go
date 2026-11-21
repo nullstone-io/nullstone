@@ -53,6 +53,10 @@ func testWorkspaces(ctx context.Context, cfg api.Config, w io.Writer, stack type
 			colorstring.Fprintf(w, "[red]An error occurred: %s[reset]\n", err)
 			hasError = true
 		}
+		if err := testBuildConfig(ctx, apiClient, w, stack, block, env, pmr); err != nil {
+			colorstring.Fprintf(w, "[red]An error occurred: %s[reset]\n", err)
+			hasError = true
+		}
 	}
 
 	if hasError {
