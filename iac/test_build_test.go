@@ -74,6 +74,9 @@ func buildTestApi(t *testing.T, current *types.WorkspaceBuildConfig, template ty
 	mux.HandleFunc("/orgs/nullstone/modules/aws-fargate-service", func(w http.ResponseWriter, r *http.Request) {
 		send(w, types.Module{OrgName: "nullstone", Name: "aws-fargate-service", Category: types.CategoryApp, Subcategory: types.SubcategoryAppContainer})
 	})
+	mux.HandleFunc("/orgs/nullstone/modules/aws-lambda-zip", func(w http.ResponseWriter, r *http.Request) {
+		send(w, types.Module{OrgName: "nullstone", Name: "aws-lambda-zip", Category: types.CategoryApp, Subcategory: types.SubcategoryAppServerless, Subplatform: "zip"})
+	})
 	server := httptest.NewServer(mux)
 	t.Cleanup(server.Close)
 	return &api.Client{Config: api.Config{BaseAddress: server.URL, OrgName: "acme"}}
@@ -182,6 +185,44 @@ func TestTestBuildConfig(t *testing.T) {
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "apps.api.build.nullstone => Settings of the nullstone builder are not used, the builder is (manual)")
 		assert.Empty(t, got)
+	})
+
+	t.Run("the nullstone builder on a zip module is an error", func(t *testing.T) {
+		// The app is a zip module and no file names a builder, so it is laid over the default: nullstone
+		zipTemplate := types.WorkspaceTemplate{Config: types.WorkspaceTemplateConfig{Module: "nullstone/aws-lambda-zip"}}
+		zipDefault := types.DefaultBuildConfig(&types.Module{Subplatform: "zip"})
+		zipYml := `version: "0.1"
+apps:
+  api:
+    build:
+      nullstone:
+        publish_dir: ./out
+`
+		apiClient := buildTestApi(t, &types.WorkspaceBuildConfig{Config: zipDefault}, zipTemplate)
+
+		got, err := tryTestBuildConfig(t, apiClient, app, "prod", map[string]string{"prod.yml": zipYml})
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "apps.api.build.builder => The nullstone builder cannot build the package mode (zip) of the app's module")
+		assert.Empty(t, got)
+	})
+
+	t.Run("another builder on a zip module is reported with the package mode of the module", func(t *testing.T) {
+		zipTemplate := types.WorkspaceTemplate{Config: types.WorkspaceTemplateConfig{Module: "nullstone/aws-lambda-zip"}}
+		zipDefault := types.DefaultBuildConfig(&types.Module{Subplatform: "zip"})
+		zipYml := `version: "0.1"
+apps:
+  api:
+    build:
+      builder: github-actions
+`
+		apiClient := buildTestApi(t, &types.WorkspaceBuildConfig{Config: zipDefault}, zipTemplate)
+
+		got := runTestBuildConfig(t, apiClient, app, "prod", map[string]string{"prod.yml": zipYml})
+
+		want := "    api => 1 build config change (applied to the next build)\n" +
+			"        ~ build.builder: nullstone => github-actions\n"
+		assert.Equal(t, want, got)
 	})
 
 	t.Run("settings the module of the workspace does not use are an error", func(t *testing.T) {
