@@ -292,10 +292,11 @@ $ nullstone envs down --stack=<stack> --env=<env>
 
 
 ## envs apps
-View and modify the apps configured in a preview environment.
+View and modify the apps of a preview environment.
 
-In a preview environment an app is "enabled" by being present in the environment's preview app
-set, so `--disabled` removes an app from the environment rather than writing a field.
+A preview environment follows one branch or pull request per repo, and each app is turned on or off
+in the environment. `--branch` and `--pull-request` change what the environment follows for a whole repo;
+`--enabled` and `--disabled` turn apps on or off.
 
 #### Usage
 ```shell
@@ -303,7 +304,7 @@ $ nullstone envs apps [subcommand]
 ```
 
 ## envs apps list
-Shows each app configured in the given preview environment, with the repo and the branch or pull request it tracks.
+Shows each app that is enabled in the given preview environment, with the repo and the branch or pull request it tracks.
 
 #### Usage
 ```shell
@@ -318,13 +319,15 @@ $ nullstone envs apps list --stack=<stack> --env=<env>
 
 
 ## envs apps set
-Updates every app already in the given preview environment that comes from --repo. Use --app
-to narrow to a single app. Apps from other repos are left untouched, and a --repo that matches
-nothing in the environment is an error rather than a no-op write.
+Configures the apps that come from --repo in the given preview environment.
+
+--branch or --pull-request sets what the environment follows for the whole repo, so they cannot be
+narrowed with --app. --enabled or --disabled turns on or off every app from the repo; use --app to
+narrow to a single app. A --repo that matches no app in the stack is an error rather than a no-op.
 
 #### Usage
 ```shell
-$ nullstone envs apps set --stack=<stack> --env=<env> --repo=<owner/name> [--branch=<branch>|--pull-request=<number>|--disabled]
+$ nullstone envs apps set --stack=<stack> --env=<env> --repo=<owner/name> [--branch=<branch>|--pull-request=<id>|--enabled|--disabled]
 ```
 
 #### Options
@@ -332,10 +335,11 @@ $ nullstone envs apps set --stack=<stack> --env=<env> --repo=<owner/name> [--bra
 | --- | --- | --- |
 | `--stack` | Name of the stack to use for this operation | required |
 | `--env` | Name of the environment to use for this operation | required |
-| `--repo` | Select every app in this environment that comes from this repo, e.g. --repo=nullstone-io/nullstone | required |
+| `--repo` | Select every app in the stack that comes from this repo, e.g. --repo=nullstone-io/nullstone | required |
 | `--app` | Name of the app to use for this operation |  |
-| `--branch` | Track this branch. Cannot be combined with --pull-request; setting it clears any pull request. |  |
-| `--disabled` | Remove the matched apps from this environment instead of updating them. |  |
+| `--branch` | Follow this branch of the repo in this environment. Replaces a pull request the environment was following. |  |
+| `--enabled` | Turn on the matched apps in this environment. |  |
+| `--disabled` | Turn off the matched apps in this environment. |  |
 
 
 ## exec
