@@ -86,6 +86,25 @@ func formatRequired(required bool) string {
 	return ""
 }
 
+// formatFlagRow renders one row of a command's options table.
+// It reads the flag through the interfaces every flag type of the cli library implements,
+// so a flag type that is new to this CLI (int, generic, ...) is documented without a change here.
+func formatFlagRow(flag cli.Flag) (string, bool) {
+	doc, ok := flag.(cli.DocGenerationFlag)
+	if !ok {
+		return "", false
+	}
+	names := flag.Names()
+	if len(names) == 0 {
+		return "", false
+	}
+	required := false
+	if rf, ok := flag.(cli.RequiredFlag); ok {
+		required = rf.IsRequired()
+	}
+	return fmt.Sprintf("| %s | %s | %s |\n", formatFlagName(names[0], names[1:]), formatUsageText(doc.GetUsage()), formatRequired(required)), true
+}
+
 func outputCommandDescription(f *os.File, name string, description string) {
 	if name == "version" {
 		f.WriteString("Prints the version of the CLI.\n\n")
@@ -111,17 +130,12 @@ func outputCommandOptions(f *os.File, flags []cli.Flag) {
 		f.WriteString("| Option | Description | |\n")
 		f.WriteString("| --- | --- | --- |\n")
 		for _, flag := range flags {
-			if sf, ok := flag.(*cli.StringFlag); ok {
-				f.WriteString(fmt.Sprintf("| %s | %s | %s |\n", formatFlagName(sf.Name, sf.Aliases), formatUsageText(sf.Usage), formatRequired(sf.Required)))
-			} else if bf, ok := flag.(*cli.BoolFlag); ok {
-				f.WriteString(fmt.Sprintf("| %s | %s | %s |\n", formatFlagName(bf.Name, bf.Aliases), formatUsageText(bf.Usage), formatRequired(bf.Required)))
-			} else if df, ok := flag.(*cli.DurationFlag); ok {
-				f.WriteString(fmt.Sprintf("| %s | %s | %s |\n", formatFlagName(df.Name, df.Aliases), formatUsageText(df.Usage), formatRequired(df.Required)))
-			} else if ssf, ok := flag.(*cli.StringSliceFlag); ok {
-				f.WriteString(fmt.Sprintf("| %s | %s | %s |\n", formatFlagName(ssf.Name, ssf.Aliases), formatUsageText(ssf.Usage), formatRequired(ssf.Required)))
-			} else {
+			row, ok := formatFlagRow(flag)
+			if !ok {
 				log.Printf("Skipping flag: %+v\n", flag)
+				continue
 			}
+			f.WriteString(row)
 		}
 		f.WriteString("\n\n")
 	}

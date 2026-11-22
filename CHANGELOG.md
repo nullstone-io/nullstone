@@ -6,6 +6,7 @@
 * Changed `--branch` and `--pull-request` on `nullstone envs apps set` to set what the environment follows for the whole repo, so they can no longer be combined with `--app`. The help now says that `--pull-request` takes the Nullstone pull request id, not the pull request number.
 * Changed `nullstone envs apps set --disabled` to turn the matched apps off in the environment instead of removing them, and added `--enabled` to turn them on. `--repo` now matches apps in the stack, so `--enabled` can turn on an app that was not in the environment yet.
 * `nullstone envs apps list` now shows `tag` or `release` for an environment that follows tags or releases, instead of `-`.
+* Fixed CLI docs generation skipping flags that are not strings, booleans, durations, or lists. `--pull-request` on `nullstone envs apps set`, `--limit` on `nullstone workflows list`, and `--wait` on `nullstone iac sync` are now in the options tables.
 
 # 0.0.210 (Oct 24, 2026)
 * `nullstone iac sync` now reports the CI tool it runs under (GitHub Actions, CircleCI, GitLab, and others) so the sync is recorded as automation rather than manual. An environment whose settings disable manual IaC sync rejects a sync run by a person from their machine; the command prints the server's explanation and exits non-zero.

@@ -338,6 +338,7 @@ $ nullstone envs apps set --stack=<stack> --env=<env> --repo=<owner/name> [--bra
 | `--repo` | Select every app in the stack that comes from this repo, e.g. --repo=nullstone-io/nullstone | required |
 | `--app` | Name of the app to use for this operation |  |
 | `--branch` | Follow this branch of the repo in this environment. Replaces a pull request the environment was following. |  |
+| `--pull-request` | Follow this pull request of the repo in this environment, given as its Nullstone pull request id. Replaces a branch the environment was following. |  |
 | `--enabled` | Turn on the matched apps in this environment. |  |
 | `--disabled` | Turn off the matched apps in this environment. |  |
 
@@ -407,6 +408,7 @@ $ nullstone iac sync --stack=<stack> --env=<env> [--repo=<owner/name>] [--auto-p
 | `--stack` | Scope this operation to a specific stack. This is only required if there are multiple blocks/apps with the same name. |  |
 | `--env` | Name of the environment to use for this operation | required |
 | `--repo` | Source repository that owns the synced blocks, as `owner`/`name` or a repository URL (e.g. --repo=nullstone-io/nullstone). Defaults to the origin remote of the current git repository. |  |
+| `--wait` | Wait for the IaC sync to finish, streaming status to stderr. Bare --wait uses a 1m timeout; --wait=`dur` (e.g. 5m) sets a custom timeout. Exit code reflects the result (0 success, 1 failed, 2 cancelled, 3 timeout). |  |
 | `--auto-plan` | Queue an infra-update Run on each workspace where IaC changes are detected. The Run is left pending approval. |  |
 | `--auto-apply` | Auto-approve any infra-update Run created by the sync. Implies --auto-plan. |  |
 | `--from-git` | Force the server to fetch IaC files from the connected GitHub repo at the resolved commit SHA. By default the local files (already discovered by this command) are submitted in the request payload. |  |
@@ -916,6 +918,7 @@ $ nullstone workflows list [--stack=<stack-name>] --block=<block-name> --env=<en
 | `--env` | Name of the environment to use for this operation | required |
 | `--active` | Only show workflows that are still in progress (queued, awaiting dependencies, needing approval, running, or cancelling). |  |
 | `--status` | Only show workflows with this status. Can be specified multiple times.       Statuses: queued, awaiting-dependencies, needs-approval, running, cancelling, completed, failed, cancelled |  |
+| `--limit` | Maximum number of workflows to show (newest first). |  |
 
 
 ## workflows cancel
