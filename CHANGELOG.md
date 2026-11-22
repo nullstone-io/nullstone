@@ -1,4 +1,4 @@
-# 0.0.211 (Nov 21, 2026)
+# 0.0.211 (Nov 23, 2026)
 * `nullstone iac test` now reads `build:` on an app in `.nullstone/config.yml` and in overrides files (`<env>.yml`, `previews.yml`). `builder` is `manual`, `nullstone`, or `github-actions`, and each builder's settings go under a key named after it (`nullstone:`, `github-actions:`). The package mode is not a setting: it comes from the app's module.
 * `nullstone iac test` now reports the build config changes an IaC sync would write for each app that declares `build:`. They are listed apart from workspace changes because a build config applies to the next build with no infra update. An app with no `build:` in any file reports nothing, and its build config is left as it is.
 * `nullstone iac test` now fails when a `build:` setting would never be used: settings of a builder other than the one in effect, a `nullstone:` setting that the app's module does not read (for example `dockerfile` on a static site), and the `nullstone` builder on a zip module. Where no file names the builder or the module, the settings are checked against the workspace.
