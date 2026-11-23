@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"sort"
 	"strings"
@@ -126,52 +127,88 @@ narrow to a single app. A --repo that matches no app in the stack is an error ra
 				return err
 			}
 
-			client := api.Client{Config: cfg}
-			stack, env, err := findPreviewEnv(ctx, cfg, c.String(StackRequiredFlag.Name), c.String(EnvFlag.Name))
-			if err != nil {
-				return err
-			}
-			apps, err := client.Apps().List(ctx, stack.Id)
-			if err != nil {
-				return fmt.Errorf("error listing apps: %w", err)
-			}
-			matched := update.Select(apps)
-			if len(matched) == 0 {
-				return fmt.Errorf("no apps in stack %q come from repo %q%s", stack.Name, update.Repo, narrowedByApp(update.AppName))
-			}
-
-			if update.SetsTrigger() {
-				trigger, err := update.Trigger(matched)
-				if err != nil {
-					return err
-				}
-				if _, err := client.EnvGitopsConfigs().Replace(ctx, stack.Id, env.Id, []api.SetEnvGitopsTriggerInput{trigger}); err != nil {
-					return fmt.Errorf("error updating what environment %q follows: %w", env.Name, err)
-				}
-				fmt.Fprintf(os.Stderr, "environment %q now follows %s of %q\n", env.Name, update.describeTrigger(), update.Repo)
-			} else {
-				// The API writes each automation as a whole, so read the current ones and send
-				// them back with only the enabled flag changed.
-				current, err := client.WorkspaceAutomations().ListByEnv(ctx, stack.Id, env.Id)
-				if err != nil {
-					return fmt.Errorf("error listing the automation of environment %q: %w", env.Name, err)
-				}
-				if _, err := client.WorkspaceAutomations().ReplaceByEnv(ctx, stack.Id, env.Id, update.Automations(matched, current)); err != nil {
-					return fmt.Errorf("error updating apps in environment %q: %w", env.Name, err)
-				}
-				verb := "enabled"
-				if update.Disable {
-					verb = "disabled"
-				}
-				fmt.Fprintf(os.Stderr, "%s %d app(s) from %q in environment %q\n", verb, len(matched), update.Repo, env.Name)
-			}
-
-			for _, app := range matched {
-				fmt.Println(app.Name)
-			}
-			return nil
+			return setEnvApps(ctx, cfg, c.String(StackRequiredFlag.Name), c.String(EnvFlag.Name), update, os.Stdout, os.Stderr)
 		})
 	},
+}
+
+// setEnvApps runs a validated `envs apps set`. It reports what it did on stderr and prints the names of the
+// apps it applied to on stdout, one per line.
+func setEnvApps(ctx context.Context, cfg api.Config, stackName, envName string, update envAppsUpdate, stdout, stderr io.Writer) error {
+	client := api.Client{Config: cfg}
+	stack, env, err := findPreviewEnv(ctx, cfg, stackName, envName)
+	if err != nil {
+		return err
+	}
+	apps, err := client.Apps().List(ctx, stack.Id)
+	if err != nil {
+		return fmt.Errorf("error listing apps: %w", err)
+	}
+
+	// TEMPORARY: a server that still keeps a preview environment's apps as a list (see envs_apps_legacy.go)
+	followsTriggers, err := envFollowsTriggers(ctx, &client, stack.Id, env.Id)
+	if err != nil {
+		return fmt.Errorf("error reading what environment %q follows: %w", env.Name, err)
+	}
+	var matched []types.Application
+	if followsTriggers {
+		matched, err = update.apply(ctx, &client, *stack, *env, apps)
+	} else {
+		matched, err = setLegacyEnvApps(ctx, &client, *stack, *env, apps, update)
+	}
+	if err != nil {
+		return err
+	}
+
+	switch {
+	case update.SetsTrigger():
+		fmt.Fprintf(stderr, "environment %q now follows %s of %q\n", env.Name, update.describeTrigger(), update.Repo)
+	case update.Disable:
+		fmt.Fprintf(stderr, "disabled %d app(s) from %q in environment %q\n", len(matched), update.Repo, env.Name)
+	default:
+		fmt.Fprintf(stderr, "enabled %d app(s) from %q in environment %q\n", len(matched), update.Repo, env.Name)
+	}
+	for _, app := range matched {
+		fmt.Fprintln(stdout, app.Name)
+	}
+	return nil
+}
+
+// apply writes the update: what the environment follows from the repo, or which of its apps are on.
+// It returns the apps it applied to.
+func (u envAppsUpdate) apply(ctx context.Context, client *api.Client, stack types.Stack, env types.Environment, apps []types.Application) ([]types.Application, error) {
+	matched := u.Select(apps)
+	if len(matched) == 0 {
+		return nil, fmt.Errorf("no apps in stack %q come from repo %q%s", stack.Name, u.Repo, narrowedByApp(u.AppName))
+	}
+
+	if u.SetsTrigger() {
+		trigger, err := u.Trigger(matched)
+		if err != nil {
+			return nil, err
+		}
+		configs, err := client.EnvGitopsConfigs().Replace(ctx, stack.Id, env.Id, []api.SetEnvGitopsTriggerInput{trigger})
+		if err != nil {
+			return nil, fmt.Errorf("error updating what environment %q follows: %w", env.Name, err)
+		}
+		// The API client reads a 404 as an empty result. The response always lists the repo that was just set,
+		// so nothing in it means nothing was written.
+		if len(configs) == 0 {
+			return nil, fmt.Errorf("error updating what environment %q follows: the server did not accept the change", env.Name)
+		}
+		return matched, nil
+	}
+
+	// The API writes each automation as a whole, so read the current ones and send
+	// them back with only the enabled flag changed.
+	current, err := client.WorkspaceAutomations().ListByEnv(ctx, stack.Id, env.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error listing the automation of environment %q: %w", env.Name, err)
+	}
+	if _, err := client.WorkspaceAutomations().ReplaceByEnv(ctx, stack.Id, env.Id, u.Automations(matched, current)); err != nil {
+		return nil, fmt.Errorf("error updating apps in environment %q: %w", env.Name, err)
+	}
+	return matched, nil
 }
 
 // findPreviewEnv resolves the stack and env, rejecting anything that isn't a preview env
