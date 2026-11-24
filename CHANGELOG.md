@@ -1,3 +1,14 @@
+# 0.0.211 (Nov 23, 2026)
+* `nullstone iac test` now reads `build:` on an app in `.nullstone/config.yml` and in overrides files (`<env>.yml`, `previews.yml`). `builder` is `manual`, `nullstone`, or `github-actions`, and each builder's settings go under a key named after it (`nullstone:`, `github-actions:`). The package mode is not a setting: it comes from the app's module.
+* `nullstone iac test` now reports the build config changes an IaC sync would write for each app that declares `build:`. They are listed apart from workspace changes because a build config applies to the next build with no infra update. An app with no `build:` in any file reports nothing, and its build config is left as it is.
+* `nullstone iac test` now fails when a `build:` setting would never be used: settings of a builder other than the one in effect, a `nullstone:` setting that the app's module does not read (for example `dockerfile` on a static site), and the `nullstone` builder on a zip module. Where no file names the builder or the module, the settings are checked against the workspace.
+* Fixed `nullstone envs apps set`, which failed after preview environments stopped storing a separate app list.
+* Existing scripts that run `nullstone envs apps set --repo=<owner/name>` with `--branch`, `--pull-request`, or `--disabled` need no change. The command works the same way before and after preview environments move to the new model, and it no longer reports success when a change was not accepted.
+* Changed `--branch` and `--pull-request` on `nullstone envs apps set` to set what the environment follows for the whole repo, so they can no longer be combined with `--app`. The help now says that `--pull-request` takes the Nullstone pull request id, not the pull request number.
+* Changed `nullstone envs apps set --disabled` to turn the matched apps off in the environment instead of removing them, and added `--enabled` to turn them on. `--repo` now matches apps in the stack, so `--enabled` can turn on an app that was not in the environment yet.
+* `nullstone envs apps list` now shows `tag` or `release` for an environment that follows tags or releases, instead of `-`.
+* Fixed CLI docs generation skipping flags that are not strings, booleans, durations, or lists. `--pull-request` on `nullstone envs apps set`, `--limit` on `nullstone workflows list`, and `--wait` on `nullstone iac sync` are now in the options tables.
+
 # 0.0.210 (Oct 24, 2026)
 * `nullstone iac sync` now reports the CI tool it runs under (GitHub Actions, CircleCI, GitLab, and others) so the sync is recorded as automation rather than manual. An environment whose settings disable manual IaC sync rejects a sync run by a person from their machine; the command prints the server's explanation and exits non-zero.
 * Fixed CI detection reporting every run with no CI variables as Codeship. `nullstone deploy`, `nullstone launch`, and `nullstone release` from a laptop are now recorded as manual.
