@@ -78,7 +78,7 @@ func desiredBuildConfig(pmr iac.ConfigFiles, block types.Block, env types.Enviro
 		fallback = *template.Config.Build
 	}
 
-	fit := config.BuildTarget{Builder: fallback.Builder, PackageMode: moduleDefault.PackageMode}
+	fit := config.BuildTarget{Builder: fallback.Builder, PackageMode: moduleDefault.PackageMode, DockerContext: fallback.DockerContext}
 	if errs := iac.ValidateBuild(pmr, block, env, fit); len(errs) > 0 {
 		messages := make([]string, 0, len(errs))
 		for _, cur := range errs {
