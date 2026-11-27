@@ -1,4 +1,4 @@
-# 0.0.212 (Unreleased)
+# 0.0.212 (Nov 27, 2026)
 * `nullstone iac test` now reads `dockerfile` under `build.nullstone` as relative to `docker_context`, like docker compose: `docker_context: web` with `dockerfile: Dockerfile` builds `web/Dockerfile`. A `dockerfile` may sit beside its context (`../Dockerfile`) as long as the resolved path stays inside the repository; `docker_context` itself must stay inside the repository. With the defaults (`.` and `Dockerfile`) nothing changes.
 
 # 0.0.211 (Nov 23, 2026)
