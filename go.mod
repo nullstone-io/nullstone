@@ -5,10 +5,10 @@ go 1.26.5
 require (
 	cloud.google.com/go/run v1.22.0
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.22.0
-	github.com/aws/aws-sdk-go-v2 v1.42.1
+	github.com/aws/aws-sdk-go-v2 v1.43.4
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.88.1
 	github.com/aws/aws-sdk-go-v2/service/elasticbeanstalk v1.36.1
-	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.57.0
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.58.5
 	github.com/aws/aws-sdk-go-v2/service/lambda v1.99.0
 	github.com/cristalhq/jwt/v3 v3.1.0
 	github.com/go-git/go-git/v5 v5.19.2
@@ -103,8 +103,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.29 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.30 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager v0.3.2 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.30 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.30 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.35 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.35 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.31 // indirect
 	github.com/aws/aws-sdk-go-v2/service/batch v1.67.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.66.1 // indirect
@@ -116,7 +116,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.32.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.37.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.44.1 // indirect
-	github.com/aws/smithy-go v1.27.3 // indirect
+	github.com/aws/smithy-go v1.27.6 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
